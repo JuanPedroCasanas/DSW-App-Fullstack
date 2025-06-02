@@ -1,0 +1,26 @@
+{
+  "name": "dsw-app-fullstack",
+  "version": "1.0.0",
+  "description": "Repo de la app de la cátedra DSW de UTN FRRO",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JuanPedroCasanas/DSW-App-Fullstack.git"
+  },
+  "author": "casanias-piazza-ochoa",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JuanPedroCasanas/DSW-App-Fullstack/issues"
+  },
+  "homepage": "https://github.com/JuanPedroCasanas/DSW-App-Fullstack#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
