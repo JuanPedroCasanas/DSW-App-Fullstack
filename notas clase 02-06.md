@@ -28,7 +28,27 @@ nodeman
 debugger de vscode
 
 npm init -> para arrancar un proyecto de node
-npm start -> para arrancar
+npm start -> para arrancar el proyecto
 npm i -> no hace falta subir el node-modules (se puede poner en gitignore)
     -> la otra persona hace npm i y le instala todo, solo con el packi json
+npm run dev
 
+
+-src
+    -controllers
+    -routes -> definir los endpoints de entrada -> https://expressjs.com/en/starter/basic-routing.html
+    -services -> trabajan sobre la base de datos
+    -helpers
+    -middlewares
+    -app.js
+    -server.js
+- otra forma
+    - middleware
+    - modulos
+        - producto
+            - controllers, routes, services
+    - helpers
+
+
+- los controladores hacen uso de servicios
+    - rutas -> controladores -> servicios
