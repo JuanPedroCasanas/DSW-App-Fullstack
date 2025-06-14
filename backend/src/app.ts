@@ -57,7 +57,7 @@ app.use((_, res) => {
 
 async function start() {
   await initORM();
-  await syncSchema(); // ⚠️ Don't use this in production
+  await syncSchema(); // ⚠️Don't use this in production
   app.listen(port, () => {
     console.log(`App listening on http://localhost:${port}`);
   });

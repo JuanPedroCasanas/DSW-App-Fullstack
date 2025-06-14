@@ -9,12 +9,9 @@ export const initORM = async () => {
         entities: ['./model/entities'],
         entitiesTs: ['./model/entities'],
         dbName: 'postgres',
-        clientUrl: 'postgresql://postgres.sokupfsbxxztojihrpnm:PASSWORD@aws-0-us-east-2.pooler.supabase.com:5432/postgres',
+        clientUrl: 'postgresql://postgres.sokupfsbxxztojihrpnm:[PASSWORD]@aws-0-us-east-2.pooler.supabase.com:5432/postgres',
         debug: true,
         schemaGenerator: {
-            //TODO VERIFICAR
-            disableForeignKeys: true,
-            createForeignKeyConstraints: true,
             ignoreSchema: ['auth', 'storage', 'realtime', 'vault'],
         },
     })
@@ -30,9 +27,9 @@ export const getORM = () => {
 
 export const syncSchema = async () => {
     const generator = getORM().getSchemaGenerator();
-    /*
+    
     await generator.dropSchema()
     await generator.createSchema()
-    */
+    
     await generator.updateSchema()
 }

@@ -49,7 +49,7 @@ app.use((_, res) => {
 });
 async function start() {
     await (0, db_1.initORM)();
-    await (0, db_1.syncSchema)(); // ⚠️ Don't use this in production
+    await (0, db_1.syncSchema)(); // ⚠️Don't use this in production
     app.listen(port, () => {
         console.log(`App listening on http://localhost:${port}`);
     });
