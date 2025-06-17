@@ -4,8 +4,9 @@
   "description": "Repo de la app de la cátedra DSW de UTN FRRO",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon app.js"
+    "start": "node dist/app.js",
+    "dev":"tsc-watch --onSuccess \"node dist/app.js\"",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
