@@ -3,46 +3,26 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+//IMPORTANTE QUE ESTEN PRIMERO
 require("reflect-metadata");
+require("dotenv/config");
+//EXPRESS
 const express_1 = __importDefault(require("express"));
+//ORM
 const core_1 = require("@mikro-orm/core");
 const db_1 = require("./orm/db");
+//CORS
 const cors_1 = __importDefault(require("cors"));
-const Occupation_1 = require("./model/entities/Occupation");
+//IMPORT RUTAS
+const OccupationRoutes_1 = __importDefault(require("./routes/OccupationRoutes"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
 const port = 3000;
+//USO RUTAS
+app.use('/', OccupationRoutes_1.default);
 app.use((req, res, next) => {
     core_1.RequestContext.create((0, db_1.getORM)().em, next);
-});
-app.get('/', (req, res) => {
-    res.send('Hello World!');
-});
-app.post('/addOccupation', async (req, res) => {
-    const { name } = req.body;
-    if (!name) {
-        return res.status(400).json({ message: 'Name is required' });
-    }
-    try {
-        const occupation = new Occupation_1.Occupation(name);
-        await (0, db_1.getORM)().em.persistAndFlush(occupation);
-        res.status(201).json({ message: 'Occupation added', occupation });
-    }
-    catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Failed to add occupation' });
-    }
-});
-app.get('/getOccupations', async (req, res) => {
-    try {
-        const occupations = await (0, db_1.getORM)().em.find(Occupation_1.Occupation, {});
-        res.json(occupations);
-    }
-    catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Failed to fetch occupations' });
-    }
 });
 app.use((_, res) => {
     return res.status(404).send({ message: 'Resource not found' });

@@ -13,7 +13,7 @@ const initORM = async () => {
         entities: ['./model/entities'],
         entitiesTs: ['./model/entities'],
         dbName: 'postgres',
-        clientUrl: 'postgresql://postgres.sokupfsbxxztojihrpnm:[PASSWORD]@aws-0-us-east-2.pooler.supabase.com:5432/postgres',
+        clientUrl: process.env.DATABASE_URL,
         debug: true,
         schemaGenerator: {
             ignoreSchema: ['auth', 'storage', 'realtime', 'vault'],

@@ -16,7 +16,7 @@ const ConsultingRoom_1 = require("./ConsultingRoom");
 const Appointment_1 = require("./Appointment");
 let Professional = class Professional {
     constructor() {
-        this.appointments = new Collection(this);
+        this.appointments = new core_1.Collection(this);
     }
 };
 exports.Professional = Professional;

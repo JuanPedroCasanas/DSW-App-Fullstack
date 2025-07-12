@@ -1,9 +1,10 @@
 import {
-  Entity, PrimaryKey, Property, ManyToOne, OneToMany, ManyToMany
+  Entity, PrimaryKey, Property, ManyToOne, OneToMany, ManyToMany,
+  Collection
 } from '@mikro-orm/core';
 import { Specialty } from './Specialty';
 import { ConsultingRoom } from './ConsultingRoom';
-import { Appointment } from './Appointment'; 
+import { Appointment } from './Appointment';
 
 @Entity()
 export class Professional {
