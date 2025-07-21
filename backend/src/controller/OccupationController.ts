@@ -47,6 +47,7 @@ export class OccupationController {
         if(!occupation)
         {
             return res.status(400).json({ message: 'Occupation not found' });
+            // throw new Error("Ocupacion no encontrada");
         }
 
         occupation.name = name;
