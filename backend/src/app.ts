@@ -19,14 +19,16 @@ import occupationRoutes from './routes/OccupationRoutes';
 const app = express();
 app.use(express.json());
 app.use(cors());
-const port = 3000;
-
-//USO RUTAS
-app.use('/', occupationRoutes);
+const port = process.env.PORT;
 
 app.use((req: Request, res: Response, next: NextFunction) => {
     RequestContext.create(getORM().em, next);
 });
+
+
+//USO RUTAS
+app.use('/', occupationRoutes);
+
 
 
 

@@ -1,0 +1,27 @@
+/* Mobile-first base styles */
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+  padding: 1rem;
+}
+
+/* Responsive breakpoints */
+@media (min-width: 640px) {
+  body {
+    padding: 2rem;
+  }
+}
+
+@media (min-width: 768px) {
+  body {
+    padding: 3rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  body {
+    padding: 4rem;
+  }
+}
