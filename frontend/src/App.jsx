@@ -2,10 +2,11 @@
 import React, { useEffect, useState } from 'react';
 
 function App() {
-  const [occupations, setOccupations] = useState<string[]>([]);
+  const [occupations, setOccupations] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('Fetching occupations');
     fetch('/getOccupations')
       .then((res) => res.json())
       .then((data) => {
@@ -25,7 +26,7 @@ function App() {
         <p>Loading...</p>
       ) : (
         <ul>
-          {occupations.map((occ: any, index) => (
+          {occupations.map((occ, index) => (
             <li key={index}>{occ.name}</li>
           ))}
         </ul>
