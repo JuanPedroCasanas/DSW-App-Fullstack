@@ -1,4 +1,5 @@
 @echo off
+
 echo Iniciando frontend en localhost:3000...
 start cmd /k "cd frontend && npm run dev"
 

@@ -4,7 +4,7 @@ import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
 @Entity()
 export class Persona {
   @PrimaryKey()
-  idPersona!: number;
+  idPatient!: number;
 
   @Property()
   firstName!: string;
