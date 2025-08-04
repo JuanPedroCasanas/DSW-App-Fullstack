@@ -11,8 +11,15 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.HealthInsurance = void 0;
 const core_1 = require("@mikro-orm/core");
+const Appointment_1 = require("./Appointment");
+const Professional_1 = require("./Professional");
+const Patient_1 = require("./Patient");
+const core_2 = require("@mikro-orm/core");
 let HealthInsurance = class HealthInsurance {
     constructor(name) {
+        this.appointments = new core_2.Collection(this);
+        this.professionals = new core_2.Collection(this);
+        this.patients = new core_2.Collection(this);
         this.name = name;
     }
 };
@@ -25,6 +32,18 @@ __decorate([
     (0, core_1.Property)(),
     __metadata("design:type", String)
 ], HealthInsurance.prototype, "name", void 0);
+__decorate([
+    (0, core_1.OneToMany)(() => Appointment_1.Appointment, appointment => appointment.healthInsurance),
+    __metadata("design:type", Object)
+], HealthInsurance.prototype, "appointments", void 0);
+__decorate([
+    (0, core_1.ManyToMany)(() => Professional_1.Professional, professional => professional.healthInsurances),
+    __metadata("design:type", Object)
+], HealthInsurance.prototype, "professionals", void 0);
+__decorate([
+    (0, core_1.ManyToMany)(() => Patient_1.Patient, patient => patient.healthInsurances),
+    __metadata("design:type", Object)
+], HealthInsurance.prototype, "patients", void 0);
 exports.HealthInsurance = HealthInsurance = __decorate([
     (0, core_1.Entity)(),
     __metadata("design:paramtypes", [String])

@@ -6,6 +6,7 @@ import { ConsultingRoom } from './ConsultingRoom';
 import { Appointment } from './Appointment';
 import { Occupation } from './Occupation';
 import { Module } from './Module';
+import { HealthInsurance } from './HealthInsurance';
 
 @Entity()
 export class Professional {
@@ -39,7 +40,11 @@ export class Professional {
   appointments = new Collection<Appointment>(this);
 
 
-  @ManyToMany(() => HealthInsurance, healthInsurance => healthInsurance.professionals)
+  @ManyToMany(() => HealthInsurance, healthInsurance => healthInsurance.professionals, {owner: true})
   healthInsurances = new Collection<HealthInsurance>(this);
 
+}
+
+function JoinTable(): (target: Professional, propertyKey: "healthInsurances") => void {
+  throw new Error('Function not implemented.');
 }

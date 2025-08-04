@@ -15,6 +15,8 @@ const db_1 = require("./orm/db");
 const cors_1 = __importDefault(require("cors"));
 //IMPORT RUTAS
 const OccupationRoutes_1 = __importDefault(require("./routes/OccupationRoutes"));
+const AppointmentRoutes_1 = __importDefault(require("./routes/AppointmentRoutes"));
+const ConsultingRoomRoutes_1 = __importDefault(require("./routes/ConsultingRoomRoutes"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
@@ -23,7 +25,9 @@ app.use((req, res, next) => {
     core_1.RequestContext.create((0, db_1.getORM)().em, next);
 });
 //USO RUTAS
-app.use('/', OccupationRoutes_1.default);
+app.use('/Occupation', OccupationRoutes_1.default);
+app.use('/Appointment', AppointmentRoutes_1.default);
+app.use('/ConsultingRoom', ConsultingRoomRoutes_1.default);
 app.use((_, res) => {
     return res.status(404).send({ message: 'Resource not found' });
 });

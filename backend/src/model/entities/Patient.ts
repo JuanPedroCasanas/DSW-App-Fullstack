@@ -19,7 +19,7 @@ export class Patient {
   birthdate!: Date;
 
   @Property()
-  telephone!: number;
+  telephone!: string;
 
   @Property()
   mail!: string;
@@ -27,20 +27,17 @@ export class Patient {
   @Property()
   type!: string; //type: responsable legal o paciente
 
- @OneToMany(() => Appointment, (appointment: Appointment) => appointment.patient)
-appointments = new Collection<Appointment>(this);
+  @OneToMany(() => Appointment, (appointment: Appointment) => appointment.patient)
+  appointments = new Collection<Appointment>(this);
 
-@ManyToMany(() => HealthInsurance, (healthInsurance: HealthInsurance) => healthInsurance.patients)
-healthInsurances = new Collection<HealthInsurance>(this);
+  @ManyToMany(() => HealthInsurance, (healthInsurance: HealthInsurance) => healthInsurance.patients, {owner: true})
+  healthInsurances = new Collection<HealthInsurance>(this);
 
-@ManyToOne(() => Patient, { nullable: true })
-legalGuardian?: Patient;
+  @ManyToOne(() => Patient, { nullable: true })
+  legalGuardian?: Patient;
 
-@OneToMany(() => Patient, (patient: Patient) => patient.legalGuardian)
-dependents = new Collection<Patient>(this);
-
-
-
+  @OneToMany(() => Patient, (patient: Patient) => patient.legalGuardian)
+  dependents = new Collection<Patient>(this);
 
   constructor(name: string)
   {

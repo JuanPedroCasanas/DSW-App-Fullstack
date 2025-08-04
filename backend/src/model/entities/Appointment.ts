@@ -1,5 +1,7 @@
 import { Entity, ManyToOne, OneToOne, PrimaryKey, Property } from '@mikro-orm/core';
 import { Professional } from './Professional';
+import { Patient } from './Patient';
+import { HealthInsurance } from './HealthInsurance';
 
 @Entity()
 export class Appointment {

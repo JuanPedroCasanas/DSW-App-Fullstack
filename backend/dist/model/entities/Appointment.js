@@ -12,6 +12,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Appointment = void 0;
 const core_1 = require("@mikro-orm/core");
 const Professional_1 = require("./Professional");
+const Patient_1 = require("./Patient");
+const HealthInsurance_1 = require("./HealthInsurance");
 let Appointment = class Appointment {
     constructor(description) {
         this.description = description;
@@ -30,6 +32,14 @@ __decorate([
     (0, core_1.ManyToOne)(),
     __metadata("design:type", Professional_1.Professional)
 ], Appointment.prototype, "professional", void 0);
+__decorate([
+    (0, core_1.ManyToOne)(() => Patient_1.Patient),
+    __metadata("design:type", Patient_1.Patient)
+], Appointment.prototype, "patient", void 0);
+__decorate([
+    (0, core_1.ManyToOne)(() => HealthInsurance_1.HealthInsurance, { nullable: true }),
+    __metadata("design:type", HealthInsurance_1.HealthInsurance)
+], Appointment.prototype, "healthInsurance", void 0);
 exports.Appointment = Appointment = __decorate([
     (0, core_1.Entity)(),
     __metadata("design:paramtypes", [String])

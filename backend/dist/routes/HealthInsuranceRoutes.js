@@ -1,5 +1,6 @@
-import express from 'express';
-import { OccupationController } from '../controller/OccupationController';
+"use strict";
+/*import express from 'express';
+import { HealthInsuranceController } from '../controller/HealthInsuranceController';
 
 const router = express.Router();
 
@@ -11,4 +12,5 @@ router.get('/get/:id', OccupationController.getOccupation);
 router.delete('/delete/:id', OccupationController.deleteOccupation);
 
 
-export default router;
+export default router;*/
+//# sourceMappingURL=HealthInsuranceRoutes.js.map

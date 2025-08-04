@@ -15,10 +15,12 @@ const ConsultingRoom_1 = require("./ConsultingRoom");
 const Appointment_1 = require("./Appointment");
 const Occupation_1 = require("./Occupation");
 const Module_1 = require("./Module");
+const HealthInsurance_1 = require("./HealthInsurance");
 let Professional = class Professional {
     constructor() {
         this.modules = new core_1.Collection(this);
         this.appointments = new core_1.Collection(this);
+        this.healthInsurances = new core_1.Collection(this);
     }
 };
 exports.Professional = Professional;
@@ -58,7 +60,14 @@ __decorate([
     (0, core_1.OneToMany)(() => Appointment_1.Appointment, (appointment) => appointment.professional),
     __metadata("design:type", Object)
 ], Professional.prototype, "appointments", void 0);
+__decorate([
+    (0, core_1.ManyToMany)(() => HealthInsurance_1.HealthInsurance, healthInsurance => healthInsurance.professionals, { owner: true }),
+    __metadata("design:type", Object)
+], Professional.prototype, "healthInsurances", void 0);
 exports.Professional = Professional = __decorate([
     (0, core_1.Entity)()
 ], Professional);
+function JoinTable() {
+    throw new Error('Function not implemented.');
+}
 //# sourceMappingURL=Professional.js.map

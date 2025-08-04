@@ -96,7 +96,7 @@ export class OccupationController {
         try {
 
             const em = await getORM().em.fork();
-            const occupation = await em.findOne(Occupation, id);
+            const occupation = await em.findOne(Occupation, { id: id });
 
             if (!occupation) {
                 return res.status(404).json({ message: 'Occupation not found' });

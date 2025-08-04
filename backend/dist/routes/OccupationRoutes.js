@@ -7,10 +7,10 @@ const express_1 = __importDefault(require("express"));
 const OccupationController_1 = require("../controller/OccupationController");
 const router = express_1.default.Router();
 router.get('/', OccupationController_1.OccupationController.home);
-router.post('/addOccupation', OccupationController_1.OccupationController.addOccupation);
-router.post('/updateOccupation', OccupationController_1.OccupationController.updateOccupation);
-router.get('/getOccupations', OccupationController_1.OccupationController.getOccupations);
-router.get('/getOccupation/:id', OccupationController_1.OccupationController.getOccupation);
-router.delete('/deleteOccupation/:id', OccupationController_1.OccupationController.deleteOccupation);
+router.post('/add', OccupationController_1.OccupationController.addOccupation);
+router.post('/update', OccupationController_1.OccupationController.updateOccupation);
+router.get('/getAll', OccupationController_1.OccupationController.getOccupations);
+router.get('/get/:id', OccupationController_1.OccupationController.getOccupation);
+router.delete('/delete/:id', OccupationController_1.OccupationController.deleteOccupation);
 exports.default = router;
 //# sourceMappingURL=OccupationRoutes.js.map

@@ -14,6 +14,9 @@ import cors from 'cors'
 
 //IMPORT RUTAS
 import occupationRoutes from './routes/OccupationRoutes';
+import { Appointment } from './model/entities/Appointment'; // este que función cumple? lo dejo por las dudas- sofi
+import AppointmentRoutes from './routes/AppointmentRoutes';
+import ConsultingRoomRoutes from './routes/ConsultingRoomRoutes'
 
 
 const app = express();
@@ -27,7 +30,9 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 
 //USO RUTAS
-app.use('/', occupationRoutes);
+app.use('/Occupation', occupationRoutes);
+app.use('/Appointment', AppointmentRoutes);
+app.use('/ConsultingRoom', ConsultingRoomRoutes);
 
 
 
