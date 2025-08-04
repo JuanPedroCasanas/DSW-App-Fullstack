@@ -1,9 +1,11 @@
 import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
 import { Appointment } from './Appointment';
+import { Collection, OneToMany, ManyToMany, ManyToOne } from '@mikro-orm/core';
+import { HealthInsurance } from './HealthInsurance';
 
 
 @Entity()
-export class Persona {
+export class Patient {
   @PrimaryKey()
   idPatient!: number;
 
@@ -25,20 +27,18 @@ export class Persona {
   @Property()
   type!: string; //type: responsable legal o paciente
 
-  @OneToMany(() => Appointment, Appointment => Appointment.patient)
-    Appointments = new Collection<Appointment>(this);
+ @OneToMany(() => Appointment, (appointment: Appointment) => appointment.patient)
+appointments = new Collection<Appointment>(this);
 
-  
-  @ManyToMany(() => HealthInsurance, healthInsurance => healthInsurance.patients)
-  healthInsurances = new Collection<HealthInsurance>(this);
+@ManyToMany(() => HealthInsurance, (healthInsurance: HealthInsurance) => healthInsurance.patients)
+healthInsurances = new Collection<HealthInsurance>(this);
 
-  //Relacion Recurisiva
-  
-  @ManyToOne(() => Patient, patient => patient.dependents, { nullable: true })
-  legalGuardian?: Patient;
+@ManyToOne(() => Patient, { nullable: true })
+legalGuardian?: Patient;
 
-  @OneToMany(() => Patient, patient => patient.legalGuardian)
-  dependents = new Collection<Patient>(this);
+@OneToMany(() => Patient, (patient: Patient) => patient.legalGuardian)
+dependents = new Collection<Patient>(this);
+
 
 
 

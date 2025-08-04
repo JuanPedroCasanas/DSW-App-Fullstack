@@ -1,4 +1,8 @@
-import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
+import { Entity, PrimaryKey, Property, OneToMany, ManyToMany } from '@mikro-orm/core';
+import { Appointment } from './Appointment';
+import { Professional } from './Professional';
+import { Patient } from './Patient';
+import { Collection } from '@mikro-orm/core';
 
 @Entity()
 export class HealthInsurance {
