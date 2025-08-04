@@ -37,4 +37,9 @@ export class Professional {
 
   @OneToMany(() => Appointment, (appointment) => appointment.professional)
   appointments = new Collection<Appointment>(this);
+
+
+  @ManyToMany(() => HealthInsurance, healthInsurance => healthInsurance.professionals)
+  healthInsurances = new Collection<HealthInsurance>(this);
+
 }

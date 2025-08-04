@@ -12,6 +12,15 @@ export class Appointment {
   @ManyToOne()
   professional!: Professional;
 
+  @ManyToOne(() => Patient)
+  patient!: Patient;
+
+
+  @ManyToOne(() => HealthInsurance, { nullable: true })
+  healthInsurance?: HealthInsurance;
+
+
+
   constructor(description: string) {
     this.description = description;
   }
