@@ -1,4 +1,5 @@
-import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
+import { Entity, PrimaryKey, Property, OneToMany, Collection } from '@mikro-orm/core';
+import { Module } from './Module';
 
 
 // Tipo de módulo
@@ -13,6 +14,10 @@ export class ModuleType {
 
   @Property()
   duration!: number; //Lo manejo en numero ya que puede ser 1, 3 o 6 horas.
+
+  
+  @OneToMany(() => Module, module => module.moduleType)
+  modules = new Collection<Module>(this);
 
   constructor(name: string) {
     this.name = name;

@@ -2,9 +2,10 @@ import {
   Entity, PrimaryKey, Property, ManyToOne, OneToMany, ManyToMany,
   Collection
 } from '@mikro-orm/core';
-import { Specialty } from './Specialty';
 import { ConsultingRoom } from './ConsultingRoom';
 import { Appointment } from './Appointment';
+import { Occupation } from './Occupation';
+import { Module } from './Module';
 
 @Entity()
 export class Professional {
@@ -24,10 +25,15 @@ export class Professional {
   phone!: string;
 
   @ManyToOne()
-  specialty!: Specialty;
+  occupation!: Occupation;
 
   @ManyToMany()
   consultingRoom!: ConsultingRoom;
+
+
+  @OneToMany(() => Module, module => module.professional)
+  modules = new Collection<Module>(this);
+
 
   @OneToMany(() => Appointment, (appointment) => appointment.professional)
   appointments = new Collection<Appointment>(this);

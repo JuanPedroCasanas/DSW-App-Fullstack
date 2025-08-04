@@ -1,4 +1,5 @@
-import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
+import { Entity, PrimaryKey, Property, OneToMany, Collection } from '@mikro-orm/core';
+import { Module } from './Module';
 
 @Entity()
 export class ConsultingRoom {
@@ -7,6 +8,10 @@ export class ConsultingRoom {
 
   @Property()
   description!: string;
+
+  
+  @OneToMany(() => Module, module => module.consultingRoom)
+  modules = new Collection<Module>(this);
 
   constructor(description: string) {
     this.description = description;

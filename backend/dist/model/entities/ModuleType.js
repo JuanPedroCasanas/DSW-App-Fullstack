@@ -11,10 +11,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ModuleType = void 0;
 const core_1 = require("@mikro-orm/core");
+const Module_1 = require("./Module");
 // Tipo de módulo
 // id, nombre, duracion en horas
 let ModuleType = class ModuleType {
     constructor(name) {
+        this.modules = new core_1.Collection(this);
         this.name = name;
     }
 };
@@ -31,6 +33,10 @@ __decorate([
     (0, core_1.Property)(),
     __metadata("design:type", Number)
 ], ModuleType.prototype, "duration", void 0);
+__decorate([
+    (0, core_1.OneToMany)(() => Module_1.Module, module => module.moduleType),
+    __metadata("design:type", Object)
+], ModuleType.prototype, "modules", void 0);
 exports.ModuleType = ModuleType = __decorate([
     (0, core_1.Entity)(),
     __metadata("design:paramtypes", [String])

@@ -9,24 +9,44 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Specialty = void 0;
+exports.Persona = void 0;
 const core_1 = require("@mikro-orm/core");
-let Specialty = class Specialty {
+let Persona = class Persona {
     constructor(name) {
-        this.name = name;
+        this.firstName = name;
     }
 };
-exports.Specialty = Specialty;
+exports.Persona = Persona;
 __decorate([
     (0, core_1.PrimaryKey)(),
     __metadata("design:type", Number)
-], Specialty.prototype, "idSpecialty", void 0);
+], Persona.prototype, "idPatient", void 0);
 __decorate([
     (0, core_1.Property)(),
     __metadata("design:type", String)
-], Specialty.prototype, "name", void 0);
-exports.Specialty = Specialty = __decorate([
+], Persona.prototype, "firstName", void 0);
+__decorate([
+    (0, core_1.Property)(),
+    __metadata("design:type", String)
+], Persona.prototype, "lastName", void 0);
+__decorate([
+    (0, core_1.Property)(),
+    __metadata("design:type", Date)
+], Persona.prototype, "birthdate", void 0);
+__decorate([
+    (0, core_1.Property)(),
+    __metadata("design:type", Number)
+], Persona.prototype, "telephone", void 0);
+__decorate([
+    (0, core_1.Property)(),
+    __metadata("design:type", String)
+], Persona.prototype, "mail", void 0);
+__decorate([
+    (0, core_1.Property)(),
+    __metadata("design:type", String)
+], Persona.prototype, "type", void 0);
+exports.Persona = Persona = __decorate([
     (0, core_1.Entity)(),
     __metadata("design:paramtypes", [String])
-], Specialty);
-//# sourceMappingURL=Specialty.js.map
+], Persona);
+//# sourceMappingURL=Patient.js.map

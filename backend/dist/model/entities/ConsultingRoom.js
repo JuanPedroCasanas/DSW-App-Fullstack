@@ -11,8 +11,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ConsultingRoom = void 0;
 const core_1 = require("@mikro-orm/core");
+const Module_1 = require("./Module");
 let ConsultingRoom = class ConsultingRoom {
     constructor(description) {
+        this.modules = new core_1.Collection(this);
         this.description = description;
     }
 };
@@ -25,6 +27,10 @@ __decorate([
     (0, core_1.Property)(),
     __metadata("design:type", String)
 ], ConsultingRoom.prototype, "description", void 0);
+__decorate([
+    (0, core_1.OneToMany)(() => Module_1.Module, module => module.consultingRoom),
+    __metadata("design:type", Object)
+], ConsultingRoom.prototype, "modules", void 0);
 exports.ConsultingRoom = ConsultingRoom = __decorate([
     (0, core_1.Entity)(),
     __metadata("design:paramtypes", [String])

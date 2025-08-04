@@ -11,11 +11,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Professional = void 0;
 const core_1 = require("@mikro-orm/core");
-const Specialty_1 = require("./Specialty");
 const ConsultingRoom_1 = require("./ConsultingRoom");
 const Appointment_1 = require("./Appointment");
+const Occupation_1 = require("./Occupation");
+const Module_1 = require("./Module");
 let Professional = class Professional {
     constructor() {
+        this.modules = new core_1.Collection(this);
         this.appointments = new core_1.Collection(this);
     }
 };
@@ -42,12 +44,16 @@ __decorate([
 ], Professional.prototype, "phone", void 0);
 __decorate([
     (0, core_1.ManyToOne)(),
-    __metadata("design:type", Specialty_1.Specialty)
-], Professional.prototype, "specialty", void 0);
+    __metadata("design:type", Occupation_1.Occupation)
+], Professional.prototype, "occupation", void 0);
 __decorate([
     (0, core_1.ManyToMany)(),
     __metadata("design:type", ConsultingRoom_1.ConsultingRoom)
 ], Professional.prototype, "consultingRoom", void 0);
+__decorate([
+    (0, core_1.OneToMany)(() => Module_1.Module, module => module.professional),
+    __metadata("design:type", Object)
+], Professional.prototype, "modules", void 0);
 __decorate([
     (0, core_1.OneToMany)(() => Appointment_1.Appointment, (appointment) => appointment.professional),
     __metadata("design:type", Object)
