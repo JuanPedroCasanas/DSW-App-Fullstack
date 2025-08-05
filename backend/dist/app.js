@@ -17,6 +17,7 @@ const cors_1 = __importDefault(require("cors"));
 const OccupationRoutes_1 = __importDefault(require("./routes/OccupationRoutes"));
 const AppointmentRoutes_1 = __importDefault(require("./routes/AppointmentRoutes"));
 const ConsultingRoomRoutes_1 = __importDefault(require("./routes/ConsultingRoomRoutes"));
+const ModuleRoutes_1 = __importDefault(require("./routes/ModuleRoutes"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
@@ -28,6 +29,7 @@ app.use((req, res, next) => {
 app.use('/Occupation', OccupationRoutes_1.default);
 app.use('/Appointment', AppointmentRoutes_1.default);
 app.use('/ConsultingRoom', ConsultingRoomRoutes_1.default);
+app.use('/Module', ModuleRoutes_1.default);
 app.use((_, res) => {
     return res.status(404).send({ message: 'Resource not found' });
 });

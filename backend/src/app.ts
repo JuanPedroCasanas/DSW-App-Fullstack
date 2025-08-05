@@ -17,6 +17,7 @@ import occupationRoutes from './routes/OccupationRoutes';
 import { Appointment } from './model/entities/Appointment'; // este que función cumple? lo dejo por las dudas- sofi
 import AppointmentRoutes from './routes/AppointmentRoutes';
 import ConsultingRoomRoutes from './routes/ConsultingRoomRoutes'
+import ModuleRoutes from './routes/ModuleRoutes';
 
 
 const app = express();
@@ -33,7 +34,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use('/Occupation', occupationRoutes);
 app.use('/Appointment', AppointmentRoutes);
 app.use('/ConsultingRoom', ConsultingRoomRoutes);
-
+app.use('/Module', ModuleRoutes);
 
 
 
