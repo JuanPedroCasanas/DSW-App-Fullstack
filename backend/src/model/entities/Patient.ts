@@ -38,6 +38,12 @@ export class Patient {
 
   @OneToMany(() => Patient, (patient: Patient) => patient.legalGuardian)
   dependents = new Collection<Patient>(this);
+    static type: any;
+    static mail: any;
+    static telephone: any;
+    static birthdate: any;
+    static lastName: any;
+    static firstName: any;
 
   constructor(name: string)
   {

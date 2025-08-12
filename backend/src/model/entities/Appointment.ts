@@ -20,6 +20,7 @@ export class Appointment {
 
   @ManyToOne(() => HealthInsurance, { nullable: true })
   healthInsurance?: HealthInsurance;
+  person: any;
 
 
 

@@ -3,7 +3,7 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import { Routes, Route } from 'react-router-dom';
-
+import { PatientController } from './controller/PatientController';
 function App() {
   const [count, setCount] = useState(0)
 
