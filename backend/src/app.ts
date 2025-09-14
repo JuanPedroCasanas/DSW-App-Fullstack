@@ -16,9 +16,9 @@ import cors from 'cors'
 import occupationRoutes from './routes/OccupationRoutes';
 import { Appointment } from './model/entities/Appointment'; // este que función cumple? lo dejo por las dudas- sofi
 import AppointmentRoutes from './routes/AppointmentRoutes';
-import ConsultingRoomRoutes from './routes/ConsultingRoomRoutes'
+import ConsultingRoomRoutes from './routes/ConsultingRoomRoutes';
 import ModuleRoutes from './routes/ModuleRoutes';
-
+import PatientRoutes from './routes/PatientRoutes';
 
 const app = express();
 app.use(express.json());
@@ -35,7 +35,7 @@ app.use('/Occupation', occupationRoutes);
 app.use('/Appointment', AppointmentRoutes);
 app.use('/ConsultingRoom', ConsultingRoomRoutes);
 app.use('/Module', ModuleRoutes);
-
+app.use('/Patient', PatientRoutes);
 
 
 
