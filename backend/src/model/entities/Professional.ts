@@ -1,5 +1,5 @@
 import {
-  Entity, PrimaryKey, Property, ManyToOne, OneToMany, ManyToMany,
+  Entity, PrimaryKey, Property, ManyToOne, OneToMany, ManyToMany, OneToOne, 
   Collection
 } from '@mikro-orm/core';
 import { ConsultingRoom } from './ConsultingRoom';
@@ -7,7 +7,7 @@ import { Appointment } from './Appointment';
 import { Occupation } from './Occupation';
 import { Module } from './Module';
 import { HealthInsurance } from './HealthInsurance';
-
+import { User } from './User';
 @Entity()
 export class Professional {
   @PrimaryKey()
@@ -42,6 +42,9 @@ export class Professional {
 
   @ManyToMany(() => HealthInsurance, healthInsurance => healthInsurance.professionals, {owner: true})
   healthInsurances = new Collection<HealthInsurance>(this);
+
+  @OneToOne(() => User)
+  user!: User;
 
 }
 

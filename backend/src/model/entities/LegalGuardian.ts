@@ -2,13 +2,14 @@ import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
 import { Appointment } from './Appointment';
 import { Collection, OneToMany, ManyToMany, ManyToOne, OneToOne } from '@mikro-orm/core';
 import { HealthInsurance } from './HealthInsurance';
-import { LegalGuardian } from './LegalGuardian';
+import { Patient } from './Patient';
 import { User } from './User';
 
+
 @Entity()
-export class Patient {
+export class LegalGuardian {
   @PrimaryKey()
-  idPatient!: number;
+  idLegalGuardian!: number;
 
   @Property()
   firstName!: string;
@@ -31,11 +32,13 @@ export class Patient {
   @ManyToMany(() => HealthInsurance, (healthInsurance: HealthInsurance) => healthInsurance.patients, {owner: true})
   healthInsurances = new Collection<HealthInsurance>(this);
 
-  @OneToOne(() => LegalGuardian)
-    legalGuardian!: LegalGuardian;
+ 
+  @OneToMany(() => Patient, patient => patient.legalGuardian)
+    patients!: Patient[];
 
   @OneToOne(() => User)
-  user?: User;
+  user!: User;  
+
 
   @OneToMany(() => Patient, (patient: Patient) => patient.legalGuardian)
   dependents = new Collection<Patient>(this);
