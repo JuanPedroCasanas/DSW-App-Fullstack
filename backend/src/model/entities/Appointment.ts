@@ -2,6 +2,7 @@ import { Entity, ManyToOne, OneToOne, PrimaryKey, Property } from '@mikro-orm/co
 import { Professional } from './Professional';
 import { Patient } from './Patient';
 import { HealthInsurance } from './HealthInsurance';
+import { LegalGuardian } from './LegalGuardian';
 
 @Entity()
 export class Appointment {
@@ -17,14 +18,19 @@ export class Appointment {
   @ManyToOne(() => Patient)
   patient!: Patient;
 
+  @ManyToOne(() => LegalGuardian, { nullable: true })
+  legalGuardian?: LegalGuardian;
 
   @ManyToOne(() => HealthInsurance, { nullable: true })
   healthInsurance?: HealthInsurance;
-  person: any;
 
 
 
-  constructor(description: string) {
+  constructor(description: string, professional: Professional, patient: Patient, healthInsurance?: HealthInsurance, legalGuardian?: LegalGuardian) {
     this.description = description;
+    this.professional = professional;
+    this.patient = patient;
+    this. healthInsurance = healthInsurance;
+    this.legalGuardian = legalGuardian
   }
 }

@@ -14,9 +14,14 @@ const core_1 = require("@mikro-orm/core");
 const Professional_1 = require("./Professional");
 const Patient_1 = require("./Patient");
 const HealthInsurance_1 = require("./HealthInsurance");
+const LegalGuardian_1 = require("./LegalGuardian");
 let Appointment = class Appointment {
-    constructor(description) {
+    constructor(description, professional, patient, healthInsurance, legalGuardian) {
         this.description = description;
+        this.professional = professional;
+        this.patient = patient;
+        this.healthInsurance = healthInsurance;
+        this.legalGuardian = legalGuardian;
     }
 };
 exports.Appointment = Appointment;
@@ -37,11 +42,15 @@ __decorate([
     __metadata("design:type", Patient_1.Patient)
 ], Appointment.prototype, "patient", void 0);
 __decorate([
+    (0, core_1.ManyToOne)(() => LegalGuardian_1.LegalGuardian, { nullable: true }),
+    __metadata("design:type", LegalGuardian_1.LegalGuardian)
+], Appointment.prototype, "legalGuardian", void 0);
+__decorate([
     (0, core_1.ManyToOne)(() => HealthInsurance_1.HealthInsurance, { nullable: true }),
     __metadata("design:type", HealthInsurance_1.HealthInsurance)
 ], Appointment.prototype, "healthInsurance", void 0);
 exports.Appointment = Appointment = __decorate([
     (0, core_1.Entity)(),
-    __metadata("design:paramtypes", [String])
+    __metadata("design:paramtypes", [String, Professional_1.Professional, Patient_1.Patient, HealthInsurance_1.HealthInsurance, LegalGuardian_1.LegalGuardian])
 ], Appointment);
 //# sourceMappingURL=Appointment.js.map

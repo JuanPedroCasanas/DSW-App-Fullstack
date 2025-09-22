@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { getORM } from '../orm/db';
 import { Patient } from '../model/entities/Patient';
+import { LegalGuardian } from '../model/entities/LegalGuardian';
 
 export class PatientController {
 
@@ -9,7 +10,7 @@ export class PatientController {
     }
 
     static async addPatient(req: Request, res: Response) {
-        const { name, lastName, birthdate, telephone, mail, type } = req.body;
+        const { name, lastName, birthdate, telephone, mail, legalGuardianId } = req.body;
 
         if (!name) {
             return res.status(400).json({ message: 'Name is required' });
@@ -26,14 +27,20 @@ export class PatientController {
         if (!mail) {
             return res.status(400).json({ message: 'Mail is required' });
         }
-        if (!type) {
-            return res.status(400).json({ message: 'Type is required' });
-        }
 
-        try {
-            const patient = new Patient(name);
+        try {            
             
+            let legalGuardian: LegalGuardian | undefined;
             const em = await getORM().em.fork();
+            if(legalGuardianId) {
+                const legalGuardianIdNum = Number(legalGuardianId);
+                legalGuardian = await em.findOne(LegalGuardian, { idLegalGuardian: legalGuardianIdNum }) ?? undefined; //Si devuelve null lo paso a undefined para que no se queje TS
+                if(!legalGuardian) {
+                    return res.status(404).json({ message: 'ID del responsable legal invalida.' });
+                }
+            }
+
+            const patient = new Patient(name, lastName, birthdate, telephone, mail, legalGuardian);
             await em.persistAndFlush(patient);
 
             res.status(201).json({ message: 'Patient added', patient });
@@ -42,7 +49,7 @@ export class PatientController {
             res.status(500).json({ message: 'Failed to add Patient' });
         }
     }
-
+    
     static async updatePatient(req: Request, res: Response) {
         const { id } = req.body;
         const { name } = req.body;
@@ -83,21 +90,20 @@ export class PatientController {
         const em = await getORM().em.fork();
         const patient = await em.findOne(Patient, {idPatient: id});
 
-        if(!Patient)
+        if(!patient)
         {
             return res.status(400).json({ message: 'Patient not found' });
         }
 
-        Patient.firstName = name;
-        Patient.lastName = lastName;
-        Patient.birthdate = birthdate;
-        Patient.telephone = telephone;
-        Patient.mail = mail;
-        Patient.type = type;
+        patient.firstName = name;
+        patient.lastName = lastName;
+        patient.birthdate = birthdate;
+        patient.telephone = telephone;
+        patient.mail = mail;
 
-        await em.persistAndFlush(Patient);
+        await em.persistAndFlush(patient);
 
-        res.status(201).json({ message: 'Patient updated', Patient });
+        res.status(201).json({ message: 'Patient updated', patient });
     }
 
     static async getPatient(req: Request, res: Response) {
@@ -112,7 +118,7 @@ export class PatientController {
             if (!patient) {
             return res.status(404).json({ message: 'Patient not found' });
             }
-            res.json(Patient);
+            res.json(patient);
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: 'Failed to fetch Patient' });
@@ -122,8 +128,8 @@ export class PatientController {
     static async getPatients(req: Request, res: Response) {
         try {
             const em = await getORM().em.fork();
-            const Patients = await em.find(Patient, {});
-            res.json(Patients);
+            const patients = await em.find(Patient, {});
+            res.json(patients);
 
         } catch (error) {
             console.error(error);
@@ -145,8 +151,8 @@ export class PatientController {
                 return res.status(404).json({ message: 'Patient not found' });
             }
 
-            await em.removeAndFlush(Patient);
-            res.json(Patient);
+            await em.removeAndFlush(patient);
+            res.json(patient);
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: 'Failed to delete Patient' });

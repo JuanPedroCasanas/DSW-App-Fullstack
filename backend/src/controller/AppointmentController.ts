@@ -1,6 +1,10 @@
 import { Request, Response } from 'express';
 import { getORM } from '../orm/db';
 import { Appointment } from '../model/entities/Appointment';
+import { Patient } from '../model/entities/Patient';
+import { Professional } from '../model/entities/Professional';
+import { LegalGuardian } from '../model/entities/LegalGuardian';
+import { HealthInsurance } from '../model/entities/HealthInsurance';
 
 export class AppointmentController {
 
@@ -9,16 +13,43 @@ export class AppointmentController {
     }
 
     static async addAppointment(req: Request, res: Response) {
-        const { description } = req.body;
+        const { description, idProfessional, idPatient, idHealthInsurance, idLegalGuardian} = req.body;
 
         if (!description) {
-            return res.status(400).json({ message: 'Name is required' });
+            return res.status(400).json({ message: 'Se requiere una descripción valida' }); //Esto es el horario estimo, corregir
+        }
+        if (!idProfessional) {
+            return res.status(400).json({ message: 'Se requiere Id del profesional asignado' });
+        }
+        if(!idPatient) {
+            return res.status(400).json({ message: 'Se requiere Id del paciente solicitante' });
         }
 
         try {
-            const appointment = new Appointment(description);
-            
             const em = await getORM().em.fork();
+
+            let patient = await em.findOne(Patient, { idPatient: idPatient });
+            if(!patient) {
+                return res.status(404).json({ message: 'El ID de paciente ingresado no es valido' });
+            }
+
+            let professional = await em.findOne(Professional, { id: idProfessional});
+            if(!professional) {
+                return res.status(404).json({ message: 'El ID de profesional ingresado no es valido' });
+            }
+
+            //EVALUAR SI ESTO HAY QUE PASARLO POR ID O SACARLO DEL PACIENTE/PROFESIONAL, ej: patient.currentHealthInsurance()
+            let healthInsurance = await em.findOne(HealthInsurance, { idHealthInsurance: idHealthInsurance});
+            if(!healthInsurance) {
+                return res.status(404).json({ message: 'El ID de obra social ingresado no es valido' });
+            }
+
+            let legalGuardian: LegalGuardian | undefined;
+            legalGuardian = patient.legalGuardian;
+
+            const appointment = new Appointment(description, professional, patient, healthInsurance, legalGuardian);
+            
+            
             await em.persistAndFlush(appointment);
 
             res.status(201).json({ message: 'Appointment added', appointment });

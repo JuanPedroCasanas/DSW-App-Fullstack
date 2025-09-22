@@ -28,17 +28,11 @@ export class Professional {
   @ManyToOne()
   occupation!: Occupation;
 
-  @ManyToMany()
-  consultingRoom!: ConsultingRoom;
-
-
   @OneToMany(() => Module, module => module.professional)
   modules = new Collection<Module>(this);
 
-
   @OneToMany(() => Appointment, (appointment) => appointment.professional)
   appointments = new Collection<Appointment>(this);
-
 
   @ManyToMany(() => HealthInsurance, healthInsurance => healthInsurance.professionals, {owner: true})
   healthInsurances = new Collection<HealthInsurance>(this);
@@ -48,6 +42,3 @@ export class Professional {
 
 }
 
-function JoinTable(): (target: Professional, propertyKey: "healthInsurances") => void {
-  throw new Error('Function not implemented.');
-}

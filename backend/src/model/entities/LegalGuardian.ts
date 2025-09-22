@@ -26,31 +26,24 @@ export class LegalGuardian {
   @Property()
   mail!: string;
 
-  @OneToMany(() => Appointment, (appointment: Appointment) => appointment.patient)
+  @OneToMany(() => Appointment, (appointment: Appointment) => appointment.legalGuardian)
   appointments = new Collection<Appointment>(this);
 
-  @ManyToMany(() => HealthInsurance, (healthInsurance: HealthInsurance) => healthInsurance.patients, {owner: true})
-  healthInsurances = new Collection<HealthInsurance>(this);
+  //@ManyToMany(() => HealthInsurance, (healthInsurance: HealthInsurance) => healthInsurance.patients, {owner: true})
+  //healthInsurances = new Collection<HealthInsurance>(this);
 
- 
-  @OneToMany(() => Patient, patient => patient.legalGuardian)
-    patients!: Patient[];
+  @OneToMany(() => Patient, (patient: Patient) => patient.legalGuardian)
+  guardedPatients = new Collection<Patient>(this);
 
   @OneToOne(() => User)
   user!: User;  
 
-
-  @OneToMany(() => Patient, (patient: Patient) => patient.legalGuardian)
-  dependents = new Collection<Patient>(this);
-    static type: any;
-    static mail: any;
-    static telephone: any;
-    static birthdate: any;
-    static lastName: any;
-    static firstName: any;
-
-  constructor(name: string)
+  constructor(firstName: string, lastName: string, birthdate: Date, telephone: string, mail: string)
   {
-    this.firstName = name;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.birthdate = birthdate;
+    this.telephone = telephone;
+    this.mail = mail;
   }
 }

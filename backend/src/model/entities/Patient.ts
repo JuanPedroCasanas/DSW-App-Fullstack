@@ -31,23 +31,18 @@ export class Patient {
   @ManyToMany(() => HealthInsurance, (healthInsurance: HealthInsurance) => healthInsurance.patients, {owner: true})
   healthInsurances = new Collection<HealthInsurance>(this);
 
-  @OneToOne(() => LegalGuardian)
-    legalGuardian!: LegalGuardian;
+  @ManyToOne(() => LegalGuardian, { nullable: true })
+  legalGuardian?: LegalGuardian;
 
-  @OneToOne(() => User)
-  user?: User;
+  constructor(firstName: string, lastName: string, birthdate: Date, telephone: string, mail: string, legalGuardian?: LegalGuardian) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.birthdate = birthdate;
+    this.telephone = telephone;
+    this.mail = mail;
+    this.legalGuardian = legalGuardian
+}
 
-  @OneToMany(() => Patient, (patient: Patient) => patient.legalGuardian)
-  dependents = new Collection<Patient>(this);
-    static type: any;
-    static mail: any;
-    static telephone: any;
-    static birthdate: any;
-    static lastName: any;
-    static firstName: any;
 
-  constructor(name: string)
-  {
-    this.firstName = name;
-  }
+
 }

@@ -14,12 +14,17 @@ const core_1 = require("@mikro-orm/core");
 const Appointment_1 = require("./Appointment");
 const core_2 = require("@mikro-orm/core");
 const HealthInsurance_1 = require("./HealthInsurance");
+const LegalGuardian_1 = require("./LegalGuardian");
 let Patient = class Patient {
-    constructor(name) {
+    constructor(firstName, lastName, birthdate, telephone, mail, legalGuardian) {
         this.appointments = new core_2.Collection(this);
         this.healthInsurances = new core_2.Collection(this);
-        this.dependents = new core_2.Collection(this);
-        this.firstName = name;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.birthdate = birthdate;
+        this.telephone = telephone;
+        this.mail = mail;
+        this.legalGuardian = legalGuardian;
     }
 };
 exports.Patient = Patient;
@@ -48,10 +53,6 @@ __decorate([
     __metadata("design:type", String)
 ], Patient.prototype, "mail", void 0);
 __decorate([
-    (0, core_1.Property)(),
-    __metadata("design:type", String)
-], Patient.prototype, "type", void 0);
-__decorate([
     (0, core_2.OneToMany)(() => Appointment_1.Appointment, (appointment) => appointment.patient),
     __metadata("design:type", Object)
 ], Patient.prototype, "appointments", void 0);
@@ -60,15 +61,11 @@ __decorate([
     __metadata("design:type", Object)
 ], Patient.prototype, "healthInsurances", void 0);
 __decorate([
-    (0, core_2.ManyToOne)(() => Patient, { nullable: true }),
-    __metadata("design:type", Patient)
+    (0, core_2.ManyToOne)(() => LegalGuardian_1.LegalGuardian, { nullable: true }),
+    __metadata("design:type", LegalGuardian_1.LegalGuardian)
 ], Patient.prototype, "legalGuardian", void 0);
-__decorate([
-    (0, core_2.OneToMany)(() => Patient, (patient) => patient.legalGuardian),
-    __metadata("design:type", Object)
-], Patient.prototype, "dependents", void 0);
 exports.Patient = Patient = __decorate([
     (0, core_1.Entity)(),
-    __metadata("design:paramtypes", [String])
+    __metadata("design:paramtypes", [String, String, Date, String, String, LegalGuardian_1.LegalGuardian])
 ], Patient);
 //# sourceMappingURL=Patient.js.map
