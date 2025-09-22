@@ -23,12 +23,14 @@ export class User {
   
   @OneToOne(() => Professional, { nullable: true })
   professional?: Professional;
-  /*
+
+  
   @BeforeCreate()
   @BeforeUpdate()
   checkRole() {
     if (!this.patient && !this.legalGuardian && !this.professional) {
       throw new Error("El usuario debe tener al menos un rol asignado.");
     }
-  }*/
+  }
+  
 }
