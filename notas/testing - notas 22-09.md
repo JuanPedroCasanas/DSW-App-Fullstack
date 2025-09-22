@@ -1,4 +1,4 @@
-
+-------------------- frontend ------------------------
 - tipos de tests
     - unitario -> se hace a una pieza de codigo de manera aislada
         - un componente, un servicio, un provider
@@ -21,5 +21,10 @@ github.com/utnfrrodsw/react -> repo del profe
 github.com/utnfrrodsw/react/blob/main/react-testing/src/components/SimpleComponent/SimpleComponent.test.jsx
 
 - jest.useFakeTimers(); -> OJO!! usar para cosas que requieren simular tiempo
+
+--------------------- backend ----------------------------------
+
+- aiven y render para hostear la api
+- firebase para el front
 
 
