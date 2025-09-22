@@ -40,7 +40,7 @@ router.post('/login', (req, res) => UserController.login(req, res));
 // Protected
 router.get('/users', auth, (req, res) => UserController.getAll(req, res));
 router.get('/users/:id', auth, (req, res) => UserController.getOne(req, res));
-router.put('/users/:id', auth, (req, res) => UserController.update(req, res));
+router.post('/users/:id', auth, (req, res) => UserController.update(req, res));
 router.delete('/users/:id', auth, (req, res) => UserController.delete(req, res));
 
 export default router;
