@@ -5,12 +5,23 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: #e6f5f7;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --variable-collection-light-grey: rgba(246, 246, 246, 1);
+  --variable-collection-primary: rgba(59, 154, 184, 1);
+  --variable-collection-white: rgba(255, 255, 255, 1);
+  --nav-h: 90px; /* ya que tu diseño usa 90px */
+
+}
+
+main {
+  /* Para que el contenido no quede oculto detrás de la navbar fija */
+  padding-top: var(--nav-h);
 }
 
 a {
@@ -20,6 +31,11 @@ a {
 }
 a:hover {
   color: #535bf2;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
 }
 
 body {
@@ -66,3 +82,4 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+

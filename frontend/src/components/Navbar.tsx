@@ -1,14 +1,16 @@
-// src/components/Navbar.jsx
 import { NavLink } from "react-router-dom";
-import { useEffect, useRef, useState } from "react";
-import "../styles/navbar.css";
+import { useState, useEffect, useRef } from "react";
+// Usa uno de estos imports según tu setup:
+//import "./styles/navbar.css";
+import "@/styles/navbar.css";
+
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const menuRef = useRef(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  // Sombreado cuando se hace scroll
+  // Sombra al hacer scroll
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 4);
     onScroll();
@@ -16,10 +18,10 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Cerrar al click fuera del menú (en mobile)
+  // Cerrar al clickear fuera
   useEffect(() => {
-    const onClickOutside = (e) => {
-      if (open && menuRef.current && !menuRef.current.contains(e.target)) {
+    const onClickOutside = (e: MouseEvent) => {
+      if (open && menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setOpen(false);
       }
     };
@@ -27,60 +29,63 @@ export default function Navbar() {
     return () => document.removeEventListener("click", onClickOutside);
   }, [open]);
 
-  const linkClass = ({ isActive }) =>
+  const linkClass = ({ isActive }: { isActive: boolean }) =>
     "nav__link" + (isActive ? " is-active" : "");
 
   return (
-    <header className={`nav ${scrolled ? "nav--scrolled" : ""}`}>
-      <div className="nav__inner">
-        {/* Marca / Logo */}
+    <header className={`nav ${scrolled ? "nav--scrolled" : ""}`} style={{ height: "var(--nav-h)" }}>
+      <nav className="nav__inner" aria-label="Barra de navegación principal">
         <NavLink to="/" className="nav__brand" onClick={() => setOpen(false)}>
-          {/* Podés reemplazar por <img src="/logo.svg" alt="Tu Marca"Name="nav__logo-dot" aria-hidden="true" />
-          <span className="nav__brand-text">Calcifer & Howl</span>
+
+        <img
+            src="/icons/brain.png"
+            alt=""
+            className="nav__logo"
+            width={32}
+            height={32}
+            decoding="async"
+        />
+
+          <span className="nav__logo" aria-hidden="true" />
+          <span className="nav__title">Narrativas</span>
         </NavLink>
 
-        {/* Botón hamburguesa (mobile) */}
         <button
           className="nav__toggle"
           aria-label={open ? "Cerrar menú" : "Abrir menú"}
-          aria-controls="primary-nav"
           aria-expanded={open}
-          onClick={() => setOpen((v) => !v)}
+          aria-controls="nav-menu"
+          onClick={() => setOpen(v => !v)}
         >
           <span className={`nav__toggle-bar ${open ? "x1" : ""}`} />
           <span className={`nav__toggle-bar ${open ? "x2" : ""}`} />
           <span className={`nav__toggle-bar ${open ? "x3" : ""}`} />
         </button>
 
-        {/* Menú */}
-        <nav
-          id="primary-nav"
-          className={`nav__menu ${open ? "is-open" : ""}`}
+        <div
+          id="nav-menu"
           ref={menuRef}
+          className={`nav__menu ${open ? "is-open" : ""}`}
         >
           <ul className="nav__list">
-            <li className="nav__item">
+            <li>
               <NavLink to="/" className={linkClass} onClick={() => setOpen(false)}>
                 Inicio
               </NavLink>
             </li>
-            <li className="nav__item">
-              <NavLink to="/about" className={linkClass} onClick={() => setOpen(false)}>
+            <li>
+              <NavLink to="/sobre-nosotros" className={linkClass} onClick={() => setOpen(false)}>
                 Sobre nosotros
               </NavLink>
             </li>
-            <li className="nav__item">
-              <NavLink to="/contact" className={linkClass} onClick={() => setOpen(false)}>
+            <li>
+              <NavLink to="/contacto" className={linkClass} onClick={() => setOpen(false)}>
                 Contacto
               </NavLink>
             </li>
           </ul>
-
-          {/* CTA opcional a la derecha */}
-          <div className="nav__cta">
-            <a className="btn btn--primary" href="https://example.com" target </div>
-        </nav>
-      </div>
+        </div>
+      </nav>
     </header>
   );
 }
