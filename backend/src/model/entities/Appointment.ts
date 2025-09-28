@@ -1,8 +1,9 @@
-import { Entity, ManyToOne, OneToOne, PrimaryKey, Property } from '@mikro-orm/core';
+import { Entity, Enum, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core';
 import { Professional } from './Professional';
 import { Patient } from './Patient';
 import { HealthInsurance } from './HealthInsurance';
 import { LegalGuardian } from './LegalGuardian';
+import { AppointmentStatus } from '../enums/AppointmentStatus';
 
 @Entity()
 export class Appointment {
@@ -10,7 +11,13 @@ export class Appointment {
   id!: number;
 
   @Property()
-  description!: string;
+  startTime!: Date;
+
+  @Property() //Calculado, siempre será startTime + 1 hora
+  endTime!: Date;
+
+  @Enum(() => AppointmentStatus)
+  status!: AppointmentStatus;
 
   @ManyToOne()
   professional!: Professional;
@@ -26,11 +33,13 @@ export class Appointment {
 
 
 
-  constructor(description: string, professional: Professional, patient: Patient, healthInsurance?: HealthInsurance, legalGuardian?: LegalGuardian) {
-    this.description = description;
+  constructor(startTime: Date, endTime: Date, professional: Professional, patient: Patient, status: AppointmentStatus, healthInsurance?: HealthInsurance, legalGuardian?: LegalGuardian) {
+    this.startTime = startTime;
+    this.endTime = endTime
     this.professional = professional;
     this.patient = patient;
     this. healthInsurance = healthInsurance;
     this.legalGuardian = legalGuardian
+    this.status = status
   }
 }

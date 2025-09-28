@@ -1,8 +1,9 @@
-import { BeforeCreate, BeforeUpdate, Entity, PrimaryKey, Property } from '@mikro-orm/core';
-import { Collection, OneToMany, ManyToMany, ManyToOne, OneToOne } from '@mikro-orm/core';
+import { BeforeCreate, BeforeUpdate, Entity, Enum, PrimaryKey, Property } from '@mikro-orm/core';
+import { OneToOne } from '@mikro-orm/core';
 import { LegalGuardian } from './LegalGuardian';
 import { Patient } from './Patient';
 import { Professional } from './Professional';
+import { UserRole } from '../enums/UserRole';
 
 @Entity()
 export class User {
@@ -14,6 +15,9 @@ export class User {
 
   @Property ()
   password!: string;
+
+  @Enum(() => UserRole)
+  role!: UserRole;
 
   @OneToOne(() => Patient, { nullable: true })
   patient?: Patient;
@@ -31,6 +35,15 @@ export class User {
     if (!this.patient && !this.legalGuardian && !this.professional) {
       throw new Error("El usuario debe tener al menos un rol asignado.");
     }
+  }
+
+  @BeforeCreate()
+  @BeforeUpdate()
+  generateRole() {
+    if (this.patient) this.role = UserRole.Patient
+    else if (this.legalGuardian) this.role = UserRole.LegalGuardian
+    else if (this.professional) this.role = UserRole.Professional
+    else throw new Error("El usuario debe tener al menos un rol asignado.");
   }
   
 }
