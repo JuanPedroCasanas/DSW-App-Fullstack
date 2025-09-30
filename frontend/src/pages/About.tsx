@@ -1,3 +1,8 @@
-export default function About() {  
-    return <h1>Sobre nosotros</h1>;
+export default function About() {
+  return (
+    <main>
+      <h2>Sobre nosotros</h2>
+      <p>Un poco de info de la app…</p>
+    </main>
+  );
 }

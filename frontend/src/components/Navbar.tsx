@@ -70,21 +70,39 @@ export default function Navbar() {
           <ul className="nav__list">
             <li>
               <NavLink to="/" className={linkClass} onClick={() => setOpen(false)}>
-                Inicio
+                Portal
               </NavLink>
             </li>
             <li>
-              <NavLink to="/sobre-nosotros" className={linkClass} onClick={() => setOpen(false)}>
+              <NavLink to="/about" className={linkClass} onClick={() => setOpen(false)}>
                 Sobre nosotros
               </NavLink>
             </li>
             <li>
-              <NavLink to="/contacto" className={linkClass} onClick={() => setOpen(false)}>
+              <NavLink to="/contact" className={linkClass} onClick={() => setOpen(false)}>
                 Contacto
+              </NavLink>
+            </li>
+
+            <li className="nav__cta--mobile"> 
+              <NavLink
+                to="/register"
+                onClick={() => setOpen(false)}
+                className="item-link item-link--as-link"
+              >
+                <span className="text-wrapper">Registrarse</span>
               </NavLink>
             </li>
           </ul>
         </div>
+  
+
+        <div className="nav__cta">
+          <NavLink to="/login" className="item-link">
+            <span className="text-wrapper">Iniciar Sesion</span>
+          </NavLink>
+        </div>
+
       </nav>
     </header>
   );

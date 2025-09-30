@@ -159,3 +159,61 @@
   }
 }
 
+
+.nav__cta {
+  margin-left: auto;            /* empuja el CTA a la derecha */
+  display: none;                /* oculto por defecto (mobile) */
+}
+
+/* CTA dentro del menú (mobile): visible por defecto */
+.nav__cta--mobile {
+  margin-top: .25rem;
+}
+
+@media (min-width: 768px) {
+  .nav__cta {
+    display: inline-flex;       /* mostrar CTA en desktop */
+  }
+  .nav__cta--mobile {
+    display: none;              /* ocultar CTA del menú en desktop */
+  }
+}
+
+/* Estilos del botón según Anima/Figma */
+.nav__cta .item-link,
+.nav__menu .item-link--as-link {
+  align-items: center;
+  background-color: var(--variable-collection-primary); /* de index.css */
+  border-radius: 6px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  padding: 14px 12px;
+  width: 215px;                         /* podés ajustar si querés */
+  color: #fff;
+  text-decoration: none;
+  box-shadow: 0 1px 0 rgba(0,0,0,.02) inset;
+  transition: filter .15s ease, transform .02s ease;
+}
+
+.nav__cta .item-link:hover,
+.nav__menu .item-link--as-link:hover {
+  filter: brightness(0.97);
+}
+
+.nav__cta .item-link:active,
+.nav__menu .item-link--as-link:active {
+  transform: translateY(1px);
+}
+
+.nav__cta .text-wrapper,
+.nav__menu .item-link--as-link .text-wrapper {
+  color: #ffffff;
+  display: flex;
+  font-size: 16px;
+  font-weight: 500;     /* Inter-Medium ~ 500 */
+  line-height: 18px;
+  white-space: nowrap;
+  width: fit-content;
+}
+
