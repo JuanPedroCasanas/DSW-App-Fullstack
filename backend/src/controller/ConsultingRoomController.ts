@@ -34,11 +34,11 @@ export class ConsultingRoomController {
 
         if(!idConsultingRoom)
         {
-            return res.status(400).json({ message: 'ConsultingRoom id is required' });
+            return res.status(400).json({ message: 'Consulting Room id is required' });
         }
         if(!description)
         {
-            return res.status(400).json({ message: 'ConsultingRoom new name is required' });
+            return res.status(400).json({ message: 'Consulting Room new name is required' });
         }
 
         const em = await getORM().em.fork();
@@ -46,7 +46,7 @@ export class ConsultingRoomController {
 
         if(!consultingRoom)
         {
-            return res.status(400).json({ message: 'ConsultingRoom not found' });
+            return res.status(400).json({ message: 'Consulting Room not found' });
             // throw new Error("Ocupacion no encontrada");
         }
 

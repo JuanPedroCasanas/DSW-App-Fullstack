@@ -111,14 +111,14 @@ export default class ModuleController  {
         }
     
         static async deleteModule(req: Request, res: Response) {
-            const idModule = Number(req.params.id);
-            if (!idModule) {
+            const id = Number(req.params.id);
+            if (!id) {
                 return res.status(400).json({ message: 'Appointment id is required' });
             }
             try {
     
                 const em = await getORM().em.fork();
-                const module = await em.findOne(Module, { idModule: idModule });
+                const module = await em.findOne(Module, { idModule : id });
     
                 if (!module) {
                     return res.status(404).json({ message: 'Module not found' });

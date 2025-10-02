@@ -1,114 +1,93 @@
-/*import { Request, Response } from 'express';
+import { Request, Response } from 'express';
 import { getORM } from '../orm/db';
 import { HealthInsurance } from '../model/entities/HealthInsurance';
 
-export class OccupationController {
+export class HealthInsuranceController {
 
     static home(req: Request, res: Response) {
-        res.send('Soy el controlador de ocupaciones!');
+        res.send('Soy el controlador de pacientes!');
     }
 
-    static async addOccupation(req: Request, res: Response) {
-        const { name } = req.body;
+    static async addHealthInsurance(req: Request, res: Response) {
+        const {name} = req.body;
 
         if (!name) {
             return res.status(400).json({ message: 'Name is required' });
         }
-
         try {
-            const occupation = new Occupation(name);
-            
-            const em = await getORM().em.fork();
-            await em.persistAndFlush(occupation);
+        const em = await getORM().em.fork(); 
+        const healthinsurance = new HealthInsurance(name);
+        await em.persistAndFlush(healthinsurance);
 
-            res.status(201).json({ message: 'Occupation added', occupation });
-        } catch (error) {
+            res.status(201).json({ message: 'Health insurance added', healthinsurance });
+        } catch (error: any) {
             console.error(error);
-            res.status(500).json({ message: 'Failed to add occupation' });
+            res.status(500).json({ message: 'Failed to add Health insurance' });
         }
     }
-
-    static async updateOccupation(req: Request, res: Response) {
-        const { id } = req.body;
-        const { name } = req.body;
-
-        if(!id)
-        {
-            return res.status(400).json({ message: 'Occupation id is required' });
+    
+    static async updateHealthInsurance(req: Request, res: Response) {
+        
+        const {id, name } = req.body;
+    
+        if (!id) {
+            return res.status(400).json({ message: 'Health insurance id is required' });
         }
-        if(!name)
-        {
-            return res.status(400).json({ message: 'Occupation new name is required' });
+
+        if (!name) {
+        return res.status(400).json({ message: 'Name are required' });
         }
 
         const em = await getORM().em.fork();
-        const occupation = await em.findOne(Occupation, { id: id });
+        const healthinsurance = await em.findOne(HealthInsurance, { idHealthInsurance: id});
 
-        if(!occupation)
-        {
-            return res.status(400).json({ message: 'Occupation not found' });
-            // throw new Error("Ocupacion no encontrada");
-        }
-
-        occupation.name = name;
-
-        await em.persistAndFlush(occupation);
-
-        res.status(201).json({ message: 'Occupation updated', occupation });
+        if (!healthinsurance) {
+        return res.status(404).json({ message: 'Health insurance not found' });
     }
 
-    static async getOccupation(req: Request, res: Response) {
+        res.status(200).json({ message: 'Health insurance updated', healthinsurance });
+    }
+
+    static async getHealthInsurance(req: Request, res: Response) {
         const id = Number(req.params.id);
 
         if (!id) {
-            return res.status(400).json({ message: 'Occupation id is required' });
+            return res.status(400).json({ message: 'Health insurance id is required' });
         }
         try {
             const em = await getORM().em.fork();
-            const occupation = await em.findOne(Occupation, { id: id });
-            if (!occupation) {
-            return res.status(404).json({ message: 'Occupation not found' });
+            const healthinsurance = await em.findOne(HealthInsurance, { idHealthInsurance: id });
+            if (!healthinsurance) {
+            return res.status(404).json({ message: 'Health insurance not found' });
             }
-            res.json(occupation);
+            res.json(healthinsurance);
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Failed to fetch occupation' });
+            res.status(500).json({ message: 'Failed to fetch health insurance' });
         }
     }
 
-    static async getOccupations(req: Request, res: Response) {
-        try {
-            const em = await getORM().em.fork();
-            const occupations = await em.find(Occupation, {});
-            res.json(occupations);
-
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: 'Failed to fetch occupations' });
-        }
-    }
-
-    static async deleteOccupation(req: Request, res: Response) {
+    static async deleteHealthInsurance(req: Request, res: Response) {
         const id = Number(req.params.id);
         if (!id) {
-            return res.status(400).json({ message: 'Occupation id is required' });
+            return res.status(400).json({ message: 'Health insurance id is required' });
         }
         try {
 
             const em = await getORM().em.fork();
-            const occupation = await em.findOne(Occupation, { id: id });
+            const healthinsurance = await em.findOne(HealthInsurance, { idHealthInsurance : id });
 
-            if (!occupation) {
-                return res.status(404).json({ message: 'Occupation not found' });
+            if (!healthinsurance) {
+                return res.status(404).json({ message: 'Health insurance not found' });
             }
 
-            await em.removeAndFlush(occupation);
-            res.json(occupation);
+            await em.removeAndFlush(healthinsurance);
+            res.json(healthinsurance);
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Failed to delete occupation' });
+            res.status(500).json({ message: 'Failed to delete Health insurance' });
         }
     }
 
+}
 
-}*/

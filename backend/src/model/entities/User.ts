@@ -37,13 +37,13 @@ export class User {
     }
   }
 
-  @BeforeCreate()
+  /*@BeforeCreate()
   @BeforeUpdate()
   generateRole() {
     if (this.patient) this.role = UserRole.Patient
     else if (this.legalGuardian) this.role = UserRole.LegalGuardian
     else if (this.professional) this.role = UserRole.Professional
     else throw new Error("El usuario debe tener al menos un rol asignado.");
-  }
+  }*/
   
 }

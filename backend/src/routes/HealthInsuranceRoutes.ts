@@ -1,14 +1,14 @@
-/*import express from 'express';
+import express from 'express';
 import { HealthInsuranceController } from '../controller/HealthInsuranceController';
 
 const router = express.Router();
 
-router.get('/', OccupationController.home);
-router.post('/add', OccupationController.addOccupation);
-router.post('/update', OccupationController.updateOccupation);
-router.get('/getAll', OccupationController.getOccupations);
-router.get('/get/:id', OccupationController.getOccupation);
-router.delete('/delete/:id', OccupationController.deleteOccupation);
+router.get('/', HealthInsuranceController.home);
+router.post('/add', HealthInsuranceController.addHealthInsurance);
+router.post('/update', HealthInsuranceController.updateHealthInsurance);
+//router.get('/getAll', HealthInsuranceController.getHealthInsurance);
+router.get('/get/:id', HealthInsuranceController.getHealthInsurance);
+router.delete('/delete/:id', HealthInsuranceController.deleteHealthInsurance);
 
 
-export default router;*/
+export default router;
