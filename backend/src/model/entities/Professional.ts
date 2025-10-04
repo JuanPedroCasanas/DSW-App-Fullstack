@@ -23,7 +23,7 @@ export class Professional {
   email!: string;
 
   @Property()
-  phone!: string;
+  telephone!: string;
 
   @ManyToOne()
   occupation!: Occupation;
@@ -39,6 +39,12 @@ export class Professional {
 
   @OneToOne(() => User)
   user!: User;
+constructor(firstName: string, lastName: string, telephone: string, email: string, occupation: Occupation) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.telephone = telephone;
+    this.email = email;
+    this.occupation = occupation
 
 }
-
+}
