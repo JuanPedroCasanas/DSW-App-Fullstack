@@ -15,13 +15,16 @@ const Professional_1 = require("./Professional");
 const Patient_1 = require("./Patient");
 const HealthInsurance_1 = require("./HealthInsurance");
 const LegalGuardian_1 = require("./LegalGuardian");
+const AppointmentStatus_1 = require("../enums/AppointmentStatus");
 let Appointment = class Appointment {
-    constructor(description, professional, patient, healthInsurance, legalGuardian) {
-        this.description = description;
+    constructor(startTime, endTime, professional, patient, status, healthInsurance, legalGuardian) {
+        this.startTime = startTime;
+        this.endTime = endTime;
         this.professional = professional;
         this.patient = patient;
         this.healthInsurance = healthInsurance;
         this.legalGuardian = legalGuardian;
+        this.status = status;
     }
 };
 exports.Appointment = Appointment;
@@ -31,8 +34,17 @@ __decorate([
 ], Appointment.prototype, "id", void 0);
 __decorate([
     (0, core_1.Property)(),
+    __metadata("design:type", Date)
+], Appointment.prototype, "startTime", void 0);
+__decorate([
+    (0, core_1.Property)() //Calculado, siempre será startTime + 1 hora
+    ,
+    __metadata("design:type", Date)
+], Appointment.prototype, "endTime", void 0);
+__decorate([
+    (0, core_1.Enum)(() => AppointmentStatus_1.AppointmentStatus),
     __metadata("design:type", String)
-], Appointment.prototype, "description", void 0);
+], Appointment.prototype, "status", void 0);
 __decorate([
     (0, core_1.ManyToOne)(),
     __metadata("design:type", Professional_1.Professional)
@@ -51,6 +63,6 @@ __decorate([
 ], Appointment.prototype, "healthInsurance", void 0);
 exports.Appointment = Appointment = __decorate([
     (0, core_1.Entity)(),
-    __metadata("design:paramtypes", [String, Professional_1.Professional, Patient_1.Patient, HealthInsurance_1.HealthInsurance, LegalGuardian_1.LegalGuardian])
+    __metadata("design:paramtypes", [Date, Date, Professional_1.Professional, Patient_1.Patient, String, HealthInsurance_1.HealthInsurance, LegalGuardian_1.LegalGuardian])
 ], Appointment);
 //# sourceMappingURL=Appointment.js.map

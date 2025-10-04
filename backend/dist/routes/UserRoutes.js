@@ -36,7 +36,7 @@ router.post('/login', (req, res) => UserController_1.UserController.login(req, r
 // Protected
 router.get('/users', auth, (req, res) => UserController_1.UserController.getAll(req, res));
 router.get('/users/:id', auth, (req, res) => UserController_1.UserController.getOne(req, res));
-router.put('/users/:id', auth, (req, res) => UserController_1.UserController.update(req, res));
+router.post('/users/:id', auth, (req, res) => UserController_1.UserController.update(req, res));
 router.delete('/users/:id', auth, (req, res) => UserController_1.UserController.delete(req, res));
 exports.default = router;
 //# sourceMappingURL=UserRoutes.js.map

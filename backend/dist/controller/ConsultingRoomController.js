@@ -27,15 +27,15 @@ class ConsultingRoomController {
         const { idConsultingRoom } = req.body;
         const { description } = req.body;
         if (!idConsultingRoom) {
-            return res.status(400).json({ message: 'ConsultingRoom id is required' });
+            return res.status(400).json({ message: 'Consulting Room id is required' });
         }
         if (!description) {
-            return res.status(400).json({ message: 'ConsultingRoom new name is required' });
+            return res.status(400).json({ message: 'Consulting Room new name is required' });
         }
         const em = await (0, db_1.getORM)().em.fork();
         const consultingRoom = await em.findOne(ConsultingRoom_1.ConsultingRoom, { idConsultingRoom: idConsultingRoom });
         if (!consultingRoom) {
-            return res.status(400).json({ message: 'ConsultingRoom not found' });
+            return res.status(400).json({ message: 'Consulting Room not found' });
             // throw new Error("Ocupacion no encontrada");
         }
         consultingRoom.description = description;

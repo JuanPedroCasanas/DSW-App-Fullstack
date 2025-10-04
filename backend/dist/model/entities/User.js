@@ -15,7 +15,13 @@ const core_2 = require("@mikro-orm/core");
 const LegalGuardian_1 = require("./LegalGuardian");
 const Patient_1 = require("./Patient");
 const Professional_1 = require("./Professional");
+const UserRole_1 = require("../enums/UserRole");
 let User = class User {
+    checkRole() {
+        if (!this.patient && !this.legalGuardian && !this.professional) {
+            throw new Error("El usuario debe tener al menos un rol asignado.");
+        }
+    }
 };
 exports.User = User;
 __decorate([
@@ -31,6 +37,10 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
 __decorate([
+    (0, core_1.Enum)(() => UserRole_1.UserRole),
+    __metadata("design:type", String)
+], User.prototype, "role", void 0);
+__decorate([
     (0, core_2.OneToOne)(() => Patient_1.Patient, { nullable: true }),
     __metadata("design:type", Patient_1.Patient)
 ], User.prototype, "patient", void 0);
@@ -42,6 +52,13 @@ __decorate([
     (0, core_2.OneToOne)(() => Professional_1.Professional, { nullable: true }),
     __metadata("design:type", Professional_1.Professional)
 ], User.prototype, "professional", void 0);
+__decorate([
+    (0, core_1.BeforeCreate)(),
+    (0, core_1.BeforeUpdate)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], User.prototype, "checkRole", null);
 exports.User = User = __decorate([
     (0, core_1.Entity)()
 ], User);

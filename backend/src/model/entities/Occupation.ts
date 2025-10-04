@@ -3,7 +3,7 @@ import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
 @Entity()
 export class Occupation {
   @PrimaryKey()
-  idOccupation!: number;
+  id!: number;
 
   @Property()
   name!: string;
