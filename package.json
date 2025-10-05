@@ -3,6 +3,7 @@
     "react-router-dom": "^7.9.3"
   },
   "devDependencies": {
+    "@types/node": "^24.6.2",
     "@types/react-router-dom": "^5.3.3"
   }
 }

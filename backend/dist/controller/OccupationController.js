@@ -49,7 +49,7 @@ class OccupationController {
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const occupation = await em.findOne(Occupation_1.Occupation, { id: id });
+            const occupation = await em.findOne(Occupation_1.Occupation, { id });
             if (!occupation) {
                 return res.status(404).json({ message: 'Occupation not found' });
             }

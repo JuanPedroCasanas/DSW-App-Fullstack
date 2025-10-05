@@ -1,17 +1,14 @@
 "use strict";
-/*import { Request, Response } from 'express';
-import { getORM } from '../orm/db';
-import { LegalGuardian } from '../model/entities/LegalGuardian';
-
-export class LegalGuardianController {
-
-    static home(req: Request, res: Response) {
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.LegalGuardianController = void 0;
+const db_1 = require("../orm/db");
+const LegalGuardian_1 = require("../model/entities/LegalGuardian");
+class LegalGuardianController {
+    static home(req, res) {
         res.send('Soy el controlador de Responsable Legal!');
     }
-
-    static async addLegalGuardian(req: Request, res: Response) {
-        const { firstName, lastName, birthdate, telephone, mail} = req.body;
-
+    static async addLegalGuardian(req, res) {
+        const { firstName, lastName, birthdate, telephone, mail, appointments } = req.body;
         if (!firstName) {
             return res.status(400).json({ message: 'Name is required' });
         }
@@ -27,98 +24,74 @@ export class LegalGuardianController {
         if (!mail) {
             return res.status(400).json({ message: 'Mail is required' });
         }
-        
-
         try {
-            const legalGuardian = new LegalGuardian(firstName);
-            
-            const em = await getORM().em.fork();
-            await em.persistAndFlush(LegalGuardian);
-
-            res.status(201).json({ message: 'LegalGuardian added', LegalGuardian });
-        } catch (error) {
+            const legalGuardian = new LegalGuardian_1.LegalGuardian(firstName, lastName, new Date(birthdate), telephone, mail);
+            const em = await (0, db_1.getORM)().em.fork();
+            await em.persistAndFlush(LegalGuardian_1.LegalGuardian);
+            res.status(201).json({ message: 'Legal Guardian added', LegalGuardian: LegalGuardian_1.LegalGuardian });
+        }
+        catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Failed to add LegalGuardian' });
+            res.status(500).json({ message: 'Failed to add Legal Guardian' });
         }
     }
-
-    static async updatePatient(req: Request, res: Response) {
+    static async updateLegalGuardian(req, res) {
         const { id } = req.body;
         const { name } = req.body;
-        const {lastName} = req.body;
-        const {birthdate} = req.body;
-        const {telephone} = req.body;
-        const {mail} = req.body;
-        const {type} = req.body;
-
-        if(!id)
-        {
+        const { lastName } = req.body;
+        const { birthdate } = req.body;
+        const { telephone } = req.body;
+        const { mail } = req.body;
+        if (!id) {
             return res.status(400).json({ message: 'LegalGuardian id is required' });
         }
-        if(!name)
-        {
-            return res.status(400).json({ message: 'LegalGuardian new name is required' });
+        if (!name) {
+            return res.status(400).json({ message: 'Legal Guardian new name is required' });
         }
-        if(!lastName)
-        {
-            return res.status(400).json({ message: 'LegalGuardian new last name is required' });
+        if (!lastName) {
+            return res.status(400).json({ message: 'Legal Guardian new last name is required' });
         }
-        if(!birthdate)
-        {
-            return res.status(400).json({ message: 'LegalGuardian new birthdate is required' });
+        if (!birthdate) {
+            return res.status(400).json({ message: 'Legal Guardian new birthdate is required' });
         }
-        if(!telephone)
-        {
-            return res.status(400).json({ message: 'LegalGuardian new telephone is required' });
+        if (!telephone) {
+            return res.status(400).json({ message: 'Legal Guardian new telephone is required' });
         }
-        if(!mail)
-        {
-            return res.status(400).json({ message: 'LegalGuardian new mail is required' });
+        if (!mail) {
+            return res.status(400).json({ message: 'Legal Guardian new mail is required' });
         }
-        if(!type)
-        {
-            return res.status(400).json({ message: 'LegalGuardian new type is required' });
+        const em = await (0, db_1.getORM)().em.fork();
+        const legalguardian = await em.findOne(LegalGuardian_1.LegalGuardian, { idLegalGuardian: id });
+        if (!legalguardian) {
+            return res.status(400).json({ message: 'Legal Guardian not found' });
         }
-        const em = await getORM().em.fork();
-        const LegalGuardian = await em.findOne(LegalGuardian, {idPatient: id});
-
-        if(!LegalGuardian)
-        {
-            return res.status(400).json({ message: 'LegalGuardian not found' });
-        }
-
-        LegalGuardian.firstName = name;
-        LegalGuardian.lastName = lastName;
-        LegalGuardian.birthdate = birthdate;
-        LegalGuardian.telephone = telephone;
-        LegalGuardian.mail = mail;
-        LegalGuardian.type = type;
-
-        await em.persistAndFlush(LegalGuardian);
-
-        res.status(201).json({ message: 'LegalGuardian updated', LegalGuardian });
+        legalguardian.firstName = name;
+        legalguardian.lastName = lastName;
+        legalguardian.birthdate = birthdate;
+        legalguardian.telephone = telephone;
+        legalguardian.mail = mail;
+        await em.persistAndFlush(LegalGuardian_1.LegalGuardian);
+        res.status(201).json({ message: 'Legal Guardian updated', LegalGuardian: LegalGuardian_1.LegalGuardian });
     }
-
-    static async getPatient(req: Request, res: Response) {
+    static async getLegalGuardian(req, res) {
         const id = Number(req.params.id);
-
         if (!id) {
             return res.status(400).json({ message: 'LegalGuardian id is required' });
         }
         try {
-            const em = await getORM().em.fork();
-            const LegalGuardian = await em.findOne(LegalGuardian, { idPatient: id });
-            if (!LegalGuardian) {
-            return res.status(404).json({ message: 'LegalGuardian not found' });
+            const em = await (0, db_1.getORM)().em.fork();
+            const legalguardian = await em.findOne(LegalGuardian_1.LegalGuardian, { idLegalGuardian: id });
+            if (!legalguardian) {
+                return res.status(404).json({ message: 'Legal Guardian not found' });
             }
-            res.json(LegalGuardian);
-        } catch (error) {
+            res.json(LegalGuardian_1.LegalGuardian);
+        }
+        catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Failed to fetch LegalGuardian' });
+            res.status(500).json({ message: 'Failed to fetch Legal Guardian' });
         }
     }
-
-    static async getPatients(req: Request, res: Response) {
+    /*static async getLegalGuardian(req: Request, res: Response) {  por ahora no veo necesario este metodo
         try {
             const em = await getORM().em.fork();
             const Patients = await em.find(LegalGuardian, {});
@@ -129,30 +102,26 @@ export class LegalGuardianController {
             res.status(500).json({ message: 'Failed to fetch Patients' });
         }
     }
-
-    static async deletePatient(req: Request, res: Response) {
+*/
+    static async deleteLegalGuardian(req, res) {
         const id = Number(req.params.id);
         if (!id) {
-            return res.status(400).json({ message: 'LegalGuardian id is required' });
+            return res.status(400).json({ message: 'Legal Guardian id is required' });
         }
         try {
-
-            const em = await getORM().em.fork();
-            const LegalGuardian = await em.findOne(LegalGuardian, { idPatient : id });
-
-            if (!LegalGuardian) {
-                return res.status(404).json({ message: 'LegalGuardian not found' });
+            const em = await (0, db_1.getORM)().em.fork();
+            const legalguardian = await em.findOne(LegalGuardian_1.LegalGuardian, { idLegalGuardian: id });
+            if (!legalguardian) {
+                return res.status(404).json({ message: 'Legal Guardian not found' });
             }
-
-            await em.removeAndFlush(LegalGuardian);
-            res.json(LegalGuardian);
-        } catch (error) {
+            await em.removeAndFlush(legalguardian);
+            res.json(legalguardian);
+        }
+        catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Failed to delete LegalGuardian' });
+            res.status(500).json({ message: 'Failed to delete Legal Guardian' });
         }
     }
-
-
 }
-    */ 
+exports.LegalGuardianController = LegalGuardianController;
 //# sourceMappingURL=LegalGuardianController.js.map

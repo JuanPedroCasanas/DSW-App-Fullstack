@@ -33,7 +33,7 @@ class ProfessionalController {
             const em = await (0, db_1.getORM)().em.fork();
             if (occupation) {
                 const occupationIdNum = Number(occupation);
-                occupation = await em.findOne(Occupation_1.Occupation, { idOccupation: occupationIdNum }) ?? undefined; //Si devuelve null lo paso a undefined para que no se queje TS
+                occupation = await em.findOne(Occupation_1.Occupation, { id: occupationIdNum }) ?? undefined; //Si devuelve null lo paso a undefined para que no se queje TS
                 if (!occupation) {
                     return res.status(404).json({ message: 'ID de la especialidad invalida.' });
                 }

@@ -20,7 +20,7 @@ exports.Occupation = Occupation;
 __decorate([
     (0, core_1.PrimaryKey)(),
     __metadata("design:type", Number)
-], Occupation.prototype, "idOccupation", void 0);
+], Occupation.prototype, "id", void 0);
 __decorate([
     (0, core_1.Property)(),
     __metadata("design:type", String)
