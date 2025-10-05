@@ -62,7 +62,7 @@ __decorate([
     __metadata("design:type", Object)
 ], LegalGuardian.prototype, "guardedPatients", void 0);
 __decorate([
-    (0, core_2.OneToOne)(() => User_1.User),
+    (0, core_2.OneToOne)(() => User_1.User, (u) => u.legalGuardian),
     __metadata("design:type", User_1.User)
 ], LegalGuardian.prototype, "user", void 0);
 exports.LegalGuardian = LegalGuardian = __decorate([

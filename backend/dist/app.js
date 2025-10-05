@@ -22,6 +22,7 @@ const ConsultingRoomRoutes_1 = __importDefault(require("./routes/ConsultingRoomR
 const ModuleRoutes_1 = __importDefault(require("./routes/ModuleRoutes"));
 const PatientRoutes_1 = __importDefault(require("./routes/PatientRoutes"));
 const UserRoutes_1 = __importDefault(require("./routes/UserRoutes"));
+const startingCode_1 = require("./startingCode");
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use(passport_1.default.initialize());
@@ -43,6 +44,7 @@ app.use((_, res) => {
 async function start() {
     await (0, db_1.initORM)();
     await (0, db_1.syncSchema)(); // ⚠️Don't use this in production
+    await (0, startingCode_1.startingCode)(); //SACAR EN PRODUCCION
     app.listen(port, () => {
         console.log(`App listening on http://localhost:${port}`);
     });

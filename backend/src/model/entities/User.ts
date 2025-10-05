@@ -1,4 +1,4 @@
-import { BeforeCreate, BeforeUpdate, Entity, Enum, PrimaryKey, Property } from '@mikro-orm/core';
+import { BeforeCreate, BeforeUpdate, Cascade, Entity, Enum, PrimaryKey, Property } from '@mikro-orm/core';
 import { OneToOne } from '@mikro-orm/core';
 import { LegalGuardian } from './LegalGuardian';
 import { Patient } from './Patient';
@@ -19,31 +19,24 @@ export class User {
   @Enum(() => UserRole)
   role!: UserRole;
 
-  @OneToOne(() => Patient, { nullable: true })
-  patient?: Patient;
-
-  @OneToOne(() => LegalGuardian, { nullable: true })
-  legalGuardian?: LegalGuardian;
-  
-  @OneToOne(() => Professional, { nullable: true })
+  //Cascade persist hace que cuando se haga un persiste de un User en mikroORM, se haga tambien un persiste de los pacientes, responsables legales
+  // y profesionales en memoria asociados con dicha clase
+  @OneToOne(() => Professional, (p) => p.user, { owner: true, nullable: true, cascade: [Cascade.PERSIST] })
   professional?: Professional;
 
+  @OneToOne(() => Patient, (p) => p.user, { owner: true, nullable: true, cascade: [Cascade.PERSIST] })
+  patient?: Patient;
+
+  @OneToOne(() => LegalGuardian, (lg) => lg.user, { owner: true, nullable: true, cascade: [Cascade.PERSIST] })
+  legalGuardian?: LegalGuardian;
   
   @BeforeCreate()
   @BeforeUpdate()
-  checkRole() {
-    if (!this.patient && !this.legalGuardian && !this.professional) {
-      throw new Error("El usuario debe tener al menos un rol asignado.");
-    }
-  }
-
-  /*@BeforeCreate()
-  @BeforeUpdate()
-  generateRole() {
+  assignAndCheckRole() {
     if (this.patient) this.role = UserRole.Patient
     else if (this.legalGuardian) this.role = UserRole.LegalGuardian
     else if (this.professional) this.role = UserRole.Professional
     else throw new Error("El usuario debe tener al menos un rol asignado.");
-  }*/
+  }
   
 }

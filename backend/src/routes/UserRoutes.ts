@@ -34,7 +34,6 @@ const auth = passport.authenticate('jwt', { session: false });
 // Routes
 
 // Public
-router.post('/register', (req, res) => UserController.register(req, res));
 router.post('/login', (req, res) => UserController.login(req, res));
 
 // Protected

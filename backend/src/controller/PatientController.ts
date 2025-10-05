@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { getORM } from '../orm/db';
 import { Patient } from '../model/entities/Patient';
 import { LegalGuardian } from '../model/entities/LegalGuardian';
+import { createUser } from '../services/UserCreationService';
 
 export class PatientController {
 
@@ -9,47 +10,86 @@ export class PatientController {
         res.send('Soy el controlador de pacientes!');
     }
 
-    static async addPatient(req: Request, res: Response) {
-        const { name, lastName, birthdate, telephone, mail, legalGuardianId } = req.body;
+    //Para pacientes que no dependen de un responsable legal, se les crea usuario para acceder
+    static async addIndependentPatient(req: Request, res: Response) {
+        const { name, lastName, birthdate, password, telephone, mail} = req.body;
 
         if (!name) {
-            return res.status(400).json({ message: 'Name is required' });
+            return res.status(400).json({ message: 'Se requiere nombre' });
         }
         if (!lastName) {
-            return res.status(400).json({ message: 'Last name is required' });
+            return res.status(400).json({ message: 'Se requiere apellido' });
         }
         if (!birthdate) {
-            return res.status(400).json({ message: 'Birthdate is required' });
+            return res.status(400).json({ message: 'Se requiere una fecha de nacimiento valida' });
         }   
         if (!telephone) {
-            return res.status(400).json({ message: 'Telephone is required' });
+            return res.status(400).json({ message: 'Se requiere un telefono valido' });
         }
         if (!mail) {
-            return res.status(400).json({ message: 'Mail is required' });
+            return res.status(400).json({ message: 'Se requiere un email valido' });
+        }
+        if (!password) {
+            return res.status(400).json({ message: 'Se requiere una contraseña valida' });
         }
 
         try {            
-            
-            let legalGuardian: LegalGuardian | undefined;
             const em = await getORM().em.fork();
-            if(legalGuardianId) {
-                const legalGuardianIdNum = Number(legalGuardianId);
-                legalGuardian = await em.findOne(LegalGuardian, { idLegalGuardian: legalGuardianIdNum }) ?? undefined; //Si devuelve null lo paso a undefined para que no se queje TS
+
+            const patient = new Patient(name, lastName, birthdate, telephone, mail);
+
+            //Si se aclara contraseña, se trata de un paciente independiente que requiere usuario
+            const patUser = await createUser(mail, password);
+            patient.user = patUser;
+            patUser.patient = patient;
+            await em.persistAndFlush(patUser);
+
+            res.status(201).json({ message: 'Se agrego correctamente el paciente', patient });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Error al agregar el paciente' });
+        }
+    }
+
+    //Para pacientes que dependen de un responsable legal, sin usuario ni info de contacto
+    static async addDependentPatient(req: Request, res: Response) {
+            const { name, lastName, birthdate, password, legalGuardianId } = req.body;
+
+            if (!name) {
+                return res.status(400).json({ message: 'Se requiere nombre' });
+            }
+            if (!lastName) {
+                return res.status(400).json({ message: 'Se requiere apellido' });
+            }
+            if (!birthdate) {
+                return res.status(400).json({ message: 'Se requiere una fecha de nacimiento valida' });
+            }   
+            if (!legalGuardianId) {
+                return res.status(400).json({ message: 'Se requiere una ID de responsable legal valida' });
+            }
+
+            try {            
+            
+                const em = await getORM().em.fork();
+
+                let legalGuardian = await em.findOne(LegalGuardian, { idLegalGuardian: legalGuardianId });
                 if(!legalGuardian) {
                     return res.status(404).json({ message: 'ID del responsable legal invalida.' });
                 }
+
+                const patient = new Patient(name, lastName, birthdate, undefined, undefined, legalGuardian);
+
+                //Si no se aclara contraseña, entonces este metodo fue llamado para añadir a un paciente dependiente de un resp legal, que no requiere usuario
+                await em.persistAndFlush(patient);
+                
+
+                res.status(201).json({ message: 'Se añadió correctamente al paciente', patient});
+            } catch (error) {
+                console.error(error);
+                res.status(500).json({ message: 'Error al agregar al paciente' });
             }
-
-            const patient = new Patient(name, lastName, birthdate, telephone, mail, legalGuardian);
-            await em.persistAndFlush(patient);
-
-            res.status(201).json({ message: 'Patient added', patient });
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: 'Failed to add Patient' });
         }
-    }
-    
+
     static async updatePatient(req: Request, res: Response) {
         const { id } = req.body;
         const { name } = req.body;

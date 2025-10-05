@@ -21,6 +21,7 @@ import ConsultingRoomRoutes from './routes/ConsultingRoomRoutes';
 import ModuleRoutes from './routes/ModuleRoutes';
 import PatientRoutes from './routes/PatientRoutes';
 import UserRoutes from './routes/UserRoutes'
+import { startingCode } from './startingCode';
 
 const app = express();
 app.use(express.json());
@@ -51,6 +52,7 @@ app.use((_, res) => {
 async function start() {
   await initORM();
   await syncSchema(); // ⚠️Don't use this in production
+  await startingCode(); //SACAR EN PRODUCCION
   app.listen(port, () => {
     console.log(`App listening on http://localhost:${port}`);
   });

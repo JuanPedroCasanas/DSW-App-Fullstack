@@ -37,8 +37,9 @@ export class Professional {
   @ManyToMany(() => HealthInsurance, healthInsurance => healthInsurance.professionals, {owner: true})
   healthInsurances = new Collection<HealthInsurance>(this);
 
-  @OneToOne(() => User)
+  @OneToOne(() => User, (u) => u.professional)
   user!: User;
+  
 constructor(firstName: string, lastName: string, telephone: string, email: string, occupation: Occupation) {
     this.firstName = firstName;
     this.lastName = lastName;

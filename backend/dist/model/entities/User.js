@@ -17,10 +17,15 @@ const Patient_1 = require("./Patient");
 const Professional_1 = require("./Professional");
 const UserRole_1 = require("../enums/UserRole");
 let User = class User {
-    checkRole() {
-        if (!this.patient && !this.legalGuardian && !this.professional) {
+    assignAndCheckRole() {
+        if (this.patient)
+            this.role = UserRole_1.UserRole.Patient;
+        else if (this.legalGuardian)
+            this.role = UserRole_1.UserRole.LegalGuardian;
+        else if (this.professional)
+            this.role = UserRole_1.UserRole.Professional;
+        else
             throw new Error("El usuario debe tener al menos un rol asignado.");
-        }
     }
 };
 exports.User = User;
@@ -41,24 +46,24 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "role", void 0);
 __decorate([
-    (0, core_2.OneToOne)(() => Patient_1.Patient, { nullable: true }),
+    (0, core_2.OneToOne)(() => Professional_1.Professional, (p) => p.user, { owner: true, nullable: true, cascade: [core_1.Cascade.PERSIST] }),
+    __metadata("design:type", Professional_1.Professional)
+], User.prototype, "professional", void 0);
+__decorate([
+    (0, core_2.OneToOne)(() => Patient_1.Patient, (p) => p.user, { owner: true, nullable: true, cascade: [core_1.Cascade.PERSIST] }),
     __metadata("design:type", Patient_1.Patient)
 ], User.prototype, "patient", void 0);
 __decorate([
-    (0, core_2.OneToOne)(() => LegalGuardian_1.LegalGuardian, { nullable: true }),
+    (0, core_2.OneToOne)(() => LegalGuardian_1.LegalGuardian, (lg) => lg.user, { owner: true, nullable: true, cascade: [core_1.Cascade.PERSIST] }),
     __metadata("design:type", LegalGuardian_1.LegalGuardian)
 ], User.prototype, "legalGuardian", void 0);
-__decorate([
-    (0, core_2.OneToOne)(() => Professional_1.Professional, { nullable: true }),
-    __metadata("design:type", Professional_1.Professional)
-], User.prototype, "professional", void 0);
 __decorate([
     (0, core_1.BeforeCreate)(),
     (0, core_1.BeforeUpdate)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
-], User.prototype, "checkRole", null);
+], User.prototype, "assignAndCheckRole", null);
 exports.User = User = __decorate([
     (0, core_1.Entity)()
 ], User);

@@ -19,11 +19,11 @@ export class Patient {
   @Property()
   birthdate!: Date;
 
-  @Property()
-  telephone!: string;
+  @Property({ nullable: true })
+  telephone?: string;
 
-  @Property()
-  mail!: string;
+  @Property({ nullable: true })
+  mail?: string;
 
   @OneToMany(() => Appointment, (appointment: Appointment) => appointment.patient)
   appointments = new Collection<Appointment>(this);
@@ -34,7 +34,11 @@ export class Patient {
   @ManyToOne(() => LegalGuardian, { nullable: true })
   legalGuardian?: LegalGuardian;
 
-  constructor(firstName: string, lastName: string, birthdate: Date, telephone: string, mail: string, legalGuardian?: LegalGuardian) {
+  @OneToOne(() => User, (u) => u.patient)
+  user?: User
+
+
+  constructor(firstName: string, lastName: string, birthdate: Date, telephone?: string, mail?: string, legalGuardian?: LegalGuardian) {
     this.firstName = firstName;
     this.lastName = lastName;
     this.birthdate = birthdate;

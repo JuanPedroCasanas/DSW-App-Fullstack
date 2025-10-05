@@ -35,8 +35,8 @@ export class LegalGuardian {
   @OneToMany(() => Patient, (patient: Patient) => patient.legalGuardian)
   guardedPatients = new Collection<Patient>(this);
 
-  @OneToOne(() => User)
-  user!: User;  
+  @OneToOne(() => User, (u) => u.legalGuardian)
+  user!: User 
 
   constructor(firstName: string, lastName: string, birthdate: Date, telephone: string, mail: string)
   {

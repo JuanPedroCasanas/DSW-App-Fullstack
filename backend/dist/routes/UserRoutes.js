@@ -31,7 +31,6 @@ passport_1.default.use(new passport_jwt_1.Strategy({
 const auth = passport_1.default.authenticate('jwt', { session: false });
 // Routes
 // Public
-router.post('/register', (req, res) => UserController_1.UserController.register(req, res));
 router.post('/login', (req, res) => UserController_1.UserController.login(req, res));
 // Protected
 router.get('/users', auth, (req, res) => UserController_1.UserController.getAll(req, res));

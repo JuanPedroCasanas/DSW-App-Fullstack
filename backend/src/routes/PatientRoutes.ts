@@ -4,7 +4,8 @@ import { PatientController } from '../controller/PatientController';
 const router = express.Router();
 
 router.get('/', PatientController.home);
-router.post('/add', PatientController.addPatient);
+router.post('/addIndPatient', PatientController.addIndependentPatient);
+router.post('/addDepPatient', PatientController.addDependentPatient);
 router.post('/update', PatientController.updatePatient);
 router.get('/getAll', PatientController.getPatients);
 router.get('/get/:id', PatientController.getPatient);

@@ -9,28 +9,8 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const User_1 = require("../model/entities/User");
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
-const SALT_ROUNDS = 10;
+const SALT_ROUNDS = process.env.SALT_ROUNDS || 10;
 class UserController {
-    // REGISTER
-    static async register(req, res) {
-        try {
-            const em = (await (0, db_1.getORM)()).em.fork();
-            const { mail, password, patient, legalGuardian, professional } = req.body;
-            const hashedPassword = await bcrypt_1.default.hash(password, SALT_ROUNDS);
-            const user = new User_1.User();
-            user.mail = mail;
-            user.password = hashedPassword;
-            user.patient = patient;
-            user.legalGuardian = legalGuardian;
-            user.professional = professional;
-            await em.persistAndFlush(user);
-            const token = jsonwebtoken_1.default.sign({ idUser: user.idUser }, JWT_SECRET, { expiresIn: '1h' });
-            res.status(201).json({ user, token });
-        }
-        catch (err) {
-            res.status(400).json({ error: err.message });
-        }
-    }
     // LOGIN
     static async login(req, res) {
         try {

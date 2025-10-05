@@ -15,6 +15,7 @@ const Appointment_1 = require("./Appointment");
 const core_2 = require("@mikro-orm/core");
 const HealthInsurance_1 = require("./HealthInsurance");
 const LegalGuardian_1 = require("./LegalGuardian");
+const User_1 = require("./User");
 let Patient = class Patient {
     constructor(firstName, lastName, birthdate, telephone, mail, legalGuardian) {
         this.appointments = new core_2.Collection(this);
@@ -45,11 +46,11 @@ __decorate([
     __metadata("design:type", Date)
 ], Patient.prototype, "birthdate", void 0);
 __decorate([
-    (0, core_1.Property)(),
+    (0, core_1.Property)({ nullable: true }),
     __metadata("design:type", String)
 ], Patient.prototype, "telephone", void 0);
 __decorate([
-    (0, core_1.Property)(),
+    (0, core_1.Property)({ nullable: true }),
     __metadata("design:type", String)
 ], Patient.prototype, "mail", void 0);
 __decorate([
@@ -64,6 +65,10 @@ __decorate([
     (0, core_2.ManyToOne)(() => LegalGuardian_1.LegalGuardian, { nullable: true }),
     __metadata("design:type", LegalGuardian_1.LegalGuardian)
 ], Patient.prototype, "legalGuardian", void 0);
+__decorate([
+    (0, core_2.OneToOne)(() => User_1.User, (u) => u.patient),
+    __metadata("design:type", User_1.User)
+], Patient.prototype, "user", void 0);
 exports.Patient = Patient = __decorate([
     (0, core_1.Entity)(),
     __metadata("design:paramtypes", [String, String, Date, String, String, LegalGuardian_1.LegalGuardian])

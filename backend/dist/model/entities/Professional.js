@@ -66,7 +66,7 @@ __decorate([
     __metadata("design:type", Object)
 ], Professional.prototype, "healthInsurances", void 0);
 __decorate([
-    (0, core_1.OneToOne)(() => User_1.User),
+    (0, core_1.OneToOne)(() => User_1.User, (u) => u.professional),
     __metadata("design:type", User_1.User)
 ], Professional.prototype, "user", void 0);
 exports.Professional = Professional = __decorate([
