@@ -47,9 +47,9 @@ const startingCode = async () => {
     else {
         console.log(oc1DB);
     }
-    let usu2 = await (0, UserCreationService_1.createUser)("parciales_falopa@gmail.com", UNIVERSAL_PASSWORD);
+    let usu2 = await (0, UserCreationService_1.createUser)("parcialitos@gmail.com", UNIVERSAL_PASSWORD);
     if (oc2DB) {
-        const prof2 = new Professional_1.Professional("Franco", "Vilmosius BDD", "3416333111", "parciales_falopa@gmail.com", oc2DB);
+        const prof2 = new Professional_1.Professional("Franco", "Vilmosius BDD", "3416333111", "parcialitos@gmail.com", oc2DB);
         prof2.user = usu2;
         usu2.professional = prof2;
         await em.persist(usu2);

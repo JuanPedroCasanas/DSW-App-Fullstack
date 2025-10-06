@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 import { User } from '../model/entities/User';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
-const SALT_ROUNDS = process.env.SALT_ROUNDS || 10;
+const SALT_ROUNDS = parseInt(process.env.SALT_ROUNDS ?? "10") //Los env son strings, parseo por las dudas y si no esta definido defaulteo a 10
 
 export class UserController {
 

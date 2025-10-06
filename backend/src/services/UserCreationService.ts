@@ -1,10 +1,21 @@
 import { User } from "../model/entities/User";
 import bcrypt from 'bcrypt';
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
-const SALT_ROUNDS = process.env.SALT_ROUNDS || 10;
+import { getORM } from "../orm/db";
+const SALT_ROUNDS = parseInt(process.env.SALT_ROUNDS ?? "10") //Los env son strings, parseo por las dudas y si no esta definido defaulteo a 10
 
 
 export const createUser = async (mail: string, password: string) => {
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) {
+    throw new Error("Formato de email inválido");
+    }
+
+    const em = await getORM().em.fork();
+    const existingUser = await em.findOne(User, { mail: mail })
+    
+    if(existingUser) {
+        throw new Error("Usuario ya existente con el mail provisto");
+    }
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
     const user = new User();
     user.mail = mail;
