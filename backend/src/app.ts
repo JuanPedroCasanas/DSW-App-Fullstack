@@ -26,14 +26,19 @@ import { startingCode } from './startingCode';
 const app = express();
 app.use(express.json());
 app.use(passport.initialize());
-app.use(cors());
-const port = process.env.PORT;
+app.use(cors({
+    origin: 'http://localhost:3000', // <--- ¡MUY IMPORTANTE! Usa el puerto de Vite.
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
+    allowedHeaders: ['Content-Type', 'Authorization'], // Encabezados permitidos
+}));
+const port = process.env.PORT|| 2000; //puse para que el puerto del back sea 2000 aunque no se que tan bien este
 
 app.use((req: Request, res: Response, next: NextFunction) => {
     RequestContext.create(getORM().em, next);
 });
 
-
+app.use(express.json()); // Para parsear JSON
+app.use(express.urlencoded({ extended: true }));
 //USO RUTAS
 app.use('/Occupation', occupationRoutes);
 app.use('/Appointment', AppointmentRoutes);

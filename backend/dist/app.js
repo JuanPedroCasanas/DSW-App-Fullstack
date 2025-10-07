@@ -26,11 +26,17 @@ const startingCode_1 = require("./startingCode");
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use(passport_1.default.initialize());
-app.use((0, cors_1.default)());
-const port = process.env.PORT;
+app.use((0, cors_1.default)({
+    origin: 'http://localhost:3000', // <--- ¡MUY IMPORTANTE! Usa el puerto de Vite.
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
+    allowedHeaders: ['Content-Type', 'Authorization'], // Encabezados permitidos
+}));
+const port = process.env.PORT || 2000;
 app.use((req, res, next) => {
     core_1.RequestContext.create((0, db_1.getORM)().em, next);
 });
+app.use(express_1.default.json()); // Para parsear JSON
+app.use(express_1.default.urlencoded({ extended: true }));
 //USO RUTAS
 app.use('/Occupation', OccupationRoutes_1.default);
 app.use('/Appointment', AppointmentRoutes_1.default);

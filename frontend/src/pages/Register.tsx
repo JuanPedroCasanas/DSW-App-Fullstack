@@ -16,6 +16,9 @@ export default function Register() {
     rol: "" as "" | Role,
   });
   const [showPwd, setShowPwd] = useState(false);
+  const [message, setMessage] = useState('');      // Para mensajes de éxito o error
+  const [isError, setIsError] = useState(false);    // Para marcar si el mensaje es un error
+  const [isLoading, setIsLoading] = useState(false); // Para deshabilitar el botón durante la petición
 
   // Mismo truco del ojito que en Login.tsx
   const eyeIconUrl = useMemo(() => {
@@ -35,11 +38,49 @@ export default function Register() {
     setForm((f) => ({ ...f, [name]: value }));
   }
 
-  function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setMessage(''); // 1. Limpia mensajes anteriores
+    setIsError(false);
+    setIsLoading(true); // 2. Activa el estado de carga
+    const dataToSend = {
+    // Mapeo
+    name: form.nombre,
+    lastName: form.apellido,
+    birthdate: form.fechaNacimiento,
+    mail: form.email, 
+    password: form.password,
+    telephone: form.telefono,
+    rol: form.rol
+  };
     if (!form.rol) {
       alert("Por favor elegí un rol.");
+      setIsLoading(false);
       return;
+    }
+ try {
+        const response = await fetch('http://localhost:2000/Patient/addIndPatient', { //ruta para registrar paciente individual
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+             body: JSON.stringify(dataToSend) // Envía todos los datos del formulario
+        });
+const data = await response.json();
+
+        if (response.ok) { 
+            setMessage(data.message || '¡Registro completado con éxito!');
+            setForm((f) => ({ ...f, rol: "" as "" | Role })); // Resetea el rol
+
+        } else { 
+            setMessage(data.message || 'Error desconocido al registrar.');
+            setIsError(true);
+        }
+    } catch (error) {
+        // Error de red (el backend no está corriendo o hay un problema de CORS) mas que nada para ver que error es
+        setMessage('🚨 Error de conexión: El servidor no está disponible.');
+        setIsError(true);
+    } finally {
+        // Siempre desactiva el estado de carga al terminar
+        setIsLoading(false); 
     }
     console.log("REGISTER payload:", form);
     // TODO: enviar a tu backend/Firebase
