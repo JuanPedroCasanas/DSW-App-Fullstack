@@ -21,7 +21,7 @@
   width: 100%;
   max-width: 420px; /* ajustá según diseño */
   background: var(--variable-collection-white);
-  padding: 24px;
+  padding: 200px;
   border-radius: 12px;
   overflow: visible;
   scrollbar-width: none;          /* Firefox */

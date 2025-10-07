@@ -4,7 +4,7 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
+  color: rgba(0, 0, 0, 0.87);
   background-color: #e6f5f7;
 
   font-synthesis: none;
@@ -18,10 +18,13 @@
   --nav-h: 90px; /* ya que tu diseño usa 90px */
 
 }
+.div {
+  padding: 3.5rem;
 
+}
 html, body {
   margin: 0;
-  padding: 0;
+  padding-top: 2.5rem;
 }
 
 a {
@@ -88,4 +91,57 @@ button:focus-visible {
 
 body {
   font-family: 'bahnschrift', bahnschrift;
+}
+
+/* ====== About page ====== */
+.about-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.about-title {
+  margin: 0 0 1rem 0;
+  font-size: 2rem;
+  color: #213547;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+/* Dos columnas en pantallas medianas/grandes */
+@media (min-width: 860px) {
+  .about-grid {
+    grid-template-columns: minmax(0, 420px) 1fr;
+    gap: 2rem;
+  }
+}
+
+.about-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;            /* Asegura formato cuadrado */
+  object-fit: cover;              /* Recorte agradable si la imagen no es cuadrada */
+  border-radius: 12px;
+  background: var(--variable-collection-white);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.10);
+}
+
+.about-right p {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* Acento para el link de Instagram */
+.about-right a {
+  color: var(--variable-collection-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.about-right a:hover {
+  text-decoration: underline;
 }

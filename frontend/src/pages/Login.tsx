@@ -20,7 +20,7 @@ export default function Login() {
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // TODO: acá va tu llamada real al backend / Firebase / lo que uses
+    // TODO: acá va tu llamada real al supabase
     if (remember) localStorage.setItem("rememberEmail", email);
     else localStorage.removeItem("rememberEmail");
 

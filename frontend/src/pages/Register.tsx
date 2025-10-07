@@ -1,5 +1,5 @@
 // src/pages/Register.tsx
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import "@/styles/login.css"; // Reutilizamos exactamente los estilos del login
 
@@ -9,13 +9,29 @@ export default function Register() {
   const [form, setForm] = useState({
     email: "",
     password: "",
+    confirmPassword: "", // NEW: confirmación
     nombre: "",
     apellido: "",
     fechaNacimiento: "",
     telefono: "",
     rol: "" as "" | Role,
   });
+
+
+  // lo estoy poniendo por separado del const [form, setForm] porque por ahora manejamos únicamente el 
+  // register de paciente. Es para no romper el código más que nada. Ni idea, funciona.
+  const [especialidad, setEspecialidad] = useState("");
+  
+  // Si cambia el rol a algo distinto de profesional se limpia la especialidad
+  useEffect(() => {
+    if (form.rol !== "profesional") {
+      setEspecialidad("");
+      }
+    }, [form.rol]);
+
+
   const [showPwd, setShowPwd] = useState(false);
+  const [showConfirmPwd, setShowConfirmPwd] = useState(false);
   const [message, setMessage] = useState('');      // Para mensajes de éxito o error
   const [isError, setIsError] = useState(false);    // Para marcar si el mensaje es un error
   const [isLoading, setIsLoading] = useState(false); // Para deshabilitar el botón durante la petición
@@ -43,6 +59,15 @@ export default function Register() {
     setMessage(''); // 1. Limpia mensajes anteriores
     setIsError(false);
     setIsLoading(true); // 2. Activa el estado de carga
+  
+    // Valida las contraseñas antes de enviar
+    if (form.password !== form.confirmPassword) {
+      setMessage("Las contraseñas no coinciden.");
+      setIsError(true);
+      setIsLoading(false);
+      return;
+    }
+    
     const dataToSend = {
     // Mapeo
     name: form.nombre,
@@ -53,18 +78,23 @@ export default function Register() {
     telephone: form.telefono,
     rol: form.rol
   };
+
     if (!form.rol) {
       alert("Por favor elegí un rol.");
       setIsLoading(false);
       return;
     }
+
  try {
         const response = await fetch('http://localhost:2000/Patient/addIndPatient', { //ruta para registrar paciente individual
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
              body: JSON.stringify(dataToSend) // Envía todos los datos del formulario
         });
-const data = await response.json();
+
+ const data = await response.json();
+
+ console.log("[REGISTER] status:", response.status, "body:", data); //para debuggear
 
         if (response.ok) { 
             setMessage(data.message || '¡Registro completado con éxito!');
@@ -83,15 +113,15 @@ const data = await response.json();
         setIsLoading(false); 
     }
     console.log("REGISTER payload:", form);
-    // TODO: enviar a tu backend/Firebase
   }
 
   return (
-    <main className="login">{/* mismo wrapper que Login */}
+    <main className="login">{/* mismo wrapper que Login para no hacer 45 mil .css */}
         <div className="frame">
-          {/* Encabezado en el mismo estilo que Login/Anima */}
+          {/* Encabezado en el mismo estilo que Login/Anima (anima = la ia de figma) */}
           <div className="div">
             <h1 className="login__title">Bienvenido a Narrativas</h1>
+            <h1 className="login__title">Registrarse</h1>
             <NavLink className="text-wrapper-2" to="/login">
               ¿Ya tenés cuenta? Iniciar sesión
             </NavLink>
@@ -178,6 +208,46 @@ const data = await response.json();
               </div>
             </div>
 
+
+          {/* Repetir contraseña */}
+          <div className="div-2">
+            <label className="text-wrapper-3" htmlFor="confirmPassword">Repetir contraseña</label>
+            <div className="input input--password">
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                className="input__control"
+                type={showConfirmPwd ? "text" : "password"}
+                placeholder="Repetí tu contraseña"
+                value={form.confirmPassword}
+                onChange={handleChange}
+                autoComplete="new-password"
+                minLength={8}
+                required
+                aria-invalid={
+                  form.confirmPassword && form.password !== form.confirmPassword
+                    ? true
+                    : undefined
+                }
+                aria-describedby="confirmPwdHelp"
+              />
+              <button
+                type="button"
+                className="eye"
+                aria-label={showConfirmPwd ? "Ocultar contraseña" : "Mostrar contraseña"}
+                onClick={() => setShowConfirmPwd((v) => !v)}
+              >
+                {eyeIconUrl ? <img className="vector" src={eyeIconUrl} alt="" /> : "👁"}
+              </button>
+            </div>
+            {form.confirmPassword && form.password !== form.confirmPassword && (
+              <small id="confirmPwdHelp" style={{ color: "#d32f2f", marginTop: 4, display: "block" }}>
+                Las contraseñas no coinciden.
+              </small>
+            )}
+          </div>
+
+
             {/* Fecha de nacimiento */}
             <div className="div-2">
               <label className="text-wrapper-3" htmlFor="fechaNacimiento">Fecha de nacimiento</label>
@@ -234,10 +304,48 @@ const data = await response.json();
               </div>
             </div>
 
+            {/* Especialidad solo si rol = profesional */}
+            {form.rol === "profesional" && (
+              <>
+                <label htmlFor="especialidad" className="text-wrapper-3" style={{ marginTop: 12 }}>
+                  Especialidad
+                </label>
+                <div className="input">
+                  <select
+                    id="especialidad"
+                    name="especialidad"
+                    className="input__control"
+                    value={especialidad}                 //  ya no depende de form !!! para no romper el register de paciente
+                    onChange={(e) => setEspecialidad(e.target.value)}
+                    required
+                  >
+                    <option value="" disabled>Elegí una especialidad</option>
+                    <option value="psicopedagogia">Psicopedagogia</option>
+                    <option value="psicologia">Psicologia</option>
+                  </select>
+                </div>
+              </>
+            )}
+
             {/* CTA */}
             <div className="div-4">
               <button type="submit" className="btn-primary">Crear cuenta</button>
             </div>
+
+          {/* mensajes generales */}
+          {message && (
+            <div
+              role="alert"
+              style={{
+                marginTop: 12,
+                color: isError ? "#d32f2f" : "#2e7d32",
+                fontSize: 14,
+              }}
+            >
+              {message}
+            </div>
+          )}
+
           </form>
         </div>
     </main>
