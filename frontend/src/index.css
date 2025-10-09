@@ -19,9 +19,9 @@
 
 }
 .div {
-  padding: 3.5rem;
-
+  padding: 3.5rem; 
 }
+
 html, body {
   margin: 0;
   padding-top: 2.5rem;
@@ -37,7 +37,7 @@ a:hover {
 }
 
 body {
-  margin: 0;
+  margin: 0; /* lo repito para que lo entienda ni ideaaa */
   display: block;
   place-items: center;
   min-width: 320px;
@@ -81,6 +81,17 @@ button:focus-visible {
   }
 }
 
+/* Para que quede prolijo en mobile */
+@media (min-width: 768px) {
+  .home-hero {
+    gap: 24px;
+  }
+  .cta-primary {
+    inline-size: auto;     
+    min-inline-size: 215px;
+  }
+}
+
 
 @font-face {
   font-family: 'bahnschrift';
@@ -112,7 +123,7 @@ body {
   align-items: start;
 }
 
-/* Dos columnas en pantallas medianas/grandes */
+/* Dos columnas */
 @media (min-width: 860px) {
   .about-grid {
     grid-template-columns: minmax(0, 420px) 1fr;
@@ -135,7 +146,7 @@ body {
   line-height: 1.6;
 }
 
-/* Acento para el link de Instagram */
+/* link de Instagram */
 .about-right a {
   color: var(--variable-collection-primary);
   font-weight: 600;
@@ -144,4 +155,70 @@ body {
 
 .about-right a:hover {
   text-decoration: underline;
+}
+
+/* ====== Hero centrado ====== */
+.home-hero {
+  min-height: calc(100vh - var(--nav-h));
+  padding: 24px 16px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  gap: 18px;
+} 
+
+/* ====== Home (mobile-first) ====== */
+.home-hero {
+  min-height: calc(100dvh - var(--nav-h));
+  padding-inline: max(16px, env(safe-area-inset-left));
+  padding-inline-end: max(16px, env(safe-area-inset-right));
+  padding-block: 24px;
+
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 18px;
+  text-align: center;
+}
+
+/* Botón CTA: full-width en mobile */
+.cta-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  inline-size: 100%;          /* ocupa todo el ancho en mobile */
+  min-height: 48px;           /* tamaño dedo-friendly */
+  padding: 14px 12px;
+
+  background-color: var(--variable-collection-primary);
+  color: #fff;
+  border-radius: 10px;
+  text-decoration: none;
+
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1;
+
+  box-shadow: 0 1px 0 rgba(0,0,0,.02) inset;
+  transition: filter .15s ease, transform .02s ease;
+}
+.cta-primary:hover { filter: brightness(0.97); }
+.cta-primary:active { transform: translateY(1px); }
+
+/* Accesibilidad: foco visible para teclado */
+.cta-primary:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--variable-collection-primary) 40%, white);
+  outline-offset: 3px;
+}
+
+/* ====== Mejoras en pantallas medianas/grandes ====== */
+@media (min-width: 768px) {
+  .home-hero {
+    gap: 24px;
+  }
+  .cta-primary {
+    inline-size: auto;     /* deja de ser full-width */
+    min-inline-size: 215px;/* respeta el ancho del CTA estilo navbar */
+  }
 }
