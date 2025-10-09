@@ -47,7 +47,6 @@ export class LegalGuardianController {
         const {lastName} = req.body;
         const {birthdate} = req.body;   
         const {telephone} = req.body;
-        const {mail} = req.body;
 
         if(!id)
         {
@@ -69,10 +68,6 @@ export class LegalGuardianController {
         {
             return res.status(400).json({ message: 'Legal Guardian new telephone is required' });
         }
-        if(!mail)
-        {
-            return res.status(400).json({ message: 'Legal Guardian new mail is required' });
-        }
         
         const em = await getORM().em.fork();
         const legalguardian = await em.findOne(LegalGuardian, {idLegalGuardian: id});
@@ -86,7 +81,6 @@ export class LegalGuardianController {
         legalguardian.lastName = lastName;
         legalguardian.birthdate = birthdate;
         legalguardian.telephone = telephone;
-        legalguardian.mail = mail;
 
         await em.persistAndFlush(LegalGuardian);
 

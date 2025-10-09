@@ -17,15 +17,15 @@ const Module_1 = require("./Module");
 const HealthInsurance_1 = require("./HealthInsurance");
 const User_1 = require("./User");
 let Professional = class Professional {
-    constructor(firstName, lastName, telephone, email, occupation) {
+    constructor(firstName, lastName, telephone, occupation) {
         this.modules = new core_1.Collection(this);
         this.appointments = new core_1.Collection(this);
         this.healthInsurances = new core_1.Collection(this);
         this.firstName = firstName;
         this.lastName = lastName;
         this.telephone = telephone;
-        this.email = email;
         this.occupation = occupation;
+        this.isActive = true;
     }
 };
 exports.Professional = Professional;
@@ -44,11 +44,11 @@ __decorate([
 __decorate([
     (0, core_1.Property)(),
     __metadata("design:type", String)
-], Professional.prototype, "email", void 0);
+], Professional.prototype, "telephone", void 0);
 __decorate([
     (0, core_1.Property)(),
-    __metadata("design:type", String)
-], Professional.prototype, "telephone", void 0);
+    __metadata("design:type", Boolean)
+], Professional.prototype, "isActive", void 0);
 __decorate([
     (0, core_1.ManyToOne)(),
     __metadata("design:type", Occupation_1.Occupation)
@@ -71,6 +71,6 @@ __decorate([
 ], Professional.prototype, "user", void 0);
 exports.Professional = Professional = __decorate([
     (0, core_1.Entity)(),
-    __metadata("design:paramtypes", [String, String, String, String, Occupation_1.Occupation])
+    __metadata("design:paramtypes", [String, String, String, Occupation_1.Occupation])
 ], Professional);
 //# sourceMappingURL=Professional.js.map

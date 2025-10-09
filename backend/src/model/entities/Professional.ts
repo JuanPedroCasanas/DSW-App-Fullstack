@@ -20,10 +20,10 @@ export class Professional {
   lastName!: string;
 
   @Property()
-  email!: string;
+  telephone!: string;
 
   @Property()
-  telephone!: string;
+  isActive!: boolean;
 
   @ManyToOne()
   occupation!: Occupation;
@@ -40,12 +40,12 @@ export class Professional {
   @OneToOne(() => User, (u) => u.professional)
   user!: User;
   
-constructor(firstName: string, lastName: string, telephone: string, email: string, occupation: Occupation) {
+constructor(firstName: string, lastName: string, telephone: string, occupation: Occupation) {
     this.firstName = firstName;
     this.lastName = lastName;
     this.telephone = telephone;
-    this.email = email;
     this.occupation = occupation
+    this.isActive = true;
 
 }
 }

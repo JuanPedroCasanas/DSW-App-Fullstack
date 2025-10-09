@@ -31,7 +31,7 @@ app.use((0, cors_1.default)({
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
     allowedHeaders: ['Content-Type', 'Authorization'], // Encabezados permitidos
 }));
-const port = process.env.PORT || 2000;
+const port = process.env.PORT || 2000; //puse para que el puerto del back sea 2000 aunque no se que tan bien este
 app.use((req, res, next) => {
     core_1.RequestContext.create((0, db_1.getORM)().em, next);
 });

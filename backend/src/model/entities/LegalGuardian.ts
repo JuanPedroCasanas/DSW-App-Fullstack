@@ -24,13 +24,13 @@ export class LegalGuardian {
   telephone!: string;
 
   @Property()
-  mail!: string;
+  isActive!: boolean;
 
   @OneToMany(() => Appointment, (appointment: Appointment) => appointment.legalGuardian)
   appointments = new Collection<Appointment>(this);
 
-  //@ManyToMany(() => HealthInsurance, (healthInsurance: HealthInsurance) => healthInsurance.patients, {owner: true})
-  //healthInsurances = new Collection<HealthInsurance>(this);
+  @ManyToOne(() => HealthInsurance)
+  healthInsurance!: HealthInsurance
 
   @OneToMany(() => Patient, (patient: Patient) => patient.legalGuardian)
   guardedPatients = new Collection<Patient>(this);
@@ -38,12 +38,13 @@ export class LegalGuardian {
   @OneToOne(() => User, (u) => u.legalGuardian)
   user!: User 
 
-  constructor(firstName: string, lastName: string, birthdate: Date, telephone: string, mail: string)
+  constructor(firstName: string, lastName: string, birthdate: Date, telephone: string, healthInsurance: HealthInsurance)
   {
     this.firstName = firstName;
     this.lastName = lastName;
     this.birthdate = birthdate;
     this.telephone = telephone;
-    this.mail = mail;
+    this.isActive = true;
+    this.healthInsurance = healthInsurance
   }
 }

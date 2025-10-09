@@ -17,15 +17,15 @@ const HealthInsurance_1 = require("./HealthInsurance");
 const LegalGuardian_1 = require("./LegalGuardian");
 const User_1 = require("./User");
 let Patient = class Patient {
-    constructor(firstName, lastName, birthdate, telephone, mail, legalGuardian) {
+    constructor(firstName, lastName, birthdate, healthInsurance, telephone, legalGuardian) {
         this.appointments = new core_2.Collection(this);
-        this.healthInsurances = new core_2.Collection(this);
         this.firstName = firstName;
         this.lastName = lastName;
         this.birthdate = birthdate;
         this.telephone = telephone;
-        this.mail = mail;
         this.legalGuardian = legalGuardian;
+        this.healthInsurance = healthInsurance;
+        this.isActive = true;
     }
 };
 exports.Patient = Patient;
@@ -50,17 +50,17 @@ __decorate([
     __metadata("design:type", String)
 ], Patient.prototype, "telephone", void 0);
 __decorate([
-    (0, core_1.Property)({ nullable: true }),
-    __metadata("design:type", String)
-], Patient.prototype, "mail", void 0);
+    (0, core_1.Property)(),
+    __metadata("design:type", Boolean)
+], Patient.prototype, "isActive", void 0);
 __decorate([
     (0, core_2.OneToMany)(() => Appointment_1.Appointment, (appointment) => appointment.patient),
     __metadata("design:type", Object)
 ], Patient.prototype, "appointments", void 0);
 __decorate([
-    (0, core_2.ManyToMany)(() => HealthInsurance_1.HealthInsurance, (healthInsurance) => healthInsurance.patients, { owner: true }),
-    __metadata("design:type", Object)
-], Patient.prototype, "healthInsurances", void 0);
+    (0, core_2.ManyToOne)(() => HealthInsurance_1.HealthInsurance),
+    __metadata("design:type", HealthInsurance_1.HealthInsurance)
+], Patient.prototype, "healthInsurance", void 0);
 __decorate([
     (0, core_2.ManyToOne)(() => LegalGuardian_1.LegalGuardian, { nullable: true }),
     __metadata("design:type", LegalGuardian_1.LegalGuardian)
@@ -71,6 +71,6 @@ __decorate([
 ], Patient.prototype, "user", void 0);
 exports.Patient = Patient = __decorate([
     (0, core_1.Entity)(),
-    __metadata("design:paramtypes", [String, String, Date, String, String, LegalGuardian_1.LegalGuardian])
+    __metadata("design:paramtypes", [String, String, Date, HealthInsurance_1.HealthInsurance, String, LegalGuardian_1.LegalGuardian])
 ], Patient);
 //# sourceMappingURL=Patient.js.map

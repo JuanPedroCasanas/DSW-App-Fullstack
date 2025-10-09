@@ -27,6 +27,11 @@ let User = class User {
         else
             throw new Error("El usuario debe tener al menos un rol asignado.");
     }
+    constructor(mail, password) {
+        this.mail = mail;
+        this.password = password;
+        this.isActive = true;
+    }
 };
 exports.User = User;
 __decorate([
@@ -41,6 +46,10 @@ __decorate([
     (0, core_1.Property)(),
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
+__decorate([
+    (0, core_1.Property)(),
+    __metadata("design:type", Boolean)
+], User.prototype, "isActive", void 0);
 __decorate([
     (0, core_1.Enum)(() => UserRole_1.UserRole),
     __metadata("design:type", String)
@@ -65,6 +74,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], User.prototype, "assignAndCheckRole", null);
 exports.User = User = __decorate([
-    (0, core_1.Entity)()
+    (0, core_1.Entity)(),
+    __metadata("design:paramtypes", [String, String])
 ], User);
 //# sourceMappingURL=User.js.map

@@ -13,19 +13,19 @@ exports.LegalGuardian = void 0;
 const core_1 = require("@mikro-orm/core");
 const Appointment_1 = require("./Appointment");
 const core_2 = require("@mikro-orm/core");
+const HealthInsurance_1 = require("./HealthInsurance");
 const Patient_1 = require("./Patient");
 const User_1 = require("./User");
 let LegalGuardian = class LegalGuardian {
-    constructor(firstName, lastName, birthdate, telephone, mail) {
+    constructor(firstName, lastName, birthdate, telephone, healthInsurance) {
         this.appointments = new core_2.Collection(this);
-        //@ManyToMany(() => HealthInsurance, (healthInsurance: HealthInsurance) => healthInsurance.patients, {owner: true})
-        //healthInsurances = new Collection<HealthInsurance>(this);
         this.guardedPatients = new core_2.Collection(this);
         this.firstName = firstName;
         this.lastName = lastName;
         this.birthdate = birthdate;
         this.telephone = telephone;
-        this.mail = mail;
+        this.isActive = true;
+        this.healthInsurance = healthInsurance;
     }
 };
 exports.LegalGuardian = LegalGuardian;
@@ -51,12 +51,16 @@ __decorate([
 ], LegalGuardian.prototype, "telephone", void 0);
 __decorate([
     (0, core_1.Property)(),
-    __metadata("design:type", String)
-], LegalGuardian.prototype, "mail", void 0);
+    __metadata("design:type", Boolean)
+], LegalGuardian.prototype, "isActive", void 0);
 __decorate([
     (0, core_2.OneToMany)(() => Appointment_1.Appointment, (appointment) => appointment.legalGuardian),
     __metadata("design:type", Object)
 ], LegalGuardian.prototype, "appointments", void 0);
+__decorate([
+    (0, core_2.ManyToOne)(() => HealthInsurance_1.HealthInsurance),
+    __metadata("design:type", HealthInsurance_1.HealthInsurance)
+], LegalGuardian.prototype, "healthInsurance", void 0);
 __decorate([
     (0, core_2.OneToMany)(() => Patient_1.Patient, (patient) => patient.legalGuardian),
     __metadata("design:type", Object)
@@ -67,6 +71,6 @@ __decorate([
 ], LegalGuardian.prototype, "user", void 0);
 exports.LegalGuardian = LegalGuardian = __decorate([
     (0, core_1.Entity)(),
-    __metadata("design:paramtypes", [String, String, Date, String, String])
+    __metadata("design:paramtypes", [String, String, Date, String, HealthInsurance_1.HealthInsurance])
 ], LegalGuardian);
 //# sourceMappingURL=LegalGuardian.js.map

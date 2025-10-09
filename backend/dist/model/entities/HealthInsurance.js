@@ -15,11 +15,13 @@ const Appointment_1 = require("./Appointment");
 const Professional_1 = require("./Professional");
 const Patient_1 = require("./Patient");
 const core_2 = require("@mikro-orm/core");
+const LegalGuardian_1 = require("./LegalGuardian");
 let HealthInsurance = class HealthInsurance {
     constructor(name) {
         this.appointments = new core_2.Collection(this);
         this.professionals = new core_2.Collection(this);
         this.patients = new core_2.Collection(this);
+        this.legalGuardians = new core_2.Collection(this);
         this.name = name;
     }
 };
@@ -41,9 +43,13 @@ __decorate([
     __metadata("design:type", Object)
 ], HealthInsurance.prototype, "professionals", void 0);
 __decorate([
-    (0, core_1.ManyToMany)(() => Patient_1.Patient, patient => patient.healthInsurances),
+    (0, core_1.OneToMany)(() => Patient_1.Patient, patient => patient.healthInsurance),
     __metadata("design:type", Object)
 ], HealthInsurance.prototype, "patients", void 0);
+__decorate([
+    (0, core_1.OneToMany)(() => LegalGuardian_1.LegalGuardian, legalGuardian => legalGuardian.healthInsurance),
+    __metadata("design:type", Object)
+], HealthInsurance.prototype, "legalGuardians", void 0);
 exports.HealthInsurance = HealthInsurance = __decorate([
     (0, core_1.Entity)(),
     __metadata("design:paramtypes", [String])

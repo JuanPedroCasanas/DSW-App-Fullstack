@@ -16,6 +16,9 @@ export class User {
   @Property ()
   password!: string;
 
+  @Property()
+  isActive!: boolean;
+
   @Enum(() => UserRole)
   role!: UserRole;
 
@@ -39,4 +42,10 @@ export class User {
     else throw new Error("El usuario debe tener al menos un rol asignado.");
   }
   
+    constructor(mail: string, password: string)
+  {
+    this.mail = mail;
+    this.password = password;
+    this.isActive = true;
+  }
 }

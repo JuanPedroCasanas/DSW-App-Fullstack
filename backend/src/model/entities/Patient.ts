@@ -22,14 +22,14 @@ export class Patient {
   @Property({ nullable: true })
   telephone?: string;
 
-  @Property({ nullable: true })
-  mail?: string;
+  @Property()
+  isActive!: boolean;
 
   @OneToMany(() => Appointment, (appointment: Appointment) => appointment.patient)
   appointments = new Collection<Appointment>(this);
 
-  @ManyToMany(() => HealthInsurance, (healthInsurance: HealthInsurance) => healthInsurance.patients, {owner: true})
-  healthInsurances = new Collection<HealthInsurance>(this);
+  @ManyToOne(() => HealthInsurance)
+  healthInsurance!: HealthInsurance
 
   @ManyToOne(() => LegalGuardian, { nullable: true })
   legalGuardian?: LegalGuardian;
@@ -38,13 +38,14 @@ export class Patient {
   user?: User
 
 
-  constructor(firstName: string, lastName: string, birthdate: Date, telephone?: string, mail?: string, legalGuardian?: LegalGuardian) {
+  constructor(firstName: string, lastName: string, birthdate: Date, healthInsurance:HealthInsurance, telephone?: string, legalGuardian?: LegalGuardian) {
     this.firstName = firstName;
     this.lastName = lastName;
     this.birthdate = birthdate;
     this.telephone = telephone;
-    this.mail = mail;
-    this.legalGuardian = legalGuardian
+    this.legalGuardian = legalGuardian;
+    this.healthInsurance = healthInsurance;
+    this.isActive = true;
 }
 
 

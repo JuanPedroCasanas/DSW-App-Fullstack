@@ -41,7 +41,6 @@ class LegalGuardianController {
         const { lastName } = req.body;
         const { birthdate } = req.body;
         const { telephone } = req.body;
-        const { mail } = req.body;
         if (!id) {
             return res.status(400).json({ message: 'LegalGuardian id is required' });
         }
@@ -57,9 +56,6 @@ class LegalGuardianController {
         if (!telephone) {
             return res.status(400).json({ message: 'Legal Guardian new telephone is required' });
         }
-        if (!mail) {
-            return res.status(400).json({ message: 'Legal Guardian new mail is required' });
-        }
         const em = await (0, db_1.getORM)().em.fork();
         const legalguardian = await em.findOne(LegalGuardian_1.LegalGuardian, { idLegalGuardian: id });
         if (!legalguardian) {
@@ -69,7 +65,6 @@ class LegalGuardianController {
         legalguardian.lastName = lastName;
         legalguardian.birthdate = birthdate;
         legalguardian.telephone = telephone;
-        legalguardian.mail = mail;
         await em.persistAndFlush(LegalGuardian_1.LegalGuardian);
         res.status(201).json({ message: 'Legal Guardian updated', LegalGuardian: LegalGuardian_1.LegalGuardian });
     }

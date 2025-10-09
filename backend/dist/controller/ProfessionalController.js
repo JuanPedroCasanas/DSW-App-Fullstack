@@ -44,7 +44,7 @@ class ProfessionalController {
             }
             //Atencion a todo este segmento de código porque asi se  crean los usuarios, se persiste
             //solamente el usuario y eso persiste el profesional, ver anotacion de Cascade dentro de la clase usuario
-            const professional = new Professional_1.Professional(name, lastName, birthdate, telephone, mail);
+            const professional = new Professional_1.Professional(name, lastName, birthdate, telephone);
             const profUser = await (0, UserCreationService_1.createUser)(mail, password);
             professional.user = profUser;
             profUser.professional = professional;
@@ -57,7 +57,7 @@ class ProfessionalController {
         }
     }
     static async updateProfessional(req, res) {
-        const { id, name, lastName, birthdate, telephone, mail, occupation } = req.body;
+        const { id, name, lastName, birthdate, telephone, occupation } = req.body;
         if (!id) {
             return res.status(400).json({ message: 'Se requiere el id de profesional' });
         }
@@ -73,9 +73,6 @@ class ProfessionalController {
         if (!telephone) {
             return res.status(400).json({ message: 'Se requiere el telefono del profesional' });
         }
-        if (!mail) {
-            return res.status(400).json({ message: 'Se requiere el email del profesional' });
-        }
         if (!occupation) {
             return res.status(400).json({ message: 'Se requiere la ocupación del profesional' });
         }
@@ -87,7 +84,6 @@ class ProfessionalController {
         professional.firstName = name;
         professional.lastName = lastName;
         professional.telephone = telephone;
-        professional.email = mail;
         professional.occupation = occupation;
         await em.persistAndFlush(professional);
         res.status(201).json({ message: 'Professional updated', professional });
