@@ -12,7 +12,7 @@ export const createUser = async (mail: string, password: string) => {
     }
 
     const em = await getORM().em.fork();
-    const existingUser = await em.findOne(User, { mail: mail })
+    const existingUser = await em.findOne(User, { mail: mail, isActive: true })
     
     if(existingUser) {
         throw new EmailAlreadyExistsError(mail);
