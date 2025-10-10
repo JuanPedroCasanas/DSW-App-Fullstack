@@ -17,7 +17,9 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
+
           <Route path="/contact" element={<Contact />} /> {/* lo voy a borrar en el futuro, total el contacto está en About */}
+          
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
