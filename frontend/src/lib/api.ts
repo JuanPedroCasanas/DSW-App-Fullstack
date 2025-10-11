@@ -1,3 +1,9 @@
+/// <reference types="vite/client" />
+
+interface ImportMetaEnv {
+  readonly VITE_API_BASE_URL?: string;
+  // add other VITE_... vars you use
+}
 const API_BASE =
   (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "/api";
 

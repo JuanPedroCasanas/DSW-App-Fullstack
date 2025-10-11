@@ -1,7 +1,9 @@
 import { Request, Response } from 'express';
 import { getORM } from '../orm/db';
 import { LegalGuardian } from '../model/entities/LegalGuardian';
-
+import { HealthInsurance } from '../model/entities/HealthInsurance';
+import { User } from '../model/entities/User';
+import { createUser } from '../services/UserCreationService';
 export class LegalGuardianController {
 
     static home(req: Request, res: Response) {
@@ -9,9 +11,9 @@ export class LegalGuardianController {
     }
 
     static async addLegalGuardian(req: Request, res: Response) {
-        const { firstName, lastName, birthdate, telephone, mail, appointments} = req.body;
+        const { name, lastName, birthdate, telephone, mail, password, idhealthInsurance} = req.body;
 
-        if (!firstName) {
+        if (!name) {
             return res.status(400).json({ message: 'Name is required' });
         }
         if (!lastName) {
@@ -26,19 +28,37 @@ export class LegalGuardianController {
         if (!mail) {
             return res.status(400).json({ message: 'Mail is required' });
         }
-        
-
-        try {
-            const legalGuardian = new LegalGuardian(firstName, lastName, new Date(birthdate), telephone, mail);
-            
-            const em = await getORM().em.fork();
-            await em.persistAndFlush(LegalGuardian);
-
-            res.status(201).json({ message: 'Legal Guardian added', LegalGuardian });
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: 'Failed to add Legal Guardian' });
+        if (!password) {
+            return res.status(400).json({ message: 'Password is required' });
         }
+        
+        if (!idhealthInsurance) {
+            return res.status(400).json({ message: 'Health Insurance is required' });
+        }
+
+        try {            
+            let healthInsurance: HealthInsurance | undefined;
+            const em = await getORM().em.fork();
+            if(healthInsurance) {
+                const healthInsuranceIdNum = Number(healthInsurance);
+                healthInsurance = await em.findOne(HealthInsurance, { idHealthInsurance : healthInsuranceIdNum }) ?? undefined;
+                if(!healthInsurance) {
+                    return res.status(404).json({ message: 'Invalid Health Insurance ID.' });
+                }
+            }
+        const legalguardian = new LegalGuardian(name, lastName, birthdate, telephone, idhealthInsurance);
+        const lgUser: User = await createUser(mail, password);
+                legalguardian.user = lgUser;
+                lgUser.legalGuardian = legalguardian;
+                
+                await em.persistAndFlush(lgUser);
+                res.status(201).json({ message: 'Se agrego correctamente el responsable legal ', legalguardian });
+        
+                } catch (error) {
+                    console.error(error);
+                    res.status(500).json({ message: 'Error al añadir el responsable legal' });
+                }
+            
     }
 
     static async updateLegalGuardian(req: Request, res: Response) {
@@ -47,6 +67,8 @@ export class LegalGuardianController {
         const {lastName} = req.body;
         const {birthdate} = req.body;   
         const {telephone} = req.body;
+        const {mail} = req.body;
+        const {healthInsurance} = req.body;
 
         if(!id)
         {
@@ -68,6 +90,14 @@ export class LegalGuardianController {
         {
             return res.status(400).json({ message: 'Legal Guardian new telephone is required' });
         }
+        if(!mail)
+        {
+            return res.status(400).json({ message: 'Legal Guardian new mail is required' });
+        }
+        if(!healthInsurance)
+        {
+            return res.status(400).json({ message: 'Legal Guardian new health insurance is required' });
+        }
         
         const em = await getORM().em.fork();
         const legalguardian = await em.findOne(LegalGuardian, {idLegalGuardian: id});
@@ -81,6 +111,9 @@ export class LegalGuardianController {
         legalguardian.lastName = lastName;
         legalguardian.birthdate = birthdate;
         legalguardian.telephone = telephone;
+      
+
+        const healthinsurance = await em.findOne(HealthInsurance, {idHealthInsurance: healthInsurance});
 
         await em.persistAndFlush(LegalGuardian);
 

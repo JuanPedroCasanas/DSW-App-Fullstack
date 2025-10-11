@@ -20,11 +20,14 @@ import AppointmentRoutes from './routes/AppointmentRoutes';
 import ConsultingRoomRoutes from './routes/ConsultingRoomRoutes';
 import ModuleRoutes from './routes/ModuleRoutes';
 import PatientRoutes from './routes/PatientRoutes';
+import ProfessionalRoutes from './routes/ProfessionalRoutes';
+import LegalGuardianRoutes from './routes/LegalGuardianRoutes';
 import UserRoutes from './routes/UserRoutes'
 import { startingCode } from './startingCode';
 
 const app = express();
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 app.use(cors({
     origin: 'http://localhost:3000', // <--- ¡MUY IMPORTANTE! Usa el puerto de Vite.
@@ -37,8 +40,6 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     RequestContext.create(getORM().em, next);
 });
 
-app.use(express.json()); // Para parsear JSON
-app.use(express.urlencoded({ extended: true }));
 //USO RUTAS
 app.use('/Occupation', occupationRoutes);
 app.use('/Appointment', AppointmentRoutes);
@@ -46,6 +47,8 @@ app.use('/ConsultingRoom', ConsultingRoomRoutes);
 app.use('/Module', ModuleRoutes);
 app.use('/Patient', PatientRoutes);
 app.use('/User', UserRoutes);
+app.use('/Professional', ProfessionalRoutes);
+app.use('/LegalGuardian', LegalGuardianRoutes);
 
 
 

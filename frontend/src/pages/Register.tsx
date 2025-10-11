@@ -14,22 +14,43 @@ export default function Register() {
     apellido: "",
     fechaNacimiento: "",
     telefono: "",
-    rol: "" as "" | Role,
+    rol: "" as "" | Role
+
   });
 
 
   // lo estoy poniendo por separado del const [form, setForm] porque por ahora manejamos únicamente el 
   // register de paciente. Es para no romper el código más que nada. Ni idea, funciona.
-  const [especialidad, setEspecialidad] = useState("");
-  
-  // Si cambia el rol a algo distinto de profesional se limpia la especialidad
+  const [especialidad, setEspecialidad] = useState(""); 
+  const [healthinsuranceId, setHealthInsurance] = useState("1"); // Valor por defecto para pacientes
+  const [dependentForm, setDependentForm] = useState({
+    name: "",
+    lastName: "",
+    birthdate: "",
+    legalGuardianId: ""
+  });
+ 
   useEffect(() => {
     if (form.rol !== "profesional") {
-      setEspecialidad("");
-      }
+      setEspecialidad(""); 
+    }
+  }, [form.rol]);
+  useEffect(() => {  if (form.rol !== "paciente") {
+      setHealthInsurance("1");
+    }
+  }, [form.rol]);
+  useEffect(() => {
+  if (form.rol !== "responsable") {
+      setDependentForm({
+        name: "",
+        lastName: "",
+        birthdate: "",
+        legalGuardianId: ""
+      });
+    }
     }, [form.rol]);
-
-
+  
+  
   const [showPwd, setShowPwd] = useState(false);
   const [showConfirmPwd, setShowConfirmPwd] = useState(false);
   const [message, setMessage] = useState('');      // Para mensajes de éxito o error
@@ -51,14 +72,15 @@ export default function Register() {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) {
     const { name, value } = e.target;
+    setDependentForm((f) => ({ ...f, [name]: value }));
     setForm((f) => ({ ...f, [name]: value }));
   }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setMessage(''); // 1. Limpia mensajes anteriores
+    setMessage(''); 
     setIsError(false);
-    setIsLoading(true); // 2. Activa el estado de carga
+    setIsLoading(true); 
   
     // Valida las contraseñas antes de enviar
     if (form.password !== form.confirmPassword) {
@@ -67,9 +89,8 @@ export default function Register() {
       setIsLoading(false);
       return;
     }
-    
-    const dataToSend = {
-    // Mapeo
+    //mapeo de datos a enviar
+    let dataToSend: any = {
     name: form.nombre,
     lastName: form.apellido,
     birthdate: form.fechaNacimiento,
@@ -84,37 +105,130 @@ export default function Register() {
       setIsLoading(false);
       return;
     }
+    let endpoint = '';
+    let dependentEndpoint = ''; // Nuevo endpoint para el paciente dependiente
+    let dependentPayload: any; 
+    
+    //If para agregar los campos extra según el rol
+    if (form.rol=='paciente') {
+             
+            if (!healthinsuranceId) {
+                setMessage("Por favor elegí una obra social.");
+                setIsError(true); 
+                setIsLoading(false);
+                return;
+            }
+            endpoint = 'http://localhost:2000/Patient/addPatient';
+            dataToSend = {...dataToSend, healthinsuranceId: Number(healthinsuranceId) }; 
+          }
+    else if (form.rol=='profesional') {
+            if (!especialidad) {
+                setMessage("Por favor elegí una especialidad.");
+                setIsError(true);
+                setIsLoading(false);
+                return;
+            }
+            endpoint = 'http://localhost:2000/Professional/addProfessional'; 
+            dataToSend = {...dataToSend, occupation: especialidad };
+          }
+            
+    else if (form.rol =='responsable') { 
+        
+        if (!healthinsuranceId) {
+          setMessage("Por favor elegí una obra social para el paciente a cargo.");
+          setIsError(true); 
+          setIsLoading(false);
+          return;
+        }
+        if (!dependentForm.name || !dependentForm.lastName || !dependentForm.birthdate ) {
+          setMessage("Por favor completa todos los datos del paciente a cargo.");
+          setIsError(true);
+          setIsLoading(false);
+          return;
+        }
+        endpoint = 'http://localhost:2000/LegalGuardian/addLegalGuardian'; 
+        dependentEndpoint = 'http://localhost:2000/Patient/addDependentPatient';
 
- try {
-        const response = await fetch('http://localhost:2000/Patient/addIndPatient', { //ruta para registrar paciente individual
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-             body: JSON.stringify(dataToSend) // Envía todos los datos del formulario
+        dependentPayload = {
+            name: dependentForm.name,
+            lastName: dependentForm.lastName,
+            birthdate: dependentForm.birthdate 
+        };
+        const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dataToSend)
         });
 
- const data = await response.json();
+      const data = await response.json(); // <-- Siempre procesa la respuesta
 
- console.log("[REGISTER] status:", response.status, "body:", data); //para debuggear
+      if (!response.ok) { 
+        setMessage(data.message || 'Error desconocido al registrar el responsable legal.');
+        setIsError(true);
+        setIsLoading(false);
+        return;
+      }
+      if (form.rol === 'responsable') {
+        const legalGuardianId = data.id || data.legalGuardianId; 
+
+        if (!legalGuardianId) { throw new Error("ID del responsable no devuelto."); }
+
+        dependentPayload.legalGuardianId = legalGuardianId;
+
+        const dependentResponse = await fetch(dependentEndpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dependentPayload)
+        });
+        
+        if (!dependentResponse.ok) {
+            const dependentData = await dependentResponse.json();
+            setMessage(dependentData.message || 'Error desconocido al registrar el paciente a cargo.');
+             return; 
+        }
+
+        setMessage('Registro de Responsable y Paciente completado con éxito!');
+
+    } else {
+        setMessage(data.message || '¡Registro completado con éxito!');
+    }
+    try {
+        // 3. Usar el endpoint dinámico
+        const response = await fetch(endpoint, { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dataToSend)
+          
+        });
+        const data = await response.json(); // <--- Faltaba esto
+        
+        console.log("[REGISTER] status:", response.status, "body:", data); 
 
         if (response.ok) { 
             setMessage(data.message || '¡Registro completado con éxito!');
-            setForm((f) => ({ ...f, rol: "" as "" | Role })); // Resetea el rol
-
+            // Limpiar el formulario completo después del éxito
+            setForm({ 
+                email: "", password: "", confirmPassword: "", 
+                nombre: "", apellido: "", fechaNacimiento: "", 
+                telefono: "", rol: "" as "" | Role,
+            });
+            setEspecialidad(""); 
         } else { 
             setMessage(data.message || 'Error desconocido al registrar.');
             setIsError(true);
         }
     } catch (error) {
-        // Error de red (el backend no está corriendo o hay un problema de CORS) mas que nada para ver que error es
+        // Error de red
         setMessage('🚨 Error de conexión: El servidor no está disponible.');
         setIsError(true);
     } finally {
         // Siempre desactiva el estado de carga al terminar
         setIsLoading(false); 
     }
-    console.log("REGISTER payload:", form);
+    console.log("REGISTER payload:", dataToSend);
   }
 
+ 
   return (
     <main className="login">{/* mismo wrapper que Login para no hacer 45 mil .css */}
         <div className="frame">
@@ -326,6 +440,53 @@ export default function Register() {
                 </div>
               </>
             )}
+            {/* Obra Social solo si rol = paciente */ }
+            {form.rol === "paciente" && (
+            <>
+              <div className="div-2" style={{ marginTop: 12 }}>
+              <label className="text-wrapper-3" htmlFor="healthInsuranceId">
+              Obra Social
+              </label>
+              <div className="input">
+                  <select
+                    id="healthInsuranceId"
+                    name="healthInsuranceId"
+                    className="input__control"
+                    value={healthinsuranceId} // <- Usa el estado de Obra Social
+                    onChange={(e) => setHealthInsurance(e.target.value)} // <- Usa el setter
+                    required
+                  >
+                    <option value="" disabled>Elegí una obra social</option>
+                    <option value="1">OSDE</option>
+                    <option value="2">Swiss Medical</option>
+                    <option value="3">PAMI</option>
+                  </select>
+              </div>
+            </div>
+          </>
+        )}  
+            { /* ID Paciente solo si rol = responsable */}
+            {form.rol === "responsable" && (
+            <>
+              <div className="div-2" style={{ marginTop: 12 }}>
+              <label className="text-wrapper-3" htmlFor="idPatient">
+              ID Paciente a cargo
+              </label>
+              <div className="input">
+                <input
+                id="idPatient"
+                name="idPatient"
+                className="input__control"
+                placeholder="ID del paciente (ej: 123)"
+                type="number" // <- Asegúrate de que acepta números
+                value={idPatient} // <- Usa el estado de idPatient
+                onChange={(e) => setIdPatient(e.target.value)} // <- Usa el setter
+                required
+              />
+              </div>
+            </div>
+          </>
+        )}
 
             {/* CTA */}
             <div className="div-4">
@@ -350,4 +511,5 @@ export default function Register() {
         </div>
     </main>
   );
-}
+  } 
+
