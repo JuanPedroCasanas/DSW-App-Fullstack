@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ModuleRent from "./pages/ModuleRent";
 import AppointmentSchedule from "./pages/AppointmentSchedule";
+import EditProfile from "./pages/editProfile";
 
 
 export default function App() {
@@ -24,9 +25,10 @@ export default function App() {
           <Route path="/register" element={<Register />} />
 
           {/* Lo ideal sería restringir estas rutas, lo dejo para el futuro */}
-          <Route path="/alquilar-modulo" element={<ModuleRent />} />
-          <Route path="/reservar-turno" element={<AppointmentSchedule />} />
+          <Route path="/module-rent" element={<ModuleRent />} />
+          <Route path="/appointment-schedule" element={<AppointmentSchedule />} />
 
+          <Route path="/edit-profile" element={<EditProfile />} />
 
           <Route path="*" element={<h1>Página no encontrada</h1>} />
         </Routes>

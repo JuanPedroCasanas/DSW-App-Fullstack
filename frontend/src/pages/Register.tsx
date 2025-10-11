@@ -512,4 +512,4 @@ export default function Register() {
     </main>
   );
   } 
-
+}

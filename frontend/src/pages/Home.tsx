@@ -8,7 +8,7 @@ export default function Home() {
 
         {/* mobile-first */}
         <NavLink
-          to="/alquilar-modulo"
+          to="/module-rent"
           className="cta-primary"
           aria-label="Ir a alquilar modulo"
         >
@@ -16,7 +16,7 @@ export default function Home() {
         </NavLink>
 
         <NavLink
-          to="/reservar-turno"
+          to="/appointment-schedule"
           className="cta-primary"
           aria-label="Ir a reservar turno"
         >
