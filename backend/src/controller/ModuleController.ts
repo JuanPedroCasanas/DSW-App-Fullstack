@@ -5,7 +5,7 @@ import { Professional } from '../model/entities/Professional';
 import { ConsultingRoom } from '../model/entities/ConsultingRoom';
 import { ModuleType } from '../model/entities/ModuleType';
 import { NotFoundError } from '@mikro-orm/core';
-import { BaseHttpError, NotConfigured } from '../model/errors/BaseHttpError';
+import { BaseHttpError, ModuleScheduleConflictError, NotConfigured } from '../model/errors/BaseHttpError';
 import { DayOfWeek } from '../model/enums/DayOfWeek';
 import { Appointment } from '../model/entities/Appointment';
 import { AppointmentStatus } from '../model/enums/AppointmentStatus';
@@ -91,6 +91,7 @@ export default class ModuleController  {
             const consultingRoom = await em.findOne(ConsultingRoom, { idConsultingRoom: consultingRoomId });
             const moduleTypes = await em.findAll(ModuleType, { orderBy: { duration: 'DESC' } }); //Los ordeno de mayor a menor para hacer un calculo posterior
 
+
             if(!professional) {
                 throw new NotFoundError('Profesional');
             }
@@ -101,8 +102,25 @@ export default class ModuleController  {
                 throw new NotConfigured('Tipos de modulo')
             }
 
+            //Casteo el numero al día de la semana que uso en el back
+            let dayOfWeek = Number(day) as DayOfWeek;
+
+            //Checkear que efectivamente no haya ningun modulo ya alquilado en el rango horario
+            const conflictingModules = await em.find(Module, {
+                consultingRoom: consultingRoom,
+                day: dayOfWeek,
+                validMonth: validMonth,
+                validYear: validYear,
+                startTime: { $lt: endTime }, //Modulos que empiecen Antes de que termine nuestro nuevo modulo
+                endTime: { $gt: startTime } // Y que terminen despues de que empiece nuestro nuevo modulo
+            });
+
+            if (conflictingModules.length > 0) {
+                throw new ModuleScheduleConflictError(startTime, endTime);
+            }
+
            let totalHours =  ModuleController.calculateHours(startTime, endTime);
-           let dayOfWeek = Number(day) as DayOfWeek;
+
 
             //Calculo de tipos de modulo
             const moduleTypeAmount = [];

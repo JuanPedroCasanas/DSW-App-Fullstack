@@ -25,6 +25,12 @@ export class NotFoundError extends BaseHttpError {
 }
 
 
+export class ModuleScheduleConflictError extends BaseHttpError {
+  constructor(startTime: string, endTime: string) {
+    super(409, 'MODULE_SCHEDULE_CONFLICT', `Ya existe un modulo alquilado que conflitua con la hora inicio - fin: '${startTime} - ${endTime}'`);
+  }
+}
+
 export class EmailAlreadyExistsError extends BaseHttpError {
   constructor(email: string) {
     super(409, 'EMAIL_TAKEN', `El email '${email}' ya se encuentra registrado con una cuenta activa`);
