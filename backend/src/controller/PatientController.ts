@@ -5,6 +5,7 @@ import { LegalGuardian } from '../model/entities/LegalGuardian';
 import { createUser } from '../services/UserCreationService';
 import { HealthInsurance } from '../model/entities/HealthInsurance';
 import { BaseHttpError, NotFoundError } from '../model/errors/BaseHttpError';
+import { AppointmentStatus } from '../model/enums/AppointmentStatus';
 
 export class PatientController {
 
@@ -218,7 +219,7 @@ export class PatientController {
             const patient = await em.findOne(Patient, { idPatient : id });
 
             if (!patient) {
-                throw new NotFoundError("Paciente");
+                throw new NotFoundError("Paciente")
             }
 
             patient.isActive = false;
@@ -227,11 +228,22 @@ export class PatientController {
             patient.user.isActive = false;
             }
 
+            await patient.appointments.init();
+
+            for (const appointment of patient.appointments) {
+                appointment.status = AppointmentStatus.Canceled;
+            }
+
             await em.flush();
             res.json(patient);
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Error al eliminar el paciente' });
+            if (error instanceof BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            else {
+                res.status(500).json({ message: 'Error al buscar el paciente' });
+            }
         }
     }
 

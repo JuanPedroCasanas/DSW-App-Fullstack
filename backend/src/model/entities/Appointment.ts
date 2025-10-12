@@ -4,6 +4,7 @@ import { Patient } from './Patient';
 import { HealthInsurance } from './HealthInsurance';
 import { LegalGuardian } from './LegalGuardian';
 import { AppointmentStatus } from '../enums/AppointmentStatus';
+import Module from 'module';
 
 @Entity()
 export class Appointment {
@@ -20,6 +21,9 @@ export class Appointment {
   status!: AppointmentStatus;
 
   @ManyToOne()
+  module!: Module
+
+  @ManyToOne()
   professional!: Professional;
 
   @ManyToOne(() => Patient)
@@ -33,7 +37,8 @@ export class Appointment {
 
 
 
-  constructor(startTime: Date, endTime: Date, professional: Professional, patient: Patient, status: AppointmentStatus, healthInsurance?: HealthInsurance, legalGuardian?: LegalGuardian) {
+  constructor(module: Module, startTime: Date, endTime: Date, professional: Professional, patient: Patient, status: AppointmentStatus, healthInsurance?: HealthInsurance, legalGuardian?: LegalGuardian) {
+    this.module = module;
     this.startTime = startTime;
     this.endTime = endTime
     this.professional = professional;

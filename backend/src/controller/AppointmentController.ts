@@ -13,6 +13,7 @@ export class AppointmentController {
         res.send('Soy el controlador de turnos!');
     }
 
+    /*
     static async addAppointment(req: Request, res: Response) {
         const { startTime, idProfessional, idPatient, idHealthInsurance, idLegalGuardian} = req.body;
 
@@ -65,6 +66,8 @@ export class AppointmentController {
             res.status(500).json({ message: 'Error al añadir el turno.' });
         }
     }
+
+    */
 
     static async updateAppointmentStartTime(req: Request, res: Response) {
         const { id } = req.body;
@@ -193,28 +196,6 @@ export class AppointmentController {
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: 'Failed to fetch appointments' });
-        }
-    }
-
-    static async deleteAppointment(req: Request, res: Response) {
-        const id = Number(req.params.id);
-        if (!id) {
-            return res.status(400).json({ message: 'Appointment id is required' });
-        }
-        try {
-
-            const em = await getORM().em.fork();
-            const appointment = await em.findOne(Appointment, id);
-
-            if (!appointment) {
-                return res.status(404).json({ message: 'Appointment not found' });
-            }
-
-            await em.removeAndFlush(appointment);
-            res.json(appointment);
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: 'Failed to delete appointment' });
         }
     }
 

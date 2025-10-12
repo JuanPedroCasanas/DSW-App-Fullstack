@@ -11,6 +11,9 @@ export class HealthInsurance {
   idHealthInsurance!: number;
 
   @Property()
+  isActive!: boolean;
+
+  @Property()
   name!: string;
 
   @OneToMany(() => Appointment, appointment => appointment.healthInsurance)
@@ -27,6 +30,7 @@ export class HealthInsurance {
 
 constructor(name: string) {
     this.name = name;
+    this.isActive = true;
 }
 
 }

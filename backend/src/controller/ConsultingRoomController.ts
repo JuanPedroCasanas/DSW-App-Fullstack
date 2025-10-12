@@ -1,18 +1,23 @@
 import { Request, Response } from 'express';
 import { getORM } from '../orm/db';
 import { ConsultingRoom } from '../model/entities/ConsultingRoom';
+import { BaseHttpError, NotFoundError } from '../model/errors/BaseHttpError';
+import { Module } from '../model/entities/Module';
+import { ModuleStatus } from '../model/enums/ModuleStatus';
+import { Appointment } from '../model/entities/Appointment';
+import { AppointmentStatus } from '../model/enums/AppointmentStatus';
 
 export class ConsultingRoomController {
 
     static home(req: Request, res: Response) {
-        res.send('Soy el controlador de ocupaciones!');
+        res.send('Soy el controlador de consultorios!');
     }
 
     static async addConsultingRoom(req: Request, res: Response) {
         const { description } = req.body;
 
         if (!description) {
-            return res.status(400).json({ message: 'Name is required' });
+            return res.status(400).json({ message: 'Se requiere una descripción, ej: Consultorio 1' });
         }
 
         try {
@@ -21,58 +26,74 @@ export class ConsultingRoomController {
             const em = await getORM().em.fork();
             await em.persistAndFlush(consultingRoom);
 
-            res.status(201).json({ message: 'ConsultingRoom added', consultingRoom });
+            res.status(201).json({ message: 'Se agrego correctamente el consultorio', consultingRoom });
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Failed to add consulting room' });
+            res.status(500).json({ message: 'Error al añadir el consultorio' });
         }
     }
 
     static async updateConsultingRoom(req: Request, res: Response) {
+
         const { idConsultingRoom } = req.body;
         const { description } = req.body;
 
         if(!idConsultingRoom)
         {
-            return res.status(400).json({ message: 'Consulting Room id is required' });
+            return res.status(400).json({ message: 'Se requiere una id de consultorio' });
         }
         if(!description)
         {
-            return res.status(400).json({ message: 'Consulting Room new name is required' });
+            return res.status(400).json({ message: 'Se requiere una nueva descripción de consultorio' });
         }
 
-        const em = await getORM().em.fork();
-        const consultingRoom = await em.findOne(ConsultingRoom, { idConsultingRoom: idConsultingRoom });
+        try {
+            const em = await getORM().em.fork();
+            const consultingRoom = await em.findOne(ConsultingRoom, { idConsultingRoom: idConsultingRoom });
 
-        if(!consultingRoom)
-        {
-            return res.status(400).json({ message: 'Consulting Room not found' });
-            // throw new Error("Ocupacion no encontrada");
-        }
+            if(!consultingRoom)
+            {
+                throw new NotFoundError('Consultorio');
+            }
 
-        consultingRoom.description = description;
+            consultingRoom.description = description;
 
-        await em.persistAndFlush(ConsultingRoom);
+            await em.persistAndFlush(ConsultingRoom);
 
-        res.status(201).json({ message: 'ConsultingRoom updated', consultingRoom });
+            res.status(201).json({ message: 'ConsultingRoom updated', consultingRoom });
+            } catch (error) {
+                console.error(error);
+                if (error instanceof BaseHttpError) {
+                    return res.status(error.status).json(error.toJSON());
+                }
+                else {
+                    res.status(500).json({ message: 'Error al agregar consultorio' });
+                }
+            }
     }
 
     static async getConsultingRoom(req: Request, res: Response) {
         const id = Number(req.params.id);
 
         if (!id) {
-            return res.status(400).json({ message: 'ConsultingRoom id is required' });
+            return res.status(400).json({ message: 'Se requiere una id de consultorio' });
         }
+
         try {
             const em = await getORM().em.fork();
             const consultingRoom = await em.findOne(ConsultingRoom, { idConsultingRoom: id });
             if (!consultingRoom) {
-            return res.status(404).json({ message: 'ConsultingRoom not found' });
+                throw new NotFoundError('Consultorio');
             }
             res.json(consultingRoom);
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Failed to fetch ConsultingRoom' });
+            if (error instanceof BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            else {
+                res.status(500).json({ message: 'Error al buscar consultorio' });
+            }
         }
     }
 
@@ -81,17 +102,16 @@ export class ConsultingRoomController {
             const em = await getORM().em.fork();
             const consultingRooms = await em.find(ConsultingRoom, {});
             res.json(consultingRooms);
-
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Failed to fetch ConsultingRooms' });
+            res.status(500).json({ message: 'Error al buscar consultorios' });
         }
     }
 
     static async deleteConsultingRoom(req: Request, res: Response) {
         const idConsultingRoom = Number(req.params.idConsultingRoom);
         if (!idConsultingRoom) {
-            return res.status(400).json({ message: 'ConsultingRoom id is required' });
+            return res.status(400).json({ message: 'Se requiere una id de consultorio' });
         }
         try {
 
@@ -99,14 +119,34 @@ export class ConsultingRoomController {
             const consultingRoom = await em.findOne(ConsultingRoom, { idConsultingRoom : idConsultingRoom });
 
             if (!consultingRoom) {
-                return res.status(404).json({ message: 'ConsultingRoom not found' });
+                throw new NotFoundError('Consultorio')
             }
 
-            await em.removeAndFlush(consultingRoom);
-            res.json(consultingRoom);
+            const consultingRoomModules = await em.find(Module, { consultingRoom : consultingRoom })
+
+            //Se cancelan todos los modulos asociados al consultorio y por ende todos los turnos asociados a cada modulo asociado al consultorio
+            if (consultingRoomModules.length != 0) {
+                for (const module of consultingRoomModules) {
+                    module.status = ModuleStatus.Canceled;
+
+                    await module.appointments.init(); // Las colecciones entiendo son lazy loaded, espero a que carguen
+
+                    for (const appointment of module.appointments) {
+                    appointment.status = AppointmentStatus.Canceled;
+                    }
+                }
+            }
+
+            await em.flush();
+
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Failed to delete ConsultingRoom' });
+            if (error instanceof BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            else {
+                res.status(500).json({ message: 'Error al borrar consultorio' });
+            }
         }
     }
 

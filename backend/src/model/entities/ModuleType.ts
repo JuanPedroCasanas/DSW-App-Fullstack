@@ -14,7 +14,6 @@ export class ModuleType {
 
   @Property()
   duration!: number; //Lo manejo en numero ya que puede ser 1, 3 o 6 horas.
-
   
   @OneToMany(() => Module, module => module.moduleType)
   modules = new Collection<Module>(this);

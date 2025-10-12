@@ -4,6 +4,8 @@ import { LegalGuardian } from '../model/entities/LegalGuardian';
 import { HealthInsurance } from '../model/entities/HealthInsurance';
 import { User } from '../model/entities/User';
 import { createUser } from '../services/UserCreationService';
+import { BaseHttpError, NotFoundError } from '../model/errors/BaseHttpError';
+import { AppointmentStatus } from '../model/enums/AppointmentStatus';
 export class LegalGuardianController {
 
     static home(req: Request, res: Response) {
@@ -14,162 +16,206 @@ export class LegalGuardianController {
         const { name, lastName, birthdate, telephone, mail, password, idhealthInsurance} = req.body;
 
         if (!name) {
-            return res.status(400).json({ message: 'Name is required' });
+            return res.status(400).json({ message: 'Se requiere nombre del responsable legal' });
         }
         if (!lastName) {
-            return res.status(400).json({ message: 'Last name is required' });
+            return res.status(400).json({ message: 'Se requiere apellido del responsable legal' });
         }
         if (!birthdate) {
-            return res.status(400).json({ message: 'Birthdate is required' });
+            return res.status(400).json({ message: 'Se requiere fecha de nacimiento del responsable legal' });
         }   
         if (!telephone) {
-            return res.status(400).json({ message: 'Telephone is required' });
+            return res.status(400).json({ message: 'Se requiere telefono del responsable legal' });
         }
         if (!mail) {
-            return res.status(400).json({ message: 'Mail is required' });
+            return res.status(400).json({ message: 'Se requiere email del responsable legal' });
         }
         if (!password) {
-            return res.status(400).json({ message: 'Password is required' });
+            return res.status(400).json({ message: 'Se requiere contraseña de la cuenta del responsable legal' });
         }
-        
         if (!idhealthInsurance) {
-            return res.status(400).json({ message: 'Health Insurance is required' });
+            return res.status(400).json({ message: 'Se requiere obra social del responsable legal' });
         }
 
-        try {            
+        try {         
+            const em = await getORM().em.fork();   
             let healthInsurance: HealthInsurance | undefined;
-            const em = await getORM().em.fork();
-            if(healthInsurance) {
-                const healthInsuranceIdNum = Number(healthInsurance);
-                healthInsurance = await em.findOne(HealthInsurance, { idHealthInsurance : healthInsuranceIdNum }) ?? undefined;
-                if(!healthInsurance) {
-                    return res.status(404).json({ message: 'Invalid Health Insurance ID.' });
-                }
+            healthInsurance = await em.findOne(HealthInsurance, { idHealthInsurance : idhealthInsurance }) ?? undefined;
+
+            if(!healthInsurance) {
+                throw new NotFoundError("Obra social");
             }
-        const legalguardian = new LegalGuardian(name, lastName, birthdate, telephone, idhealthInsurance);
-        const lgUser: User = await createUser(mail, password);
-                legalguardian.user = lgUser;
-                lgUser.legalGuardian = legalguardian;
-                
-                await em.persistAndFlush(lgUser);
-                res.status(201).json({ message: 'Se agrego correctamente el responsable legal ', legalguardian });
         
-                } catch (error) {
-                    console.error(error);
-                    res.status(500).json({ message: 'Error al añadir el responsable legal' });
-                }
+            const legalGuardian = new LegalGuardian(name, lastName, birthdate, telephone, healthInsurance);
+            const lgUser: User = await createUser(mail, password);
+            legalGuardian.user = lgUser;
+            lgUser.legalGuardian = legalGuardian;
+                    
+            await em.persistAndFlush(lgUser);
+            res.status(201).json({ message: 'Se agrego correctamente el responsable legal ', legalGuardian });
             
+        } catch (error) {
+            console.error(error);
+            if (error instanceof BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            else {
+                res.status(500).json({ message: 'Error al crear responsable legal' });
+            }
+        }
+                
     }
 
     static async updateLegalGuardian(req: Request, res: Response) {
         const { id } = req.body;
         const { name } = req.body;
-        const {lastName} = req.body;
-        const {birthdate} = req.body;   
-        const {telephone} = req.body;
-        const {mail} = req.body;
-        const {healthInsurance} = req.body;
+        const { lastName } = req.body;
+        const { birthdate } = req.body;   
+        const { telephone } = req.body;
+        const { mail } = req.body;
+        const { idHealthInsurance } = req.body;
 
-        if(!id)
-        {
-            return res.status(400).json({ message: 'LegalGuardian id is required' });
+        if (!name) {
+            return res.status(400).json({ message: 'Se requiere nombre del responsable legal' });
         }
-        if(!name)
-        {
-            return res.status(400).json({ message: 'Legal Guardian new name is required' });
+        if (!lastName) {
+            return res.status(400).json({ message: 'Se requiere apellido del responsable legal' });
         }
-        if(!lastName)
-        {
-            return res.status(400).json({ message: 'Legal Guardian new last name is required' });
+        if (!birthdate) {
+            return res.status(400).json({ message: 'Se requiere fecha de nacimiento del responsable legal' });
+        }   
+        if (!telephone) {
+            return res.status(400).json({ message: 'Se requiere telefono del responsable legal' });
         }
-        if(!birthdate)
-        {
-            return res.status(400).json({ message: 'Legal Guardian new birthdate is required' });
+        if (!idHealthInsurance) {
+            return res.status(400).json({ message: 'Se requiere obra social del responsable legal' });
         }
-        if(!telephone)
-        {
-            return res.status(400).json({ message: 'Legal Guardian new telephone is required' });
-        }
-        if(!mail)
-        {
-            return res.status(400).json({ message: 'Legal Guardian new mail is required' });
-        }
-        if(!healthInsurance)
-        {
-            return res.status(400).json({ message: 'Legal Guardian new health insurance is required' });
-        }
+
         
         const em = await getORM().em.fork();
-        const legalguardian = await em.findOne(LegalGuardian, {idLegalGuardian: id});
+        const legalGuardian = await em.findOne(LegalGuardian, {idLegalGuardian: id});
 
-        if(!legalguardian)
-        {
-            return res.status(400).json({ message: 'Legal Guardian not found' });
+            try {
+            if(!legalGuardian)
+            {
+                throw new NotFoundError('Responsable Legal');
+            }
+
+            legalGuardian.firstName = name;
+            legalGuardian.lastName = lastName;
+            legalGuardian.birthdate = birthdate;
+            legalGuardian.telephone = telephone;
+        
+
+            const healthInsurance = await em.findOne(HealthInsurance, {idHealthInsurance: idHealthInsurance});
+
+            if(!healthInsurance) {
+                    throw new NotFoundError("Obra social");
+            }
+
+            legalGuardian.healthInsurance = healthInsurance;
+            await em.persistAndFlush(LegalGuardian);
+
+            res.status(201).json({ message: 'Responsable Legal actualizado correctamente', LegalGuardian });
+
+        } catch (error) {
+            console.error(error);
+            if (error instanceof BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            else {
+                res.status(500).json({ message: 'Error al actualizar responsable legal' });
+            }
         }
-
-        legalguardian.firstName = name;
-        legalguardian.lastName = lastName;
-        legalguardian.birthdate = birthdate;
-        legalguardian.telephone = telephone;
-      
-
-        const healthinsurance = await em.findOne(HealthInsurance, {idHealthInsurance: healthInsurance});
-
-        await em.persistAndFlush(LegalGuardian);
-
-        res.status(201).json({ message: 'Legal Guardian updated', LegalGuardian });
     }
 
     static async getLegalGuardian(req: Request, res: Response) {
         const id = Number(req.params.id);
 
         if (!id) {
-            return res.status(400).json({ message: 'LegalGuardian id is required' });
+            return res.status(400).json({ message: 'Se requiere ID del responsable legal' });
         }
         try {
             const em = await getORM().em.fork();
-            const legalguardian = await em.findOne(LegalGuardian, { idLegalGuardian: id });
-            if (!legalguardian) {
-            return res.status(404).json({ message: 'Legal Guardian not found' });
+            const legalGuardian = await em.findOne(LegalGuardian, { idLegalGuardian: id });
+            if (!legalGuardian) {
+                throw new NotFoundError('Responsable Legal')
             }
             res.json(LegalGuardian);
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Failed to fetch Legal Guardian' });
+            if (error instanceof BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            else {
+                res.status(500).json({ message: 'Error al buscar responsable legal' });
+            }
         }
     }
 
-    /*static async getLegalGuardian(req: Request, res: Response) {  por ahora no veo necesario este metodo
+    static async getLegalGuardianPatients(req: Request, res: Response) {
+        const id = Number(req.params.id);
+
+        if (!id) {
+            return res.status(400).json({ message: 'Se requiere ID del responsable legal' });
+        }
         try {
             const em = await getORM().em.fork();
-            const Patients = await em.find(LegalGuardian, {});
-            res.json(Patients);
-
+            const legalGuardian = await em.findOne(LegalGuardian, { idLegalGuardian: id });
+            if (!legalGuardian) {
+                throw new NotFoundError('Responsable Legal')
+            }
+            await legalGuardian.guardedPatients.init(); // Las colecciones entiendo son lazy loaded, espero a que carguen
+            const legalGuardianPatients = legalGuardian.guardedPatients;
+            res.json(legalGuardianPatients);
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Failed to fetch Patients' });
+            if (error instanceof BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            else {
+                res.status(500).json({ message: 'Error al buscar pacientes del responsable legal' });
+            }
         }
     }
-*/
+
     static async deleteLegalGuardian(req: Request, res: Response) {
         const id = Number(req.params.id);
         if (!id) {
-            return res.status(400).json({ message: 'Legal Guardian id is required' });
+            return res.status(400).json({ message: 'Se requiere id del responsable legal' });
         }
         try {
 
             const em = await getORM().em.fork();
-            const legalguardian = await em.findOne(LegalGuardian, { idLegalGuardian : id });
+            const legalGuardian = await em.findOne(LegalGuardian, { idLegalGuardian : id });
 
-            if (!legalguardian) {
-                return res.status(404).json({ message: 'Legal Guardian not found' });
+            if (!legalGuardian) {
+                throw new NotFoundError('Responsable Legal');
             }
 
-            await em.removeAndFlush(legalguardian);
-            res.json(legalguardian);
+            legalGuardian.isActive = false;
+            legalGuardian.user.isActive = false;
+            await legalGuardian.guardedPatients.init(); // Las colecciones entiendo son lazy loaded, espero a que carguen
+            for (const patient of legalGuardian.guardedPatients) {
+                patient.isActive = false;
+            }
+
+            await legalGuardian.appointments.init();
+            for (const appointment of legalGuardian.appointments) {
+                appointment.status = AppointmentStatus.Canceled;
+            }
+
+            await em.flush();
+            
+            res.json(legalGuardian);
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Failed to delete Legal Guardian' });
+            if (error instanceof BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            else {
+                res.status(500).json({ message: 'Error al eliminar responsable legal' });
+            }
         }
     }
 
