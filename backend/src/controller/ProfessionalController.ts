@@ -4,6 +4,9 @@ import { Professional } from '../model/entities/Professional';
 import { Occupation } from '../model/entities/Occupation'; 
 import { createUser } from '../services/UserCreationService';
 import { User } from '../model/entities/User';
+import { BaseHttpError, NotFoundError } from '../model/errors/BaseHttpError';
+import { AppointmentStatus } from '../model/enums/AppointmentStatus';
+import { ModuleStatus } from '../model/enums/ModuleStatus';
 export class ProfessionalController {
 
     static home(req: Request, res: Response) {
@@ -11,7 +14,7 @@ export class ProfessionalController {
     }
 
     static async addProfessional(req: Request, res: Response) {
-        const { name, lastName, birthdate, telephone, mail, password, occupation} = req.body;
+        const { name, lastName, birthdate, telephone, mail, password, occupationId} = req.body;
 
         if (!name) {
             return res.status(400).json({ message: 'Se requiere el nombre del profesional' });
@@ -19,9 +22,6 @@ export class ProfessionalController {
         if (!lastName) {
             return res.status(400).json({ message: 'Se requiere el apellido del profesional' });
         }
-        if (!birthdate) {
-            return res.status(400).json({ message: 'Se requiere la fecha de nacimiento del profesional' });
-        }   
         if (!telephone) {
             return res.status(400).json({ message: 'Se requiere el telefono del profesional' });
         }
@@ -31,41 +31,41 @@ export class ProfessionalController {
         if (!password) {
             return res.status(400).json({ message: 'Se requiere una contraseña valida' });
         }
-        if (!occupation){
-            return res.status(400).json({message:'Se requiere la ocupación del profesional'});
+        if (!occupationId){
+            return res.status(400).json({message:'Se requiere la Ide de la especialidad del profesional'});
         }
 
         try {            
             
-            let occupation: Occupation | undefined;
             const em = await getORM().em.fork();
-            if(occupation) {
-                const occupationIdNum = Number(occupation);
-                occupation = await em.findOne(Occupation, { id : occupationIdNum }) ?? undefined; //Si devuelve null lo paso a undefined para que no se queje TS
-                if(!occupation) {
-                    return res.status(404).json({ message: 'ID de la especialidad invalida.' });
-                }
+            let occupation = await em.findOne(Occupation, { id : occupationId });
+            if(!occupation) {
+                    throw new NotFoundError('Especialidad')
             }
-        
-        //Atencion a todo este segmento de código porque asi se  crean los usuarios, se persiste
-        //solamente el usuario y eso persiste el profesional, ver anotacion de Cascade dentro de la clase usuario
-        const professional = new Professional(name, lastName, birthdate, telephone);
-        const profUser: User = await createUser(mail, password);
-        
-        professional.user = profUser;
-        profUser.professional = professional
-        
-        await em.persistAndFlush(profUser);
-        res.status(201).json({ message: 'Se agrego correctamente el profesional ', professional });
-
+            //Atencion a todo este segmento de código porque asi se  crean los usuarios, se persiste
+            //solamente el usuario y eso persiste el profesional, ver anotacion de Cascade dentro de la clase usuario
+            const professional = new Professional(name, lastName, telephone, occupation);
+            const profUser: User = await createUser(mail, password);
+            
+            professional.user = profUser;
+            profUser.professional = professional
+            
+            await em.persistAndFlush(profUser);
+            res.status(201).json({ message: 'Se agrego correctamente el profesional ', professional });
+       
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Error al añadir el profesional' });
+            if (error instanceof BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            else {
+                res.status(500).json({ message: 'Error al crear el profesional' });
+            }
         }
     }
     
     static async updateProfessional(req: Request, res: Response) {
-        const {id, name, lastName, birthdate, telephone, occupation} = req.body;
+        const {id, name, lastName, telephone} = req.body;
 
         if(!id)
         {
@@ -77,32 +77,36 @@ export class ProfessionalController {
         if (!lastName) {
             return res.status(400).json({ message: 'Se requiere el apellido del profesional' });
         }
-        if (!birthdate) {
-            return res.status(400).json({ message: 'Se requiere la fecha de nacimiento del profesional' });
-        }   
         if (!telephone) {
             return res.status(400).json({ message: 'Se requiere el telefono del profesional' });
         }
-        if (!occupation){
-            return res.status(400).json({message:'Se requiere la ocupación del profesional'});
+
+        try {
+
+            const em = await getORM().em.fork();
+            const professional = await em.findOne(Professional, {id: id});
+
+            if(!professional)
+            {
+                throw new NotFoundError('Profesional');
+            }
+
+            professional.firstName = name;
+            professional.lastName = lastName;
+            professional.telephone = telephone;
+
+            await em.flush();
+            res.status(201).json({ message: 'Professional updated', professional });
+
+        } catch (error) {
+            console.error(error);
+            if (error instanceof BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            else {
+                res.status(500).json({ message: 'Error al actualizar el profesional' });
+            }
         }
-
-        const em = await getORM().em.fork();
-        const professional = await em.findOne(Professional, {id: id});
-
-        if(!professional)
-        {
-            return res.status(400).json({ message: 'No se encontró el profesional' });
-        }
-
-        professional.firstName = name;
-        professional.lastName = lastName;
-        professional.telephone = telephone;
-        professional.occupation = occupation;
-
-        await em.persistAndFlush(professional);
-
-        res.status(201).json({ message: 'Professional updated', professional });
     }
 
     static async getProfessional(req: Request, res: Response) {
@@ -115,24 +119,29 @@ export class ProfessionalController {
             const em = await getORM().em.fork();
             const professional = await em.findOne(Professional, { id: id });
             if (!professional) {
-            return res.status(404).json({ message: 'No se encontró el profesional' });
+                throw new NotFoundError('Profesional');
             }
             res.json(professional);
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'No se pudo recuperar el profesional' });
+            if (error instanceof BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            else {
+                res.status(500).json({ message: 'Error al buscar el profesional' });
+            }
         }
     }
 
     static async getProfessionals(req: Request, res: Response) {
         try {
             const em = await getORM().em.fork();
-            const professionals = await em.find(Professional, {});
+            const professionals = await em.findAll(Professional);
             res.json(professionals);
 
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'No se pudo recuperar los profesionales' });
+            res.status(500).json({ message: 'Error al buscar los profesionales' });
         }
     }
 
@@ -141,20 +150,43 @@ export class ProfessionalController {
         if (!id) {
             return res.status(400).json({ message: 'Se requiere la id del profesional' });
         }
+
         try {
 
             const em = await getORM().em.fork();
-            const profesional = await em.findOne(Professional, { id : id });
+            const professional = await em.findOne(Professional, { id : id });
 
-            if (!profesional) {
-                return res.status(404).json({ message: 'No se pudo encontrar el profesional' });
+            if (!professional) {
+                throw new NotFoundError('Profesional');
             }
 
-            await em.removeAndFlush(profesional);
-            res.json(profesional);
+            professional.isActive = false;
+            professional.user.isActive = false;
+
+            await professional.appointments.init();
+            await professional.modules.init();
+
+            for(const appointment of professional.appointments) {
+                appointment.status = AppointmentStatus.Canceled;
+            }
+
+            for(const module of professional.modules) {
+                module.status = ModuleStatus.Canceled;
+            }
+
+            await em.flush();
+
+            res.json(professional);
+
+
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'No se pudo eliminar el profesional' });
+            if (error instanceof BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            else {
+                res.status(500).json({ message: 'Error al eliminar el profesional' });
+            }
         }
     }
 }
