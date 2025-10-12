@@ -1,8 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
-// Usa uno de estos imports según tu setup:
-//import "./styles/navbar.css";
-import "@/styles/navbar.css";
+import "./navbar.css";
 
 
 export default function Navbar() {
@@ -70,17 +68,12 @@ export default function Navbar() {
           <ul className="nav__list">
             <li>
               <NavLink to="/" className={linkClass} onClick={() => setOpen(false)}>
-                Portal
+                Portales
               </NavLink>
             </li>
             <li>
               <NavLink to="/about" className={linkClass} onClick={() => setOpen(false)}>
                 Sobre nosotros
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/contact" className={linkClass} onClick={() => setOpen(false)}>
-                Contacto
               </NavLink>
             </li>
 

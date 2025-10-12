@@ -1,20 +1,12 @@
-// src/pages/Home.tsx
 import { NavLink } from "react-router-dom";
 
-export default function Home() {
+export default function PatientPortal() {
   return (
     <main className="home">
+      <h2>Portal Paciente</h2>
       <section className="home-hero">
 
         {/* mobile-first */}
-        <NavLink
-          to="/module-rent"
-          className="cta-primary"
-          aria-label="Ir a alquilar modulo"
-        >
-          Alquilar módulo
-        </NavLink>
-
         <NavLink
           to="/appointment-schedule"
           className="cta-primary"
@@ -22,6 +14,15 @@ export default function Home() {
         >
           Reservar turno
         </NavLink>
+        
+        <NavLink
+          to="/edit-profile"
+          className="cta-primary"
+          aria-label="Ir a editar perfil"
+        >
+          Editar perfil
+        </NavLink>
+        
       </section>
     </main>
   );

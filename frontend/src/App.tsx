@@ -1,14 +1,28 @@
 import { Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import Home from "./pages/Home";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import ModuleRent from "./pages/ModuleRent";
-import AppointmentSchedule from "./pages/AppointmentSchedule";
-import EditProfile from "./pages/editProfile";
+import Navbar from "./components/Navbar/Navbar";
 
+import Home from "./pages/Home/Home";
+import About from "./pages/About/About";
+import Login from "./pages/LoginRegister/Login";
+import Register from "./pages/LoginRegister/Register";
+import ModuleRent from "./pages/ModuleRent/ModuleRent";
+import AppointmentSchedule from "./pages/AppointmentSchedule/AppointmentSchedule";
+import EditProfile from "./pages/EditProfile/EditProfile";
+import ProfessionalPortal from "./pages/ProfessionalPortal/ProfessionalPortal";
+import LegalGuardianPortal from "./pages/LegalGuardianPortal/LegalGuardianPortal";
+import PatientPortal from "./pages/PatientPortal/PatientPortal";
+import GuardedPatients from "./pages/GuardedPatients/GuardedPatients";
+import ModuleList from "./pages/ModuleList/ModuleList";
+import AppointmentList from "./pages/AppointmentList/AppointmentList";
+import DebugConsole from "./pages/DebugConsole/DebugConsole"; //no entiendo muy bien este error
+import ConsultingRooms from "./pages/admin/ConsultingRooms/ConsultingRooms";
+import Modules from "./pages/admin/Modules/Modules";
+import HealthInsurances from "./pages/admin/HealthInsurances/HealthInsurances";
+import Occupations from "./pages/admin/Occupations/Occupations";
+import Professionals from "./pages/admin/Professionals/Professionals";
+import Patients from "./pages/admin/Patients/Patients";
+import LegalGuardians from "./pages/admin/LegalGuardians/LegalGuardians";
+import ProfessionalHealthInsurances from "./pages/ProfessionalHealthInsurances/ProfessionalHealthInsurances";
 
 export default function App() {
   return (
@@ -18,8 +32,6 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
-
-          <Route path="/contact" element={<Contact />} /> {/* lo voy a borrar en el futuro, total el contacto está en About */}
           
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -29,6 +41,32 @@ export default function App() {
           <Route path="/appointment-schedule" element={<AppointmentSchedule />} />
 
           <Route path="/edit-profile" element={<EditProfile />} />
+
+          <Route path="/professional-portal" element={<ProfessionalPortal />} />
+          <Route path="/professional-health-insurances" element={<ProfessionalHealthInsurances />} />
+
+          
+
+          <Route path="/legal-guardian-portal" element={<LegalGuardianPortal />} />
+          <Route path="/guarded-patients" element={<GuardedPatients />} />
+
+          <Route path="/patient-portal" element={<PatientPortal />} />
+
+        {/* RUTAS PARA EL ADMIN*/}
+          <Route path="/debug-console" element={<DebugConsole />} />
+          <Route path="/admin/consulting-rooms" element={<ConsultingRooms />} />
+          <Route path="/admin/modules" element={<Modules />} />
+          <Route path="/admin/health-insurances" element={<HealthInsurances />} />
+          <Route path="/admin/occupations" element={<Occupations />} />
+          <Route path="/admin/professionals" element={<Professionals />} />
+          <Route path="/admin/patients" element={<Patients />} />
+          <Route path="/admin/legal-guardians" element={<LegalGuardians />} />
+
+          {/* informes */}
+          <Route path="/module-list" element={<ModuleList />} />
+          <Route path="/appointment-list" element={<AppointmentList/>} />
+
+          {/* fin de las rutas que deberian estar restringidas */}
 
           <Route path="*" element={<h1>Página no encontrada</h1>} />
         </Routes>

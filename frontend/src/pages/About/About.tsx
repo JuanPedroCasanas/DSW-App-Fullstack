@@ -1,6 +1,3 @@
-// src/pages/About.tsx
-
-
 // según la IA: Si algún día tu app se deploya, por ejemplo, en https://midominio.com/app/, 
 // conviene usar el BASE_URL de Vite para que el path se adapte solo:
 const bannerUrl = `${import.meta.env.BASE_URL}NarrativasBanner.PNG`

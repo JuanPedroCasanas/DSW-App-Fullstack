@@ -1,0 +1,218 @@
+/* ===== Contenedor ===== */
+.lg-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 16px clamp(12px, 4vw, 24px);
+}
+
+.lg-title {
+  margin: 0 0 12px 0;
+  font-size: clamp(22px, 3.2vw, 28px);
+  color: #213547;
+}
+
+/* ===== Botones (coherentes con index.css) ===== */
+:root { --ui-danger: #d92d20; }
+.ui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter .15s ease, transform .02s ease, border-color .15s ease;
+}
+.ui-btn:hover { filter: brightness(.97); }
+.ui-btn:active { transform: translateY(1px); }
+.ui-btn--primary {
+  background: var(--variable-collection-primary, #3b9ab8);
+  color: #fff;
+}
+.ui-btn--outline {
+  background: #fff;
+  color: #213547;
+  border-color: rgba(0,0,0,.18);
+}
+.ui-btn--danger {
+  background: var(--ui-danger);
+  color: #fff;
+}
+.ui-btn--sm {
+  min-height: 36px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+/* ===== Estado vacío ===== */
+.lg-empty-state {
+  margin: 20px auto;
+  padding: 28px 18px;
+  border: 1px dashed color-mix(in srgb, var(--variable-collection-primary) 35%, #0000);
+  background: var(--variable-collection-white, #fff);
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  gap: 10px;
+  text-align: center;
+  color: #213547;
+}
+.lg-empty-icon {
+  width: 48px;
+  height: 48px;
+  color: var(--variable-collection-primary, #3b9ab8);
+}
+.lg-empty-state h2 {
+  margin: 6px 0 2px 0;
+  font-size: clamp(18px, 2.6vw, 22px);
+}
+.lg-empty-state p {
+  margin: 0 0 8px 0;
+  color: rgba(0,0,0,.65);
+}
+
+/* ===== Tabla ===== */
+.lg-table-wrap {
+  overflow-x: auto;
+  background: var(--variable-collection-white, #fff);
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0,0,0,.08);
+  border: 1px solid rgba(0,0,0,.06);
+}
+.lg-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 860px; /* más ancha: hay más columnas */
+}
+.lg-table th,
+.lg-table td {
+  text-align: left;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(0,0,0,.06);
+  color: #213547;
+}
+.lg-table thead th {
+  background: color-mix(in srgb, var(--variable-collection-primary) 8%, white);
+  font-weight: 700;
+}
+.lg-table tbody tr:nth-child(even) td {
+  background: rgba(0,0,0,.015);
+}
+.lg-col-actions { width: 220px; }
+.lg-actions { display: flex; gap: 8px; }
+
+/* ===== Badge estado ===== */
+.lg-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: .85rem;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.lg-badge--active {
+  color: #037a48;
+  background: rgba(3,122,72,.10);
+  border-color: rgba(3,122,72,.25);
+}
+.lg-badge--inactive {
+  color: #b42318;
+  background: rgba(180,35,24,.10);
+  border-color: rgba(180,35,24,.25);
+}
+
+/* ===== Footer ===== */
+.lg-footer {
+  display: grid;
+  place-items: center;
+  margin: 16px 0 8px;
+}
+
+/* ===== Form & helpers ===== */
+.lg-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 10px 0;
+}
+.lg-field label { color: #213547; font-size: 0.95rem; }
+.lg-field input, .lg-field textarea, .lg-field select {
+  appearance: none;
+  border: 1px solid rgba(0,0,0,.15);
+  background: #fff;
+  color: #213547;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 1rem;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.lg-field input[type="checkbox"] {
+  width: 18px; height: 18px; padding: 0; border-radius: 4px;
+}
+.lg-field input:focus,
+.lg-field textarea:focus,
+.lg-field select:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--variable-collection-primary) 50%, #0000);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--variable-collection-primary) 25%, white);
+}
+.lg-checkline {
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.lg-error {
+  color: #b42318;
+  background: #fef3f2;
+  border: 1px solid #ffdad6;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  margin: 2px 0 0 0;
+}
+.lg-help { color: rgba(0,0,0,.65); font-size: 0.9rem; }
+
+/* ===== Modal ===== */
+.lg-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.40);
+  display: grid;
+  place-items: center;
+  z-index: 1000;
+  padding: 16px;
+}
+.lg-modal {
+  width: min(620px, 100%); /* un poco más ancha: formulario con más campos */
+  background: var(--variable-collection-white, #fff);
+  color: #213547;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.20);
+  border: 1px solid rgba(0,0,0,.06);
+  padding: 18px 16px;
+}
+.lg-modal h2 {
+  margin: 0 0 8px 0;
+  font-size: clamp(18px, 2.8vw, 20px);
+}
+.lg-modal p { margin: 0 0 12px 0; line-height: 1.5; }
+.lg-modal-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* ===== Summary ===== */
+.lg-summary { list-style: none; padding: 0; margin: 0 0 10px 0; display: grid; gap: 6px; }
+.lg-summary strong { font-weight: 700; }
+
+/* ===== Lista de pacientes (en confirm/lectura) ===== */
+.lg-pacientes {
+  margin: 8px 0 0 0;
+  padding-left: 18px;
+}

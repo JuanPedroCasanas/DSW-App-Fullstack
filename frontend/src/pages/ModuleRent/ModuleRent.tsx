@@ -1,5 +1,10 @@
 import React, { useMemo, useRef, useState } from "react";
-import "@/styles/moduleRent.css";
+import "./moduleRent.css";
+
+// OJOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+// ESTO DEBERIA DEVOLVER EL MES Y EL AÑO!!!!!!!!!!!!!!!!!!!!!
+// 100% necesario para el backend que ademas de todo DEVUELVA ESO !!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11
 
 type DayKey = "lun" | "mar" | "mie" | "jue" | "vie" | "sab";
 type SlotState = "available" | "mine" | "reserved" | "unavailable";
