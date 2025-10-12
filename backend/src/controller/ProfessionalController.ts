@@ -14,7 +14,7 @@ export class ProfessionalController {
     }
 
     static async addProfessional(req: Request, res: Response) {
-        const { name, lastName, birthdate, telephone, mail, password, occupationId} = req.body;
+        const { name, lastName, telephone, mail, password, occupationId} = req.body;
 
         if (!name) {
             return res.status(400).json({ message: 'Se requiere el nombre del profesional' });

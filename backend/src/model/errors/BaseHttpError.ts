@@ -42,3 +42,9 @@ export class WeakPasswordError extends BaseHttpError {
     super(400, 'WEAK_PASSWORD', reason);
   }
 }
+
+export class NotConfigured extends BaseHttpError {
+  constructor(resource: string) {
+    super(404, 'NOT_FOUND', `El recurso '${resource}' aún no posee valores configurados por un admin`);
+  }
+}
