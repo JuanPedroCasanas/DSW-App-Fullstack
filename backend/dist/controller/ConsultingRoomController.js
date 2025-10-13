@@ -43,8 +43,8 @@ class ConsultingRoomController {
                 throw new BaseHttpError_1.NotFoundError('Consultorio');
             }
             consultingRoom.description = description;
-            await em.persistAndFlush(ConsultingRoom_1.ConsultingRoom);
-            res.status(201).json({ message: 'ConsultingRoom updated', consultingRoom });
+            await em.flush();
+            res.status(201).json({ message: 'ConsultingRoom actualizado', consultingRoom });
         }
         catch (error) {
             console.error(error);

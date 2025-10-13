@@ -58,9 +58,9 @@ export class ConsultingRoomController {
 
             consultingRoom.description = description;
 
-            await em.persistAndFlush(ConsultingRoom);
+            await em.flush();
 
-            res.status(201).json({ message: 'ConsultingRoom updated', consultingRoom });
+            res.status(201).json({ message: 'ConsultingRoom actualizado', consultingRoom });
             } catch (error) {
                 console.error(error);
                 if (error instanceof BaseHttpError) {
