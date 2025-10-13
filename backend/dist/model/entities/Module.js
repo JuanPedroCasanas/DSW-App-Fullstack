@@ -43,7 +43,7 @@ exports.Module = Module;
 __decorate([
     (0, core_1.PrimaryKey)(),
     __metadata("design:type", Number)
-], Module.prototype, "idModule", void 0);
+], Module.prototype, "id", void 0);
 __decorate([
     (0, core_1.Enum)(() => ModuleStatus_1.ModuleStatus),
     __metadata("design:type", String)

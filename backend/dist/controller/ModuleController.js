@@ -65,7 +65,7 @@ class ModuleController {
             const em = await (0, db_1.getORM)().em.fork();
             // Buscar entidades relacionadas
             const professional = await em.findOne(Professional_1.Professional, { id: professionalId });
-            const consultingRoom = await em.findOne(ConsultingRoom_1.ConsultingRoom, { idConsultingRoom: consultingRoomId });
+            const consultingRoom = await em.findOne(ConsultingRoom_1.ConsultingRoom, { id: consultingRoomId });
             const moduleTypes = await em.findAll(ModuleType_1.ModuleType, { orderBy: { duration: 'DESC' } }); //Los ordeno de mayor a menor para hacer un calculo posterior
             if (!professional || !professional?.isActive) {
                 throw new BaseHttpError_1.NotFoundError('Profesional');
@@ -166,7 +166,7 @@ class ModuleController {
         }
         const em = await (0, db_1.getORM)().em.fork();
         const idModule = Number(req.params.idModule);
-        const module = await em.findOne(Module_1.Module, { idModule });
+        const module = await em.findOne(Module_1.Module, { id: idModule });
         if (!module) {
             return res.status(400).json({ message: 'Module not found' });
             // throw new Error("Modulo no encontrado");
@@ -175,13 +175,13 @@ class ModuleController {
         res.status(201).json({ message: 'Module updated', module });
     }
     static async getModule(req, res) {
-        const { idModule } = req.params;
-        if (!idModule) {
+        const { id } = req.params;
+        if (!id) {
             return res.status(400).json({ message: 'Se requiere el id de modulo' });
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const module = await em.findOne(Module_1.Module, { idModule: parseInt(idModule) });
+            const module = await em.findOne(Module_1.Module, { id: parseInt(id) });
             if (!module) {
                 throw new BaseHttpError_1.NotFoundError("Modulo");
             }

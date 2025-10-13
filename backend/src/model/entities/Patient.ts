@@ -8,7 +8,7 @@ import { User } from './User';
 @Entity()
 export class Patient {
   @PrimaryKey()
-  idPatient!: number;
+  id!: number;
 
   @Property()
   firstName!: string;

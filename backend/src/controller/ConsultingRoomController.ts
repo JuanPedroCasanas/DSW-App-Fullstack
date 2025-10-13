@@ -49,7 +49,7 @@ export class ConsultingRoomController {
 
         try {
             const em = await getORM().em.fork();
-            const consultingRoom = await em.findOne(ConsultingRoom, { idConsultingRoom: idConsultingRoom });
+            const consultingRoom = await em.findOne(ConsultingRoom, { id: idConsultingRoom });
 
             if(!consultingRoom)
             {
@@ -81,7 +81,7 @@ export class ConsultingRoomController {
 
         try {
             const em = await getORM().em.fork();
-            const consultingRoom = await em.findOne(ConsultingRoom, { idConsultingRoom: id });
+            const consultingRoom = await em.findOne(ConsultingRoom, { id: id });
             if (!consultingRoom) {
                 throw new NotFoundError('Consultorio');
             }
@@ -109,14 +109,14 @@ export class ConsultingRoomController {
     }
 
     static async deleteConsultingRoom(req: Request, res: Response) {
-        const idConsultingRoom = Number(req.params.idConsultingRoom);
-        if (!idConsultingRoom) {
+        const id = Number(req.params.idConsultingRoom);
+        if (!id) {
             return res.status(400).json({ message: 'Se requiere una id de consultorio' });
         }
         try {
 
             const em = await getORM().em.fork();
-            const consultingRoom = await em.findOne(ConsultingRoom, { idConsultingRoom : idConsultingRoom });
+            const consultingRoom = await em.findOne(ConsultingRoom, { id: id });
 
             if (!consultingRoom) {
                 throw new NotFoundError('Consultorio')

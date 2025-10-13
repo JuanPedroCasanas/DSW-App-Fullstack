@@ -34,7 +34,7 @@ class HealthInsuranceController {
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const healthinsurance = await em.findOne(HealthInsurance_1.HealthInsurance, { idHealthInsurance: id });
+            const healthinsurance = await em.findOne(HealthInsurance_1.HealthInsurance, { id: id });
             if (!healthinsurance) {
                 throw new BaseHttpError_1.NotFoundError('Obra Social');
             }
@@ -57,7 +57,7 @@ class HealthInsuranceController {
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const healthinsurance = await em.findOne(HealthInsurance_1.HealthInsurance, { idHealthInsurance: id });
+            const healthinsurance = await em.findOne(HealthInsurance_1.HealthInsurance, { id: id });
             if (!healthinsurance) {
                 throw new BaseHttpError_1.NotFoundError('Obra Social');
             }
@@ -91,7 +91,7 @@ class HealthInsuranceController {
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const healthInsurance = await em.findOne(HealthInsurance_1.HealthInsurance, { idHealthInsurance: id });
+            const healthInsurance = await em.findOne(HealthInsurance_1.HealthInsurance, { id: id });
             if (!healthInsurance) {
                 throw new BaseHttpError_1.NotFoundError('Obra Social');
             }

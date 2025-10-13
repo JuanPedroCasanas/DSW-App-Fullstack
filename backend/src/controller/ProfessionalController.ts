@@ -111,9 +111,9 @@ export class ProfessionalController {
     }
 
     static async allowHealthInsurance(req: Request, res: Response) {
-        const { professionalId, healthInsuranceId } = req.body;
+        const { id, healthInsuranceId } = req.body;
 
-        if(!professionalId) {
+        if(!id) {
             return res.status(400).json({message:'Se requiere la Id del profesional'});
         }
         if(!healthInsuranceId) {
@@ -121,11 +121,11 @@ export class ProfessionalController {
         }
         try {
             const em = await getORM().em.fork();
-            const professional = await em.findOne(Professional, { id : professionalId });
+            const professional = await em.findOne(Professional, { id : id });
             if(!professional) {
                 throw new NotFoundError('Profesional');
             }
-            const healthInsurance = await em.findOne(HealthInsurance, { idHealthInsurance : healthInsuranceId });
+            const healthInsurance = await em.findOne(HealthInsurance, { id : healthInsuranceId });
             if(!healthInsurance) {
                 throw new NotFoundError('Obra Social');
             }
@@ -148,9 +148,9 @@ export class ProfessionalController {
     }
 
     static async forbidHealthInsurance(req: Request, res: Response) {
-        const { professionalId, healthInsuranceId } = req.body;
+        const { id, healthInsuranceId } = req.body;
 
-        if(!professionalId) {
+        if(!id) {
             return res.status(400).json({message:'Se requiere la Id del profesional'});
         }
         if(!healthInsuranceId) {
@@ -158,11 +158,11 @@ export class ProfessionalController {
         }
         try {
             const em = await getORM().em.fork();
-            const professional = await em.findOne(Professional, { id : professionalId });
+            const professional = await em.findOne(Professional, { id : id });
             if(!professional) {
                 throw new NotFoundError('Profesional');
             }
-            const healthInsurance = await em.findOne(HealthInsurance, { idHealthInsurance : healthInsuranceId });
+            const healthInsurance = await em.findOne(HealthInsurance, { id : healthInsuranceId });
             if(!healthInsurance) {
                 throw new NotFoundError('Obra Social');
             }

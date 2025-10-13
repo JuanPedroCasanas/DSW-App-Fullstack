@@ -96,7 +96,7 @@ const startingCode = async () => {
     await OccupationController_1.OccupationController.addOccupation(req, res);
     //PROFESIONALES
     req = new FakeRequest({
-        name: 'Pablo',
+        firstName: 'Pablo',
         lastName: 'Marmol',
         telephone: '1111',
         mail: 'kukatrap@gmail.com',
@@ -105,7 +105,7 @@ const startingCode = async () => {
     });
     await ProfessionalController_1.ProfessionalController.addProfessional(req, res);
     req = new FakeRequest({
-        name: 'Pedro',
+        firstName: 'Pedro',
         lastName: 'Picapiedra',
         telephone: '1111',
         mail: 'pepe@gmail.com',
@@ -139,7 +139,7 @@ const startingCode = async () => {
     await ModuleController_1.default.addModules(req, res);
     //RESPONSABLE LEGAL
     req = new FakeRequest({
-        "name": "Moncho",
+        "firstName": "Moncho",
         "lastName": "Lopez",
         "birthdate": "1990-07-21",
         "password": UNI_PASSWORD,
@@ -150,7 +150,7 @@ const startingCode = async () => {
     await LegalGuardianController_1.LegalGuardianController.addLegalGuardian(req, res);
     //PACIENTES
     req = new FakeRequest({
-        "name": "Lucía",
+        "firstName": "Lucía",
         "lastName": "Fernández",
         "birthdate": "1993-07-21",
         "password": UNI_PASSWORD,
@@ -160,7 +160,7 @@ const startingCode = async () => {
     });
     await PatientController_1.PatientController.addIndependentPatient(req, res);
     req = new FakeRequest({
-        "name": "Mini",
+        "firstName": "Mini",
         "lastName": "ME",
         "birthdate": "2010-07-21",
         "legalGuardianId": 1

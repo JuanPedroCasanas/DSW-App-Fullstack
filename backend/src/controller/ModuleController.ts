@@ -88,7 +88,7 @@ export default class ModuleController  {
 
             // Buscar entidades relacionadas
             const professional = await em.findOne(Professional, { id: professionalId });
-            const consultingRoom = await em.findOne(ConsultingRoom, { idConsultingRoom: consultingRoomId });
+            const consultingRoom = await em.findOne(ConsultingRoom, { id: consultingRoomId });
             const moduleTypes = await em.findAll(ModuleType, { orderBy: { duration: 'DESC' } }); //Los ordeno de mayor a menor para hacer un calculo posterior
 
 
@@ -238,7 +238,7 @@ export default class ModuleController  {
     
         const em = await getORM().em.fork();
         const idModule = Number(req.params.idModule);
-        const module = await em.findOne(Module, { idModule });
+        const module = await em.findOne(Module, { id : idModule });
 
 
         if(!module)
@@ -253,16 +253,16 @@ export default class ModuleController  {
     }
 
     static async getModule(req: Request, res: Response) {
-        const { idModule } = req.params;
+        const { id } = req.params;
 
-        if(!idModule)
+        if(!id)
         {
             return res.status(400).json({ message: 'Se requiere el id de modulo' });
         }
         try {
 
             const em = await getORM().em.fork();
-            const module = await em.findOne(Module, { idModule: parseInt(idModule) });
+            const module = await em.findOne(Module, { id: parseInt(id) });
 
             if(!module) 
             {

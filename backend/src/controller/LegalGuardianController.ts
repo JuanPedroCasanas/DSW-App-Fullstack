@@ -13,9 +13,9 @@ export class LegalGuardianController {
     }
 
     static async addLegalGuardian(req: Request, res: Response) {
-        const { name, lastName, birthdate, telephone, mail, password, idhealthInsurance} = req.body;
+        const { firstName, lastName, birthdate, telephone, mail, password, idhealthInsurance} = req.body;
 
-        if (!name) {
+        if (!firstName) {
             return res.status(400).json({ message: 'Se requiere nombre del responsable legal' });
         }
         if (!lastName) {
@@ -40,13 +40,13 @@ export class LegalGuardianController {
         try {         
             const em = await getORM().em.fork();   
             let healthInsurance: HealthInsurance | undefined;
-            healthInsurance = await em.findOne(HealthInsurance, { idHealthInsurance : idhealthInsurance }) ?? undefined;
+            healthInsurance = await em.findOne(HealthInsurance, { id : idhealthInsurance }) ?? undefined;
 
             if(!healthInsurance) {
                 throw new NotFoundError("Obra social");
             }
         
-            const legalGuardian = new LegalGuardian(name, lastName, birthdate, telephone, healthInsurance);
+            const legalGuardian = new LegalGuardian(firstName, lastName, birthdate, telephone, healthInsurance);
             const lgUser: User = await createUser(mail, password);
             legalGuardian.user = lgUser;
             lgUser.legalGuardian = legalGuardian;
@@ -68,14 +68,14 @@ export class LegalGuardianController {
 
     static async updateLegalGuardian(req: Request, res: Response) {
         const { id } = req.body;
-        const { name } = req.body;
+        const { firstName } = req.body;
         const { lastName } = req.body;
         const { birthdate } = req.body;   
         const { telephone } = req.body;
         const { mail } = req.body;
         const { idHealthInsurance } = req.body;
 
-        if (!name) {
+        if (!firstName) {
             return res.status(400).json({ message: 'Se requiere nombre del responsable legal' });
         }
         if (!lastName) {
@@ -93,7 +93,7 @@ export class LegalGuardianController {
 
         
         const em = await getORM().em.fork();
-        const legalGuardian = await em.findOne(LegalGuardian, {idLegalGuardian: id});
+        const legalGuardian = await em.findOne(LegalGuardian, {id: id});
 
             try {
             if(!legalGuardian)
@@ -101,13 +101,13 @@ export class LegalGuardianController {
                 throw new NotFoundError('Responsable Legal');
             }
 
-            legalGuardian.firstName = name;
+            legalGuardian.firstName = firstName;
             legalGuardian.lastName = lastName;
             legalGuardian.birthdate = birthdate;
             legalGuardian.telephone = telephone;
         
 
-            const healthInsurance = await em.findOne(HealthInsurance, {idHealthInsurance: idHealthInsurance});
+            const healthInsurance = await em.findOne(HealthInsurance, {id: idHealthInsurance});
 
             if(!healthInsurance) {
                     throw new NotFoundError("Obra social");
@@ -137,7 +137,7 @@ export class LegalGuardianController {
         }
         try {
             const em = await getORM().em.fork();
-            const legalGuardian = await em.findOne(LegalGuardian, { idLegalGuardian: id });
+            const legalGuardian = await em.findOne(LegalGuardian, { id: id });
             if (!legalGuardian) {
                 throw new NotFoundError('Responsable Legal')
             }
@@ -161,7 +161,7 @@ export class LegalGuardianController {
         }
         try {
             const em = await getORM().em.fork();
-            const legalGuardian = await em.findOne(LegalGuardian, { idLegalGuardian: id });
+            const legalGuardian = await em.findOne(LegalGuardian, { id: id });
             if (!legalGuardian) {
                 throw new NotFoundError('Responsable Legal')
             }
@@ -187,7 +187,7 @@ export class LegalGuardianController {
         try {
 
             const em = await getORM().em.fork();
-            const legalGuardian = await em.findOne(LegalGuardian, { idLegalGuardian : id });
+            const legalGuardian = await em.findOne(LegalGuardian, { id : id });
 
             if (!legalGuardian) {
                 throw new NotFoundError('Responsable Legal');

@@ -38,7 +38,7 @@ class ConsultingRoomController {
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const consultingRoom = await em.findOne(ConsultingRoom_1.ConsultingRoom, { idConsultingRoom: idConsultingRoom });
+            const consultingRoom = await em.findOne(ConsultingRoom_1.ConsultingRoom, { id: idConsultingRoom });
             if (!consultingRoom) {
                 throw new BaseHttpError_1.NotFoundError('Consultorio');
             }
@@ -63,7 +63,7 @@ class ConsultingRoomController {
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const consultingRoom = await em.findOne(ConsultingRoom_1.ConsultingRoom, { idConsultingRoom: id });
+            const consultingRoom = await em.findOne(ConsultingRoom_1.ConsultingRoom, { id: id });
             if (!consultingRoom) {
                 throw new BaseHttpError_1.NotFoundError('Consultorio');
             }
@@ -91,13 +91,13 @@ class ConsultingRoomController {
         }
     }
     static async deleteConsultingRoom(req, res) {
-        const idConsultingRoom = Number(req.params.idConsultingRoom);
-        if (!idConsultingRoom) {
+        const id = Number(req.params.idConsultingRoom);
+        if (!id) {
             return res.status(400).json({ message: 'Se requiere una id de consultorio' });
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const consultingRoom = await em.findOne(ConsultingRoom_1.ConsultingRoom, { idConsultingRoom: idConsultingRoom });
+            const consultingRoom = await em.findOne(ConsultingRoom_1.ConsultingRoom, { id: id });
             if (!consultingRoom) {
                 throw new BaseHttpError_1.NotFoundError('Consultorio');
             }

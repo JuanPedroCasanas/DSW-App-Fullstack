@@ -8,7 +8,7 @@ import { LegalGuardian } from './LegalGuardian';
 @Entity()
 export class HealthInsurance {
   @PrimaryKey()
-  idHealthInsurance!: number;
+  id!: number;
 
   @Property()
   isActive!: boolean;

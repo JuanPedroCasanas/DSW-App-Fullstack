@@ -14,8 +14,8 @@ class PatientController {
     }
     //Para pacientes que no dependen de un responsable legal, se les crea usuario para acceder
     static async addIndependentPatient(req, res) {
-        const { name, lastName, birthdate, password, telephone, mail, healthInsuranceId } = req.body;
-        if (!name) {
+        const { firstName, lastName, birthdate, password, telephone, mail, healthInsuranceId } = req.body;
+        if (!firstName) {
             return res.status(400).json({ message: 'Se requiere nombre' });
         }
         if (!lastName) {
@@ -38,11 +38,11 @@ class PatientController {
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const healthInsurance = await em.findOne(HealthInsurance_1.HealthInsurance, { idHealthInsurance: healthInsuranceId }) ?? undefined;
+            const healthInsurance = await em.findOne(HealthInsurance_1.HealthInsurance, { id: healthInsuranceId }) ?? undefined;
             if (!healthInsurance) {
                 throw new BaseHttpError_1.NotFoundError("Obra social");
             }
-            const patient = new Patient_1.Patient(name, lastName, birthdate, healthInsurance, telephone);
+            const patient = new Patient_1.Patient(firstName, lastName, birthdate, healthInsurance, telephone);
             const patUser = await (0, UserCreationService_1.createUser)(mail, password);
             patient.user = patUser;
             patUser.patient = patient;
@@ -61,8 +61,8 @@ class PatientController {
     }
     //Para pacientes que dependen de un responsable legal, sin usuario ni info de contacto
     static async addDependentPatient(req, res) {
-        const { name, lastName, birthdate, legalGuardianId } = req.body;
-        if (!name) {
+        const { firstName, lastName, birthdate, legalGuardianId } = req.body;
+        if (!firstName) {
             return res.status(400).json({ message: 'Se requiere nombre' });
         }
         if (!lastName) {
@@ -76,11 +76,11 @@ class PatientController {
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            let legalGuardian = await em.findOne(LegalGuardian_1.LegalGuardian, { idLegalGuardian: legalGuardianId });
+            let legalGuardian = await em.findOne(LegalGuardian_1.LegalGuardian, { id: legalGuardianId });
             if (!legalGuardian) {
                 throw new BaseHttpError_1.NotFoundError("Responsable legal");
             }
-            const patient = new Patient_1.Patient(name, lastName, birthdate, legalGuardian.healthInsurance, undefined, legalGuardian);
+            const patient = new Patient_1.Patient(firstName, lastName, birthdate, legalGuardian.healthInsurance, undefined, legalGuardian);
             //Si no se aclara contraseña, entonces este metodo fue llamado para añadir a un paciente dependiente de un resp legal, que no requiere usuario
             await em.persistAndFlush(patient);
             res.status(201).json({ message: 'Se añadió correctamente al paciente', patient });
@@ -97,7 +97,7 @@ class PatientController {
     }
     static async updatePatient(req, res) {
         const { id } = req.body;
-        const { name } = req.body;
+        const { firstName } = req.body;
         const { lastName } = req.body;
         const { birthdate } = req.body;
         const { telephone } = req.body;
@@ -106,7 +106,7 @@ class PatientController {
             if (!id) {
                 return res.status(400).json({ message: 'Patient id is required' });
             }
-            if (!name) {
+            if (!firstName) {
                 return res.status(400).json({ message: 'Patient new name is required' });
             }
             if (!lastName) {
@@ -122,11 +122,11 @@ class PatientController {
                 return res.status(400).json({ message: 'Patient new type is required' });
             }
             const em = await (0, db_1.getORM)().em.fork();
-            const patient = await em.findOne(Patient_1.Patient, { idPatient: id });
+            const patient = await em.findOne(Patient_1.Patient, { id: id });
             if (!patient) {
                 throw new BaseHttpError_1.NotFoundError("Paciente");
             }
-            patient.firstName = name;
+            patient.firstName = firstName;
             patient.lastName = lastName;
             patient.birthdate = birthdate;
             patient.telephone = telephone;
@@ -150,7 +150,7 @@ class PatientController {
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const patient = await em.findOne(Patient_1.Patient, { idPatient: id });
+            const patient = await em.findOne(Patient_1.Patient, { id: id });
             if (!patient) {
                 throw new BaseHttpError_1.NotFoundError("Paciente");
             }
@@ -184,7 +184,7 @@ class PatientController {
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const patient = await em.findOne(Patient_1.Patient, { idPatient: id });
+            const patient = await em.findOne(Patient_1.Patient, { id: id });
             if (!patient) {
                 throw new BaseHttpError_1.NotFoundError("Paciente");
             }

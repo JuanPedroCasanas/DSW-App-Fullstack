@@ -40,7 +40,7 @@ export class HealthInsuranceController {
         try {
 
         const em = await getORM().em.fork();
-        const healthinsurance = await em.findOne(HealthInsurance, { idHealthInsurance: id});
+        const healthinsurance = await em.findOne(HealthInsurance, { id: id});
 
         if (!healthinsurance) {
             throw new NotFoundError('Obra Social');
@@ -67,7 +67,7 @@ export class HealthInsuranceController {
         }
         try {
             const em = await getORM().em.fork();
-            const healthinsurance = await em.findOne(HealthInsurance, { idHealthInsurance: id });
+            const healthinsurance = await em.findOne(HealthInsurance, { id: id });
             if (!healthinsurance) {
                 throw new NotFoundError('Obra Social');
             }
@@ -101,7 +101,7 @@ export class HealthInsuranceController {
         }
         try {
             const em = await getORM().em.fork();
-            const healthInsurance = await em.findOne(HealthInsurance, { idHealthInsurance : id });
+            const healthInsurance = await em.findOne(HealthInsurance, { id : id });
 
             if (!healthInsurance) {
                 throw new NotFoundError('Obra Social');

@@ -32,7 +32,7 @@ exports.LegalGuardian = LegalGuardian;
 __decorate([
     (0, core_1.PrimaryKey)(),
     __metadata("design:type", Number)
-], LegalGuardian.prototype, "idLegalGuardian", void 0);
+], LegalGuardian.prototype, "id", void 0);
 __decorate([
     (0, core_1.Property)(),
     __metadata("design:type", String)

@@ -27,7 +27,7 @@ class AppointmentController {
             if (appointment.status != AppointmentStatus_1.AppointmentStatus.Available) {
                 throw new BaseHttpError_1.AppointmentNotAvailableError();
             }
-            const patient = await em.findOne(Patient_1.Patient, { idPatient: idPatient });
+            const patient = await em.findOne(Patient_1.Patient, { id: idPatient });
             if (!patient) {
                 throw new BaseHttpError_1.NotFoundError('Paciente');
             }

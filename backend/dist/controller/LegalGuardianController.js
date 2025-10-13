@@ -12,8 +12,8 @@ class LegalGuardianController {
         res.send('Soy el controlador de Responsable Legal!');
     }
     static async addLegalGuardian(req, res) {
-        const { name, lastName, birthdate, telephone, mail, password, idhealthInsurance } = req.body;
-        if (!name) {
+        const { firstName, lastName, birthdate, telephone, mail, password, idhealthInsurance } = req.body;
+        if (!firstName) {
             return res.status(400).json({ message: 'Se requiere nombre del responsable legal' });
         }
         if (!lastName) {
@@ -37,11 +37,11 @@ class LegalGuardianController {
         try {
             const em = await (0, db_1.getORM)().em.fork();
             let healthInsurance;
-            healthInsurance = await em.findOne(HealthInsurance_1.HealthInsurance, { idHealthInsurance: idhealthInsurance }) ?? undefined;
+            healthInsurance = await em.findOne(HealthInsurance_1.HealthInsurance, { id: idhealthInsurance }) ?? undefined;
             if (!healthInsurance) {
                 throw new BaseHttpError_1.NotFoundError("Obra social");
             }
-            const legalGuardian = new LegalGuardian_1.LegalGuardian(name, lastName, birthdate, telephone, healthInsurance);
+            const legalGuardian = new LegalGuardian_1.LegalGuardian(firstName, lastName, birthdate, telephone, healthInsurance);
             const lgUser = await (0, UserCreationService_1.createUser)(mail, password);
             legalGuardian.user = lgUser;
             lgUser.legalGuardian = legalGuardian;
@@ -60,13 +60,13 @@ class LegalGuardianController {
     }
     static async updateLegalGuardian(req, res) {
         const { id } = req.body;
-        const { name } = req.body;
+        const { firstName } = req.body;
         const { lastName } = req.body;
         const { birthdate } = req.body;
         const { telephone } = req.body;
         const { mail } = req.body;
         const { idHealthInsurance } = req.body;
-        if (!name) {
+        if (!firstName) {
             return res.status(400).json({ message: 'Se requiere nombre del responsable legal' });
         }
         if (!lastName) {
@@ -82,16 +82,16 @@ class LegalGuardianController {
             return res.status(400).json({ message: 'Se requiere obra social del responsable legal' });
         }
         const em = await (0, db_1.getORM)().em.fork();
-        const legalGuardian = await em.findOne(LegalGuardian_1.LegalGuardian, { idLegalGuardian: id });
+        const legalGuardian = await em.findOne(LegalGuardian_1.LegalGuardian, { id: id });
         try {
             if (!legalGuardian) {
                 throw new BaseHttpError_1.NotFoundError('Responsable Legal');
             }
-            legalGuardian.firstName = name;
+            legalGuardian.firstName = firstName;
             legalGuardian.lastName = lastName;
             legalGuardian.birthdate = birthdate;
             legalGuardian.telephone = telephone;
-            const healthInsurance = await em.findOne(HealthInsurance_1.HealthInsurance, { idHealthInsurance: idHealthInsurance });
+            const healthInsurance = await em.findOne(HealthInsurance_1.HealthInsurance, { id: idHealthInsurance });
             if (!healthInsurance) {
                 throw new BaseHttpError_1.NotFoundError("Obra social");
             }
@@ -116,7 +116,7 @@ class LegalGuardianController {
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const legalGuardian = await em.findOne(LegalGuardian_1.LegalGuardian, { idLegalGuardian: id });
+            const legalGuardian = await em.findOne(LegalGuardian_1.LegalGuardian, { id: id });
             if (!legalGuardian) {
                 throw new BaseHttpError_1.NotFoundError('Responsable Legal');
             }
@@ -139,7 +139,7 @@ class LegalGuardianController {
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const legalGuardian = await em.findOne(LegalGuardian_1.LegalGuardian, { idLegalGuardian: id });
+            const legalGuardian = await em.findOne(LegalGuardian_1.LegalGuardian, { id: id });
             if (!legalGuardian) {
                 throw new BaseHttpError_1.NotFoundError('Responsable Legal');
             }
@@ -164,7 +164,7 @@ class LegalGuardianController {
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const legalGuardian = await em.findOne(LegalGuardian_1.LegalGuardian, { idLegalGuardian: id });
+            const legalGuardian = await em.findOne(LegalGuardian_1.LegalGuardian, { id: id });
             if (!legalGuardian) {
                 throw new BaseHttpError_1.NotFoundError('Responsable Legal');
             }

@@ -32,7 +32,7 @@ exports.Patient = Patient;
 __decorate([
     (0, core_1.PrimaryKey)(),
     __metadata("design:type", Number)
-], Patient.prototype, "idPatient", void 0);
+], Patient.prototype, "id", void 0);
 __decorate([
     (0, core_1.Property)(),
     __metadata("design:type", String)

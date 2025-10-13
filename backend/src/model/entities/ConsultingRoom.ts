@@ -4,7 +4,7 @@ import { Module } from './Module';
 @Entity()
 export class ConsultingRoom {
   @PrimaryKey()
-  idConsultingRoom!: number;
+  id!: number;
 
   @Property()
   description!: string;

@@ -7,7 +7,7 @@ import { Module } from './Module';
 @Entity()
 export class ModuleType {
   @PrimaryKey()
-  idModuleType!: number;
+  id!: number;
 
   @Property()
   name!: string;

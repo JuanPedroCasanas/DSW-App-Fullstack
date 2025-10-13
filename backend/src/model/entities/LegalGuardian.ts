@@ -9,7 +9,7 @@ import { User } from './User';
 @Entity()
 export class LegalGuardian {
   @PrimaryKey()
-  idLegalGuardian!: number;
+  id!: number;
 
   @Property()
   firstName!: string;

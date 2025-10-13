@@ -36,7 +36,7 @@ export class AppointmentController {
                 throw new AppointmentNotAvailableError();
             }
 
-            const patient = await em.findOne(Patient, { idPatient: idPatient })
+            const patient = await em.findOne(Patient, { id: idPatient })
             if(!patient) {
                 throw new NotFoundError('Paciente');
             }

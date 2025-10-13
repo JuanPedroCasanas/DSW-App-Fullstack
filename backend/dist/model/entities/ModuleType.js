@@ -25,7 +25,7 @@ exports.ModuleType = ModuleType;
 __decorate([
     (0, core_1.PrimaryKey)(),
     __metadata("design:type", Number)
-], ModuleType.prototype, "idModuleType", void 0);
+], ModuleType.prototype, "id", void 0);
 __decorate([
     (0, core_1.Property)(),
     __metadata("design:type", String)

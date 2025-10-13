@@ -9,7 +9,7 @@ import { Appointment } from './Appointment';
 @Entity()
 export class Module {
   @PrimaryKey()
-  idModule!: number;
+  id!: number;
 
   @Enum(() => ModuleStatus)
   status!: ModuleStatus

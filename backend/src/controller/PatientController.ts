@@ -15,9 +15,9 @@ export class PatientController {
 
     //Para pacientes que no dependen de un responsable legal, se les crea usuario para acceder
     static async addIndependentPatient(req: Request, res: Response) {
-        const { name, lastName, birthdate, password, telephone, mail, healthInsuranceId} = req.body;
+        const { firstName, lastName, birthdate, password, telephone, mail, healthInsuranceId} = req.body;
 
-        if (!name) {
+        if (!firstName) {
             return res.status(400).json({ message: 'Se requiere nombre' });
         }
         if (!lastName) {
@@ -43,13 +43,13 @@ export class PatientController {
         try {            
             const em = await getORM().em.fork();
 
-            const healthInsurance: HealthInsurance | undefined = await em.findOne(HealthInsurance, { idHealthInsurance: healthInsuranceId}) ?? undefined;
+            const healthInsurance: HealthInsurance | undefined = await em.findOne(HealthInsurance, { id: healthInsuranceId}) ?? undefined;
            
             if(!healthInsurance) {
                 throw new NotFoundError("Obra social");
             }
 
-            const patient = new Patient(name, lastName, birthdate, healthInsurance, telephone);
+            const patient = new Patient(firstName, lastName, birthdate, healthInsurance, telephone);
             const patUser = await createUser(mail, password);
             patient.user = patUser;
             patUser.patient = patient;
@@ -69,9 +69,9 @@ export class PatientController {
 
     //Para pacientes que dependen de un responsable legal, sin usuario ni info de contacto
     static async addDependentPatient(req: Request, res: Response) {
-            const { name, lastName, birthdate, legalGuardianId } = req.body;
+            const { firstName, lastName, birthdate, legalGuardianId } = req.body;
 
-            if (!name) {
+            if (!firstName) {
                 return res.status(400).json({ message: 'Se requiere nombre' });
             }
             if (!lastName) {
@@ -88,12 +88,12 @@ export class PatientController {
             
                 const em = await getORM().em.fork();
 
-                let legalGuardian = await em.findOne(LegalGuardian, { idLegalGuardian: legalGuardianId });
+                let legalGuardian = await em.findOne(LegalGuardian, { id: legalGuardianId });
                 if(!legalGuardian) {
                     throw new NotFoundError("Responsable legal");
                 }
 
-                const patient = new Patient(name, lastName, birthdate, legalGuardian.healthInsurance, undefined, legalGuardian);
+                const patient = new Patient(firstName, lastName, birthdate, legalGuardian.healthInsurance, undefined, legalGuardian);
 
                 //Si no se aclara contraseña, entonces este metodo fue llamado para añadir a un paciente dependiente de un resp legal, que no requiere usuario
                 await em.persistAndFlush(patient);
@@ -113,7 +113,7 @@ export class PatientController {
 
     static async updatePatient(req: Request, res: Response) {
         const { id } = req.body;
-        const { name } = req.body;
+        const { firstName } = req.body;
         const {lastName} = req.body;
         const {birthdate} = req.body;   
         const {telephone} = req.body;
@@ -124,7 +124,7 @@ export class PatientController {
             {
                 return res.status(400).json({ message: 'Patient id is required' });
             }
-            if(!name)
+            if(!firstName)
             {
                 return res.status(400).json({ message: 'Patient new name is required' });
             }
@@ -145,14 +145,14 @@ export class PatientController {
                 return res.status(400).json({ message: 'Patient new type is required' });
             }
             const em = await getORM().em.fork();
-            const patient = await em.findOne(Patient, {idPatient: id});
+            const patient = await em.findOne(Patient, {id: id});
 
             if(!patient)
             {
                 throw new NotFoundError("Paciente")
             }
 
-            patient.firstName = name;
+            patient.firstName = firstName;
             patient.lastName = lastName;
             patient.birthdate = birthdate;
             patient.telephone = telephone;
@@ -180,7 +180,7 @@ export class PatientController {
         }
         try {
             const em = await getORM().em.fork();
-            const patient = await em.findOne(Patient, { idPatient: id });
+            const patient = await em.findOne(Patient, { id: id });
             if (!patient) {
                 throw new NotFoundError("Paciente")
             }
@@ -216,7 +216,7 @@ export class PatientController {
         try {
 
             const em = await getORM().em.fork();
-            const patient = await em.findOne(Patient, { idPatient : id });
+            const patient = await em.findOne(Patient, { id : id });
 
             if (!patient) {
                 throw new NotFoundError("Paciente")
