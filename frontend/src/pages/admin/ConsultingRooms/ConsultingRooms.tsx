@@ -3,56 +3,53 @@ import "./consultingRooms.css";
 
 /** Modelo simple: viene del backend */
 type ConsultingRoom = {
-  id: string;
-  descripcion: string;
+  idConsultingRoom: string;
+  description: string;
+  isActive: boolean;
 };
 
 /* ---- Utils ---- */
-const uid = () => Math.random().toString(36).slice(2, 10);
+//const uid = () => Math.random().toString(36).slice(2, 10);
 const sameJSON = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 const validateRoom = (r: Partial<ConsultingRoom>) => {
   const errors: Record<string, string> = {};
-  if (!r.descripcion?.trim()) errors.descripcion = "Descripción obligatoria.";
+  if (!r.description?.trim()) errors.description = "Descripción obligatoria.";
   return errors;
 };
 
 export default function ConsultingRooms() {
 
-  /* Estado principal: por defecto vacío para que veas el estado vacío */
+  /* Estado principal: por defecto vacío */
   const [rooms, setRooms] = useState<ConsultingRoom[]>([]);
 
-
-  // hardcodeados como ejemplo
+  // para ver todos los consultorios
   useEffect(() => {
-    setRooms([
-      { id: "c1", descripcion: "Consultorio 1 - Planta baja" },
-      { id: "c2", descripcion: "Consultorio 2 - Primer piso" },
-    ]);
+    (async () => {
+      try {
+        //const res = await fetch("/api/ConsultingRoom/getAll"); VER por qué no funciona esta llamada
+        const res = await fetch("http://localhost:2000/ConsultingRoom/getAll");
+        const data = await res.json();
+        console.log("Consultorios recibidos:", data);
+        setRooms(data);
+      } catch (err) {
+        console.error("Error al cargar consultorios:", err);
+        alert("No se pudieron cargar los consultorios.");
+      }
+    })();
   }, []);
+
   
-
-  /* --- Integración backend (placeholder) ---
-     Reemplazá la URL y el shape según tu API. */
-  // useEffect(() => {
-  //   (async () => {
-  //     const res = await fetch("/api/consulting-rooms");
-  //     if (!res.ok) return;
-  //     const data: ConsultingRoom[] = await res.json();
-  //     setRooms(data);
-  //   })();
-  // }, []);
-
   /* ---- Agregar ---- */
   const [showAdd, setShowAdd] = useState(false);
   const [addStep, setAddStep] = useState<"form" | "confirm">("form");
   const [addForm, setAddForm] = useState<Partial<ConsultingRoom>>({
-    descripcion: "",
+    description: "",
   });
   const [addSnapshot, setAddSnapshot] = useState<Partial<ConsultingRoom> | null>(null);
   const addErrors = useMemo(() => validateRoom(addForm), [addForm]);
 
   const openAdd = () => {
-    const initial = { descripcion: "" };
+    const initial = { description: "" };
     setAddForm(initial);
     setAddSnapshot(initial);
     setAddStep("form");
@@ -72,15 +69,34 @@ export default function ConsultingRooms() {
     if (Object.keys(addErrors).length) return;
     setAddStep("confirm");
   };
-  const handleAddConfirm = () => {
-    const nuevo: ConsultingRoom = {
-      id: uid(), // en real, lo devuelve el backend
-      descripcion: (addForm.descripcion ?? "").trim(),
-    };
-    setRooms((prev) => [...prev, nuevo]);
-    setShowAdd(false);
-    alert("Consultorio agregado (simulado).");
+
+  const handleAddConfirm = async () => {
+    try {
+      const nuevo = {
+        description: (addForm.description ?? "").trim(),
+      };
+
+      const res = await fetch("http://localhost:2000/ConsultingRoom/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(nuevo),
+      });
+
+      if (!res.ok) throw new Error("Error al agregar consultorio");
+      
+      // Recargar
+      const resGet = await fetch("http://localhost:2000/ConsultingRoom/getAll");
+      const data: ConsultingRoom[] = await resGet.json();
+      setRooms(data);
+
+      setShowAdd(false);
+
+    } catch (err) {
+      console.error(err);
+      alert("No se pudo agregar el consultorio.");
+    }
   };
+
 
   /* ---- Editar  ---- */
   const [editTarget, setEditTarget] = useState<ConsultingRoom | null>(null);
@@ -90,7 +106,7 @@ export default function ConsultingRooms() {
   const editErrors = useMemo(() => validateRoom(editForm), [editForm]);
 
   const openEdit = (r: ConsultingRoom) => {
-    const initial = { descripcion: r.descripcion };
+    const initial = { description: r.description };
     setEditTarget(r);
     setEditForm(initial);
     setEditSnapshot(initial);
@@ -114,29 +130,67 @@ export default function ConsultingRooms() {
     if (Object.keys(editErrors).length) return;
     setEditStep("confirm");
   };
-  const handleEditConfirm = () => {
+
+  const handleEditConfirm = async () => {
     if (!editTarget) return;
-    setRooms((prev) =>
-      prev.map((r) =>
-        r.id === editTarget.id
-          ? { ...r, descripcion: (editForm.descripcion ?? "").trim() }
-          : r
-      )
-    );
-    closeEdit();
-    alert("Consultorio actualizado (simulado).");
+
+    try {
+      const actualizado = {
+        idConsultingRoom: editTarget.idConsultingRoom,
+        description: (editForm.description ?? "").trim(),
+        //isActive: editTarget.isActive,
+      };
+
+      const res = await fetch("http://localhost:2000/ConsultingRoom/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(actualizado),
+      });
+
+      if (!res.ok) throw new Error("Error al editar consultorio");
+
+      const actualizadoFinal: ConsultingRoom = await res.json();
+      setRooms((prev) =>
+        prev.map((r) => (r.idConsultingRoom === editTarget.idConsultingRoom ? actualizadoFinal : r))
+      );
+      closeEdit();
+      
+    } catch (err) {
+      console.error(err);
+      alert("No se pudo editar el consultorio.");
+    }
   };
 
   /* ---- Eliminar ---- */
   const [deleteTarget, setDeleteTarget] = useState<ConsultingRoom | null>(null);
   const openDelete = (r: ConsultingRoom) => setDeleteTarget(r);
   const closeDelete = () => setDeleteTarget(null);
-  const handleDeleteConfirm = () => {
+  /*const handleDeleteConfirm = () => {
     if (!deleteTarget) return;
-    setRooms((prev) => prev.filter((r) => r.id !== deleteTarget.id));
+    setRooms((prev) => prev.filter((r) => r.idConsultingRoom !== deleteTarget.idConsultingRoom));
     setDeleteTarget(null);
     alert("Consultorio eliminado (simulado).");
-  };
+  }; */
+  const handleDeleteConfirm = async () => {
+  if (!deleteTarget) return;
+
+  try {
+    const res = await fetch(
+      `http://localhost:2000/ConsultingRoom/delete/${deleteTarget.idConsultingRoom}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    if (!res.ok) throw new Error("Error al eliminar consultorio");
+
+    setRooms((prev) => prev.filter((r) => r.idConsultingRoom !== deleteTarget.idConsultingRoom));
+    setDeleteTarget(null);
+  } catch (err) {
+    console.error(err);
+    alert("No se pudo eliminar el consultorio.");
+  }
+};
 
   /* ---- DESCARTAR cambios ---- */
   const [discardCtx, setDiscardCtx] = useState<{ open: boolean; context?: "add" | "edit" }>({
@@ -186,7 +240,7 @@ export default function ConsultingRooms() {
         </div>
       )}
 
-      {/* ===== Tabla ===== */}
+      {/* ===== Tabla (mostrar)===== */}
       {hasRooms && (
         <>
           <div className="cr-table-wrap">
@@ -200,9 +254,9 @@ export default function ConsultingRooms() {
               </thead>
               <tbody>
                 {rooms.map((r) => (
-                  <tr key={r.id}>
-                    <td data-label="ID">{r.id}</td>
-                    <td data-label="Descripción">{r.descripcion}</td>
+                  <tr key={r.idConsultingRoom}>
+                    <td data-label="ID">{r.idConsultingRoom}</td>
+                    <td data-label="Descripción">{r.description}</td>
                     <td className="cr-actions">
                       <button
                         type="button"
@@ -256,9 +310,9 @@ export default function ConsultingRooms() {
                     <label htmlFor="add-descripcion">Descripción</label>
                     <textarea
                       id="add-descripcion"
-                      value={addForm.descripcion ?? ""}
+                      value={addForm.description ?? ""}
                       onChange={(e) =>
-                        setAddForm((f) => ({ ...f, descripcion: e.target.value }))
+                        setAddForm((f) => ({ ...f, description: e.target.value }))
                       }
                       aria-invalid={!!addErrors.descripcion}
                       aria-describedby={addErrors.descripcion ? "add-descripcion-err" : undefined}
@@ -285,7 +339,7 @@ export default function ConsultingRooms() {
                 <p id="cr-add-desc">Revisá que los datos sean correctos.</p>
                 <ul className="cr-summary">
                   <li>
-                    <strong>Descripción:</strong> {addForm.descripcion}
+                    <strong>Descripción:</strong> {addForm.description}
                   </li>
                 </ul>
                 <div className="cr-modal-actions">
@@ -328,9 +382,9 @@ export default function ConsultingRooms() {
                     <label htmlFor="edit-descripcion">Descripción</label>
                     <textarea
                       id="edit-descripcion"
-                      value={editForm.descripcion ?? ""}
+                      value={editForm.description ?? ""}
                       onChange={(e) =>
-                        setEditForm((f) => ({ ...f, descripcion: e.target.value }))
+                        setEditForm((f) => ({ ...f, description: e.target.value }))
                       }
                       aria-invalid={!!editErrors.descripcion}
                       aria-describedby={editErrors.descripcion ? "edit-descripcion-err" : undefined}
@@ -357,10 +411,10 @@ export default function ConsultingRooms() {
                 <p id="cr-edit-desc">Verificá los datos editados.</p>
                 <ul className="cr-summary">
                   <li>
-                    <strong>ID:</strong> {editTarget?.id}
+                    <strong>ID:</strong> {editTarget?.idConsultingRoom}
                   </li>
                   <li>
-                    <strong>Descripción:</strong> {editForm.descripcion}
+                    <strong>Descripción:</strong> {editForm.description}
                   </li>
                 </ul>
                 <div className="cr-modal-actions">
@@ -394,7 +448,7 @@ export default function ConsultingRooms() {
           >
             <h2 id="cr-del-title">Eliminar consultorio</h2>
             <p id="cr-del-desc">
-              ¿Estás segura/o de eliminar el consultorio <strong>{deleteTarget.descripcion}</strong>?
+              ¿Estás segura/o de eliminar el consultorio <strong>{deleteTarget.description}</strong>?
             </p>
             <div className="cr-modal-actions">
               <button type="button" className="ui-btn ui-btn--outline" onClick={closeDelete}>

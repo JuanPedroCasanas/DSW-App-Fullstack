@@ -34,6 +34,7 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
     allowedHeaders: ['Content-Type', 'Authorization'], // Encabezados permitidos
 }));
+
 const port = process.env.PORT|| 2000; //puse para que el puerto del back sea 2000 aunque no se que tan bien este
 
 app.use((req: Request, res: Response, next: NextFunction) => {
