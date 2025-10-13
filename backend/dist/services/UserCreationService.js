@@ -14,7 +14,7 @@ const createUser = async (mail, password) => {
         throw new BaseHttpError_1.InvalidEmailFormatError(mail);
     }
     const em = await (0, db_1.getORM)().em.fork();
-    const existingUser = await em.findOne(User_1.User, { mail: mail });
+    const existingUser = await em.findOne(User_1.User, { mail: mail, isActive: true });
     if (existingUser) {
         throw new BaseHttpError_1.EmailAlreadyExistsError(mail);
     }

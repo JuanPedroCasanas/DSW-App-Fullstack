@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-import "@/styles/login.css"; // Reutilizamos exactamente los estilos del login
+import "./login.css"; // Reutilizamos exactamente los estilos del login
 
 type Role = "profesional" | "paciente" | "responsable";
 

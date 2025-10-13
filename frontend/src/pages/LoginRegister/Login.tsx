@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import "@/styles/login.css"; // creamos este archivo en el paso 2
+import "./login.css"; // creamos este archivo en el paso 2
 // import eyeIcon from "./eyeicon.png"; // de alguna manera asi no funciona, pero bueno!
 
 export default function Login() {

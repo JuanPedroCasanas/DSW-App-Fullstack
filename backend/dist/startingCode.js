@@ -1,99 +1,185 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.startingCode = void 0;
-const ConsultingRoom_1 = require("./model/entities/ConsultingRoom");
-const HealthInsurance_1 = require("./model/entities/HealthInsurance");
-const LegalGuardian_1 = require("./model/entities/LegalGuardian");
-const Occupation_1 = require("./model/entities/Occupation");
-const Patient_1 = require("./model/entities/Patient");
-const Professional_1 = require("./model/entities/Professional");
+const AppointmentController_1 = require("./controller/AppointmentController");
+const ConsultingRoomController_1 = require("./controller/ConsultingRoomController");
+const HealthInsuranceController_1 = require("./controller/HealthInsuranceController");
+const LegalGuardianController_1 = require("./controller/LegalGuardianController");
+const ModuleController_1 = __importDefault(require("./controller/ModuleController"));
+const OccupationController_1 = require("./controller/OccupationController");
+const PatientController_1 = require("./controller/PatientController");
+const ProfessionalController_1 = require("./controller/ProfessionalController");
+const ModuleType_1 = require("./model/entities/ModuleType");
 const db_1 = require("./orm/db");
-const UserCreationService_1 = require("./services/UserCreationService");
-const UNIVERSAL_PASSWORD = "123";
 const startingCode = async () => {
-    const em = await (0, db_1.getORM)().em.fork();
-    //Creo consultorios
-    const consultingRoom1 = new ConsultingRoom_1.ConsultingRoom("Consultorio 1");
-    const consultingRoom2 = new ConsultingRoom_1.ConsultingRoom("Consultorio 2");
-    const consultingRoom3 = new ConsultingRoom_1.ConsultingRoom("Consultorio 3");
-    const consultingRoom4 = new ConsultingRoom_1.ConsultingRoom("Consultorio 4");
-    await em.persistAndFlush(consultingRoom1);
-    await em.persistAndFlush(consultingRoom2);
-    await em.persistAndFlush(consultingRoom3);
-    await em.persistAndFlush(consultingRoom4);
-    //Creo obras sociales
-    const os0 = new HealthInsurance_1.HealthInsurance("PARTICULAR");
-    const os1 = new HealthInsurance_1.HealthInsurance("OSDE");
-    const os2 = new HealthInsurance_1.HealthInsurance("MEDIFE");
-    const os3 = new HealthInsurance_1.HealthInsurance("SWISS MEDICAL");
-    await em.persistAndFlush(os0);
-    await em.persistAndFlush(os1);
-    await em.persistAndFlush(os2);
-    await em.persistAndFlush(os3);
-    //Creo ocupaciones
-    const oc1 = new Occupation_1.Occupation("Psicopedagogia");
-    const oc2 = new Occupation_1.Occupation("Psicologia");
-    await em.persistAndFlush(oc1);
-    await em.persistAndFlush(oc2);
-    //Creo 2 profesionales
-    let os0db = await em.findOne(HealthInsurance_1.HealthInsurance, { idHealthInsurance: 1 });
-    let os1db = await em.findOne(HealthInsurance_1.HealthInsurance, { idHealthInsurance: 2 });
-    let oc1DB = await em.findOne(Occupation_1.Occupation, { name: "Psicopedagogia" });
-    let oc2DB = await em.findOne(Occupation_1.Occupation, { name: "Psicologia" });
-    //Creo los usuarios
-    let usu1 = await (0, UserCreationService_1.createUser)("gus_capo@gmail.com", UNIVERSAL_PASSWORD);
-    if (oc1DB) {
-        const prof1 = new Professional_1.Professional("Gustavo", "Machachechi", "3416333111", oc1DB);
-        prof1.user = usu1;
-        usu1.professional = prof1;
-        if (os1db && os0db) {
-            prof1.healthInsurances.add(os0db);
-            prof1.healthInsurances.add(os1db);
+    const UNI_PASSWORD = '123';
+    let em = await (0, db_1.getORM)().em.fork();
+    class FakeRequest {
+        constructor(body, params) {
+            this.body = body;
+            this.params = params;
         }
-        await em.persist(usu1); //Por el cascade en usu1 persiste tanto profesional como usuario
     }
-    else {
-        console.log(oc1DB);
-    }
-    let usu2 = await (0, UserCreationService_1.createUser)("parcialitos@gmail.com", UNIVERSAL_PASSWORD);
-    if (oc2DB) {
-        const prof2 = new Professional_1.Professional("Franco", "Vilmosius BDD", "3416333111", oc2DB);
-        prof2.user = usu2;
-        usu2.professional = prof2;
-        if (os0db) {
-            prof2.healthInsurances.add(os0db);
+    class FakeResponse {
+        constructor() {
+            this.statusCode = 200;
+            this.body = null;
         }
-        await em.persist(usu2);
+        status(code) {
+            this.statusCode = code;
+            return this; // importantísimo para poder hacer res.status(201).json(...)
+        }
+        json(obj) {
+            this.body = obj;
+            console.log("JSON response:", obj);
+            return this;
+        }
+        send(msg) {
+            console.log("Send response:", msg);
+            return this;
+        }
     }
-    else {
-        console.log(oc2DB);
-    }
+    //Agrego module types
+    const mt1 = new ModuleType_1.ModuleType('COMPLETO', 6);
+    const mt2 = new ModuleType_1.ModuleType('MEDIO', 3);
+    const mt3 = new ModuleType_1.ModuleType('SEXTO', 1);
+    em.persist(mt1);
+    em.persist(mt2);
+    em.persist(mt3);
     await em.flush();
-    //Creo dos pacientes, uno con responsable legal y otro sin responsable legal
-    //Con resp legal
-    if (os0db) {
-        let respLegal = new LegalGuardian_1.LegalGuardian("Responsibilius", "Responsabilidache", new Date("1990-03-07"), "1234567", os0db);
-        let usu3 = await (0, UserCreationService_1.createUser)("resp@outlook.com", UNIVERSAL_PASSWORD);
-        respLegal.user = usu3;
-        usu3.legalGuardian = respLegal;
-        await em.persistAndFlush(usu3);
-    }
-    let respLegalDb = await em.findOne(LegalGuardian_1.LegalGuardian, { idLegalGuardian: 1 });
-    if (respLegalDb) {
-        let petePatient = new Patient_1.Patient("Chiquito", "Chiquitin", new Date("2024-01-04"), respLegalDb.healthInsurance, undefined, respLegalDb);
-        await em.persistAndFlush(petePatient);
-    }
-    else {
-        console.log(respLegalDb);
-    }
-    //Paciente independiente
-    if (os1db) {
-        let chadPatient = new Patient_1.Patient("Chadius", "Maximum", new Date("1930-02-01"), os1db, "chadius@chad.chad.com");
-        let usu4 = await (0, UserCreationService_1.createUser)("chadius@chad.chad.com", UNIVERSAL_PASSWORD);
-        usu4.patient = chadPatient;
-        chadPatient.user = usu4;
-        await em.persistAndFlush(usu4);
-    }
+    //Agrego consultorios
+    let req = new FakeRequest({
+        description: 'Consultorio 1'
+    });
+    let res = new FakeResponse();
+    await ConsultingRoomController_1.ConsultingRoomController.addConsultingRoom(req, res);
+    req = new FakeRequest({
+        description: 'Consultorio 2'
+    });
+    await ConsultingRoomController_1.ConsultingRoomController.addConsultingRoom(req, res);
+    req = new FakeRequest({
+        description: 'Consultorio 3'
+    });
+    await ConsultingRoomController_1.ConsultingRoomController.addConsultingRoom(req, res);
+    req = new FakeRequest({
+        description: 'Consultorio 4'
+    });
+    await ConsultingRoomController_1.ConsultingRoomController.addConsultingRoom(req, res);
+    //OBRAS SOCIALES
+    req = new FakeRequest({
+        name: 'PARTICULAR'
+    });
+    await HealthInsuranceController_1.HealthInsuranceController.addHealthInsurance(req, res);
+    req = new FakeRequest({
+        name: 'OSDE'
+    });
+    await HealthInsuranceController_1.HealthInsuranceController.addHealthInsurance(req, res);
+    req = new FakeRequest({
+        name: 'SWISS'
+    });
+    await HealthInsuranceController_1.HealthInsuranceController.addHealthInsurance(req, res);
+    req = new FakeRequest({
+        name: 'MEDIFE'
+    });
+    await HealthInsuranceController_1.HealthInsuranceController.addHealthInsurance(req, res);
+    //ESPECIALIDADES
+    req = new FakeRequest({
+        name: 'Psicopedagogo'
+    });
+    await OccupationController_1.OccupationController.addOccupation(req, res);
+    req = new FakeRequest({
+        name: 'Psicologo'
+    });
+    await OccupationController_1.OccupationController.addOccupation(req, res);
+    //PROFESIONALES
+    req = new FakeRequest({
+        name: 'Pablo',
+        lastName: 'Marmol',
+        telephone: '1111',
+        mail: 'kukatrap@gmail.com',
+        password: UNI_PASSWORD,
+        occupationId: 1
+    });
+    await ProfessionalController_1.ProfessionalController.addProfessional(req, res);
+    req = new FakeRequest({
+        name: 'Pedro',
+        lastName: 'Picapiedra',
+        telephone: '1111',
+        mail: 'pepe@gmail.com',
+        password: UNI_PASSWORD,
+        occupationId: 2
+    });
+    await ProfessionalController_1.ProfessionalController.addProfessional(req, res);
+    req = new FakeRequest({
+        day: 1, startTime: '9:00', endTime: '18:00', validMonth: 10, validYear: 2025, professionalId: 1, consultingRoomId: 1
+    });
+    await ModuleController_1.default.addModules(req, res);
+    //deberia tirar error
+    req = new FakeRequest({
+        day: 1, startTime: '3:00', endTime: '13:00', validMonth: 10, validYear: 2025, professionalId: 1, consultingRoomId: 1
+    });
+    await ModuleController_1.default.addModules(req, res);
+    //deberia tirar error
+    req = new FakeRequest({
+        day: 1, startTime: '17:00', endTime: '19:00', validMonth: 10, validYear: 2025, professionalId: 1, consultingRoomId: 1
+    });
+    await ModuleController_1.default.addModules(req, res);
+    //NO deberia tirar error
+    req = new FakeRequest({
+        day: 1, startTime: '18:00', endTime: '19:00', validMonth: 10, validYear: 2025, professionalId: 2, consultingRoomId: 1
+    });
+    await ModuleController_1.default.addModules(req, res);
+    //NO deberia tirar error
+    req = new FakeRequest({
+        day: 1, startTime: '13:00', endTime: '15:00', validMonth: 10, validYear: 2025, professionalId: 2, consultingRoomId: 2
+    });
+    await ModuleController_1.default.addModules(req, res);
+    //RESPONSABLE LEGAL
+    req = new FakeRequest({
+        "name": "Moncho",
+        "lastName": "Lopez",
+        "birthdate": "1990-07-21",
+        "password": UNI_PASSWORD,
+        "telephone": "3333333",
+        "mail": "monchius@example.com",
+        "idhealthInsurance": 2
+    });
+    await LegalGuardianController_1.LegalGuardianController.addLegalGuardian(req, res);
+    //PACIENTES
+    req = new FakeRequest({
+        "name": "Lucía",
+        "lastName": "Fernández",
+        "birthdate": "1993-07-21",
+        "password": UNI_PASSWORD,
+        "telephone": "+54 9 11 4567 8920",
+        "mail": "lucia.fernandez@example.com",
+        "healthInsuranceId": 3
+    });
+    await PatientController_1.PatientController.addIndependentPatient(req, res);
+    req = new FakeRequest({
+        "name": "Mini",
+        "lastName": "ME",
+        "birthdate": "2010-07-21",
+        "legalGuardianId": 1
+    });
+    await PatientController_1.PatientController.addDependentPatient(req, res);
+    //Turnos
+    req = new FakeRequest({
+        idAppointment: 1, idPatient: 1
+    });
+    await AppointmentController_1.AppointmentController.assignAppointment(req, res);
+    //Debería tirar error
+    req = new FakeRequest({
+        idAppointment: 1, idPatient: 2
+    });
+    await AppointmentController_1.AppointmentController.assignAppointment(req, res);
+    req = new FakeRequest({
+        idAppointment: 2, idPatient: 2
+    });
+    await AppointmentController_1.AppointmentController.assignAppointment(req, res);
 };
 exports.startingCode = startingCode;
 //# sourceMappingURL=startingCode.js.map

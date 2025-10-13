@@ -225,7 +225,7 @@ export class PatientController {
             patient.isActive = false;
             
             if (patient.user) {
-            patient.user.isActive = false;
+                patient.user.isActive = false;
             }
 
             await patient.appointments.init();

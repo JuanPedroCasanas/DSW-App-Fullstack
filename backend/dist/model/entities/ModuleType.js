@@ -15,9 +15,10 @@ const Module_1 = require("./Module");
 // Tipo de módulo
 // id, nombre, duracion en horas
 let ModuleType = class ModuleType {
-    constructor(name) {
+    constructor(name, duration) {
         this.modules = new core_1.Collection(this);
         this.name = name;
+        this.duration = duration;
     }
 };
 exports.ModuleType = ModuleType;
@@ -39,6 +40,6 @@ __decorate([
 ], ModuleType.prototype, "modules", void 0);
 exports.ModuleType = ModuleType = __decorate([
     (0, core_1.Entity)(),
-    __metadata("design:paramtypes", [String])
+    __metadata("design:paramtypes", [String, Number])
 ], ModuleType);
 //# sourceMappingURL=ModuleType.js.map

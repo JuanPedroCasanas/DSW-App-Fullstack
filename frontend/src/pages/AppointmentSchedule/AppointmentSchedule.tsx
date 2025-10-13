@@ -1,6 +1,5 @@
-
 import React, { useEffect, useMemo, useState } from 'react';
-import '@/styles/appointmentSchedule.css';
+import './appointmentSchedule.css';
 
 // ========================
 // Utilidades de fechas
@@ -35,8 +34,6 @@ function isPast(d: Date) {
 // HARDCODEADOOSSSS 
 // hay que eliminarlossss
 // solo como ejemplo :)
-// ========================
-
 type Specialty = { id: 'psi' | 'psp'; nombre: string };
 
 const SPECIALTIES: Specialty[] = [
@@ -72,7 +69,7 @@ function buildAvailabilityForCurrentMonth() {
     'p-sofia': [1, 6, 7, 13, 14, 20, 21, 27, 28],
     'p-diego': [2, 5, 12, 19, 26],
   };
-
+  
   const availability: Record<string, Set<string>> = {};
 
   Object.keys(patterns).forEach(pid => {
@@ -167,7 +164,7 @@ export default function AppointmentSchedule() {
   const daysArray = useMemo(() => {
     
     // year month todavia no lo usamos pero lo dejo por las dudas
-    const { year, month, daysInMonth, leadingBlanks } = currentMonthMeta;
+    const { daysInMonth, leadingBlanks } = currentMonthMeta;
     const items: (number | null)[] = [];
     for (let i=0; i<leadingBlanks; i++) items.push(null);
     for (let d=1; d<=daysInMonth; d++) items.push(d);

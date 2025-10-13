@@ -4,17 +4,17 @@ import { Patient } from './Patient';
 import { HealthInsurance } from './HealthInsurance';
 import { LegalGuardian } from './LegalGuardian';
 import { AppointmentStatus } from '../enums/AppointmentStatus';
-import Module from 'module';
+import { Module } from './Module';
 
 @Entity()
 export class Appointment {
   @PrimaryKey()
   id!: number;
 
-  @Property()
+  @Property({ columnType: 'timestamp without time zone' })
   startTime!: Date;
 
-  @Property() //Calculado, siempre será startTime + 1 hora
+  @Property({ columnType: 'timestamp without time zone' }) //Calculado, siempre será startTime + 1 hora
   endTime!: Date;
 
   @Enum(() => AppointmentStatus)
@@ -26,8 +26,8 @@ export class Appointment {
   @ManyToOne()
   professional!: Professional;
 
-  @ManyToOne(() => Patient)
-  patient!: Patient;
+  @ManyToOne(() => Patient, { nullable: true })
+  patient?: Patient;
 
   @ManyToOne(() => LegalGuardian, { nullable: true })
   legalGuardian?: LegalGuardian;
@@ -37,7 +37,7 @@ export class Appointment {
 
 
 
-  constructor(module: Module, startTime: Date, endTime: Date, professional: Professional, patient: Patient, status: AppointmentStatus, healthInsurance?: HealthInsurance, legalGuardian?: LegalGuardian) {
+  constructor(module: Module, startTime: Date, endTime: Date, professional: Professional, status: AppointmentStatus, healthInsurance?: HealthInsurance, patient?: Patient, legalGuardian?: LegalGuardian) {
     this.module = module;
     this.startTime = startTime;
     this.endTime = endTime

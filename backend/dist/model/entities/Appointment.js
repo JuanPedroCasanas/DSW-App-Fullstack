@@ -16,8 +16,10 @@ const Patient_1 = require("./Patient");
 const HealthInsurance_1 = require("./HealthInsurance");
 const LegalGuardian_1 = require("./LegalGuardian");
 const AppointmentStatus_1 = require("../enums/AppointmentStatus");
+const Module_1 = require("./Module");
 let Appointment = class Appointment {
-    constructor(startTime, endTime, professional, patient, status, healthInsurance, legalGuardian) {
+    constructor(module, startTime, endTime, professional, status, healthInsurance, patient, legalGuardian) {
+        this.module = module;
         this.startTime = startTime;
         this.endTime = endTime;
         this.professional = professional;
@@ -33,11 +35,11 @@ __decorate([
     __metadata("design:type", Number)
 ], Appointment.prototype, "id", void 0);
 __decorate([
-    (0, core_1.Property)(),
+    (0, core_1.Property)({ columnType: 'timestamp without time zone' }),
     __metadata("design:type", Date)
 ], Appointment.prototype, "startTime", void 0);
 __decorate([
-    (0, core_1.Property)() //Calculado, siempre será startTime + 1 hora
+    (0, core_1.Property)({ columnType: 'timestamp without time zone' }) //Calculado, siempre será startTime + 1 hora
     ,
     __metadata("design:type", Date)
 ], Appointment.prototype, "endTime", void 0);
@@ -47,10 +49,14 @@ __decorate([
 ], Appointment.prototype, "status", void 0);
 __decorate([
     (0, core_1.ManyToOne)(),
+    __metadata("design:type", Module_1.Module)
+], Appointment.prototype, "module", void 0);
+__decorate([
+    (0, core_1.ManyToOne)(),
     __metadata("design:type", Professional_1.Professional)
 ], Appointment.prototype, "professional", void 0);
 __decorate([
-    (0, core_1.ManyToOne)(() => Patient_1.Patient),
+    (0, core_1.ManyToOne)(() => Patient_1.Patient, { nullable: true }),
     __metadata("design:type", Patient_1.Patient)
 ], Appointment.prototype, "patient", void 0);
 __decorate([
@@ -63,6 +69,6 @@ __decorate([
 ], Appointment.prototype, "healthInsurance", void 0);
 exports.Appointment = Appointment = __decorate([
     (0, core_1.Entity)(),
-    __metadata("design:paramtypes", [Date, Date, Professional_1.Professional, Patient_1.Patient, String, HealthInsurance_1.HealthInsurance, LegalGuardian_1.LegalGuardian])
+    __metadata("design:paramtypes", [Module_1.Module, Date, Date, Professional_1.Professional, String, HealthInsurance_1.HealthInsurance, Patient_1.Patient, LegalGuardian_1.LegalGuardian])
 ], Appointment);
 //# sourceMappingURL=Appointment.js.map

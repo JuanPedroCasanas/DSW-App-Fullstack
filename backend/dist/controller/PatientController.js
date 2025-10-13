@@ -7,6 +7,7 @@ const LegalGuardian_1 = require("../model/entities/LegalGuardian");
 const UserCreationService_1 = require("../services/UserCreationService");
 const HealthInsurance_1 = require("../model/entities/HealthInsurance");
 const BaseHttpError_1 = require("../model/errors/BaseHttpError");
+const AppointmentStatus_1 = require("../model/enums/AppointmentStatus");
 class PatientController {
     static home(req, res) {
         res.send('Soy el controlador de pacientes!');
@@ -191,12 +192,21 @@ class PatientController {
             if (patient.user) {
                 patient.user.isActive = false;
             }
+            await patient.appointments.init();
+            for (const appointment of patient.appointments) {
+                appointment.status = AppointmentStatus_1.AppointmentStatus.Canceled;
+            }
             await em.flush();
             res.json(patient);
         }
         catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Error al eliminar el paciente' });
+            if (error instanceof BaseHttpError_1.BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            else {
+                res.status(500).json({ message: 'Error al buscar el paciente' });
+            }
         }
     }
 }

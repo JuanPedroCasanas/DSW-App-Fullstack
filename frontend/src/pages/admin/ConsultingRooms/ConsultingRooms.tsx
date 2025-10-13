@@ -1,0 +1,437 @@
+import React, { useEffect, useMemo, useState } from "react";
+import "./consultingRooms.css";
+
+/** Modelo simple: viene del backend */
+type ConsultingRoom = {
+  id: string;
+  descripcion: string;
+};
+
+/* ---- Utils ---- */
+const uid = () => Math.random().toString(36).slice(2, 10);
+const sameJSON = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
+const validateRoom = (r: Partial<ConsultingRoom>) => {
+  const errors: Record<string, string> = {};
+  if (!r.descripcion?.trim()) errors.descripcion = "Descripción obligatoria.";
+  return errors;
+};
+
+export default function ConsultingRooms() {
+
+  /* Estado principal: por defecto vacío para que veas el estado vacío */
+  const [rooms, setRooms] = useState<ConsultingRoom[]>([]);
+
+
+  // hardcodeados como ejemplo
+  useEffect(() => {
+    setRooms([
+      { id: "c1", descripcion: "Consultorio 1 - Planta baja" },
+      { id: "c2", descripcion: "Consultorio 2 - Primer piso" },
+    ]);
+  }, []);
+  
+
+  /* --- Integración backend (placeholder) ---
+     Reemplazá la URL y el shape según tu API. */
+  // useEffect(() => {
+  //   (async () => {
+  //     const res = await fetch("/api/consulting-rooms");
+  //     if (!res.ok) return;
+  //     const data: ConsultingRoom[] = await res.json();
+  //     setRooms(data);
+  //   })();
+  // }, []);
+
+  /* ---- Agregar ---- */
+  const [showAdd, setShowAdd] = useState(false);
+  const [addStep, setAddStep] = useState<"form" | "confirm">("form");
+  const [addForm, setAddForm] = useState<Partial<ConsultingRoom>>({
+    descripcion: "",
+  });
+  const [addSnapshot, setAddSnapshot] = useState<Partial<ConsultingRoom> | null>(null);
+  const addErrors = useMemo(() => validateRoom(addForm), [addForm]);
+
+  const openAdd = () => {
+    const initial = { descripcion: "" };
+    setAddForm(initial);
+    setAddSnapshot(initial);
+    setAddStep("form");
+    setShowAdd(true);
+  };
+  const closeAdd = () => setShowAdd(false);
+  const tryCloseAdd = () => {
+    const dirty = !sameJSON(addForm, addSnapshot);
+    if (dirty) {
+      setDiscardCtx({ open: true, context: "add" });
+    } else {
+      closeAdd();
+    }
+  };
+  const handleAddContinue = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (Object.keys(addErrors).length) return;
+    setAddStep("confirm");
+  };
+  const handleAddConfirm = () => {
+    const nuevo: ConsultingRoom = {
+      id: uid(), // en real, lo devuelve el backend
+      descripcion: (addForm.descripcion ?? "").trim(),
+    };
+    setRooms((prev) => [...prev, nuevo]);
+    setShowAdd(false);
+    alert("Consultorio agregado (simulado).");
+  };
+
+  /* ---- Editar  ---- */
+  const [editTarget, setEditTarget] = useState<ConsultingRoom | null>(null);
+  const [editStep, setEditStep] = useState<"form" | "confirm">("form");
+  const [editForm, setEditForm] = useState<Partial<ConsultingRoom>>({});
+  const [editSnapshot, setEditSnapshot] = useState<Partial<ConsultingRoom> | null>(null);
+  const editErrors = useMemo(() => validateRoom(editForm), [editForm]);
+
+  const openEdit = (r: ConsultingRoom) => {
+    const initial = { descripcion: r.descripcion };
+    setEditTarget(r);
+    setEditForm(initial);
+    setEditSnapshot(initial);
+    setEditStep("form");
+  };
+  const closeEdit = () => {
+    setEditTarget(null);
+    setEditForm({});
+    setEditSnapshot(null);
+  };
+  const tryCloseEdit = () => {
+    const dirty = !sameJSON(editForm, editSnapshot);
+    if (dirty) {
+      setDiscardCtx({ open: true, context: "edit" });
+    } else {
+      closeEdit();
+    }
+  };
+  const handleEditContinue = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (Object.keys(editErrors).length) return;
+    setEditStep("confirm");
+  };
+  const handleEditConfirm = () => {
+    if (!editTarget) return;
+    setRooms((prev) =>
+      prev.map((r) =>
+        r.id === editTarget.id
+          ? { ...r, descripcion: (editForm.descripcion ?? "").trim() }
+          : r
+      )
+    );
+    closeEdit();
+    alert("Consultorio actualizado (simulado).");
+  };
+
+  /* ---- Eliminar ---- */
+  const [deleteTarget, setDeleteTarget] = useState<ConsultingRoom | null>(null);
+  const openDelete = (r: ConsultingRoom) => setDeleteTarget(r);
+  const closeDelete = () => setDeleteTarget(null);
+  const handleDeleteConfirm = () => {
+    if (!deleteTarget) return;
+    setRooms((prev) => prev.filter((r) => r.id !== deleteTarget.id));
+    setDeleteTarget(null);
+    alert("Consultorio eliminado (simulado).");
+  };
+
+  /* ---- DESCARTAR cambios ---- */
+  const [discardCtx, setDiscardCtx] = useState<{ open: boolean; context?: "add" | "edit" }>({
+    open: false,
+  });
+  const closeDiscard = () => setDiscardCtx({ open: false });
+  const confirmDiscard = () => {
+    if (discardCtx.context === "add") closeAdd();
+    if (discardCtx.context === "edit") closeEdit();
+    setDiscardCtx({ open: false });
+  };
+
+  /* ---- ESC para cerrar ---- */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      if (discardCtx.open) return closeDiscard();
+      if (showAdd) return tryCloseAdd();
+      if (editTarget) return tryCloseEdit();
+      if (deleteTarget) return closeDelete();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [showAdd, editTarget, deleteTarget, discardCtx.open, addForm, editForm, addSnapshot, editSnapshot]); //VER !!!!
+
+  const hasRooms = rooms.length > 0;
+
+  // HTML.... probablemente deba pasarlo a otro archivo asi no queda alto spaghetti
+  return (
+    <section className="cr-container">
+      <h1 className="cr-title">Consultorios</h1>
+
+      {/* ===== Estado vacío ===== */}
+      {!hasRooms && (
+        <div className="cr-empty-state" role="status" aria-live="polite">
+          <svg className="cr-empty-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9.5a2 2 0 0 1-2 2H9l-4 4v-4H5a2 2 0 0 1-2-2zM6 6v7.5a.5.5 0 0 0 .5.5H19V6z"
+            />
+          </svg>
+          <h2>No hay consultorios</h2>
+          <p>Agregá tu primer consultorio para comenzar.</p>
+          <button type="button" className="ui-btn ui-btn--primary" onClick={openAdd}>
+            Agregar consultorio
+          </button>
+        </div>
+      )}
+
+      {/* ===== Tabla ===== */}
+      {hasRooms && (
+        <>
+          <div className="cr-table-wrap">
+            <table className="cr-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Descripción</th>
+                  <th className="cr-col-actions">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rooms.map((r) => (
+                  <tr key={r.id}>
+                    <td data-label="ID">{r.id}</td>
+                    <td data-label="Descripción">{r.descripcion}</td>
+                    <td className="cr-actions">
+                      <button
+                        type="button"
+                        className="ui-btn ui-btn--outline ui-btn--sm"
+                        onClick={() => openEdit(r)}
+                      >
+                        Editar
+                      </button>
+                      <button
+                        type="button"
+                        className="ui-btn ui-btn--danger ui-btn--sm"
+                        onClick={() => openDelete(r)}
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Agregar */}
+          <div className="cr-footer">
+            <button type="button" className="ui-btn ui-btn--primary" onClick={openAdd}>
+              Agregar consultorio
+            </button>
+          </div>
+        </>
+      )}
+
+      {/* ===== Agregar parte 2 ===== */}
+      {showAdd && (
+        <div className="cr-modal-backdrop" onClick={tryCloseAdd} role="presentation">
+          <div
+            className="cr-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cr-add-title"
+            aria-describedby="cr-add-desc"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {addStep === "form" ? (
+              <>
+                <h2 id="cr-add-title">Agregar consultorio</h2>
+                <p id="cr-add-desc" className="cr-help">
+                  Completá la descripción del consultorio.
+                </p>
+                <form onSubmit={handleAddContinue} noValidate>
+                  <div className="cr-field">
+                    <label htmlFor="add-descripcion">Descripción</label>
+                    <textarea
+                      id="add-descripcion"
+                      value={addForm.descripcion ?? ""}
+                      onChange={(e) =>
+                        setAddForm((f) => ({ ...f, descripcion: e.target.value }))
+                      }
+                      aria-invalid={!!addErrors.descripcion}
+                      aria-describedby={addErrors.descripcion ? "add-descripcion-err" : undefined}
+                    />
+                    {addErrors.descripcion && (
+                      <p className="cr-error" id="add-descripcion-err">
+                        {addErrors.descripcion}
+                      </p>
+                    )}
+                  </div>
+                  <div className="cr-modal-actions">
+                    <button type="button" className="ui-btn ui-btn--outline" onClick={tryCloseAdd}>
+                      Cancelar
+                    </button>
+                    <button type="submit" className="ui-btn ui-btn--primary">
+                      Continuar
+                    </button>
+                  </div>
+                </form>
+              </>
+            ) : (
+              <>
+                <h2 id="cr-add-title">Confirmar nuevo consultorio</h2>
+                <p id="cr-add-desc">Revisá que los datos sean correctos.</p>
+                <ul className="cr-summary">
+                  <li>
+                    <strong>Descripción:</strong> {addForm.descripcion}
+                  </li>
+                </ul>
+                <div className="cr-modal-actions">
+                  <button
+                    type="button"
+                    className="ui-btn ui-btn--outline"
+                    onClick={() => setAddStep("form")}
+                  >
+                    Volver
+                  </button>
+                  <button type="button" className="ui-btn ui-btn--primary" onClick={handleAddConfirm}>
+                    Confirmar
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ===== Editar ===== */}
+      {editTarget && (
+        <div className="cr-modal-backdrop" onClick={tryCloseEdit} role="presentation">
+          <div
+            className="cr-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cr-edit-title"
+            aria-describedby="cr-edit-desc"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {editStep === "form" ? (
+              <>
+                <h2 id="cr-edit-title">Editar consultorio</h2>
+                <p id="cr-edit-desc" className="cr-help">
+                  Actualizá la descripción.
+                </p>
+                <form onSubmit={handleEditContinue} noValidate>
+                  <div className="cr-field">
+                    <label htmlFor="edit-descripcion">Descripción</label>
+                    <textarea
+                      id="edit-descripcion"
+                      value={editForm.descripcion ?? ""}
+                      onChange={(e) =>
+                        setEditForm((f) => ({ ...f, descripcion: e.target.value }))
+                      }
+                      aria-invalid={!!editErrors.descripcion}
+                      aria-describedby={editErrors.descripcion ? "edit-descripcion-err" : undefined}
+                    />
+                    {editErrors.descripcion && (
+                      <p className="cr-error" id="edit-descripcion-err">
+                        {editErrors.descripcion}
+                      </p>
+                    )}
+                  </div>
+                  <div className="cr-modal-actions">
+                    <button type="button" className="ui-btn ui-btn--outline" onClick={tryCloseEdit}>
+                      Cancelar
+                    </button>
+                    <button type="submit" className="ui-btn ui-btn--primary">
+                      Continuar
+                    </button>
+                  </div>
+                </form>
+              </>
+            ) : (
+              <>
+                <h2 id="cr-edit-title">Confirmar cambios</h2>
+                <p id="cr-edit-desc">Verificá los datos editados.</p>
+                <ul className="cr-summary">
+                  <li>
+                    <strong>ID:</strong> {editTarget?.id}
+                  </li>
+                  <li>
+                    <strong>Descripción:</strong> {editForm.descripcion}
+                  </li>
+                </ul>
+                <div className="cr-modal-actions">
+                  <button
+                    type="button"
+                    className="ui-btn ui-btn--outline"
+                    onClick={() => setEditStep("form")}
+                  >
+                    Volver
+                  </button>
+                  <button type="button" className="ui-btn ui-btn--primary" onClick={handleEditConfirm}>
+                    Confirmar
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ===== Eliminar ===== */}
+      {deleteTarget && (
+        <div className="cr-modal-backdrop" onClick={closeDelete} role="presentation">
+          <div
+            className="cr-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cr-del-title"
+            aria-describedby="cr-del-desc"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 id="cr-del-title">Eliminar consultorio</h2>
+            <p id="cr-del-desc">
+              ¿Estás segura/o de eliminar el consultorio <strong>{deleteTarget.descripcion}</strong>?
+            </p>
+            <div className="cr-modal-actions">
+              <button type="button" className="ui-btn ui-btn--outline" onClick={closeDelete}>
+                Cancelar
+              </button>
+              <button type="button" className="ui-btn ui-btn--danger" onClick={handleDeleteConfirm}>
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== Descartar cambios ===== */}
+      {discardCtx.open && (
+        <div className="cr-modal-backdrop" onClick={closeDiscard} role="presentation">
+          <div
+            className="cr-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cr-discard-title"
+            aria-describedby="cr-discard-desc"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 id="cr-discard-title">Descartar cambios</h2>
+            <p id="cr-discard-desc">Tenés cambios sin guardar. ¿Cerrar de todos modos?</p>
+            <div className="cr-modal-actions">
+              <button type="button" className="ui-btn ui-btn--outline" onClick={closeDiscard}>
+                Seguir editando
+              </button>
+              <button type="button" className="ui-btn ui-btn--danger" onClick={confirmDiscard}>
+                Descartar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
