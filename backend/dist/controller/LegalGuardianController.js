@@ -179,7 +179,7 @@ class LegalGuardianController {
                 appointment.status = AppointmentStatus_1.AppointmentStatus.Canceled;
             }
             await em.flush();
-            res.json(legalGuardian);
+            res.status(201).json({ message: 'Se eliminó correctamente el responsable legal', legalGuardian });
         }
         catch (error) {
             console.error(error);

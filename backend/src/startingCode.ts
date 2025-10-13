@@ -226,7 +226,7 @@ export const startingCode = async () => {
     await AppointmentController.assignAppointment(req as any, res as any);
 
     req = new FakeRequest({
-        idAppointment: 2, idPatient: 2
+        idAppointment: 40, idPatient: 2
     });
 
     await AppointmentController.assignAppointment(req as any, res as any);
@@ -235,10 +235,28 @@ export const startingCode = async () => {
 
 
 
+    req = new FakeRequest({}, {id: 1});
+    await ProfessionalController.deleteProfessional(req as any, res as any);
+
+
+    //deberia tirar error, prof inhabilitado
+    req = new FakeRequest({
+        day: 1, startTime: '10:00', endTime: '14:00', validMonth: 10, validYear: 2025, professionalId: 1, consultingRoomId: 1
+    });
+    
+    await ModuleController.addModules(req as any, res as any);
 
 
 
+    //Ok, porque el modulo que estaba aca esta cancelado
+    req = new FakeRequest({
+        day: 1, startTime: '10:00', endTime: '14:00', validMonth: 10, validYear: 2025, professionalId: 2, consultingRoomId: 1
+    });
+    
+    await ModuleController.addModules(req as any, res as any);
 
-
+    //Deberia cascadear los inhabilitar a paciente y sus turnos
+    req = new FakeRequest({}, {id: 1}); 
+    await LegalGuardianController.deleteLegalGuardian(req as any, res as any);
 
 }
