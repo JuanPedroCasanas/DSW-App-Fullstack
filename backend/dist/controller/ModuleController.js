@@ -5,10 +5,10 @@ const Module_1 = require("../model/entities/Module");
 const Professional_1 = require("../model/entities/Professional");
 const ConsultingRoom_1 = require("../model/entities/ConsultingRoom");
 const ModuleType_1 = require("../model/entities/ModuleType");
-const core_1 = require("@mikro-orm/core");
 const BaseHttpError_1 = require("../model/errors/BaseHttpError");
 const Appointment_1 = require("../model/entities/Appointment");
 const AppointmentStatus_1 = require("../model/enums/AppointmentStatus");
+const ModuleStatus_1 = require("../model/enums/ModuleStatus");
 class ModuleController {
     //HELPERS
     static calculateHours(startTime, endTime) {
@@ -67,11 +67,11 @@ class ModuleController {
             const professional = await em.findOne(Professional_1.Professional, { id: professionalId });
             const consultingRoom = await em.findOne(ConsultingRoom_1.ConsultingRoom, { idConsultingRoom: consultingRoomId });
             const moduleTypes = await em.findAll(ModuleType_1.ModuleType, { orderBy: { duration: 'DESC' } }); //Los ordeno de mayor a menor para hacer un calculo posterior
-            if (!professional) {
-                throw new core_1.NotFoundError('Profesional');
+            if (!professional || !professional?.isActive) {
+                throw new BaseHttpError_1.NotFoundError('Profesional');
             }
-            if (!consultingRoom) {
-                throw new core_1.NotFoundError('Consultorio');
+            if (!consultingRoom || !consultingRoom?.isActive) {
+                throw new BaseHttpError_1.NotFoundError('Consultorio');
             }
             if (moduleTypes.length === 0) {
                 throw new BaseHttpError_1.NotConfigured('Tipos de modulo');
@@ -85,7 +85,8 @@ class ModuleController {
                 validMonth: Number(validMonth),
                 validYear: Number(validYear),
                 startTime: { $lt: endTime }, //Modulos que empiecen Antes de que termine nuestro nuevo modulo
-                endTime: { $gt: startTime } // Y que terminen despues de que empiece nuestro nuevo modulo
+                endTime: { $gt: startTime }, // Y que terminen despues de que empiece nuestro nuevo modulo
+                status: { $ne: ModuleStatus_1.ModuleStatus.Canceled } // NO cancelados
             });
             if (conflictingModules.length > 0) {
                 throw new BaseHttpError_1.ModuleScheduleConflictError(startTime, endTime);
@@ -182,7 +183,7 @@ class ModuleController {
             const em = await (0, db_1.getORM)().em.fork();
             const module = await em.findOne(Module_1.Module, { idModule: parseInt(idModule) });
             if (!module) {
-                throw new core_1.NotFoundError("Modulo");
+                throw new BaseHttpError_1.NotFoundError("Modulo");
             }
             res.status(200).json(module);
         }

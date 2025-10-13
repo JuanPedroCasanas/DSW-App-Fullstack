@@ -24,6 +24,12 @@ export class NotFoundError extends BaseHttpError {
   }
 }
 
+export class EntityDisabledError extends BaseHttpError {
+  constructor(resource: string, id: string) {
+    super(403, 'ENTITY_DISABLED', `El recurso '${resource}' de id '${id}' se encuentra deshabilitado`);
+  }
+}
+
 
 export class ModuleScheduleConflictError extends BaseHttpError {
   constructor(startTime: string, endTime: string) {

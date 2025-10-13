@@ -4,11 +4,11 @@ import { Module } from '../model/entities/Module';
 import { Professional } from '../model/entities/Professional';
 import { ConsultingRoom } from '../model/entities/ConsultingRoom';
 import { ModuleType } from '../model/entities/ModuleType';
-import { NotFoundError } from '@mikro-orm/core';
-import { BaseHttpError, ModuleScheduleConflictError, NotConfigured } from '../model/errors/BaseHttpError';
+import { BaseHttpError, ModuleScheduleConflictError, NotConfigured, NotFoundError } from '../model/errors/BaseHttpError';
 import { DayOfWeek } from '../model/enums/DayOfWeek';
 import { Appointment } from '../model/entities/Appointment';
 import { AppointmentStatus } from '../model/enums/AppointmentStatus';
+import { ModuleStatus } from '../model/enums/ModuleStatus';
 
 
 export default class ModuleController  {
@@ -92,10 +92,10 @@ export default class ModuleController  {
             const moduleTypes = await em.findAll(ModuleType, { orderBy: { duration: 'DESC' } }); //Los ordeno de mayor a menor para hacer un calculo posterior
 
 
-            if(!professional) {
+            if(!professional || !professional?.isActive) {
                 throw new NotFoundError('Profesional');
             }
-            if(!consultingRoom) {
+            if(!consultingRoom || !consultingRoom?.isActive) {
                 throw new NotFoundError('Consultorio');
             }
             if(moduleTypes.length === 0) {
@@ -112,7 +112,8 @@ export default class ModuleController  {
                 validMonth: Number(validMonth),
                 validYear: Number(validYear),
                 startTime: { $lt: endTime }, //Modulos que empiecen Antes de que termine nuestro nuevo modulo
-                endTime: { $gt: startTime } // Y que terminen despues de que empiece nuestro nuevo modulo
+                endTime: { $gt: startTime }, // Y que terminen despues de que empiece nuestro nuevo modulo
+                status: { $ne: ModuleStatus.Canceled } // NO cancelados
             });
 
             if (conflictingModules.length > 0) {

@@ -207,7 +207,7 @@ export class LegalGuardianController {
 
             await em.flush();
             
-            res.json(legalGuardian);
+            res.status(201).json({message: 'Se eliminó correctamente el responsable legal', legalGuardian});
         } catch (error) {
             console.error(error);
             if (error instanceof BaseHttpError) {

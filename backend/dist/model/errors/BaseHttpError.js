@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AppointmentNotAvailableError = exports.NotConfigured = exports.WeakPasswordError = exports.InvalidEmailFormatError = exports.EmailAlreadyExistsError = exports.ModuleScheduleConflictError = exports.NotFoundError = exports.BaseHttpError = void 0;
+exports.AppointmentNotAvailableError = exports.NotConfigured = exports.WeakPasswordError = exports.InvalidEmailFormatError = exports.EmailAlreadyExistsError = exports.ModuleScheduleConflictError = exports.EntityDisabledError = exports.NotFoundError = exports.BaseHttpError = void 0;
 class BaseHttpError extends Error {
     constructor(status, code, message) {
         super(message);
@@ -23,6 +23,12 @@ class NotFoundError extends BaseHttpError {
     }
 }
 exports.NotFoundError = NotFoundError;
+class EntityDisabledError extends BaseHttpError {
+    constructor(resource, id) {
+        super(403, 'ENTITY_DISABLED', `El recurso '${resource}' de id '${id}' se encuentra deshabilitado`);
+    }
+}
+exports.EntityDisabledError = EntityDisabledError;
 class ModuleScheduleConflictError extends BaseHttpError {
     constructor(startTime, endTime) {
         super(409, 'MODULE_SCHEDULE_CONFLICT', `Ya existe un modulo alquilado que conflitua con la hora inicio - fin: '${startTime} - ${endTime}'`);
