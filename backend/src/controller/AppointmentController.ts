@@ -6,7 +6,7 @@ import { Professional } from '../model/entities/Professional';
 import { LegalGuardian } from '../model/entities/LegalGuardian';
 import { HealthInsurance } from '../model/entities/HealthInsurance';
 import { AppointmentStatus } from '../model/enums/AppointmentStatus';
-import { BaseHttpError, NotFoundError } from '../model/errors/BaseHttpError';
+import { AppointmentNotAvailableError, BaseHttpError, NotFoundError } from '../model/errors/BaseHttpError';
 
 export class AppointmentController {
 
@@ -27,33 +27,30 @@ export class AppointmentController {
         try {
             const em = await getORM().em.fork();
 
-            let appointment = await em.findOne(Appointment, { id : idAppointment });
+            const appointment = await em.findOne(Appointment, { id : idAppointment });
             if(!appointment) {
                 throw new NotFoundError('Turno');
             } 
 
-            let patient = await em.findOne(Patient, { idPatient : idPatient });
+            if(appointment.status != AppointmentStatus.Available) {
+                throw new AppointmentNotAvailableError();
+            }
+
+            const patient = await em.findOne(Patient, { idPatient: idPatient })
             if(!patient) {
                 throw new NotFoundError('Paciente');
             }
 
-            let legalGuardian: LegalGuardian | undefined = patient.legalGuardian;
+            const legalGuardian = patient.legalGuardian;
 
-            let healthInsurance: HealthInsurance;
-
-            //La realidad es que un paciente que depende de legal guardian siempre se
-            //Crea con la OS del legal guardian (Ver addDependentPatient en patientController) asi que este if sería innecesario
-            //Lo dejo como safe guard
-            if(legalGuardian) {
-                healthInsurance = legalGuardian.healthInsurance
-            } else {
-                healthInsurance = patient.healthInsurance;
-            }
 
             appointment.legalGuardian = legalGuardian;
             appointment.patient = patient;
+            appointment.healthInsurance = patient.healthInsurance;
+            appointment.status = AppointmentStatus.Scheduled;
 
             await em.flush();
+            res.status(200).json({ message: 'Se asigno correctamente el paciente al turno', appointment})
 
             } catch (error) {
                 console.error(error);

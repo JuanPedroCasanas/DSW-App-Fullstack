@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.WeakPasswordError = exports.InvalidEmailFormatError = exports.EmailAlreadyExistsError = exports.NotFoundError = exports.BaseHttpError = void 0;
+exports.AppointmentNotAvailableError = exports.NotConfigured = exports.WeakPasswordError = exports.InvalidEmailFormatError = exports.EmailAlreadyExistsError = exports.ModuleScheduleConflictError = exports.NotFoundError = exports.BaseHttpError = void 0;
 class BaseHttpError extends Error {
     constructor(status, code, message) {
         super(message);
@@ -23,6 +23,12 @@ class NotFoundError extends BaseHttpError {
     }
 }
 exports.NotFoundError = NotFoundError;
+class ModuleScheduleConflictError extends BaseHttpError {
+    constructor(startTime, endTime) {
+        super(409, 'MODULE_SCHEDULE_CONFLICT', `Ya existe un modulo alquilado que conflitua con la hora inicio - fin: '${startTime} - ${endTime}'`);
+    }
+}
+exports.ModuleScheduleConflictError = ModuleScheduleConflictError;
 class EmailAlreadyExistsError extends BaseHttpError {
     constructor(email) {
         super(409, 'EMAIL_TAKEN', `El email '${email}' ya se encuentra registrado con una cuenta activa`);
@@ -41,4 +47,16 @@ class WeakPasswordError extends BaseHttpError {
     }
 }
 exports.WeakPasswordError = WeakPasswordError;
+class NotConfigured extends BaseHttpError {
+    constructor(resource) {
+        super(404, 'NOT_FOUND', `El recurso '${resource}' aún no posee valores configurados por un admin`);
+    }
+}
+exports.NotConfigured = NotConfigured;
+class AppointmentNotAvailableError extends BaseHttpError {
+    constructor(reason = 'El turno seleccionado no esta disponible') {
+        super(409, 'APPOINTMENT_UNAVAILABLE', reason);
+    }
+}
+exports.AppointmentNotAvailableError = AppointmentNotAvailableError;
 //# sourceMappingURL=BaseHttpError.js.map

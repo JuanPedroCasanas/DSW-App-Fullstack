@@ -109,8 +109,8 @@ export default class ModuleController  {
             const conflictingModules = await em.find(Module, {
                 consultingRoom: consultingRoom,
                 day: dayOfWeek,
-                validMonth: validMonth,
-                validYear: validYear,
+                validMonth: Number(validMonth),
+                validYear: Number(validYear),
                 startTime: { $lt: endTime }, //Modulos que empiecen Antes de que termine nuestro nuevo modulo
                 endTime: { $gt: startTime } // Y que terminen despues de que empiece nuestro nuevo modulo
             });
@@ -142,8 +142,8 @@ export default class ModuleController  {
                     const newMod = new Module(
                     dayOfWeek,
                     startTime,
-                    validMonth,
-                    validYear,
+                    Number(validMonth),
+                    Number(validYear),
                     professional,
                     consultingRoom,
                     moduleType
@@ -251,33 +251,40 @@ export default class ModuleController  {
         res.status(201).json({ message: 'Module updated', module });
     }
 
-    //CORREGIR
     static async getModule(req: Request, res: Response) {
         const { idModule } = req.params;
 
         if(!idModule)
         {
-            return res.status(400).json({ message: 'Module id is required' });
+            return res.status(400).json({ message: 'Se requiere el id de modulo' });
         }
+        try {
 
-        const em = await getORM().em.fork();
-        const module = await em.findOne(Module, { idModule: parseInt(idModule) });
+            const em = await getORM().em.fork();
+            const module = await em.findOne(Module, { idModule: parseInt(idModule) });
 
-        if(!module) 
-        {
-            return res.status(400).json({ message: 'Module not found' });
-            // throw new Error("Modulo no encontrado");
+            if(!module) 
+            {
+                throw new NotFoundError("Modulo");
+            }
+
+            res.status(200).json(module);
+        } catch (error) {
+            console.error(error);
+            if (error instanceof BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            else {
+                res.status(500).json({ message: 'Error buscar modulo' });
+            }
         }
-
-        res.status(200).json(module);
     }
 
-    //CORREGIR
     static async getModules(req: Request, res: Response) {
             try {
                 const em = await getORM().em.fork();
-                const modules = await em.find(Module, {});
-                res.json(modules);
+                const modules = await em.findAll(Module);
+                res.status(200).json(modules);
     
             } catch (error) {
                 console.error(error);
@@ -285,6 +292,8 @@ export default class ModuleController  {
             }
         }
     
+        //NO APLICA
+        /*
         static async deleteModule(req: Request, res: Response) {
             const id = Number(req.params.id);
             if (!id) {
@@ -307,5 +316,5 @@ export default class ModuleController  {
             }
         }
     
-    
+        */
     }

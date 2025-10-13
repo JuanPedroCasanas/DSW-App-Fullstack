@@ -54,3 +54,9 @@ export class NotConfigured extends BaseHttpError {
     super(404, 'NOT_FOUND', `El recurso '${resource}' aún no posee valores configurados por un admin`);
   }
 }
+
+export class AppointmentNotAvailableError extends BaseHttpError {
+  constructor(reason: string = 'El turno seleccionado no esta disponible') {
+    super(409, 'APPOINTMENT_UNAVAILABLE', reason);
+  }
+}

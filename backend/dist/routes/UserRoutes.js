@@ -32,10 +32,14 @@ const auth = passport_1.default.authenticate('jwt', { session: false });
 // Routes
 // Public
 router.post('/login', (req, res) => UserController_1.UserController.login(req, res));
-// Protected
-router.get('/users', auth, (req, res) => UserController_1.UserController.getAll(req, res));
-router.get('/users/:id', auth, (req, res) => UserController_1.UserController.getOne(req, res));
-router.post('/users/:id', auth, (req, res) => UserController_1.UserController.update(req, res));
-router.delete('/users/:id', auth, (req, res) => UserController_1.UserController.delete(req, res));
+//Deberian ser protegidos, pero por ahora quedan publicos
+router.get('/users', (req, res) => UserController_1.UserController.getAll(req, res));
+router.get('/users/:id', (req, res) => UserController_1.UserController.getOne(req, res));
+router.post('/users/:id', (req, res) => UserController_1.UserController.update(req, res));
+/* Protected asi quedarian al final, ademas de checkear roles
+router.get('/users', auth, (req, res) => UserController.getAll(req, res));
+router.get('/users/:id', auth, (req, res) => UserController.getOne(req, res));
+router.post('/users/:id', auth, (req, res) => UserController.update(req, res));
+*/
 exports.default = router;
 //# sourceMappingURL=UserRoutes.js.map

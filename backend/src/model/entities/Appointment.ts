@@ -11,10 +11,10 @@ export class Appointment {
   @PrimaryKey()
   id!: number;
 
-  @Property()
+  @Property({ columnType: 'timestamp without time zone' })
   startTime!: Date;
 
-  @Property() //Calculado, siempre será startTime + 1 hora
+  @Property({ columnType: 'timestamp without time zone' }) //Calculado, siempre será startTime + 1 hora
   endTime!: Date;
 
   @Enum(() => AppointmentStatus)
@@ -26,7 +26,7 @@ export class Appointment {
   @ManyToOne()
   professional!: Professional;
 
-  @ManyToOne(() => Patient)
+  @ManyToOne(() => Patient, { nullable: true })
   patient?: Patient;
 
   @ManyToOne(() => LegalGuardian, { nullable: true })

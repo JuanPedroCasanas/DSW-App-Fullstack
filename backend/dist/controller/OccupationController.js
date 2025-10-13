@@ -3,6 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.OccupationController = void 0;
 const db_1 = require("../orm/db");
 const Occupation_1 = require("../model/entities/Occupation");
+const core_1 = require("@mikro-orm/core");
+const BaseHttpError_1 = require("../model/errors/BaseHttpError");
 class OccupationController {
     static home(req, res) {
         res.send('Soy el controlador de ocupaciones!');
@@ -10,54 +12,69 @@ class OccupationController {
     static async addOccupation(req, res) {
         const { name } = req.body;
         if (!name) {
-            return res.status(400).json({ message: 'Name is required' });
+            return res.status(400).json({ message: 'Se requiere nombre de la especialidad' });
         }
         try {
             const occupation = new Occupation_1.Occupation(name);
             const em = await (0, db_1.getORM)().em.fork();
             await em.persistAndFlush(occupation);
-            res.status(201).json({ message: 'Occupation added', occupation });
+            res.status(201).json({ message: 'Especialidad añadida', occupation });
         }
         catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Failed to add occupation' });
+            res.status(500).json({ message: 'Error al añadir la especialidad' });
         }
     }
     static async updateOccupation(req, res) {
         const { id } = req.body;
         const { name } = req.body;
         if (!id) {
-            return res.status(400).json({ message: 'Occupation id is required' });
+            return res.status(400).json({ message: 'Se requiere el ID de la especialidad' });
         }
         if (!name) {
-            return res.status(400).json({ message: 'Occupation new name is required' });
+            return res.status(400).json({ message: 'Se requiere el nombre de la especialidad' });
         }
-        const em = await (0, db_1.getORM)().em.fork();
-        const occupation = await em.findOne(Occupation_1.Occupation, { id: id });
-        if (!occupation) {
-            return res.status(400).json({ message: 'Occupation not found' });
-            // throw new Error("Ocupacion no encontrada");
+        try {
+            const em = await (0, db_1.getORM)().em.fork();
+            const occupation = await em.findOne(Occupation_1.Occupation, { id: id });
+            if (!occupation) {
+                throw new core_1.NotFoundError('Especialidad');
+            }
+            occupation.name = name;
+            await em.persistAndFlush(occupation);
+            res.status(201).json({ message: 'Especialidad actualizada', occupation });
         }
-        occupation.name = name;
-        await em.persistAndFlush(occupation);
-        res.status(201).json({ message: 'Occupation updated', occupation });
+        catch (error) {
+            console.error(error);
+            if (error instanceof BaseHttpError_1.BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            else {
+                res.status(500).json({ message: 'Error al modificar especialidad' });
+            }
+        }
     }
     static async getOccupation(req, res) {
         const id = Number(req.params.id);
         if (!id) {
-            return res.status(400).json({ message: 'Occupation id is required' });
+            return res.status(400).json({ message: 'Se requiere el ID de la especialidad' });
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
             const occupation = await em.findOne(Occupation_1.Occupation, { id });
             if (!occupation) {
-                return res.status(404).json({ message: 'Occupation not found' });
+                throw new core_1.NotFoundError('Especialidad');
             }
             res.json(occupation);
         }
         catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Failed to fetch occupation' });
+            if (error instanceof BaseHttpError_1.BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            else {
+                res.status(500).json({ message: 'Error al buscar especialidad' });
+            }
         }
     }
     static async getOccupations(req, res) {
@@ -68,26 +85,31 @@ class OccupationController {
         }
         catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Failed to fetch occupations' });
+            res.status(500).json({ message: 'Error al buscar especialidades' });
         }
     }
     static async deleteOccupation(req, res) {
         const id = Number(req.params.id);
         if (!id) {
-            return res.status(400).json({ message: 'Occupation id is required' });
+            return res.status(400).json({ message: 'Se requiere ID de la especialidad' });
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
             const occupation = await em.findOne(Occupation_1.Occupation, { id: id });
             if (!occupation) {
-                return res.status(404).json({ message: 'Occupation not found' });
+                throw new core_1.NotFoundError('Especialidad');
             }
-            await em.removeAndFlush(occupation);
+            await em.removeAndFlush(occupation); //No vemos necesidad de borrado logico aca, tampoco necesidad de cascade, es un caso muy extremo en terminos de negocio
             res.json(occupation);
         }
         catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Failed to delete occupation' });
+            if (error instanceof BaseHttpError_1.BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            else {
+                res.status(500).json({ message: 'Error al eliminar especialidad' });
+            }
         }
     }
 }

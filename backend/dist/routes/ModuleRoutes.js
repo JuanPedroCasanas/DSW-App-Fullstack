@@ -7,10 +7,10 @@ const express_1 = __importDefault(require("express"));
 const ModuleController_1 = __importDefault(require("../controller/ModuleController"));
 const router = express_1.default.Router();
 router.get('/', ModuleController_1.default.home);
-router.post('/add', ModuleController_1.default.addModule);
+router.post('/add', ModuleController_1.default.addModules);
 router.post('/update', ModuleController_1.default.updateModule);
 router.get('/getAll', ModuleController_1.default.getModules);
 router.get('/get/:id', ModuleController_1.default.getModule);
-router.delete('/delete/:id', ModuleController_1.default.deleteModule);
+//router.delete('/delete/:id', ModuleController.deleteModule);
 exports.default = router;
 //# sourceMappingURL=ModuleRoutes.js.map

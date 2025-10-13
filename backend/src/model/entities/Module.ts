@@ -17,10 +17,10 @@ export class Module {
   @Enum(() => DayOfWeek)
   day!: DayOfWeek; 
 
-  @Property()
+  @Property({ columnType: 'time' })
   startTime!: string; // Sería strings de formato 11:00 con formate 24hs (Sin AM PM)
 
-  @Property()
+  @Property({ columnType: 'time' })
   endTime!: string;
 
   @Property()

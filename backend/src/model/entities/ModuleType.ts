@@ -18,7 +18,8 @@ export class ModuleType {
   @OneToMany(() => Module, module => module.moduleType)
   modules = new Collection<Module>(this);
 
-  constructor(name: string) {
+  constructor(name: string, duration: number) {
     this.name = name;
+    this.duration = duration;
   }
 }

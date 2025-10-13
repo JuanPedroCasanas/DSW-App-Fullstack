@@ -7,6 +7,7 @@ import { User } from '../model/entities/User';
 import { BaseHttpError, NotFoundError } from '../model/errors/BaseHttpError';
 import { AppointmentStatus } from '../model/enums/AppointmentStatus';
 import { ModuleStatus } from '../model/enums/ModuleStatus';
+import { HealthInsurance } from '../model/entities/HealthInsurance';
 export class ProfessionalController {
 
     static home(req: Request, res: Response) {
@@ -32,7 +33,7 @@ export class ProfessionalController {
             return res.status(400).json({ message: 'Se requiere una contraseña valida' });
         }
         if (!occupationId){
-            return res.status(400).json({message:'Se requiere la Ide de la especialidad del profesional'});
+            return res.status(400).json({message:'Se requiere la Id de la especialidad del profesional'});
         }
 
         try {            
@@ -109,6 +110,84 @@ export class ProfessionalController {
         }
     }
 
+    static async allowHealthInsurance(req: Request, res: Response) {
+        const { professionalId, healthInsuranceId } = req.body;
+
+        if(!professionalId) {
+            return res.status(400).json({message:'Se requiere la Id del profesional'});
+        }
+        if(!healthInsuranceId) {
+            return res.status(400).json({message:'Se requiere la Id de la obra social a permitir'});
+        }
+        try {
+            const em = await getORM().em.fork();
+            const professional = await em.findOne(Professional, { id : professionalId });
+            if(!professional) {
+                throw new NotFoundError('Profesional');
+            }
+            const healthInsurance = await em.findOne(HealthInsurance, { idHealthInsurance : healthInsuranceId });
+            if(!healthInsurance) {
+                throw new NotFoundError('Obra Social');
+            }
+
+            professional.healthInsurances.add(healthInsurance);
+
+            em.flush();
+
+            res.status(201).json({ message: 'Se agrego correctamente la obra social al profesional ', healthInsurance });
+
+        } catch (error) {
+            console.error(error);
+            if (error instanceof BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            else {
+                res.status(500).json({ message: 'Error al agregar obra social al profesional' });
+            }
+        }
+    }
+
+    static async forbidHealthInsurance(req: Request, res: Response) {
+        const { professionalId, healthInsuranceId } = req.body;
+
+        if(!professionalId) {
+            return res.status(400).json({message:'Se requiere la Id del profesional'});
+        }
+        if(!healthInsuranceId) {
+            return res.status(400).json({message:'Se requiere la Id de la obra social a eliminar'});
+        }
+        try {
+            const em = await getORM().em.fork();
+            const professional = await em.findOne(Professional, { id : professionalId });
+            if(!professional) {
+                throw new NotFoundError('Profesional');
+            }
+            const healthInsurance = await em.findOne(HealthInsurance, { idHealthInsurance : healthInsuranceId });
+            if(!healthInsurance) {
+                throw new NotFoundError('Obra Social');
+            }
+
+            if(!professional.healthInsurances.contains(healthInsurance)) {
+                throw new NotFoundError('Obra Social');
+            }
+
+            professional.healthInsurances.remove(healthInsurance);
+
+            em.flush();
+
+            res.status(201).json({ message: 'Se elimino correctamente la obra social al profesional ', healthInsurance });
+
+        } catch (error) {
+            console.error(error);
+            if (error instanceof BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            else {
+                res.status(500).json({ message: 'Error al eliminar obra social del profesional' });
+            }
+        }
+    }
+
     static async getProfessional(req: Request, res: Response) {
         const id = Number(req.params.id);
 
@@ -176,7 +255,7 @@ export class ProfessionalController {
 
             await em.flush();
 
-            res.json(professional);
+            res.status(201).json({ message: 'Se elimino correctamente el profesional ', professional });
 
 
         } catch (error) {

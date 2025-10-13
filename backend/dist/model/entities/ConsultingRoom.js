@@ -16,6 +16,7 @@ let ConsultingRoom = class ConsultingRoom {
     constructor(description) {
         this.modules = new core_1.Collection(this);
         this.description = description;
+        this.isActive = true;
     }
 };
 exports.ConsultingRoom = ConsultingRoom;
@@ -27,6 +28,10 @@ __decorate([
     (0, core_1.Property)(),
     __metadata("design:type", String)
 ], ConsultingRoom.prototype, "description", void 0);
+__decorate([
+    (0, core_1.Property)(),
+    __metadata("design:type", Boolean)
+], ConsultingRoom.prototype, "isActive", void 0);
 __decorate([
     (0, core_1.OneToMany)(() => Module_1.Module, module => module.consultingRoom),
     __metadata("design:type", Object)

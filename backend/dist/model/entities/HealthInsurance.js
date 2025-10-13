@@ -23,6 +23,7 @@ let HealthInsurance = class HealthInsurance {
         this.patients = new core_2.Collection(this);
         this.legalGuardians = new core_2.Collection(this);
         this.name = name;
+        this.isActive = true;
     }
 };
 exports.HealthInsurance = HealthInsurance;
@@ -30,6 +31,10 @@ __decorate([
     (0, core_1.PrimaryKey)(),
     __metadata("design:type", Number)
 ], HealthInsurance.prototype, "idHealthInsurance", void 0);
+__decorate([
+    (0, core_1.Property)(),
+    __metadata("design:type", Boolean)
+], HealthInsurance.prototype, "isActive", void 0);
 __decorate([
     (0, core_1.Property)(),
     __metadata("design:type", String)
