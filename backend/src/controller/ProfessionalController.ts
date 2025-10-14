@@ -15,9 +15,9 @@ export class ProfessionalController {
     }
 
     static async addProfessional(req: Request, res: Response) {
-        const { name, lastName, telephone, mail, password, occupationId} = req.body;
+        const { firstName, lastName, telephone, mail, password, occupationId} = req.body;
 
-        if (!name) {
+        if (!firstName) {
             return res.status(400).json({ message: 'Se requiere el nombre del profesional' });
         }
         if (!lastName) {
@@ -45,7 +45,7 @@ export class ProfessionalController {
             }
             //Atencion a todo este segmento de código porque asi se  crean los usuarios, se persiste
             //solamente el usuario y eso persiste el profesional, ver anotacion de Cascade dentro de la clase usuario
-            const professional = new Professional(name, lastName, telephone, occupation);
+            const professional = new Professional(firstName, lastName, telephone, occupation);
             const profUser: User = await createUser(mail, password);
             
             professional.user = profUser;
@@ -66,13 +66,13 @@ export class ProfessionalController {
     }
     
     static async updateProfessional(req: Request, res: Response) {
-        const {id, name, lastName, telephone} = req.body;
+        const {id, firstName, lastName, telephone} = req.body;
 
         if(!id)
         {
             return res.status(400).json({ message: 'Se requiere el id de profesional' });
         }
-        if (!name) {
+        if (!firstName) {
             return res.status(400).json({ message: 'Se requiere el nombre del profesional' });
         }
         if (!lastName) {
@@ -92,7 +92,7 @@ export class ProfessionalController {
                 throw new NotFoundError('Profesional');
             }
 
-            professional.firstName = name;
+            professional.firstName = firstName;
             professional.lastName = lastName;
             professional.telephone = telephone;
 

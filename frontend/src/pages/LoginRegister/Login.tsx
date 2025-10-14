@@ -8,6 +8,9 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [remember, setRemember] = useState(true);
+  const [message, setMessage] = useState('');      
+  const [isError, setIsError] = useState(false);   
+  const [isLoading, setIsLoading] = useState(false); 
 
   const eyeIconUrl = new URL("./eyeicon.png", import.meta.url).href; // tengo que hacer esta huevada para que me vea el ojito! podes creer!
   
@@ -16,18 +19,74 @@ export default function Login() {
     const saved = localStorage.getItem("rememberEmail");
     if (saved) setEmail(saved);
   }, []);
+  
+  function handleChange(
+  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
+  const { name, value } = e.target;
+  
+  // Usamos un switch para actualizar la variable de estado correcta
+  switch (name) {
+    case "email":
+      setEmail(value);
+      break;
+    case "password":
+      setPassword(value);
+      break;
+  }
+}
 
-  const onSubmit = (e: React.FormEvent) => {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setMessage('');
+    setIsError(false);
+    setIsLoading(true); 
 
-    // TODO: acá va tu llamada real al supabase
-    if (remember) localStorage.setItem("rememberEmail", email);
-    else localStorage.removeItem("rememberEmail");
+    const endpoint = 'http://localhost:2000/User/login'; 
+    
+    const dataToSend = {
+        mail: email,
+        password: password,
+    };
+    
+    try {
+        
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dataToSend)
+        });
 
-    console.log({ email, password, remember });
+        
+        if (response.ok) {
+            const data = await response.json(); 
+            
+            
+            if (remember) {
+                localStorage.setItem("rememberEmail", email);
+            } else {
+                localStorage.removeItem("rememberEmail");
+            }
+            
+          
+            setMessage("¡Inicio de sesión exitoso!");
+            
+            
+        } else {
+     
+            const errorData = await response.json(); 
+           
+            setMessage(errorData.message || 'Correo o contraseña incorrectos.'); 
+            setIsError(true);
+        }
 
-    // Ej.: navigate("/dashboard");
-  };
+    } catch (error) {
+       
+        setMessage('🚨 Error de conexión: El servidor no está disponible.');
+        setIsError(true);
+    } finally {
+        setIsLoading(false); // Desactivar carga siempre
+    }
+}
 
   return (
     <main className="login">
@@ -56,7 +115,7 @@ export default function Login() {
               className="input__control"
               placeholder="ejemplo: psico@narrativas.com.ar"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={handleChange}
               autoComplete="email"
               required
             />
@@ -76,7 +135,7 @@ export default function Login() {
               className="input__control"
               placeholder="•••••••••"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={handleChange}
               autoComplete="current-password"
               required
             />

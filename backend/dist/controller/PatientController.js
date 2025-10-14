@@ -38,8 +38,17 @@ class PatientController {
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const healthInsurance = await em.findOne(HealthInsurance_1.HealthInsurance, { id: healthInsuranceId }) ?? undefined;
+            // Convertir el ID de la Obra Social a número ANTES de la búsqueda
+            const idNum = Number(healthInsuranceId);
+            // Opcional: Si la conversión falló (ej., enviaron texto), idNum será NaN.
+            if (isNaN(idNum) || idNum === 0) {
+                // En lugar de NotFoundError, lanza un error de validación si es 0 o inválido
+                throw new Error('El ID de Obra Social es inválido.');
+            }
+            // Usamos el ID NUMÉRICO para la búsqueda
+            const healthInsurance = await em.findOne(HealthInsurance_1.HealthInsurance, { id: Number(idNum) }) ?? undefined;
             if (!healthInsurance) {
+                // Ahora, solo si el ID existe pero no corresponde a ninguna fila válida
                 throw new BaseHttpError_1.NotFoundError("Obra social");
             }
             const patient = new Patient_1.Patient(firstName, lastName, birthdate, healthInsurance, telephone);

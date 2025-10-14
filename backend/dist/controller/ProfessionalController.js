@@ -14,8 +14,8 @@ class ProfessionalController {
         res.send('Soy el controlador de profesional!');
     }
     static async addProfessional(req, res) {
-        const { name, lastName, telephone, mail, password, occupationId } = req.body;
-        if (!name) {
+        const { firstName, lastName, telephone, mail, password, occupationId } = req.body;
+        if (!firstName) {
             return res.status(400).json({ message: 'Se requiere el nombre del profesional' });
         }
         if (!lastName) {
@@ -41,7 +41,7 @@ class ProfessionalController {
             }
             //Atencion a todo este segmento de código porque asi se  crean los usuarios, se persiste
             //solamente el usuario y eso persiste el profesional, ver anotacion de Cascade dentro de la clase usuario
-            const professional = new Professional_1.Professional(name, lastName, telephone, occupation);
+            const professional = new Professional_1.Professional(firstName, lastName, telephone, occupation);
             const profUser = await (0, UserCreationService_1.createUser)(mail, password);
             professional.user = profUser;
             profUser.professional = professional;
@@ -59,11 +59,11 @@ class ProfessionalController {
         }
     }
     static async updateProfessional(req, res) {
-        const { id, name, lastName, telephone } = req.body;
+        const { id, firstName, lastName, telephone } = req.body;
         if (!id) {
             return res.status(400).json({ message: 'Se requiere el id de profesional' });
         }
-        if (!name) {
+        if (!firstName) {
             return res.status(400).json({ message: 'Se requiere el nombre del profesional' });
         }
         if (!lastName) {
@@ -78,7 +78,7 @@ class ProfessionalController {
             if (!professional) {
                 throw new BaseHttpError_1.NotFoundError('Profesional');
             }
-            professional.firstName = name;
+            professional.firstName = firstName;
             professional.lastName = lastName;
             professional.telephone = telephone;
             await em.flush();

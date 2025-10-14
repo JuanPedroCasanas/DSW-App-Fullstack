@@ -21,9 +21,9 @@ export default function Register() {
   // lo estoy poniendo por separado del const [form, setForm] porque por ahora manejamos únicamente el 
   // register de paciente. Es para no romper el código más que nada. Ni idea, funciona.
   const [especialidad, setEspecialidad] = useState(""); 
-  const [healthinsuranceId, setHealthInsurance] = useState("1"); // Valor por defecto para pacientes
+  const [healthinsuranceId, setHealthInsurance] = useState(1); // Valor por defecto para pacientes
   const [dependentForm, setDependentForm] = useState({
-    name: "",
+    firstName: "",
     lastName: "",
     birthdate: "",
     legalGuardianId: ""
@@ -35,13 +35,13 @@ export default function Register() {
     }
   }, [form.rol]);
   useEffect(() => {  if (form.rol !== "paciente") {
-      setHealthInsurance("1");
+      setHealthInsurance(1);
     }
   }, [form.rol]);
   useEffect(() => {
   if (form.rol !== "responsable") {
       setDependentForm({
-        name: "",
+        firstName: "",
         lastName: "",
         birthdate: "",
         legalGuardianId: ""
@@ -96,7 +96,7 @@ export default function Register() {
 
     // 2. MAPEO DE DATOS BASE (DEL USUARIO PRINCIPAL)
     let dataToSend: any = {
-        name: form.nombre,
+        firstName: form.nombre,
         lastName: form.apellido,
         birthdate: form.fechaNacimiento,
         mail: form.email,
@@ -125,7 +125,7 @@ export default function Register() {
             return;
         }
         endpoint = 'http://localhost:2000/Patient/addIndPatient';
-        dataToSend = {...dataToSend, healthinsuranceId: Number(healthinsuranceId) }; 
+        dataToSend = {...dataToSend, healthinsurance: healthinsuranceId }; 
     }
     
     else if (form.rol === 'profesional') {
@@ -148,7 +148,7 @@ export default function Register() {
             return;
         }
         // Validación de datos del paciente dependiente
-        if (!dependentForm.name || !dependentForm.lastName || !dependentForm.birthdate ) {
+        if (!dependentForm.firstName || !dependentForm.lastName || !dependentForm.birthdate ) {
             setMessage("Por favor completa todos los datos del paciente a cargo.");
             setIsError(true);
             setIsLoading(false);
@@ -156,7 +156,7 @@ export default function Register() {
         }
         
         // Adjuntar Obra Social al payload del Responsable Legal
-        dataToSend = {...dataToSend, healthinsuranceId: Number(healthinsuranceId) }; 
+        dataToSend = {...dataToSend, healthinsurance: Number(healthinsuranceId) }; 
 
         // Definir los dos endpoints
         endpoint = 'http://localhost:2000/LegalGuardian/add'; // 1ra petición
@@ -164,7 +164,7 @@ export default function Register() {
 
         // Preparar el payload del dependiente (sin el ID del responsable todavía)
         dependentPayload = {
-            name: dependentForm.name,
+            name: dependentForm.firstName,
             lastName: dependentForm.lastName,
             birthdate: dependentForm.birthdate,
         };
@@ -225,7 +225,8 @@ export default function Register() {
         // 5. LIMPIEZA FINAL (EN CASO DE ÉXITO)
         setForm({ email: "", password: "", confirmPassword: "", nombre: "", apellido: "", fechaNacimiento: "", telefono: "", rol: "" as "" | Role });
         setEspecialidad(""); 
-        setDependentForm({ name: "", lastName: "", birthdate: "", legalGuardianId:""}); // Limpiar dependiente
+        setHealthInsurance(1);
+        setDependentForm({ firstName: "", lastName: "", birthdate: "", legalGuardianId:""}); // Limpiar dependiente
 
     } catch (error) {
         // Error de red
@@ -461,10 +462,10 @@ export default function Register() {
           name="healthInsuranceId"
           className="input__control"
           value={healthinsuranceId} 
-          onChange={(e) => setHealthInsurance(e.target.value)}
+          onChange={(e) => setHealthInsurance(parseInt(e.target.value, 10))}
           required
         >
-          <option value="" disabled>Elegí una obra social</option>
+          <option value="0" disabled>Elegí una obra social</option>
           <option value="1">PARTICULAR</option>
           <option value="2">OSDE</option>
           <option value="3">SWISS MEDICAL</option>
@@ -491,7 +492,7 @@ export default function Register() {
             name="name" 
             className="input__control"
             placeholder="Nombre del paciente"
-            value={dependentForm.name} 
+            value={dependentForm.firstName} 
             onChange={handleDependentChange} // Usamos el handler del dependiente
             required 
         />
