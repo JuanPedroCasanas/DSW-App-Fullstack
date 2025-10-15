@@ -65,7 +65,7 @@ class ModuleController {
             const em = await (0, db_1.getORM)().em.fork();
             // Buscar entidades relacionadas
             const professional = await em.findOne(Professional_1.Professional, { id: professionalId });
-            const consultingRoom = await em.findOne(ConsultingRoom_1.ConsultingRoom, { id: consultingRoomId });
+            const consultingRoom = await em.findOne(ConsultingRoom_1.ConsultingRoom, { idConsultingRoom: consultingRoomId });
             const moduleTypes = await em.findAll(ModuleType_1.ModuleType, { orderBy: { duration: 'DESC' } }); //Los ordeno de mayor a menor para hacer un calculo posterior
             if (!professional || !professional?.isActive) {
                 throw new BaseHttpError_1.NotFoundError('Profesional');

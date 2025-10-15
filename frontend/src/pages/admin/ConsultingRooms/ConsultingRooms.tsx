@@ -165,32 +165,34 @@ export default function ConsultingRooms() {
   const [deleteTarget, setDeleteTarget] = useState<ConsultingRoom | null>(null);
   const openDelete = (r: ConsultingRoom) => setDeleteTarget(r);
   const closeDelete = () => setDeleteTarget(null);
-  /*const handleDeleteConfirm = () => {
-    if (!deleteTarget) return;
-    setRooms((prev) => prev.filter((r) => r.idConsultingRoom !== deleteTarget.idConsultingRoom));
-    setDeleteTarget(null);
-    alert("Consultorio eliminado (simulado).");
-  }; */
+
   const handleDeleteConfirm = async () => {
-  if (!deleteTarget) return;
+    if (!deleteTarget) return;
 
-  try {
-    const res = await fetch(
-      `http://localhost:2000/ConsultingRoom/delete/${deleteTarget.idConsultingRoom}`,
-      {
-        method: "DELETE",
-      }
-    );
+    try {
 
-    if (!res.ok) throw new Error("Error al eliminar consultorio");
+      const res = await fetch(
+        `http://localhost:2000/ConsultingRoom/delete/${deleteTarget.idConsultingRoom}`,
+        {
+          method: "DELETE",
+        }
+      );
 
-    setRooms((prev) => prev.filter((r) => r.idConsultingRoom !== deleteTarget.idConsultingRoom));
-    setDeleteTarget(null);
-  } catch (err) {
-    console.error(err);
-    alert("No se pudo eliminar el consultorio.");
-  }
-};
+      if (!res.ok) throw new Error("Error al eliminar consultorio");
+
+
+      // Recargar
+      const resGet = await fetch("http://localhost:2000/ConsultingRoom/getAll");
+      const data: ConsultingRoom[] = await resGet.json();
+      setRooms(data);
+
+      setDeleteTarget(null);
+
+    } catch (err) {
+      console.error(err);
+      alert("No se pudo eliminar el consultorio."); //está tirando este error, o sea es del fornt
+    }
+  };
 
   /* ---- DESCARTAR cambios ---- */
   const [discardCtx, setDiscardCtx] = useState<{ open: boolean; context?: "add" | "edit" }>({

@@ -11,6 +11,6 @@ router.post('/add', ConsultingRoomController_1.ConsultingRoomController.addConsu
 router.post('/update', ConsultingRoomController_1.ConsultingRoomController.updateConsultingRoom);
 router.get('/getAll', ConsultingRoomController_1.ConsultingRoomController.getConsultingRooms);
 router.get('/get/:id', ConsultingRoomController_1.ConsultingRoomController.getConsultingRoom);
-router.delete('/delete/:id', ConsultingRoomController_1.ConsultingRoomController.deleteConsultingRoom);
+router.delete('/delete/:idConsultingRoom', ConsultingRoomController_1.ConsultingRoomController.deleteConsultingRoom);
 exports.default = router;
 //# sourceMappingURL=ConsultingRoomRoutes.js.map

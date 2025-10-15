@@ -38,7 +38,7 @@ class ConsultingRoomController {
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const consultingRoom = await em.findOne(ConsultingRoom_1.ConsultingRoom, { id: idConsultingRoom });
+            const consultingRoom = await em.findOne(ConsultingRoom_1.ConsultingRoom, { idConsultingRoom: idConsultingRoom });
             if (!consultingRoom) {
                 throw new BaseHttpError_1.NotFoundError('Consultorio');
             }
@@ -63,7 +63,7 @@ class ConsultingRoomController {
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const consultingRoom = await em.findOne(ConsultingRoom_1.ConsultingRoom, { id: id });
+            const consultingRoom = await em.findOne(ConsultingRoom_1.ConsultingRoom, { idConsultingRoom: id });
             if (!consultingRoom) {
                 throw new BaseHttpError_1.NotFoundError('Consultorio');
             }
@@ -91,16 +91,18 @@ class ConsultingRoomController {
         }
     }
     static async deleteConsultingRoom(req, res) {
-        const id = Number(req.params.idConsultingRoom);
-        if (!id) {
+        const idConsultingRoom = Number(req.params.idConsultingRoom);
+        console.log("ID recibido para eliminar:", idConsultingRoom); // para debuguear
+        if (!idConsultingRoom) {
             return res.status(400).json({ message: 'Se requiere una id de consultorio' });
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const consultingRoom = await em.findOne(ConsultingRoom_1.ConsultingRoom, { id: id });
+            const consultingRoom = await em.findOne(ConsultingRoom_1.ConsultingRoom, { idConsultingRoom: idConsultingRoom });
             if (!consultingRoom) {
                 throw new BaseHttpError_1.NotFoundError('Consultorio');
             }
+            consultingRoom.isActive = false;
             const consultingRoomModules = await em.find(Module_1.Module, { consultingRoom: consultingRoom });
             //Se cancelan todos los modulos asociados al consultorio y por ende todos los turnos asociados a cada modulo asociado al consultorio
             if (consultingRoomModules.length != 0) {
@@ -113,6 +115,7 @@ class ConsultingRoomController {
                 }
             }
             await em.flush();
+            return res.status(200).json({ message: "Consultorio eliminado correctamente" });
         }
         catch (error) {
             console.error(error);

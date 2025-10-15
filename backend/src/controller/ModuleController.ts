@@ -88,7 +88,7 @@ export default class ModuleController  {
 
             // Buscar entidades relacionadas
             const professional = await em.findOne(Professional, { id: professionalId });
-            const consultingRoom = await em.findOne(ConsultingRoom, { id: consultingRoomId });
+            const consultingRoom = await em.findOne(ConsultingRoom, { idConsultingRoom: consultingRoomId });
             const moduleTypes = await em.findAll(ModuleType, { orderBy: { duration: 'DESC' } }); //Los ordeno de mayor a menor para hacer un calculo posterior
 
 

@@ -23,7 +23,6 @@ export const startingCode = async () => {
         this.body = body;
         this.params = params;
     }
-    
     }
 
     class FakeResponse {
@@ -60,8 +59,6 @@ export const startingCode = async () => {
     await em.flush();
 
     //Agrego consultorios
-
-
     let req = new FakeRequest({
         description: 'Consultorio 1'
     });
@@ -122,7 +119,7 @@ export const startingCode = async () => {
 
     //PROFESIONALES
     req = new FakeRequest({
-       firstName: 'Pablo',
+       name: 'Pablo',
        lastName: 'Marmol',
        telephone: '1111',
        mail: 'kukatrap@gmail.com',
@@ -132,7 +129,7 @@ export const startingCode = async () => {
     await ProfessionalController.addProfessional(req as any, res as any);
 
     req = new FakeRequest({
-       firstName: 'Pedro',
+       name: 'Pedro',
        lastName: 'Picapiedra',
        telephone: '1111',
        mail: 'pepe@gmail.com',
@@ -177,7 +174,7 @@ export const startingCode = async () => {
 
     //RESPONSABLE LEGAL
     req = new FakeRequest({
-        "firstName": "Moncho",
+        "name": "Moncho",
         "lastName": "Lopez",
         "birthdate": "1990-07-21",
         "password": UNI_PASSWORD,
@@ -190,7 +187,7 @@ export const startingCode = async () => {
 
     //PACIENTES
     req = new FakeRequest({
-        "firstName": "Lucía",
+        "name": "Lucía",
         "lastName": "Fernández",
         "birthdate": "1993-07-21",
         "password": UNI_PASSWORD,
@@ -202,7 +199,7 @@ export const startingCode = async () => {
     await PatientController.addIndependentPatient(req as any, res as any);
 
     req = new FakeRequest({
-        "firstName": "Mini",
+        "name": "Mini",
         "lastName": "ME",
         "birthdate": "2010-07-21",
         "legalGuardianId": 1

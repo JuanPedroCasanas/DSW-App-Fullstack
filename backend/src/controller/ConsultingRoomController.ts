@@ -49,7 +49,7 @@ export class ConsultingRoomController {
 
         try {
             const em = await getORM().em.fork();
-            const consultingRoom = await em.findOne(ConsultingRoom, { id: idConsultingRoom });
+            const consultingRoom = await em.findOne(ConsultingRoom, { idConsultingRoom: idConsultingRoom });
 
             if(!consultingRoom)
             {
@@ -81,7 +81,7 @@ export class ConsultingRoomController {
 
         try {
             const em = await getORM().em.fork();
-            const consultingRoom = await em.findOne(ConsultingRoom, { id: id });
+            const consultingRoom = await em.findOne(ConsultingRoom, { idConsultingRoom: id });
             if (!consultingRoom) {
                 throw new NotFoundError('Consultorio');
             }
@@ -109,18 +109,23 @@ export class ConsultingRoomController {
     }
 
     static async deleteConsultingRoom(req: Request, res: Response) {
-        const id = Number(req.params.idConsultingRoom);
-        if (!id) {
+        const idConsultingRoom = Number(req.params.idConsultingRoom);
+
+        console.log("ID recibido para eliminar:", idConsultingRoom); // para debuguear
+
+        if (!idConsultingRoom) {
             return res.status(400).json({ message: 'Se requiere una id de consultorio' });
         }
         try {
 
             const em = await getORM().em.fork();
-            const consultingRoom = await em.findOne(ConsultingRoom, { id: id });
+            const consultingRoom = await em.findOne(ConsultingRoom, { idConsultingRoom: idConsultingRoom });
 
             if (!consultingRoom) {
                 throw new NotFoundError('Consultorio')
             }
+            
+            consultingRoom.isActive = false;
 
             const consultingRoomModules = await em.find(Module, { consultingRoom : consultingRoom })
 
@@ -136,8 +141,9 @@ export class ConsultingRoomController {
                     }
                 }
             }
-
+            
             await em.flush();
+            return res.status(200).json({ message: "Consultorio eliminado correctamente" });
 
         } catch (error) {
             console.error(error);
