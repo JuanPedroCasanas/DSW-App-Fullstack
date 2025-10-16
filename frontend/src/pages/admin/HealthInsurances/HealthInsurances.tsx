@@ -4,30 +4,40 @@ import "./healthInsurances.css";
 /** Modelo simple: viene del backend */
 type HealthInsurance = {
   id: string;
-  nombre: string;
+  name: string;
+  isActive: boolean;
 };
 
-/* ---- Utils (mismo approach que en ConsultingRooms) ---- */
-const uid = () => Math.random().toString(36).slice(2, 10);
+/* ---- Utils  ---- */
+//const uid = () => Math.random().toString(36).slice(2, 10);
 const sameJSON = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 const validateHI = (h: Partial<HealthInsurance>) => {
   const errors: Record<string, string> = {};
-  if (!h.nombre?.trim()) errors.nombre = "Nombre obligatorio.";
+  if (!h.name?.trim()) errors.name = "Nombre obligatorio.";
   return errors;
 };
 
 export default function HealthInsurances() {
+
   /* Estado principal: arrancamos vacío para mostrar el estado vacío */
   const [items, setItems] = useState<HealthInsurance[]>([]);
 
-  /* Si querés simular data rápida, descomentá: */
+  /* VER TODAS */
   useEffect(() => {
-    setItems([
-      { id: "1", nombre: "OSDE" },
-      { id: "2", nombre: "Swiss Medical" },
-    ]);
-  }, []);
-  
+  (async () => {
+    try {
+
+      const res = await fetch("http://localhost:2000/HealthInsurance/getAll");
+      if (!res.ok) throw new Error("Error al cargar obras sociales");
+      const data: HealthInsurance[] = await res.json();
+      setItems(data);
+
+    } catch (e) {
+      console.error(e);
+      alert("No pude cargar las obras sociales.");
+    }
+  })();
+}, []);
 
   /* --- Integración backend (placeholder) ---
      Reemplazá la URL y el shape según tu API. */
@@ -40,15 +50,15 @@ export default function HealthInsurances() {
   //   })();
   // }, []);
 
-  /* ---- Agregar (2 pasos + dirty-check) ---- */
+  /* ---- Agregar ---- */
   const [showAdd, setShowAdd] = useState(false);
   const [addStep, setAddStep] = useState<"form" | "confirm">("form");
-  const [addForm, setAddForm] = useState<Partial<HealthInsurance>>({ nombre: "" });
+  const [addForm, setAddForm] = useState<Partial<HealthInsurance>>({ name: "" });
   const [addSnapshot, setAddSnapshot] = useState<Partial<HealthInsurance> | null>(null);
   const addErrors = useMemo(() => validateHI(addForm), [addForm]);
 
   const openAdd = () => {
-    const initial = { nombre: "" };
+    const initial = { name: "" };
     setAddForm(initial);
     setAddSnapshot(initial);
     setAddStep("form");
@@ -60,22 +70,47 @@ export default function HealthInsurances() {
     if (dirty) setDiscardCtx({ open: true, context: "add" });
     else closeAdd();
   };
+
   const handleAddContinue = (e: React.FormEvent) => {
     e.preventDefault();
     if (Object.keys(addErrors).length) return;
     setAddStep("confirm");
   };
+
   const handleAddConfirm = () => {
-    const nuevo: HealthInsurance = {
-      id: uid(), // en real, lo devuelve el backend
-      nombre: (addForm.nombre ?? "").trim(),
-    };
-    setItems((prev) => [...prev, nuevo]);
-    setShowAdd(false);
-    alert("Obra social agregada (simulado).");
+    (async () => {
+        const res = await fetch("http://localhost:2000/HealthInsurance/add", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: (addForm.name ?? "").trim() }),
+        });
+
+        const resJson = await res.json();
+      
+        // Recargar
+        const resGet = await fetch("http://localhost:2000/HealthInsurance/getAll");
+        const data: HealthInsurance[] = await resGet.json();
+        setItems(data);
+
+       setShowAdd(false);
+        
+       if (res.ok) {
+        alert(resJson.healthInsurance.name);
+        } else {
+          if (res.status == 500 || res.status == 400) {
+            alert(resJson.message);
+          } else {
+            alert(resJson.error);
+            alert(resJson.code);
+            alert(resJson.message);
+          }
+        }
+       //alert(`${resJson.message},${resJson.healthInsurance.id}`);
+
+    })();
   };
 
-  /* ---- Editar (2 pasos + dirty-check) ---- */
+  /* ---- Editar ---- */
   const [editTarget, setEditTarget] = useState<HealthInsurance | null>(null);
   const [editStep, setEditStep] = useState<"form" | "confirm">("form");
   const [editForm, setEditForm] = useState<Partial<HealthInsurance>>({});
@@ -83,7 +118,7 @@ export default function HealthInsurances() {
   const editErrors = useMemo(() => validateHI(editForm), [editForm]);
 
   const openEdit = (h: HealthInsurance) => {
-    const initial = { nombre: h.nombre };
+    const initial = { name: h.name };
     setEditTarget(h);
     setEditForm(initial);
     setEditSnapshot(initial);
@@ -104,14 +139,42 @@ export default function HealthInsurances() {
     if (Object.keys(editErrors).length) return;
     setEditStep("confirm");
   };
+
   const handleEditConfirm = () => {
-    if (!editTarget) return;
-    setItems((prev) =>
-      prev.map((h) => (h.id === editTarget.id ? { ...h, nombre: (editForm.nombre ?? "").trim() } : h))
-    );
-    closeEdit();
-    alert("Obra social actualizada (simulado).");
-  };
+  if (!editTarget) return;
+  (async () => {
+      const payload = {
+          id: editTarget.id, 
+          name: (editForm.name ?? "").trim() };
+      const res = await fetch("http://localhost:2000/HealthInsurance/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const resJson = await res.json();
+
+      // Refrescamos localmente
+      setItems((prev) =>
+        prev.map((h) => (h.id === editTarget.id ? { ...h, name: payload.name } : h))
+      );
+
+      closeEdit();
+
+      if (res.ok) {
+        alert(resJson.healthInsurance.name);
+        } else {
+          if (res.status == 500 || res.status == 400) {
+            alert(resJson.message);
+          } else {
+            alert(resJson.error);
+            alert(resJson.code);
+            alert(resJson.message);
+          }
+        }
+
+  })();
+};
 
   /* ---- Eliminar (confirmación simple) ---- */
   const [deleteTarget, setDeleteTarget] = useState<HealthInsurance | null>(null);
@@ -119,10 +182,31 @@ export default function HealthInsurances() {
   const closeDelete = () => setDeleteTarget(null);
   const handleDeleteConfirm = () => {
     if (!deleteTarget) return;
-    setItems((prev) => prev.filter((h) => h.id !== deleteTarget.id));
-    setDeleteTarget(null);
-    alert("Obra social eliminada (simulado).");
+    (async () => {
+      try {
+        // http://localhost:2000/ConsultingRoom/delete/${deleteTarget.idConsultingRoom}`
+        const res = await fetch(
+          `http://localhost:2000/HealthInsurance/delete/${deleteTarget.id}`, 
+          {
+            method: "DELETE",
+        });
+
+        if (!res.ok) throw new Error(await res.text());
+
+      // Recargar
+      const resGet = await fetch("http://localhost:2000/HealthInsurance/getAll");
+      const data: HealthInsurance[] = await resGet.json();
+      setItems(data);
+
+      setDeleteTarget(null);
+
+      } catch (e) {
+        console.error(e);
+        alert("No se pudo eliminar.");
+      }
+    })();
   };
+
 
   /* ---- Modal: DESCARTAR cambios ---- */
   const [discardCtx, setDiscardCtx] = useState<{ open: boolean; context?: "add" | "edit" }>({
@@ -187,7 +271,7 @@ export default function HealthInsurances() {
                 {items.map((h) => (
                   <tr key={h.id}>
                     <td data-label="ID">{h.id}</td>
-                    <td data-label="Nombre">{h.nombre}</td>
+                    <td data-label="Nombre">{h.name}</td>
                     <td className="hi-actions">
                       <button
                         type="button"
@@ -240,13 +324,13 @@ export default function HealthInsurances() {
                     <input
                       id="add-nombre"
                       type="text"
-                      value={addForm.nombre ?? ""}
-                      onChange={(e) => setAddForm((f) => ({ ...f, nombre: e.target.value }))}
-                      aria-invalid={!!addErrors.nombre}
-                      aria-describedby={addErrors.nombre ? "add-nombre-err" : undefined}
+                      value={addForm.name ?? ""}
+                      onChange={(e) => setAddForm((f) => ({ ...f, name: e.target.value }))}
+                      aria-invalid={!!addErrors.name}
+                      aria-describedby={addErrors.name ? "add-nombre-err" : undefined}
                     />
-                    {addErrors.nombre && (
-                      <p className="hi-error" id="add-nombre-err">{addErrors.nombre}</p>
+                    {addErrors.name && (
+                      <p className="hi-error" id="add-nombre-err">{addErrors.name}</p>
                     )}
                   </div>
                   <div className="hi-modal-actions">
@@ -264,7 +348,7 @@ export default function HealthInsurances() {
                 <h2 id="hi-add-title">Confirmar nueva obra social</h2>
                 <p id="hi-add-desc">Revisá que los datos sean correctos.</p>
                 <ul className="hi-summary">
-                  <li><strong>Nombre:</strong> {addForm.nombre}</li>
+                  <li><strong>Nombre:</strong> {addForm.name}</li>
                 </ul>
                 <div className="hi-modal-actions">
                   <button type="button" className="ui-btn ui-btn--outline" onClick={() => setAddStep("form")}>
@@ -301,13 +385,13 @@ export default function HealthInsurances() {
                     <input
                       id="edit-nombre"
                       type="text"
-                      value={editForm.nombre ?? ""}
-                      onChange={(e) => setEditForm((f) => ({ ...f, nombre: e.target.value }))}
-                      aria-invalid={!!editErrors.nombre}
-                      aria-describedby={editErrors.nombre ? "edit-nombre-err" : undefined}
+                      value={editForm.name ?? ""}
+                      onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+                      aria-invalid={!!editErrors.name}
+                      aria-describedby={editErrors.name ? "edit-nombre-err" : undefined}
                     />
-                    {editErrors.nombre && (
-                      <p className="hi-error" id="edit-nombre-err">{editErrors.nombre}</p>
+                    {editErrors.name && (
+                      <p className="hi-error" id="edit-nombre-err">{editErrors.name}</p>
                     )}
                   </div>
                   <div className="hi-modal-actions">
@@ -326,7 +410,7 @@ export default function HealthInsurances() {
                 <p id="hi-edit-desc">Verificá los datos editados.</p>
                 <ul className="hi-summary">
                   <li><strong>ID:</strong> {editTarget?.id}</li>
-                  <li><strong>Nombre:</strong> {editForm.nombre}</li>
+                  <li><strong>Nombre:</strong> {editForm.name}</li>
                 </ul>
                 <div className="hi-modal-actions">
                   <button type="button" className="ui-btn ui-btn--outline" onClick={() => setEditStep("form")}>
@@ -355,7 +439,7 @@ export default function HealthInsurances() {
           >
             <h2 id="hi-del-title">Eliminar obra social</h2>
             <p id="hi-del-desc">
-              ¿Estás segura/o de eliminar <strong>{deleteTarget.nombre}</strong>?
+              ¿Estás segura/o de eliminar <strong>{deleteTarget.name}</strong>?
             </p>
             <div className="hi-modal-actions">
               <button type="button" className="ui-btn ui-btn--outline" onClick={closeDelete}>

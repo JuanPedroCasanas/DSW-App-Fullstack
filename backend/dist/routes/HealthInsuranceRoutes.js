@@ -9,7 +9,7 @@ const router = express_1.default.Router();
 router.get('/', HealthInsuranceController_1.HealthInsuranceController.home);
 router.post('/add', HealthInsuranceController_1.HealthInsuranceController.addHealthInsurance);
 router.post('/update', HealthInsuranceController_1.HealthInsuranceController.updateHealthInsurance);
-//router.get('/getAll', HealthInsuranceController.getHealthInsurance);
+router.get('/getAll', HealthInsuranceController_1.HealthInsuranceController.getAllHealthInsurances);
 router.get('/get/:id', HealthInsuranceController_1.HealthInsuranceController.getHealthInsurance);
 router.delete('/delete/:id', HealthInsuranceController_1.HealthInsuranceController.deleteHealthInsurance);
 exports.default = router;

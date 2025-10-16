@@ -24,7 +24,7 @@ const PatientRoutes_1 = __importDefault(require("./routes/PatientRoutes"));
 const ProfessionalRoutes_1 = __importDefault(require("./routes/ProfessionalRoutes"));
 const LegalGuardianRoutes_1 = __importDefault(require("./routes/LegalGuardianRoutes"));
 const UserRoutes_1 = __importDefault(require("./routes/UserRoutes"));
-const startingCode_1 = require("./startingCode");
+const HealthInsuranceRoutes_1 = __importDefault(require("./routes/HealthInsuranceRoutes"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
@@ -47,13 +47,14 @@ app.use('/Patient', PatientRoutes_1.default);
 app.use('/User', UserRoutes_1.default);
 app.use('/Professional', ProfessionalRoutes_1.default);
 app.use('/LegalGuardian', LegalGuardianRoutes_1.default);
+app.use('/HealthInsurance', HealthInsuranceRoutes_1.default);
 app.use((_, res) => {
     return res.status(404).send({ message: 'Resource not found' });
 });
 async function start() {
     await (0, db_1.initORM)();
-    await (0, db_1.syncSchema)(); // ⚠️Don't use this in production
-    await (0, startingCode_1.startingCode)(); //SACAR EN PRODUCCION
+    //await syncSchema(); // ⚠️Don't use this in production resetea la bddddd
+    //await startingCode(); //SACAR EN PRODUCCION
     app.listen(port, () => {
         console.log(`App listening on http://localhost:${port}`);
     });

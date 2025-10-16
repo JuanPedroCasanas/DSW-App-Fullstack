@@ -23,6 +23,8 @@ import PatientRoutes from './routes/PatientRoutes';
 import ProfessionalRoutes from './routes/ProfessionalRoutes';
 import LegalGuardianRoutes from './routes/LegalGuardianRoutes';
 import UserRoutes from './routes/UserRoutes'
+import HealthInsuranceRoutes from './routes/HealthInsuranceRoutes';
+
 import { startingCode } from './startingCode';
 
 const app = express();
@@ -50,6 +52,7 @@ app.use('/Patient', PatientRoutes);
 app.use('/User', UserRoutes);
 app.use('/Professional', ProfessionalRoutes);
 app.use('/LegalGuardian', LegalGuardianRoutes);
+app.use('/HealthInsurance', HealthInsuranceRoutes);
 
 
 
@@ -60,7 +63,7 @@ app.use((_, res) => {
 
 async function start() {
   await initORM();
-  await syncSchema(); // ⚠️Don't use this in production
+  await syncSchema(); // ⚠️Don't use this in production resetea la bddddd
   await startingCode(); //SACAR EN PRODUCCION
   app.listen(port, () => {
     console.log(`App listening on http://localhost:${port}`);

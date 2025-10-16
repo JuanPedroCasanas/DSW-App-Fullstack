@@ -17,12 +17,12 @@ export class HealthInsuranceController {
         }
         try {
         const em = await getORM().em.fork(); 
-        const healthinsurance = new HealthInsurance(name);
-        await em.persistAndFlush(healthinsurance);
-            res.status(201).json({ message: 'Obra social añadida: ', healthinsurance });
+        const healthInsurance = new HealthInsurance(name);
+        await em.persistAndFlush(healthInsurance);
+            return res.status(201).json({ message: 'Obra social añadida: ', healthInsurance });
         } catch (error: any) {
             console.error(error);
-            res.status(500).json({ message: 'Error al añadir obra social' });
+            return res.status(500).json({ message: 'Error al añadir obra social' });
         }
     }
     
@@ -39,14 +39,17 @@ export class HealthInsuranceController {
         }
         try {
 
-        const em = await getORM().em.fork();
-        const healthinsurance = await em.findOne(HealthInsurance, { id: id});
+            const em = await getORM().em.fork();
 
-        if (!healthinsurance) {
-            throw new NotFoundError('Obra Social');
-        }
+            const healthInsurance = await em.findOne(HealthInsurance, { id: id});
 
-        res.status(200).json({ message: 'Obra social actualizada: ', healthinsurance });
+           if (!healthInsurance) {
+                throw new NotFoundError('Obra Social');
+            }
+           
+            healthInsurance.name = name;
+            await em.flush();
+            return res.status(200).json({ message: 'Obra social actualizada: ', healthInsurance });
 
         } catch (error) {
             console.error(error);
@@ -54,7 +57,7 @@ export class HealthInsuranceController {
                 return res.status(error.status).json(error.toJSON());
             }
             else {
-                res.status(500).json({ message: 'Error al actualizar Obra Social' });
+                return res.status(500).json({ message: 'Error al actualizar Obra Social' });
             }
         }
     }
@@ -67,35 +70,37 @@ export class HealthInsuranceController {
         }
         try {
             const em = await getORM().em.fork();
-            const healthinsurance = await em.findOne(HealthInsurance, { id: id });
-            if (!healthinsurance) {
+            const healthInsurance = await em.findOne(HealthInsurance, { id: id });
+            if (!healthInsurance) {
                 throw new NotFoundError('Obra Social');
             }
-            res.json(healthinsurance);
+            return res.status(200).json(healthInsurance);
+
         } catch (error) {
             console.error(error);
             if (error instanceof BaseHttpError) {
                 return res.status(error.status).json(error.toJSON());
             }
             else {
-                res.status(500).json({ message: 'Error al buscar Obra Social' });
+                return res.status(500).json({ message: 'Error al buscar Obra Social' });
             }
         }
     }
 
-    static async getHealthInsurances(reque: Request, res: Response) {
+    static async getAllHealthInsurances(req: Request, res: Response) {
         try {
             const em = await getORM().em.fork();
-            const healthinsurances = await em.findAll(HealthInsurance);
-            res.json(healthinsurances);
+            const healthInsurances = await em.findAll(HealthInsurance);
+            return res.status(200).json(healthInsurances);
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Error al buscar Obras Sociales' });
+            return res.status(500).json({ message: 'Error al buscar Obras Sociales' });
         }
     }
 
     static async deleteHealthInsurance(req: Request, res: Response) {
         const id = Number(req.params.id);
+
         if (!id) {
             return res.status(400).json({ message: 'Se requiere un id de obra social' });
         }
@@ -108,14 +113,18 @@ export class HealthInsuranceController {
             }
 
             healthInsurance.isActive = false; //No cascadeamos los resultados porque sería demasiado, en el negocio se arreglaria entre paciente y prof
-            res.json(healthInsurance);
+
+            await em.flush();
+
+            return res.status(200).json({ message: 'Obra social eliminada ', healthInsurance }); 
+
         } catch (error) {
             console.error(error);
             if (error instanceof BaseHttpError) {
                 return res.status(error.status).json(error.toJSON());
             }
             else {
-                res.status(500).json({ message: 'Error al eliminar Obra Social' });
+                return res.status(500).json({ message: 'Error al eliminar Obra Social' });
             }
         }
     }

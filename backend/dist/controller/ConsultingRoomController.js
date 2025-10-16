@@ -92,7 +92,6 @@ class ConsultingRoomController {
     }
     static async deleteConsultingRoom(req, res) {
         const idConsultingRoom = Number(req.params.idConsultingRoom);
-        console.log("ID recibido para eliminar:", idConsultingRoom); // para debuguear
         if (!idConsultingRoom) {
             return res.status(400).json({ message: 'Se requiere una id de consultorio' });
         }
@@ -115,7 +114,7 @@ class ConsultingRoomController {
                 }
             }
             await em.flush();
-            return res.status(200).json({ message: "Consultorio eliminado correctamente" });
+            return res.status(200).json({ message: "Consultorio eliminado correctamente", consultingRoom });
         }
         catch (error) {
             console.error(error);
