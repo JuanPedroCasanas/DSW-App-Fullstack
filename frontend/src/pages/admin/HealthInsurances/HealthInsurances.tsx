@@ -39,16 +39,6 @@ export default function HealthInsurances() {
   })();
 }, []);
 
-  /* --- Integración backend (placeholder) ---
-     Reemplazá la URL y el shape según tu API. */
-  // useEffect(() => {
-  //   (async () => {
-  //     const res = await fetch("/api/health-insurances");
-  //     if (!res.ok) return;
-  //     const data: HealthInsurance[] = await res.json();
-  //     setItems(data);
-  //   })();
-  // }, []);
 
   /* ---- Agregar ---- */
   const [showAdd, setShowAdd] = useState(false);
@@ -264,6 +254,7 @@ export default function HealthInsurances() {
                 <tr>
                   <th>ID</th>
                   <th>Nombre</th>
+                  <th>Activo</th>
                   <th className="hi-col-actions">Acciones</th>
                 </tr>
               </thead>
@@ -272,6 +263,7 @@ export default function HealthInsurances() {
                   <tr key={h.id}>
                     <td data-label="ID">{h.id}</td>
                     <td data-label="Nombre">{h.name}</td>
+                    <td data-label="Activo">{h.isActive ? "Sí" : "No"}</td>
                     <td className="hi-actions">
                       <button
                         type="button"

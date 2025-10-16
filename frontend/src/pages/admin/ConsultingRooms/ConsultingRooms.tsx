@@ -251,6 +251,7 @@ export default function ConsultingRooms() {
                 <tr>
                   <th>ID</th>
                   <th>Descripción</th>
+                  <th>Activo</th>
                   <th className="cr-col-actions">Acciones</th>
                 </tr>
               </thead>
@@ -259,6 +260,7 @@ export default function ConsultingRooms() {
                   <tr key={r.idConsultingRoom}>
                     <td data-label="ID">{r.idConsultingRoom}</td>
                     <td data-label="Descripción">{r.description}</td>
+                    <td data-label="Activo">{r.isActive ? "Sí" : "No"}</td>
                     <td className="cr-actions">
                       <button
                         type="button"

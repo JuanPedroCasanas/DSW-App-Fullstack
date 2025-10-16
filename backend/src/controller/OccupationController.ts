@@ -98,14 +98,17 @@ export class OccupationController {
 
     static async getOccupations(req: Request, res: Response) {
         try {
+
             const em = await getORM().em.fork();
-            const occupations = await em.find(Occupation, {});
-            res.json(occupations);
+            const occupations = await em.findAll(Occupation);
+            return res.status(200).json(occupations);
+
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: 'Error al buscar especialidades' });
         }
     }
+
 
     static async deleteOccupation(req: Request, res: Response) {
         const id = Number(req.params.id);

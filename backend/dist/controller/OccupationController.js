@@ -80,8 +80,8 @@ class OccupationController {
     static async getOccupations(req, res) {
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const occupations = await em.find(Occupation_1.Occupation, {});
-            res.json(occupations);
+            const occupations = await em.findAll(Occupation_1.Occupation);
+            return res.status(200).json(occupations);
         }
         catch (error) {
             console.error(error);

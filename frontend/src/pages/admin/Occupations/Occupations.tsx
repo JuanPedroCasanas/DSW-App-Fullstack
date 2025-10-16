@@ -4,7 +4,7 @@ import "./occupations.css";
 /** Modelo simple: viene del backend */
 type Occupation = {
   id: string;
-  nombre: string;
+  name: string;
 };
 
 /* ---- Utils ---- */
@@ -12,7 +12,7 @@ const uid = () => Math.random().toString(36).slice(2, 10);
 const sameJSON = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 const validateOcc = (o: Partial<Occupation>) => {
   const errors: Record<string, string> = {};
-  if (!o.nombre?.trim()) errors.nombre = "Nombre obligatorio.";
+  if (!o.name?.trim()) errors.name = "Nombre obligatorio.";
   return errors;
 };
 
@@ -21,35 +21,46 @@ export default function Occupations() {
   /* Estado principal: vacío para mostrar el estado vacío */
   const [items, setItems] = useState<Occupation[]>([]);
 
-  /* hardcodeados: */
+  /* hardcodeados: 
   useEffect(() => {
     setItems([
       { id: "1", nombre: "Psicologia" },
       { id: "2", nombre: "Psicopedagogia" },
     ]);
-  }, []);
+  }, []); */ 
   
 
-  /* --- Integración backend (placeholder) ---
-     Reemplazá la URL y el shape según tu API. */
-  // useEffect(() => {
-  //   (async () => {
-  //     const res = await fetch("/api/occupations");
-  //     if (!res.ok) return;
-  //     const data: Occupation[] = await res.json();
-  //     setItems(data);
-  //   })();
-  // }, []);
+   /* VER TODAS */
+   useEffect(() => {
+   (async () => {
+ 
+       const res = await fetch("http://localhost:2000/Occupation/getAll");
+      
+       const resJson = await res.json();
 
+       const data: Occupation[] = await res.json();
+       setItems(data);
+
+       if (res.ok) {
+         alert(resJson.occupation.name);
+        } else {
+          if (res.status == 500) {
+            alert(resJson.message);
+          } 
+        }   
+
+   })();
+ }, []);
+ 
   /* ---- Agregar ---- */
   const [showAdd, setShowAdd] = useState(false);
   const [addStep, setAddStep] = useState<"form" | "confirm">("form");
-  const [addForm, setAddForm] = useState<Partial<Occupation>>({ nombre: "" });
+  const [addForm, setAddForm] = useState<Partial<Occupation>>({ name: "" });
   const [addSnapshot, setAddSnapshot] = useState<Partial<Occupation> | null>(null);
   const addErrors = useMemo(() => validateOcc(addForm), [addForm]);
 
   const openAdd = () => {
-    const initial = { nombre: "" };
+    const initial = { name: "" };
     setAddForm(initial);
     setAddSnapshot(initial);
     setAddStep("form");
@@ -69,7 +80,7 @@ export default function Occupations() {
   const handleAddConfirm = () => {
     const nuevo: Occupation = {
       id: uid(), // en real, lo devuelve el backend
-      nombre: (addForm.nombre ?? "").trim(),
+      name: (addForm.name ?? "").trim(),
     };
     setItems((prev) => [...prev, nuevo]);
     setShowAdd(false);
@@ -84,7 +95,7 @@ export default function Occupations() {
   const editErrors = useMemo(() => validateOcc(editForm), [editForm]);
 
   const openEdit = (o: Occupation) => {
-    const initial = { nombre: o.nombre };
+    const initial = { name: o.name };
     setEditTarget(o);
     setEditForm(initial);
     setEditSnapshot(initial);
@@ -108,7 +119,7 @@ export default function Occupations() {
   const handleEditConfirm = () => {
     if (!editTarget) return;
     setItems((prev) =>
-      prev.map((o) => (o.id === editTarget.id ? { ...o, nombre: (editForm.nombre ?? "").trim() } : o))
+      prev.map((o) => (o.id === editTarget.id ? { ...o, name: (editForm.name ?? "").trim() } : o))
     );
     closeEdit();
     alert("Especialidad actualizada (simulado).");
@@ -190,7 +201,7 @@ export default function Occupations() {
                 {items.map((o) => (
                   <tr key={o.id}>
                     <td data-label="ID">{o.id}</td>
-                    <td data-label="Nombre">{o.nombre}</td>
+                    <td data-label="Nombre">{o.name}</td>
                     <td className="oc-actions">
                       <button
                         type="button"
@@ -243,13 +254,13 @@ export default function Occupations() {
                     <input
                       id="add-nombre"
                       type="text"
-                      value={addForm.nombre ?? ""}
-                      onChange={(e) => setAddForm((f) => ({ ...f, nombre: e.target.value }))}
-                      aria-invalid={!!addErrors.nombre}
-                      aria-describedby={addErrors.nombre ? "add-nombre-err" : undefined}
+                      value={addForm.name ?? ""}
+                      onChange={(e) => setAddForm((f) => ({ ...f, name: e.target.value }))}
+                      aria-invalid={!!addErrors.name}
+                      aria-describedby={addErrors.name ? "add-nombre-err" : undefined}
                     />
-                    {addErrors.nombre && (
-                      <p className="oc-error" id="add-nombre-err">{addErrors.nombre}</p>
+                    {addErrors.name && (
+                      <p className="oc-error" id="add-nombre-err">{addErrors.name}</p>
                     )}
                   </div>
                   <div className="oc-modal-actions">
@@ -267,7 +278,7 @@ export default function Occupations() {
                 <h2 id="oc-add-title">Confirmar nueva especialidad</h2>
                 <p id="oc-add-desc">Revisá que los datos sean correctos.</p>
                 <ul className="oc-summary">
-                  <li><strong>Nombre:</strong> {addForm.nombre}</li>
+                  <li><strong>Nombre:</strong> {addForm.name}</li>
                 </ul>
                 <div className="oc-modal-actions">
                   <button type="button" className="ui-btn ui-btn--outline" onClick={() => setAddStep("form")}>
@@ -304,13 +315,13 @@ export default function Occupations() {
                     <input
                       id="edit-nombre"
                       type="text"
-                      value={editForm.nombre ?? ""}
-                      onChange={(e) => setEditForm((f) => ({ ...f, nombre: e.target.value }))}
-                      aria-invalid={!!editErrors.nombre}
-                      aria-describedby={editErrors.nombre ? "edit-nombre-err" : undefined}
+                      value={editForm.name ?? ""}
+                      onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+                      aria-invalid={!!editErrors.name}
+                      aria-describedby={editErrors.name ? "edit-nombre-err" : undefined}
                     />
-                    {editErrors.nombre && (
-                      <p className="oc-error" id="edit-nombre-err">{editErrors.nombre}</p>
+                    {editErrors.name && (
+                      <p className="oc-error" id="edit-nombre-err">{editErrors.name}</p>
                     )}
                   </div>
                   <div className="oc-modal-actions">
@@ -329,7 +340,7 @@ export default function Occupations() {
                 <p id="oc-edit-desc">Verificá los datos editados.</p>
                 <ul className="oc-summary">
                   <li><strong>ID:</strong> {editTarget?.id}</li>
-                  <li><strong>Nombre:</strong> {editForm.nombre}</li>
+                  <li><strong>Nombre:</strong> {editForm.name}</li>
                 </ul>
                 <div className="oc-modal-actions">
                   <button type="button" className="ui-btn ui-btn--outline" onClick={() => setEditStep("form")}>
@@ -358,7 +369,7 @@ export default function Occupations() {
           >
             <h2 id="oc-del-title">Eliminar especialidad</h2>
             <p id="oc-del-desc">
-              ¿Estás segura/o de eliminar <strong>{deleteTarget.nombre}</strong>?
+              ¿Estás segura/o de eliminar <strong>{deleteTarget.name}</strong>?
             </p>
             <div className="oc-modal-actions">
               <button type="button" className="ui-btn ui-btn--outline" onClick={closeDelete}>

@@ -53,7 +53,8 @@ app.use((_, res) => {
 });
 async function start() {
     await (0, db_1.initORM)();
-    //await syncSchema(); // ⚠️Don't use this in production resetea la bddddd
+    // descomentar estas dos líneas para que la bd se resete
+    //await syncSchema(); // ⚠️Don't use this in production - resetea la bddddd
     //await startingCode(); //SACAR EN PRODUCCION
     app.listen(port, () => {
         console.log(`App listening on http://localhost:${port}`);
