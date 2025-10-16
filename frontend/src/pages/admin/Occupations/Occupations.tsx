@@ -21,36 +21,26 @@ export default function Occupations() {
   /* Estado principal: vacío para mostrar el estado vacío */
   const [items, setItems] = useState<Occupation[]>([]);
 
-  /* hardcodeados: 
-  useEffect(() => {
-    setItems([
-      { id: "1", nombre: "Psicologia" },
-      { id: "2", nombre: "Psicopedagogia" },
-    ]);
-  }, []); */ 
-  
-
-   /* VER TODAS */
+ /*   este funciona pero bueno */
    useEffect(() => {
    (async () => {
  
        const res = await fetch("http://localhost:2000/Occupation/getAll");
-      
-       const resJson = await res.json();
 
-       const data: Occupation[] = await res.json();
-       setItems(data);
+      // if (!res.ok) throw new Error("Error al cargar obras sociales"); deberia ir al error del backend
+      if(res.ok){
+        const data: Occupation[] = await res.json();
+        setItems(data);
+      } else{
+        const err = res.json();
+        if(err.status == 500)
+        {
+          alert(err.message);
+        }
+    }
 
-       if (res.ok) {
-         alert(resJson.occupation.name);
-        } else {
-          if (res.status == 500) {
-            alert(resJson.message);
-          } 
-        }   
-
-   })();
- }, []);
+   })()
+ }, []); 
  
   /* ---- Agregar ---- */
   const [showAdd, setShowAdd] = useState(false);

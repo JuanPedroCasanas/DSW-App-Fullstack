@@ -91,6 +91,7 @@ export class HealthInsuranceController {
         try {
             const em = await getORM().em.fork();
             const healthInsurances = await em.findAll(HealthInsurance);
+            
             return res.status(200).json(healthInsurances);
         } catch (error) {
             console.error(error);

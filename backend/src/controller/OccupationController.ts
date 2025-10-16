@@ -101,6 +101,7 @@ export class OccupationController {
 
             const em = await getORM().em.fork();
             const occupations = await em.findAll(Occupation);
+            
             return res.status(200).json(occupations);
 
         } catch (error) {
