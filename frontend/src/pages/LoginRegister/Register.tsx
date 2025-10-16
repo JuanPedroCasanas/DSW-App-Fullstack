@@ -20,8 +20,8 @@ export default function Register() {
 
   // lo estoy poniendo por separado del const [form, setForm] porque por ahora manejamos únicamente el 
   // register de paciente. Es para no romper el código más que nada. Ni idea, funciona.
-  const [especialidad, setEspecialidad] = useState(""); 
-  const [healthinsuranceId, setHealthInsurance] = useState(1); // Valor por defecto para pacientes
+  const [especialidad, setEspecialidad] = useState(0); 
+  const [healthinsuranceId, setHealthInsurance] = useState(0); // Valor por defecto para pacientes
   const [dependentForm, setDependentForm] = useState({
     firstName: "",
     lastName: "",
@@ -31,11 +31,11 @@ export default function Register() {
  
   useEffect(() => {
     if (form.rol !== "profesional") {
-      setEspecialidad(""); 
+      setEspecialidad(0); 
     }
   }, [form.rol]);
   useEffect(() => {  if (form.rol !== "paciente") {
-      setHealthInsurance(1);
+      setHealthInsurance(0);
     }
   }, [form.rol]);
   useEffect(() => {
@@ -102,7 +102,8 @@ export default function Register() {
         mail: form.email,
         password: form.password,
         telephone: form.telefono,
-        rol: form.rol
+        rol: form.rol,
+        healthInsuranceId: Number(healthinsuranceId)
     };
 
     if (!form.rol) {
@@ -222,10 +223,10 @@ export default function Register() {
             setMessage(data.message || '¡Registro completado con éxito!');
         }
         
-        // 5. LIMPIEZA FINAL (EN CASO DE ÉXITO)
+        
         setForm({ email: "", password: "", confirmPassword: "", nombre: "", apellido: "", fechaNacimiento: "", telefono: "", rol: "" as "" | Role });
-        setEspecialidad(""); 
-        setHealthInsurance(1);
+        setEspecialidad(0); 
+        setHealthInsurance(0);
         setDependentForm({ firstName: "", lastName: "", birthdate: "", legalGuardianId:""}); // Limpiar dependiente
 
     } catch (error) {
@@ -438,7 +439,7 @@ export default function Register() {
         name="especialidad"
         className="input__control"
         value={especialidad}
-        onChange={(e) => setEspecialidad(e.target.value)}
+        onChange={(e) => setEspecialidad(Number(e.target.value))}
         required
       >
         <option value="" disabled>Elegí una especialidad</option>
@@ -462,7 +463,7 @@ export default function Register() {
           name="healthInsuranceId"
           className="input__control"
           value={healthinsuranceId} 
-          onChange={(e) => setHealthInsurance(parseInt(e.target.value, 10))}
+          onChange={(e) => setHealthInsurance(Number(e.target.value))}
           required
         >
           <option value="0" disabled>Elegí una obra social</option>

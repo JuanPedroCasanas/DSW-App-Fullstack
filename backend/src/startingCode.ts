@@ -119,7 +119,7 @@ export const startingCode = async () => {
 
     //PROFESIONALES
     req = new FakeRequest({
-       name: 'Pablo',
+       firstName: 'Pablo',
        lastName: 'Marmol',
        telephone: '1111',
        mail: 'kukatrap@gmail.com',
@@ -129,7 +129,7 @@ export const startingCode = async () => {
     await ProfessionalController.addProfessional(req as any, res as any);
 
     req = new FakeRequest({
-       name: 'Pedro',
+       firstName: 'Pedro',
        lastName: 'Picapiedra',
        telephone: '1111',
        mail: 'pepe@gmail.com',
@@ -174,7 +174,7 @@ export const startingCode = async () => {
 
     //RESPONSABLE LEGAL
     req = new FakeRequest({
-        "name": "Moncho",
+        "firstName": "Moncho",
         "lastName": "Lopez",
         "birthdate": "1990-07-21",
         "password": UNI_PASSWORD,
@@ -187,7 +187,7 @@ export const startingCode = async () => {
 
     //PACIENTES
     req = new FakeRequest({
-        "name": "Lucía",
+        "firstName": "Lucía",
         "lastName": "Fernández",
         "birthdate": "1993-07-21",
         "password": UNI_PASSWORD,
@@ -199,7 +199,7 @@ export const startingCode = async () => {
     await PatientController.addIndependentPatient(req as any, res as any);
 
     req = new FakeRequest({
-        "name": "Mini",
+        "firstName": "Mini",
         "lastName": "ME",
         "birthdate": "2010-07-21",
         "legalGuardianId": 1

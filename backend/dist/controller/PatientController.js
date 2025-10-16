@@ -42,7 +42,7 @@ class PatientController {
             if (!healthInsurance) {
                 throw new BaseHttpError_1.NotFoundError("Obra social");
             }
-            const patient = new Patient_1.Patient(firstName, lastName, birthdate, telephone, healthInsuranceId);
+            const patient = new Patient_1.Patient(firstName, lastName, birthdate, healthInsurance, telephone);
             const patUser = await (0, UserCreationService_1.createUser)(mail, password);
             patient.user = patUser;
             patUser.patient = patient;

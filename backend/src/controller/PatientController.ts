@@ -49,7 +49,7 @@ export class PatientController {
                 throw new NotFoundError("Obra social");
             }
 
-            const patient = new Patient(firstName, lastName, birthdate,  telephone, healthInsuranceId);
+            const patient = new Patient(firstName, lastName, birthdate, healthInsurance,  telephone,);
             const patUser = await createUser(mail, password);
             patient.user = patUser;
             patUser.patient = patient;
