@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./healthInsurances.css";
+import { Toast } from "@/components/Toast";
+
 
 /** Modelo simple: viene del backend */
 type HealthInsurance = {
@@ -21,6 +23,10 @@ export default function HealthInsurances() {
 
   /* Estado principal: arrancamos vacío para mostrar el estado vacío */
   const [items, setItems] = useState<HealthInsurance[]>([]);
+
+  /*Pantallita de error o exito al terminar una accion*/
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
 
   /* VER TODAS */
   useEffect(() => {
@@ -85,14 +91,14 @@ export default function HealthInsurances() {
        setShowAdd(false);
         
        if (res.ok) {
-        alert(resJson.healthInsurance.name);
+        let successMessage = `${resJson.message} Id: ${resJson.healthInsurance.id}, Nombre: ${resJson.healthInsurance.name}`
+        setToast({ message: successMessage, type: "success" });
         } else {
           if (res.status == 500 || res.status == 400) {
-            alert(resJson.message);
+            setToast({ message: resJson.message, type: "error" });
           } else {
-            alert(resJson.error);
-            alert(resJson.code);
-            alert(resJson.message);
+            let errorMessage = `Error: ${resJson.error} Codigo: ${resJson.code} ${resJson.message}`
+            setToast({ message: errorMessage, type: "error" });
           }
         }
        //alert(`${resJson.message},${resJson.healthInsurance.id}`);
@@ -468,6 +474,14 @@ export default function HealthInsurances() {
             </div>
           </div>
         </div>
+      )}
+      {/* ===== TOAST ===== */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
       )}
     </section>
   );

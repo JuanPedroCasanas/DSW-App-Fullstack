@@ -11,18 +11,22 @@ export class HealthInsuranceController {
 
     static async addHealthInsurance(req: Request, res: Response) {
         const {name} = req.body;
-
         if (!name) {
             return res.status(400).json({ message: 'Se requiere un nombre de obra social' });
         }
         try {
-        const em = await getORM().em.fork(); 
-        const healthInsurance = new HealthInsurance(name);
-        await em.persistAndFlush(healthInsurance);
+            const em = await getORM().em.fork(); 
+            const healthInsurance = new HealthInsurance(name);
+            await em.persistAndFlush(healthInsurance);
             return res.status(201).json({ message: 'Obra social añadida: ', healthInsurance });
-        } catch (error: any) {
+        } catch (error) {
             console.error(error);
-            return res.status(500).json({ message: 'Error al añadir obra social' });
+            if (error instanceof BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            else {
+                return res.status(500).json({ message: 'Error al actualizar Obra Social' });
+            }
         }
     }
     

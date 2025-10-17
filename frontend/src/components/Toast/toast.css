@@ -1,0 +1,28 @@
+.hi-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0,0,0,.2);
+  animation: fadeInOut 4s ease forwards;
+  z-index: 2000;
+  max-width: 320px;
+  word-wrap: break-word;
+}
+
+.hi-toast--success {
+  background: #0f9d58; /* verde */
+}
+
+.hi-toast--error {
+  background: #d92d20; /* rojo */
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateY(20px); }
+  10%, 90% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(20px); }
+}

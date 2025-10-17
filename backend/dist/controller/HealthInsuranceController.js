@@ -21,7 +21,12 @@ class HealthInsuranceController {
         }
         catch (error) {
             console.error(error);
-            return res.status(500).json({ message: 'Error al añadir obra social' });
+            if (error instanceof BaseHttpError_1.BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            else {
+                return res.status(500).json({ message: 'Error al actualizar Obra Social' });
+            }
         }
     }
     static async updateHealthInsurance(req, res) {
