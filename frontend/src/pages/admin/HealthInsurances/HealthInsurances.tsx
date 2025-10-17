@@ -10,6 +10,24 @@ type HealthInsurance = {
   isActive: boolean;
 };
 
+//Genera un toast para las respuestas del backend
+async function handleResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
+  const resJson = await res.json().catch(() => ({}));
+
+  if (res.ok) {
+    const successMessage = `${resJson.message} Id: ${resJson.healthInsurance?.id}, Nombre: ${resJson.healthInsurance?.name}`;
+    return { message: successMessage, type: "success" };
+  } else {
+    if (res.status === 500 || res.status === 400) {
+      return { message: resJson.message ?? "Error interno del servidor", type: "error" };
+    } else {
+      const errorMessage = `Error: ${resJson.error} Codigo: ${resJson.code} ${resJson.message}`
+      return { message: errorMessage.trim(), type: "error" };
+    }
+  }
+}
+
+
 /* ---- Utils  ---- */
 //const uid = () => Math.random().toString(36).slice(2, 10);
 const sameJSON = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
@@ -81,7 +99,8 @@ export default function HealthInsurances() {
           body: JSON.stringify({ name: (addForm.name ?? "").trim() }),
         });
 
-        const resJson = await res.json();
+        const toastData = await handleResponse(res);
+        setToast(toastData);
       
         // Recargar
         const resGet = await fetch("http://localhost:2000/HealthInsurance/getAll");
@@ -90,18 +109,6 @@ export default function HealthInsurances() {
 
        setShowAdd(false);
         
-       if (res.ok) {
-        let successMessage = `${resJson.message} Id: ${resJson.healthInsurance.id}, Nombre: ${resJson.healthInsurance.name}`
-        setToast({ message: successMessage, type: "success" });
-        } else {
-          if (res.status == 500 || res.status == 400) {
-            setToast({ message: resJson.message, type: "error" });
-          } else {
-            let errorMessage = `Error: ${resJson.error} Codigo: ${resJson.code} ${resJson.message}`
-            setToast({ message: errorMessage, type: "error" });
-          }
-        }
-       //alert(`${resJson.message},${resJson.healthInsurance.id}`);
 
     })();
   };
