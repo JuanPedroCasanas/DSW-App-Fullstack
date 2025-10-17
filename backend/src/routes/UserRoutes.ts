@@ -18,7 +18,7 @@ passport.use(
     async (payload, done) => {
       try {
         const em = (await getORM()).em.fork();
-        const user = await em.findOne(User, { idUser: payload.idUser });
+        const user = await em.findOne(User, { id: payload.idUser });
         if (user) return done(null, user);
         return done(null, false);
       } catch (err) {

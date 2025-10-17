@@ -37,7 +37,7 @@ exports.User = User;
 __decorate([
     (0, core_1.PrimaryKey)(),
     __metadata("design:type", Number)
-], User.prototype, "idUser", void 0);
+], User.prototype, "id", void 0);
 __decorate([
     (0, core_1.Property)(),
     __metadata("design:type", String)

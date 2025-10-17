@@ -10,7 +10,7 @@ const BaseHttpError_1 = require("../model/errors/BaseHttpError");
 const AppointmentStatus_1 = require("../model/enums/AppointmentStatus");
 class PatientController {
     static home(req, res) {
-        res.send('Soy el controlador de pacientes!');
+        return res.send('Soy el controlador de pacientes!');
     }
     //Para pacientes que no dependen de un responsable legal, se les crea usuario para acceder
     static async addIndependentPatient(req, res) {
@@ -47,7 +47,7 @@ class PatientController {
             patient.user = patUser;
             patUser.patient = patient;
             await em.persistAndFlush(patUser);
-            res.status(201).json({ message: 'Se agrego correctamente el paciente', patient });
+            return res.status(201).json({ message: 'Se agrego correctamente el paciente', patient });
         }
         catch (error) {
             console.error(error);
@@ -55,7 +55,7 @@ class PatientController {
                 return res.status(error.status).json(error.toJSON());
             }
             else {
-                res.status(500).json({ message: 'Error al agregar el paciente' });
+                return res.status(500).json({ message: 'Error al agregar el paciente' });
             }
         }
     }
@@ -83,7 +83,7 @@ class PatientController {
             const patient = new Patient_1.Patient(firstName, lastName, birthdate, legalGuardian.healthInsurance, undefined, legalGuardian);
             //Si no se aclara contraseña, entonces este metodo fue llamado para añadir a un paciente dependiente de un resp legal, que no requiere usuario
             await em.persistAndFlush(patient);
-            res.status(201).json({ message: 'Se añadió correctamente al paciente', patient });
+            return res.status(201).json({ message: 'Se añadió correctamente al paciente', patient });
         }
         catch (error) {
             console.error(error);
@@ -91,19 +91,20 @@ class PatientController {
                 return res.status(error.status).json(error.toJSON());
             }
             else {
-                res.status(500).json({ message: 'Error al agregar al paciente' });
+                return res.status(500).json({ message: 'Error al agregar al paciente' });
             }
         }
     }
+    //Revisar este metodo, cambiar de tipo de paciente es problematico, telefono no aplica a pacientes sin rl, ver que onda en grupo
     static async updatePatient(req, res) {
-        const { id } = req.body;
+        const { idPatient } = req.body;
         const { firstName } = req.body;
         const { lastName } = req.body;
         const { birthdate } = req.body;
         const { telephone } = req.body;
         const { type } = req.body;
         try {
-            if (!id) {
+            if (!idPatient) {
                 return res.status(400).json({ message: 'Patient id is required' });
             }
             if (!firstName) {
@@ -122,7 +123,7 @@ class PatientController {
                 return res.status(400).json({ message: 'Patient new type is required' });
             }
             const em = await (0, db_1.getORM)().em.fork();
-            const patient = await em.findOne(Patient_1.Patient, { id: id });
+            const patient = await em.findOne(Patient_1.Patient, { id: idPatient });
             if (!patient) {
                 throw new BaseHttpError_1.NotFoundError("Paciente");
             }
@@ -131,7 +132,7 @@ class PatientController {
             patient.birthdate = birthdate;
             patient.telephone = telephone;
             await em.flush();
-            res.status(201).json({ message: 'Los datos del paciente fueron actualizados', patient });
+            return res.status(201).json({ message: 'Los datos del paciente fueron actualizados', patient });
         }
         catch (error) {
             console.error(error);
@@ -139,22 +140,22 @@ class PatientController {
                 return res.status(error.status).json(error.toJSON());
             }
             else {
-                res.status(500).json({ message: 'Error al modificar el paciente' });
+                return res.status(500).json({ message: 'Error al modificar el paciente' });
             }
         }
     }
     static async getPatient(req, res) {
-        const id = Number(req.params.id);
-        if (!id) {
+        const idPatient = Number(req.params.id);
+        if (!idPatient) {
             return res.status(400).json({ message: 'Se requiere la ID del paciente' });
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const patient = await em.findOne(Patient_1.Patient, { id: id });
+            const patient = await em.findOne(Patient_1.Patient, { id: idPatient });
             if (!patient) {
                 throw new BaseHttpError_1.NotFoundError("Paciente");
             }
-            res.json(patient);
+            return res.status(200).json(patient);
         }
         catch (error) {
             console.error(error);
@@ -162,7 +163,7 @@ class PatientController {
                 return res.status(error.status).json(error.toJSON());
             }
             else {
-                res.status(500).json({ message: 'Error al buscar el paciente' });
+                return res.status(500).json({ message: 'Error al buscar el paciente' });
             }
         }
     }
@@ -170,21 +171,21 @@ class PatientController {
         try {
             const em = await (0, db_1.getORM)().em.fork();
             const patients = await em.find(Patient_1.Patient, {});
-            res.json(patients);
+            return res.status(200).json(patients);
         }
         catch (error) {
             console.log(error);
-            res.status(500).json({ message: 'Error al buscar los pacientes' });
+            return res.status(500).json({ message: 'Error al buscar los pacientes' });
         }
     }
     static async deletePatient(req, res) {
-        const id = Number(req.params.id);
-        if (!id) {
+        const idPatient = Number(req.params.id);
+        if (!idPatient) {
             return res.status(400).json({ message: 'Se requiere la id del paciente' });
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const patient = await em.findOne(Patient_1.Patient, { id: id });
+            const patient = await em.findOne(Patient_1.Patient, { id: idPatient });
             if (!patient) {
                 throw new BaseHttpError_1.NotFoundError("Paciente");
             }
@@ -197,7 +198,7 @@ class PatientController {
                 appointment.status = AppointmentStatus_1.AppointmentStatus.Canceled;
             }
             await em.flush();
-            res.json(patient);
+            return res.status(200).json(patient);
         }
         catch (error) {
             console.error(error);
@@ -205,7 +206,7 @@ class PatientController {
                 return res.status(error.status).json(error.toJSON());
             }
             else {
-                res.status(500).json({ message: 'Error al buscar el paciente' });
+                return res.status(500).json({ message: 'Error al buscar el paciente' });
             }
         }
     }

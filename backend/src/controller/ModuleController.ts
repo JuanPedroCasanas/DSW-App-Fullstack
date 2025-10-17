@@ -47,13 +47,13 @@ export default class ModuleController  {
 
 
     static home(req: Request, res: Response) {
-        res.send('Soy el controlador de modulos!');
+        return res.send('Soy el controlador de modulos!');
     }
 
 
     static async addModules(req: Request, res: Response) {
 
-        let { day, startTime, endTime, validMonth, validYear, professionalId, consultingRoomId } = req.body;
+        let { day, startTime, endTime, validMonth, validYear, professionalId, idConsultingRoom } = req.body;
 
         if (!day) {
             return res.status(400).json({ message: 'Se requiere especificar el día.' });
@@ -79,7 +79,7 @@ export default class ModuleController  {
             return res.status(400).json({ message: 'Se requiere el ID del profesional asignado al/los módulo(s).' });
         }
 
-        if (!consultingRoomId) {
+        if (!idConsultingRoom) {
             return res.status(400).json({ message: 'Se requiere el ID del consultorio asignado al/los módulo(s).' });
         }
 
@@ -88,7 +88,7 @@ export default class ModuleController  {
 
             // Buscar entidades relacionadas
             const professional = await em.findOne(Professional, { id: professionalId });
-            const consultingRoom = await em.findOne(ConsultingRoom, { idConsultingRoom: consultingRoomId });
+            const consultingRoom = await em.findOne(ConsultingRoom, { id: idConsultingRoom });
             const moduleTypes = await em.findAll(ModuleType, { orderBy: { duration: 'DESC' } }); //Los ordeno de mayor a menor para hacer un calculo posterior
 
 
@@ -194,20 +194,20 @@ export default class ModuleController  {
             
 
 
-            res.status(201).json({ message: 'Modulos correctamente añadidos', modules });
+            return res.status(201).json({ message: 'Modulos correctamente añadidos', modules });
         } catch (error) {
             console.error(error);
             if (error instanceof BaseHttpError) {
                 return res.status(error.status).json(error.toJSON());
             }
             else {
-                res.status(500).json({ message: 'Error al crear los modulos' });
+                return res.status(500).json({ message: 'Error al crear los modulos' });
             }
         }
     }
 
 
-    //FALTA CHECKEAR, HACE FALTA?
+    //METODO MAL HECHO, VERIFICAR SI HACE FALTA, PARA MI NO.
     static async updateModule(req: Request, res: Response) {
         const { day,startTime,validMonth, professionalId, consultingRoom, moduleType} = req.body;
 
@@ -249,34 +249,34 @@ export default class ModuleController  {
 
         await em.persistAndFlush(module);
 
-        res.status(201).json({ message: 'Module updated', module });
+        return res.status(201).json({ message: 'Module updated', module });
     }
 
     static async getModule(req: Request, res: Response) {
-        const { id } = req.params;
+        const idModule = Number(req.params.id);
 
-        if(!id)
+        if(!idModule)
         {
             return res.status(400).json({ message: 'Se requiere el id de modulo' });
         }
         try {
 
             const em = await getORM().em.fork();
-            const module = await em.findOne(Module, { id: parseInt(id) });
+            const module = await em.findOne(Module, { id: idModule });
 
             if(!module) 
             {
                 throw new NotFoundError("Modulo");
             }
 
-            res.status(200).json(module);
+            return res.status(200).json(module);
         } catch (error) {
             console.error(error);
             if (error instanceof BaseHttpError) {
                 return res.status(error.status).json(error.toJSON());
             }
             else {
-                res.status(500).json({ message: 'Error buscar modulo' });
+                return res.status(500).json({ message: 'Error buscar modulo' });
             }
         }
     }
@@ -285,37 +285,11 @@ export default class ModuleController  {
             try {
                 const em = await getORM().em.fork();
                 const modules = await em.findAll(Module);
-                res.status(200).json(modules);
+                return res.status(200).json(modules);
     
             } catch (error) {
                 console.error(error);
-                res.status(500).json({ message: 'Failed to fetch modules' });
+                return res.status(500).json({ message: 'Failed to fetch modules' });
             }
         }
-    
-        //NO APLICA
-        /*
-        static async deleteModule(req: Request, res: Response) {
-            const id = Number(req.params.id);
-            if (!id) {
-                return res.status(400).json({ message: 'Appointment id is required' });
-            }
-            try {
-    
-                const em = await getORM().em.fork();
-                const module = await em.findOne(Module, { idModule : id });
-    
-                if (!module) {
-                    return res.status(404).json({ message: 'Module not found' });
-                }
-    
-                await em.removeAndFlush(module);
-                res.json(module);
-            } catch (error) {
-                console.error(error);
-                res.status(500).json({ message: 'Failed to delete module' });
-            }
-        }
-    
-        */
     }

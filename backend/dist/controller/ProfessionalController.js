@@ -11,7 +11,7 @@ const ModuleStatus_1 = require("../model/enums/ModuleStatus");
 const HealthInsurance_1 = require("../model/entities/HealthInsurance");
 class ProfessionalController {
     static home(req, res) {
-        res.send('Soy el controlador de profesional!');
+        return res.send('Soy el controlador de profesional!');
     }
     static async addProfessional(req, res) {
         const { firstName, lastName, telephone, mail, password, occupationId } = req.body;
@@ -46,7 +46,7 @@ class ProfessionalController {
             professional.user = profUser;
             profUser.professional = professional;
             await em.persistAndFlush(profUser);
-            res.status(201).json({ message: 'Se agrego correctamente el profesional ', professional });
+            return res.status(201).json({ message: 'Se agrego correctamente el profesional ', professional });
         }
         catch (error) {
             console.error(error);
@@ -54,13 +54,13 @@ class ProfessionalController {
                 return res.status(error.status).json(error.toJSON());
             }
             else {
-                res.status(500).json({ message: 'Error al crear el profesional' });
+                return res.status(500).json({ message: 'Error al crear el profesional' });
             }
         }
     }
     static async updateProfessional(req, res) {
-        const { id, firstName, lastName, telephone } = req.body;
-        if (!id) {
+        const { idProfessional, firstName, lastName, telephone } = req.body;
+        if (!idProfessional) {
             return res.status(400).json({ message: 'Se requiere el id de profesional' });
         }
         if (!firstName) {
@@ -74,7 +74,7 @@ class ProfessionalController {
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const professional = await em.findOne(Professional_1.Professional, { id: id });
+            const professional = await em.findOne(Professional_1.Professional, { id: idProfessional });
             if (!professional) {
                 throw new BaseHttpError_1.NotFoundError('Profesional');
             }
@@ -82,7 +82,7 @@ class ProfessionalController {
             professional.lastName = lastName;
             professional.telephone = telephone;
             await em.flush();
-            res.status(201).json({ message: 'Professional updated', professional });
+            return res.status(201).json({ message: 'Professional updated', professional });
         }
         catch (error) {
             console.error(error);
@@ -90,31 +90,31 @@ class ProfessionalController {
                 return res.status(error.status).json(error.toJSON());
             }
             else {
-                res.status(500).json({ message: 'Error al actualizar el profesional' });
+                return res.status(500).json({ message: 'Error al actualizar el profesional' });
             }
         }
     }
     static async allowHealthInsurance(req, res) {
-        const { id, healthInsuranceId } = req.body;
-        if (!id) {
+        const { idProfessional, idHealthInsurance } = req.body;
+        if (!idProfessional) {
             return res.status(400).json({ message: 'Se requiere la Id del profesional' });
         }
-        if (!healthInsuranceId) {
+        if (!idHealthInsurance) {
             return res.status(400).json({ message: 'Se requiere la Id de la obra social a permitir' });
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const professional = await em.findOne(Professional_1.Professional, { id: id });
+            const professional = await em.findOne(Professional_1.Professional, { id: idProfessional });
             if (!professional) {
                 throw new BaseHttpError_1.NotFoundError('Profesional');
             }
-            const healthInsurance = await em.findOne(HealthInsurance_1.HealthInsurance, { id: healthInsuranceId });
+            const healthInsurance = await em.findOne(HealthInsurance_1.HealthInsurance, { id: idHealthInsurance });
             if (!healthInsurance) {
                 throw new BaseHttpError_1.NotFoundError('Obra Social');
             }
             professional.healthInsurances.add(healthInsurance);
             em.flush();
-            res.status(201).json({ message: 'Se agrego correctamente la obra social al profesional ', healthInsurance });
+            return res.status(201).json({ message: 'Se agrego correctamente la obra social al profesional ', healthInsurance });
         }
         catch (error) {
             console.error(error);
@@ -122,25 +122,25 @@ class ProfessionalController {
                 return res.status(error.status).json(error.toJSON());
             }
             else {
-                res.status(500).json({ message: 'Error al agregar obra social al profesional' });
+                return res.status(500).json({ message: 'Error al agregar obra social al profesional' });
             }
         }
     }
     static async forbidHealthInsurance(req, res) {
-        const { id, healthInsuranceId } = req.body;
-        if (!id) {
+        const { idProfessional, idHealthInsurance } = req.body;
+        if (!idProfessional) {
             return res.status(400).json({ message: 'Se requiere la Id del profesional' });
         }
-        if (!healthInsuranceId) {
+        if (!idHealthInsurance) {
             return res.status(400).json({ message: 'Se requiere la Id de la obra social a eliminar' });
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const professional = await em.findOne(Professional_1.Professional, { id: id });
+            const professional = await em.findOne(Professional_1.Professional, { id: idProfessional });
             if (!professional) {
                 throw new BaseHttpError_1.NotFoundError('Profesional');
             }
-            const healthInsurance = await em.findOne(HealthInsurance_1.HealthInsurance, { id: healthInsuranceId });
+            const healthInsurance = await em.findOne(HealthInsurance_1.HealthInsurance, { id: idHealthInsurance });
             if (!healthInsurance) {
                 throw new BaseHttpError_1.NotFoundError('Obra Social');
             }
@@ -149,7 +149,7 @@ class ProfessionalController {
             }
             professional.healthInsurances.remove(healthInsurance);
             em.flush();
-            res.status(201).json({ message: 'Se elimino correctamente la obra social al profesional ', healthInsurance });
+            return res.status(201).json({ message: 'Se elimino correctamente la obra social al profesional ', healthInsurance });
         }
         catch (error) {
             console.error(error);
@@ -157,22 +157,22 @@ class ProfessionalController {
                 return res.status(error.status).json(error.toJSON());
             }
             else {
-                res.status(500).json({ message: 'Error al eliminar obra social del profesional' });
+                return res.status(500).json({ message: 'Error al eliminar obra social del profesional' });
             }
         }
     }
     static async getProfessional(req, res) {
-        const id = Number(req.params.id);
-        if (!id) {
+        const idProfessional = Number(req.params.id);
+        if (!idProfessional) {
             return res.status(400).json({ message: 'Se requiere la id del profesional' });
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const professional = await em.findOne(Professional_1.Professional, { id: id });
+            const professional = await em.findOne(Professional_1.Professional, { id: idProfessional });
             if (!professional) {
                 throw new BaseHttpError_1.NotFoundError('Profesional');
             }
-            res.json(professional);
+            return res.status(200).json(professional);
         }
         catch (error) {
             console.error(error);
@@ -180,7 +180,7 @@ class ProfessionalController {
                 return res.status(error.status).json(error.toJSON());
             }
             else {
-                res.status(500).json({ message: 'Error al buscar el profesional' });
+                return res.status(500).json({ message: 'Error al buscar el profesional' });
             }
         }
     }
@@ -188,21 +188,21 @@ class ProfessionalController {
         try {
             const em = await (0, db_1.getORM)().em.fork();
             const professionals = await em.findAll(Professional_1.Professional);
-            res.json(professionals);
+            return res.status(200).json(professionals);
         }
         catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Error al buscar los profesionales' });
+            return res.status(500).json({ message: 'Error al buscar los profesionales' });
         }
     }
     static async deleteProfessional(req, res) {
-        const id = Number(req.params.id);
-        if (!id) {
+        const idProfessional = Number(req.params.id);
+        if (!idProfessional) {
             return res.status(400).json({ message: 'Se requiere la id del profesional' });
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const professional = await em.findOne(Professional_1.Professional, { id: id });
+            const professional = await em.findOne(Professional_1.Professional, { id: idProfessional });
             if (!professional) {
                 throw new BaseHttpError_1.NotFoundError('Profesional');
             }
@@ -217,7 +217,7 @@ class ProfessionalController {
                 module.status = ModuleStatus_1.ModuleStatus.Canceled;
             }
             await em.flush();
-            res.status(201).json({ message: 'Se elimino correctamente el profesional ', professional });
+            return res.status(201).json({ message: 'Se elimino correctamente el profesional ', professional });
         }
         catch (error) {
             console.error(error);
@@ -225,7 +225,7 @@ class ProfessionalController {
                 return res.status(error.status).json(error.toJSON());
             }
             else {
-                res.status(500).json({ message: 'Error al eliminar el profesional' });
+                return res.status(500).json({ message: 'Error al eliminar el profesional' });
             }
         }
     }

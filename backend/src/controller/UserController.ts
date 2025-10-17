@@ -22,7 +22,7 @@ export class UserController {
             const valid = await bcrypt.compare(password, user.password);
             if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
 
-            const token = jwt.sign({ idUser: user.idUser }, JWT_SECRET, { expiresIn: '1h' });
+            const token = jwt.sign({ idUser: user.id }, JWT_SECRET, { expiresIn: '1h' });
             res.json({ user, token });
         } 
         catch (err: any) {
@@ -40,7 +40,7 @@ export class UserController {
     // SACAR ESTE METODO O DEJARLO SOLO ADMIN
     static async getOne(req: Request, res: Response) {
         const em = (await getORM()).em.fork();
-        const user = await em.findOne(User, { idUser: Number(req.params.id) });
+        const user = await em.findOne(User, { id: Number(req.params.id) });
         if (!user) return res.status(404).json({ error: 'User not found' });
         res.json(user);
     }
@@ -59,7 +59,7 @@ export class UserController {
                 }
 
                 const em = (await getORM()).em.fork();
-                const user = await em.findOne(User, { idUser: Number(req.params.id) });
+                const user = await em.findOne(User, { id: Number(req.params.id) });
                 
                 if (!user) {
                     throw new NotFoundError('Usuario');

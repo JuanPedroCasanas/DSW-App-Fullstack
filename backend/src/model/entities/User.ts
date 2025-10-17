@@ -8,7 +8,7 @@ import { UserRole } from '../enums/UserRole';
 @Entity()
 export class User {
   @PrimaryKey()
-  idUser!: number;
+  id!: number;
 
   @Property()
   mail!: string;

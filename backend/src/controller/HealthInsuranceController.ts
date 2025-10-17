@@ -63,14 +63,14 @@ export class HealthInsuranceController {
     }
 
     static async getHealthInsurance(req: Request, res: Response) {
-        const id = Number(req.params.id);
+        const idHealthInsurance = Number(req.params.id);
 
-        if (!id) {
+        if (!idHealthInsurance) {
             return res.status(400).json({ message: 'Se requiere un id de obra social' });
         }
         try {
             const em = await getORM().em.fork();
-            const healthInsurance = await em.findOne(HealthInsurance, { id: id });
+            const healthInsurance = await em.findOne(HealthInsurance, { id: idHealthInsurance });
             if (!healthInsurance) {
                 throw new NotFoundError('Obra Social');
             }
@@ -100,14 +100,14 @@ export class HealthInsuranceController {
     }
 
     static async deleteHealthInsurance(req: Request, res: Response) {
-        const id = Number(req.params.id);
+        const idHealthInsurance = Number(req.params.id);
 
-        if (!id) {
+        if (!idHealthInsurance) {
             return res.status(400).json({ message: 'Se requiere un id de obra social' });
         }
         try {
             const em = await getORM().em.fork();
-            const healthInsurance = await em.findOne(HealthInsurance, { id : id });
+            const healthInsurance = await em.findOne(HealthInsurance, { id : idHealthInsurance });
 
             if (!healthInsurance) {
                 throw new NotFoundError('Obra Social');

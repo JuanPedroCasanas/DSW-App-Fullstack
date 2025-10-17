@@ -32,7 +32,7 @@ export default function Occupations() {
         const data: Occupation[] = await res.json();
         setItems(data);
       } else{
-        const err = res.json();
+        const err = await res.json();
         if(err.status == 500)
         {
           alert(err.message);

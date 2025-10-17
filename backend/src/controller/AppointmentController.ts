@@ -11,7 +11,7 @@ import { AppointmentNotAvailableError, BaseHttpError, NotFoundError } from '../m
 export class AppointmentController {
 
     static home(req: Request, res: Response) {
-        res.send('Soy el controlador de turnos!');
+        return res.send('Soy el controlador de turnos!');
     }
 
     static async assignAppointment(req: Request, res: Response) {
@@ -50,7 +50,7 @@ export class AppointmentController {
             appointment.status = AppointmentStatus.Scheduled;
 
             await em.flush();
-            res.status(200).json({ message: 'Se asigno correctamente el paciente al turno', appointment})
+            return res.status(200).json({ message: 'Se asigno correctamente el paciente al turno', appointment})
 
             } catch (error) {
                 console.error(error);
@@ -58,7 +58,7 @@ export class AppointmentController {
                     return res.status(error.status).json(error.toJSON());
                 }
                 else {
-                    res.status(500).json({ message: 'Error al asignar turno' });
+                    return res.status(500).json({ message: 'Error al asignar turno' });
                 }
             }
 
@@ -66,16 +66,16 @@ export class AppointmentController {
 
     //Solo los profesionales y pacientes pueden cancelar turnos
     static async cancelAppointment(req: Request, res: Response) {
-        const { id } = req.body;
+        const { idAppointment } = req.body;
 
-        if(!id)
+        if(!idAppointment)
         {
             return res.status(400).json({ message: 'Se requiere el id de turno a modificar' });
         }
 
         try {
         const em = await getORM().em.fork();
-        const appointment = await em.findOne(Appointment, { id: id });
+        const appointment = await em.findOne(Appointment, { id: idAppointment });
 
         if(!appointment)
         {
@@ -85,30 +85,30 @@ export class AppointmentController {
         appointment.status = AppointmentStatus.Canceled
         await em.flush();
 
-        res.status(201).json({ message: 'El turno se canceló correctamente', appointment });
+        return res.status(201).json({ message: 'El turno se canceló correctamente', appointment });
         } catch (error) {
             console.error(error);
             if (error instanceof BaseHttpError) {
                 return res.status(error.status).json(error.toJSON());
             }
             else {
-                res.status(500).json({ message: 'Error al cancelar el turno' });
+                return res.status(500).json({ message: 'Error al cancelar el turno' });
             }
         }
     }
 
     //Solo los profesionales pueden completar turnos
     static async completeAppointment(req: Request, res: Response) {
-        const { id } = req.body;
+        const { idAppointment } = req.body;
 
-        if(!id)
+        if(!idAppointment)
         {
             return res.status(400).json({ message: 'Se requiere el id de turno a modificar' });
         }
 
         try {
             const em = await getORM().em.fork();
-            const appointment = await em.findOne(Appointment, { id: id });
+            const appointment = await em.findOne(Appointment, { id: idAppointment });
 
             if(!appointment)
             {
@@ -118,30 +118,30 @@ export class AppointmentController {
             appointment.status = AppointmentStatus.Completed
             await em.flush();
 
-            res.status(201).json({ message: 'El turno se completó correctamente', appointment });
+            return res.status(201).json({ message: 'El turno se completó correctamente', appointment });
         } catch (error) {
             console.error(error);
             if (error instanceof BaseHttpError) {
                 return res.status(error.status).json(error.toJSON());
             }
             else {
-                res.status(500).json({ message: 'Error completar turno' });
+                return res.status(500).json({ message: 'Error completar turno' });
             }
         }
     }
 
     //Solo los profesionales pueden marcar turnos como sin asistencia
     static async missAppointment(req: Request, res: Response) {
-        const { id } = req.body;
+        const { idAppointment } = req.body;
 
-        if(!id)
+        if(!idAppointment)
         {
             return res.status(400).json({ message: 'Se requiere el id de turno a modificar' });
         }
 
         try {
             const em = await getORM().em.fork();
-            const appointment = await em.findOne(Appointment, { id: id });
+            const appointment = await em.findOne(Appointment, { id: idAppointment });
 
             if(!appointment)
             {
@@ -151,39 +151,39 @@ export class AppointmentController {
             appointment.status = AppointmentStatus.Missed
             await em.flush();
 
-            res.status(201).json({ message: 'El turno se marcó como  correctamente', appointment });
+            return res.status(201).json({ message: 'El turno se marcó como  correctamente', appointment });
         } catch (error) {
             console.error(error);
             if (error instanceof BaseHttpError) {
                 return res.status(error.status).json(error.toJSON());
             }
             else {
-                res.status(500).json({ message: 'Error al marcar turno como \'Sin asistencia\'' });
+                return res.status(500).json({ message: 'Error al marcar turno como \'Sin asistencia\'' });
             }
         }
     }
 
 
     static async getAppointment(req: Request, res: Response) {
-        const id = Number(req.params.id);
+        const idAppointment = Number(req.params.id);
 
-        if (!id) {
+        if (!idAppointment) {
             return res.status(400).json({ message: 'Se requiere el id del turno a buscar' });
         }
         try {
             const em = await getORM().em.fork();
-            const appointment = await em.findOne(Appointment, { id: id });
+            const appointment = await em.findOne(Appointment, { id: idAppointment });
             if (!appointment) {
                 throw new NotFoundError('Turno');
             }
-            res.json(appointment);
+            return res.status(200).json(appointment);
         } catch (error) {
             console.error(error);
             if (error instanceof BaseHttpError) {
                 return res.status(error.status).json(error.toJSON());
             }
             else {
-                res.status(500).json({ message: 'Error al buscar el turno' });
+                return res.status(500).json({ message: 'Error al buscar el turno' });
             }
         }
     }
@@ -192,13 +192,50 @@ export class AppointmentController {
         try {
             const em = await getORM().em.fork();
             const appointments = await em.findAll(Appointment);
-            res.json(appointments);
+            return res.status(200).json(appointments);
 
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Error al buscar los turnos' });
+            return res.status(500).json({ message: 'Error al buscar los turnos' });
         }
     }
+
+    static async getAvailableAppointments(req: Request, res: Response) {
+    try {
+        const em = await getORM().em.fork();
+        const appointments = await em.find(Appointment, { status : AppointmentStatus.Available});
+        return res.json(appointments);
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Error al buscar los turnos' });
+    }
+}
+
+    static async getAppointmentsByPatient(req: Request, res: Response) {
+        const idPatient = Number(req.params.id);
+        if(!idPatient) {
+            return res.status(400).json({ message: 'Se requiere el id del paciente para los turnos a buscar' });
+        }
+    try {
+        const em = await getORM().em.fork();
+        const patient = await em.findOne(Patient, { id: idPatient });
+        if(!patient) {
+            throw new NotFoundError('Paciente');
+        }
+        const appointments = await em.find(Appointment, { patient :  patient });
+        return res.status(200).json(appointments);
+
+    } catch (error) {
+        console.error(error);
+        if (error instanceof BaseHttpError) {
+            return res.status(error.status).json(error.toJSON());
+        }
+        else {
+            return res.status(500).json({ message: 'Error al buscar turnos por paciente' });
+        }
+    }
+}
 
 
 }

@@ -18,7 +18,7 @@ passport_1.default.use(new passport_jwt_1.Strategy({
 }, async (payload, done) => {
     try {
         const em = (await (0, db_1.getORM)()).em.fork();
-        const user = await em.findOne(User_1.User, { idUser: payload.idUser });
+        const user = await em.findOne(User_1.User, { id: payload.idUser });
         if (user)
             return done(null, user);
         return done(null, false);

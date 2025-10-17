@@ -23,7 +23,7 @@ class UserController {
             const valid = await bcrypt_1.default.compare(password, user.password);
             if (!valid)
                 return res.status(401).json({ error: 'Invalid credentials' });
-            const token = jsonwebtoken_1.default.sign({ idUser: user.idUser }, JWT_SECRET, { expiresIn: '1h' });
+            const token = jsonwebtoken_1.default.sign({ idUser: user.id }, JWT_SECRET, { expiresIn: '1h' });
             res.json({ user, token });
         }
         catch (err) {
@@ -39,7 +39,7 @@ class UserController {
     // SACAR ESTE METODO O DEJARLO SOLO ADMIN
     static async getOne(req, res) {
         const em = (await (0, db_1.getORM)()).em.fork();
-        const user = await em.findOne(User_1.User, { idUser: Number(req.params.id) });
+        const user = await em.findOne(User_1.User, { id: Number(req.params.id) });
         if (!user)
             return res.status(404).json({ error: 'User not found' });
         res.json(user);
@@ -55,7 +55,7 @@ class UserController {
                 return res.status(400).json({ message: 'Se requiere la nueva contraseña del usuario' });
             }
             const em = (await (0, db_1.getORM)()).em.fork();
-            const user = await em.findOne(User_1.User, { idUser: Number(req.params.id) });
+            const user = await em.findOne(User_1.User, { id: Number(req.params.id) });
             if (!user) {
                 throw new BaseHttpError_1.NotFoundError('Usuario');
             }

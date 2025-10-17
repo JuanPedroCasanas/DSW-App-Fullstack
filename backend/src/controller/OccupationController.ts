@@ -7,7 +7,7 @@ import { BaseHttpError } from '../model/errors/BaseHttpError';
 export class OccupationController {
 
     static home(req: Request, res: Response) {
-        res.send('Soy el controlador de ocupaciones!');
+        return res.send('Soy el controlador de ocupaciones!');
     }
 
     static async addOccupation(req: Request, res: Response) {
@@ -23,18 +23,18 @@ export class OccupationController {
             const em = await getORM().em.fork();
             await em.persistAndFlush(occupation);
 
-            res.status(201).json({ message: 'Especialidad añadida', occupation });
+            return res.status(201).json({ message: 'Especialidad añadida', occupation });
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Error al añadir la especialidad' });
+            return res.status(500).json({ message: 'Error al añadir la especialidad' });
         }
     }
 
     static async updateOccupation(req: Request, res: Response) {
-        const { id } = req.body;
+        const { idOccupation } = req.body;
         const { name } = req.body;
 
-        if(!id)
+        if(!idOccupation)
         {
             return res.status(400).json({ message: 'Se requiere el ID de la especialidad' });
         }
@@ -46,7 +46,7 @@ export class OccupationController {
         try {
 
             const em = await getORM().em.fork();
-            const occupation = await em.findOne(Occupation, { id: id });
+            const occupation = await em.findOne(Occupation, { id: idOccupation });
 
             if(!occupation)
             {
@@ -57,7 +57,7 @@ export class OccupationController {
 
             await em.persistAndFlush(occupation);
 
-            res.status(201).json({ message: 'Especialidad actualizada', occupation });
+            return res.status(201).json({ message: 'Especialidad actualizada', occupation });
 
         } catch (error) {
             console.error(error);
@@ -65,33 +65,33 @@ export class OccupationController {
                 return res.status(error.status).json(error.toJSON());
             }
             else {
-                res.status(500).json({ message: 'Error al modificar especialidad' });
+                return res.status(500).json({ message: 'Error al modificar especialidad' });
             }
         }
     }
 
     static async getOccupation(req: Request, res: Response) {
-        const id = Number(req.params.id);
+        const idOccupation = Number(req.params.id);
 
-        if (!id) {
+        if (!idOccupation) {
             return res.status(400).json({ message: 'Se requiere el ID de la especialidad' });
         }
         try {
             const em = await getORM().em.fork();
-            const occupation = await em.findOne(Occupation, { id });
+            const occupation = await em.findOne(Occupation, { id : idOccupation });
 
             if (!occupation) {
                 throw new NotFoundError('Especialidad');
             }
 
-            res.json(occupation);
+            return res.status(200).json(occupation);
         } catch (error) {
             console.error(error);
             if (error instanceof BaseHttpError) {
                 return res.status(error.status).json(error.toJSON());
             }
             else {
-                res.status(500).json({ message: 'Error al buscar especialidad' });
+                return res.status(500).json({ message: 'Error al buscar especialidad' });
             }
         }
     }
@@ -106,33 +106,33 @@ export class OccupationController {
 
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Error al buscar especialidades' });
+            return res.status(500).json({ message: 'Error al buscar especialidades' });
         }
     }
 
 
     static async deleteOccupation(req: Request, res: Response) {
-        const id = Number(req.params.id);
-        if (!id) {
+        const idOccupation = Number(req.params.id);
+        if (!idOccupation) {
             return res.status(400).json({ message: 'Se requiere ID de la especialidad' });
         }
         try {
             const em = await getORM().em.fork();
-            const occupation = await em.findOne(Occupation, { id: id });
+            const occupation = await em.findOne(Occupation, { id: idOccupation });
 
             if (!occupation) {
                 throw new NotFoundError('Especialidad')
             }
 
             await em.removeAndFlush(occupation); //No vemos necesidad de borrado logico aca, tampoco necesidad de cascade, es un caso muy extremo en terminos de negocio
-            res.json(occupation);
+            return res.status(200).json(occupation);
         } catch (error) {
             console.error(error);
             if (error instanceof BaseHttpError) {
                 return res.status(error.status).json(error.toJSON());
             }
             else {
-                res.status(500).json({ message: 'Error al eliminar especialidad' });
+                return res.status(500).json({ message: 'Error al eliminar especialidad' });
             }
         }
     }

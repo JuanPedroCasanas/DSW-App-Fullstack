@@ -9,7 +9,7 @@ const ModuleStatus_1 = require("../model/enums/ModuleStatus");
 const AppointmentStatus_1 = require("../model/enums/AppointmentStatus");
 class ConsultingRoomController {
     static home(req, res) {
-        res.send('Soy el controlador de consultorios!');
+        return res.send('Soy el controlador de consultorios!');
     }
     static async addConsultingRoom(req, res) {
         const { description } = req.body;
@@ -20,11 +20,11 @@ class ConsultingRoomController {
             const consultingRoom = new ConsultingRoom_1.ConsultingRoom(description);
             const em = await (0, db_1.getORM)().em.fork();
             await em.persistAndFlush(consultingRoom);
-            res.status(201).json({ message: 'Se agrego correctamente el consultorio', consultingRoom });
+            return res.status(201).json({ message: 'Se agrego correctamente el consultorio', consultingRoom });
         }
         catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Error al añadir el consultorio' });
+            return res.status(500).json({ message: 'Error al añadir el consultorio' });
         }
     }
     static async updateConsultingRoom(req, res) {
@@ -38,13 +38,13 @@ class ConsultingRoomController {
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const consultingRoom = await em.findOne(ConsultingRoom_1.ConsultingRoom, { idConsultingRoom: idConsultingRoom });
+            const consultingRoom = await em.findOne(ConsultingRoom_1.ConsultingRoom, { id: idConsultingRoom });
             if (!consultingRoom) {
                 throw new BaseHttpError_1.NotFoundError('Consultorio');
             }
             consultingRoom.description = description;
             await em.flush();
-            res.status(201).json({ message: 'ConsultingRoom actualizado', consultingRoom });
+            return res.status(201).json({ message: 'ConsultingRoom actualizado', consultingRoom });
         }
         catch (error) {
             console.error(error);
@@ -52,22 +52,22 @@ class ConsultingRoomController {
                 return res.status(error.status).json(error.toJSON());
             }
             else {
-                res.status(500).json({ message: 'Error al agregar consultorio' });
+                return res.status(500).json({ message: 'Error al agregar consultorio' });
             }
         }
     }
     static async getConsultingRoom(req, res) {
-        const id = Number(req.params.id);
-        if (!id) {
+        const idConsultingRoom = Number(req.params.id);
+        if (!idConsultingRoom) {
             return res.status(400).json({ message: 'Se requiere una id de consultorio' });
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const consultingRoom = await em.findOne(ConsultingRoom_1.ConsultingRoom, { idConsultingRoom: id });
+            const consultingRoom = await em.findOne(ConsultingRoom_1.ConsultingRoom, { id: idConsultingRoom });
             if (!consultingRoom) {
                 throw new BaseHttpError_1.NotFoundError('Consultorio');
             }
-            res.json(consultingRoom);
+            return res.status(200).json(consultingRoom);
         }
         catch (error) {
             console.error(error);
@@ -75,7 +75,7 @@ class ConsultingRoomController {
                 return res.status(error.status).json(error.toJSON());
             }
             else {
-                res.status(500).json({ message: 'Error al buscar consultorio' });
+                return res.status(500).json({ message: 'Error al buscar consultorio' });
             }
         }
     }
@@ -83,11 +83,11 @@ class ConsultingRoomController {
         try {
             const em = await (0, db_1.getORM)().em.fork();
             const consultingRooms = await em.find(ConsultingRoom_1.ConsultingRoom, {});
-            res.json(consultingRooms);
+            return res.status(200).json(consultingRooms);
         }
         catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Error al buscar consultorios' });
+            return res.status(500).json({ message: 'Error al buscar consultorios' });
         }
     }
     static async deleteConsultingRoom(req, res) {
@@ -97,7 +97,7 @@ class ConsultingRoomController {
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const consultingRoom = await em.findOne(ConsultingRoom_1.ConsultingRoom, { idConsultingRoom: idConsultingRoom });
+            const consultingRoom = await em.findOne(ConsultingRoom_1.ConsultingRoom, { id: idConsultingRoom });
             if (!consultingRoom) {
                 throw new BaseHttpError_1.NotFoundError('Consultorio');
             }
@@ -122,7 +122,7 @@ class ConsultingRoomController {
                 return res.status(error.status).json(error.toJSON());
             }
             else {
-                res.status(500).json({ message: 'Error al borrar consultorio' });
+                return res.status(500).json({ message: 'Error al borrar consultorio' });
             }
         }
     }
