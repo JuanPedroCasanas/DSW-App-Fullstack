@@ -26,6 +26,7 @@ import UserRoutes from './routes/UserRoutes'
 import HealthInsuranceRoutes from './routes/HealthInsuranceRoutes';
 
 import { startingCode } from './startingCode';
+import { testCode } from './testCode';
 
 const app = express();
 app.use(express.json());
@@ -67,6 +68,7 @@ async function start() {
   // descomentar estas dos líneas para que la bd se resete
   //await syncSchema(); // ⚠️Don't use this in production - resetea la bddddd
   //await startingCode(); //SACAR EN PRODUCCION
+  await testCode(); //SACAR EN PRODUCCION
 
   app.listen(port, () => {
     console.log(`App listening on http://localhost:${port}`);

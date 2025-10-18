@@ -1,12 +1,30 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./consultingRooms.css";
+import { Toast } from "@/components/Toast";
 
 /** Modelo simple: viene del backend */
 type ConsultingRoom = {
-  idConsultingRoom: string;
+  id: string;
   description: string;
   isActive: boolean;
 };
+
+//Genera un toast para las respuestas del backend
+async function handleResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
+  const resJson = await res.json().catch(() => ({}));
+
+  if (res.ok) {
+    const successMessage = `${resJson.message} Id: ${resJson.consultingRoom?.id}, Nombre: ${resJson.consultingRoom?.description}`;
+    return { message: successMessage, type: "success" };
+  } else {
+    if (res.status === 500 || res.status === 400) {
+      return { message: resJson.message ?? "Error interno del servidor", type: "error" };
+    } else {
+      const errorMessage = `Error: ${resJson.error} Codigo: ${resJson.code} ${resJson.message}`
+      return { message: errorMessage.trim(), type: "error" };
+    }
+  }
+}
 
 /* ---- Utils ---- */
 //const uid = () => Math.random().toString(36).slice(2, 10);
@@ -22,22 +40,25 @@ export default function ConsultingRooms() {
   /* Estado principal: por defecto vacío */
   const [rooms, setRooms] = useState<ConsultingRoom[]>([]);
 
-  // para ver todos los consultorios
-  useEffect(() => {
-    (async () => {
-      try {
-        //const res = await fetch("/api/ConsultingRoom/getAll"); VER por qué no funciona esta llamada
-        const res = await fetch("http://localhost:2000/ConsultingRoom/getAll");
-        const data = await res.json();
-        console.log("Consultorios recibidos:", data);
-        setRooms(data);
-      } catch (err) {
-        console.error("Error al cargar consultorios:", err);
-        alert("No se pudieron cargar los consultorios.");
-      }
-    })();
-  }, []);
+  /*Pantallita de error o exito al terminar una accion*/
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
+  // para ver todos los consultorios
+   useEffect(() => {
+   (async () => {
+ 
+       const res = await fetch("http://localhost:2000/ConsultingRoom/getAll");
+
+      if (!res.ok){
+        const toastData = await handleResponse(res);
+        setToast(toastData);
+      } else {
+        const data: ConsultingRoom[] = await res.json();
+        setRooms(data);
+      }
+
+   })()
+ }, []); 
   
   /* ---- Agregar ---- */
   const [showAdd, setShowAdd] = useState(false);
@@ -70,31 +91,30 @@ export default function ConsultingRooms() {
     setAddStep("confirm");
   };
 
-  const handleAddConfirm = async () => {
-    try {
-      const nuevo = {
-        description: (addForm.description ?? "").trim(),
-      };
+  const handleAddConfirm = () => {
+    (async () => {
 
-      const res = await fetch("http://localhost:2000/ConsultingRoom/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(nuevo),
-      });
+        const nuevo = {
+          description: (addForm.description ?? "").trim(),
+        };
 
-      if (!res.ok) throw new Error("Error al agregar consultorio");
+        const res = await fetch("http://localhost:2000/ConsultingRoom/add", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(nuevo),
+        });
+
+        const toastData = await handleResponse(res);
+        setToast(toastData);
       
-      // Recargar
-      const resGet = await fetch("http://localhost:2000/ConsultingRoom/getAll");
-      const data: ConsultingRoom[] = await resGet.json();
-      setRooms(data);
+        // Recargar
+        const resGet = await fetch("http://localhost:2000/ConsultingRoom/getAll");
+        const data: ConsultingRoom[] = await resGet.json();
+        setRooms(data);
 
-      setShowAdd(false);
+       setShowAdd(false);
 
-    } catch (err) {
-      console.error(err);
-      alert("No se pudo agregar el consultorio.");
-    }
+    })();
   };
 
 
@@ -131,68 +151,63 @@ export default function ConsultingRooms() {
     setEditStep("confirm");
   };
 
-  const handleEditConfirm = async () => {
-    if (!editTarget) return;
+  const handleEditConfirm = () => {
+  if (!editTarget) return;
+  (async () => {
 
-    try {
-      const actualizado = {
-        idConsultingRoom: editTarget.idConsultingRoom,
+      const payload = {
+        idConsultingRoom: editTarget.id,
         description: (editForm.description ?? "").trim(),
-        //isActive: editTarget.isActive,
+        isActive: editTarget.isActive,
       };
 
       const res = await fetch("http://localhost:2000/ConsultingRoom/update", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(actualizado),
+        body: JSON.stringify(payload),
       });
-
-      if (!res.ok) throw new Error("Error al editar consultorio");
-
-      const actualizadoFinal: ConsultingRoom = await res.json();
+      
+      // Refrescamos localmente
       setRooms((prev) =>
-        prev.map((r) => (r.idConsultingRoom === editTarget.idConsultingRoom ? actualizadoFinal : r))
-      );
+        prev.map((c) => (c.id === editTarget.id ? { ...c, description: payload.description } : c))
+      ); 
+
+      const toastData = await handleResponse(res);
+      setToast(toastData);
+
       closeEdit();
       
-    } catch (err) {
-      console.error(err);
-      alert("No se pudo editar el consultorio.");
-    }
-  };
+  })();
+};
 
   /* ---- Eliminar ---- */
   const [deleteTarget, setDeleteTarget] = useState<ConsultingRoom | null>(null);
   const openDelete = (r: ConsultingRoom) => setDeleteTarget(r);
   const closeDelete = () => setDeleteTarget(null);
 
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = () => {
     if (!deleteTarget) return;
-
-    try {
-
-      const res = await fetch(
-        `http://localhost:2000/ConsultingRoom/delete/${deleteTarget.idConsultingRoom}`,
-        {
-          method: "DELETE",
-        }
-      );
-
-      if (!res.ok) throw new Error("Error al eliminar consultorio");
-
+    (async () => {
+        // http://localhost:2000/ConsultingRoom/delete/${deleteTarget.idConsultingRoom}`
+        const res = await fetch(
+          `http://localhost:2000/ConsultingRoom/delete/${deleteTarget.id}`, 
+          {
+            method: "DELETE",
+        });
 
       // Recargar
-      const resGet = await fetch("http://localhost:2000/ConsultingRoom/getAll");
-      const data: ConsultingRoom[] = await resGet.json();
-      setRooms(data);
+        const resGet = await fetch("http://localhost:2000/ConsultingRoom/getAll");
+        const data: ConsultingRoom[] = await resGet.json();
+        setRooms(data);
+
+        const toastData = await handleResponse(res);
+        setToast(toastData);
 
       setDeleteTarget(null);
 
-    } catch (err) {
-      console.error(err);
-      alert("No se pudo eliminar el consultorio."); //está tirando este error, o sea es del fornt
-    }
+    })();
   };
+
 
   /* ---- DESCARTAR cambios ---- */
   const [discardCtx, setDiscardCtx] = useState<{ open: boolean; context?: "add" | "edit" }>({
@@ -257,8 +272,8 @@ export default function ConsultingRooms() {
               </thead>
               <tbody>
                 {rooms.map((r) => (
-                  <tr key={r.idConsultingRoom}>
-                    <td data-label="ID">{r.idConsultingRoom}</td>
+                  <tr key={r.id}>
+                    <td data-label="ID">{r.id}</td>
                     <td data-label="Descripción">{r.description}</td>
                     <td data-label="Activo">{r.isActive ? "Sí" : "No"}</td>
                     <td className="cr-actions">
@@ -415,7 +430,7 @@ export default function ConsultingRooms() {
                 <p id="cr-edit-desc">Verificá los datos editados.</p>
                 <ul className="cr-summary">
                   <li>
-                    <strong>ID:</strong> {editTarget?.idConsultingRoom}
+                    <strong>ID:</strong> {editTarget?.id}
                   </li>
                   <li>
                     <strong>Descripción:</strong> {editForm.description}
@@ -490,6 +505,16 @@ export default function ConsultingRooms() {
           </div>
         </div>
       )}
+
+    {/* ===== TOAST ===== */}
+    {toast && (
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast(null)}
+      />
+    )}
+
     </section>
   );
 }

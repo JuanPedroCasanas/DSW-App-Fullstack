@@ -49,20 +49,20 @@ export default function HealthInsurances() {
   /* VER TODAS */
   useEffect(() => {
   (async () => {
-    try {
 
       const res = await fetch("http://localhost:2000/HealthInsurance/getAll");
-      if (!res.ok) throw new Error("Error al cargar obras sociales");
-      const data: HealthInsurance[] = await res.json();
-      setItems(data);
 
-    } catch (e) {
-      console.error(e);
-      alert("No pude cargar las obras sociales.");
-    }
+      if (!res.ok){
+        const toastData = await handleResponse(res);
+        setToast(toastData);
+      } else {
+        const data: HealthInsurance[] = await res.json();
+        setItems(data);
+
+      }
+
   })();
 }, []);
-
 
   /* ---- Agregar ---- */
   const [showAdd, setShowAdd] = useState(false);
@@ -146,36 +146,27 @@ export default function HealthInsurances() {
   const handleEditConfirm = () => {
   if (!editTarget) return;
   (async () => {
+
       const payload = {
           id: editTarget.id, 
           name: (editForm.name ?? "").trim() };
+
       const res = await fetch("http://localhost:2000/HealthInsurance/update", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
-      const resJson = await res.json();
-
+      
       // Refrescamos localmente
       setItems((prev) =>
         prev.map((h) => (h.id === editTarget.id ? { ...h, name: payload.name } : h))
-      );
+      ); 
+
+      const toastData = await handleResponse(res);
+      setToast(toastData);
 
       closeEdit();
-
-      if (res.ok) {
-        alert(resJson.healthInsurance.name);
-        } else {
-          if (res.status == 500 || res.status == 400) {
-            alert(resJson.message);
-          } else {
-            alert(resJson.error);
-            alert(resJson.code);
-            alert(resJson.message);
-          }
-        }
-
+      
   })();
 };
 
@@ -186,7 +177,6 @@ export default function HealthInsurances() {
   const handleDeleteConfirm = () => {
     if (!deleteTarget) return;
     (async () => {
-      try {
         // http://localhost:2000/ConsultingRoom/delete/${deleteTarget.idConsultingRoom}`
         const res = await fetch(
           `http://localhost:2000/HealthInsurance/delete/${deleteTarget.id}`, 
@@ -194,19 +184,16 @@ export default function HealthInsurances() {
             method: "DELETE",
         });
 
-        if (!res.ok) throw new Error(await res.text());
-
       // Recargar
-      const resGet = await fetch("http://localhost:2000/HealthInsurance/getAll");
-      const data: HealthInsurance[] = await resGet.json();
-      setItems(data);
+        const resGet = await fetch("http://localhost:2000/HealthInsurance/getAll");
+        const data: HealthInsurance[] = await resGet.json();
+        setItems(data);
+
+        const toastData = await handleResponse(res);
+        setToast(toastData);
 
       setDeleteTarget(null);
 
-      } catch (e) {
-        console.error(e);
-        alert("No se pudo eliminar.");
-      }
     })();
   };
 

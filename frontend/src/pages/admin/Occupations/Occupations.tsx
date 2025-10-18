@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./occupations.css";
+import { Toast } from "@/components/Toast";
 
 /** Modelo simple: viene del backend */
 type Occupation = {
@@ -7,8 +8,24 @@ type Occupation = {
   name: string;
 };
 
+//Genera un toast para las respuestas del backend
+async function handleResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
+  const resJson = await res.json().catch(() => ({}));
+
+  if (res.ok) {
+    const successMessage = `${resJson.message} Id: ${resJson.occupation?.id}, Nombre: ${resJson.occupation?.name}`;
+    return { message: successMessage, type: "success" };
+  } else {
+    if (res.status === 500 || res.status === 400) {
+      return { message: resJson.message ?? "Error interno del servidor", type: "error" };
+    } else {
+      const errorMessage = `Error: ${resJson.error} Codigo: ${resJson.code} ${resJson.message}`
+      return { message: errorMessage.trim(), type: "error" };
+    }
+  }
+}
+
 /* ---- Utils ---- */
-const uid = () => Math.random().toString(36).slice(2, 10);
 const sameJSON = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 const validateOcc = (o: Partial<Occupation>) => {
   const errors: Record<string, string> = {};
@@ -21,6 +38,9 @@ export default function Occupations() {
   /* Estado principal: vacío para mostrar el estado vacío */
   const [items, setItems] = useState<Occupation[]>([]);
 
+  /*Pantallita de error o exito al terminar una accion*/
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
  /*   este funciona pero bueno */
    useEffect(() => {
    (async () => {
@@ -28,20 +48,17 @@ export default function Occupations() {
        const res = await fetch("http://localhost:2000/Occupation/getAll");
 
       // if (!res.ok) throw new Error("Error al cargar obras sociales"); deberia ir al error del backend
-      if(res.ok){
+      if (!res.ok){
+        const toastData = await handleResponse(res);
+        setToast(toastData);
+      } else {
         const data: Occupation[] = await res.json();
         setItems(data);
-      } else{
-        const err = await res.json();
-        if(err.status == 500)
-        {
-          alert(err.message);
-        }
-    }
+      }
 
    })()
  }, []); 
- 
+
   /* ---- Agregar ---- */
   const [showAdd, setShowAdd] = useState(false);
   const [addStep, setAddStep] = useState<"form" | "confirm">("form");
@@ -67,14 +84,26 @@ export default function Occupations() {
     if (Object.keys(addErrors).length) return;
     setAddStep("confirm");
   };
+
   const handleAddConfirm = () => {
-    const nuevo: Occupation = {
-      id: uid(), // en real, lo devuelve el backend
-      name: (addForm.name ?? "").trim(),
-    };
-    setItems((prev) => [...prev, nuevo]);
+  (async () => {
+    const res = await fetch("http://localhost:2000/Occupation/add", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: (addForm.name ?? "").trim() }),
+    });
+
+    const toastData = await handleResponse(res);
+    setToast(toastData);
+  
+    // Recargar
+    const resGet = await fetch("http://localhost:2000/Occupation/getAll");
+    const data: Occupation[] = await resGet.json();
+    setItems(data);
+
     setShowAdd(false);
-    alert("Especialidad agregada (simulado).");
+
+    })();
   };
 
   /* ---- Editar  ---- */
@@ -101,30 +130,69 @@ export default function Occupations() {
     if (dirty) setDiscardCtx({ open: true, context: "edit" });
     else closeEdit();
   };
+
   const handleEditContinue = (e: React.FormEvent) => {
     e.preventDefault();
     if (Object.keys(editErrors).length) return;
     setEditStep("confirm");
   };
+
   const handleEditConfirm = () => {
-    if (!editTarget) return;
-    setItems((prev) =>
-      prev.map((o) => (o.id === editTarget.id ? { ...o, name: (editForm.name ?? "").trim() } : o))
-    );
-    closeEdit();
-    alert("Especialidad actualizada (simulado).");
-  };
+    (async () => {
+
+      const payload = {
+          id: editTarget.id, 
+          name: (editForm.name ?? "").trim() 
+        };
+
+      const res = await fetch("http://localhost:2000/Occupation/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      
+      // Refrescamos localmente
+      setItems((prev) =>
+        prev.map((o) => (o.id === editTarget.id ? { ...o, name: payload.name } : o))
+      ); 
+
+      const toastData = await handleResponse(res);
+      setToast(toastData);
+
+      closeEdit();
+
+  })();
+};
 
   /* ---- Eliminar ---- */
   const [deleteTarget, setDeleteTarget] = useState<Occupation | null>(null);
   const openDelete = (o: Occupation) => setDeleteTarget(o);
   const closeDelete = () => setDeleteTarget(null);
+
   const handleDeleteConfirm = () => {
-    if (!deleteTarget) return;
-    setItems((prev) => prev.filter((o) => o.id !== deleteTarget.id));
-    setDeleteTarget(null);
-    alert("Especialidad eliminada (simulado).");
+    (async () => {
+        
+        const res = await fetch(
+          `http://localhost:2000/Occupation/delete/${deleteTarget.id}`, 
+          {
+            method: "DELETE",
+        });
+
+      // Recargar
+        const resGet = await fetch("http://localhost:2000/Occupation/getAll");
+        const data: Occupation[] = await resGet.json();
+        setItems(data);
+
+        const toastData = await handleResponse(res);
+        setToast(toastData);
+
+      setDeleteTarget(null);
+
+    })();
   };
+
+
+
 
   /* ---- DESCARTAR cambios ---- */
   const [discardCtx, setDiscardCtx] = useState<{ open: boolean; context?: "add" | "edit" }>({
@@ -136,6 +204,7 @@ export default function Occupations() {
     if (discardCtx.context === "edit") closeEdit();
     setDiscardCtx({ open: false });
   };
+
 
   /* ---- ESC para cerrar  ---- */
   useEffect(() => {
@@ -397,6 +466,16 @@ export default function Occupations() {
           </div>
         </div>
       )}
+
+    {/* ===== TOAST ===== */}
+    {toast && (
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast(null)}
+      />
+    )}
+    
     </section>
   );
 }

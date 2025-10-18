@@ -82,7 +82,7 @@ class ConsultingRoomController {
     static async getConsultingRooms(req, res) {
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const consultingRooms = await em.find(ConsultingRoom_1.ConsultingRoom, {});
+            const consultingRooms = await em.findAll(ConsultingRoom_1.ConsultingRoom, {});
             return res.status(200).json(consultingRooms);
         }
         catch (error) {

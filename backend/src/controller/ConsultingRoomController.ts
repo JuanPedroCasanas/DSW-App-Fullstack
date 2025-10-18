@@ -99,9 +99,11 @@ export class ConsultingRoomController {
 
     static async getConsultingRooms(req: Request, res: Response) {
         try {
+
             const em = await getORM().em.fork();
-            const consultingRooms = await em.find(ConsultingRoom, {});
+            const consultingRooms = await em.findAll(ConsultingRoom, {});
             return res.status(200).json(consultingRooms);
+
         } catch (error) {
             console.error(error);
             return res.status(500).json({ message: 'Error al buscar consultorios' });

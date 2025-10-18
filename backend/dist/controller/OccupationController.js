@@ -26,9 +26,9 @@ class OccupationController {
         }
     }
     static async updateOccupation(req, res) {
-        const { idOccupation } = req.body;
+        const { id } = req.body;
         const { name } = req.body;
-        if (!idOccupation) {
+        if (!id) {
             return res.status(400).json({ message: 'Se requiere el ID de la especialidad' });
         }
         if (!name) {
@@ -36,12 +36,12 @@ class OccupationController {
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const occupation = await em.findOne(Occupation_1.Occupation, { id: idOccupation });
+            const occupation = await em.findOne(Occupation_1.Occupation, { id: id });
             if (!occupation) {
                 throw new core_1.NotFoundError('Especialidad');
             }
             occupation.name = name;
-            await em.persistAndFlush(occupation);
+            await em.flush();
             return res.status(201).json({ message: 'Especialidad actualizada', occupation });
         }
         catch (error) {
@@ -100,7 +100,7 @@ class OccupationController {
                 throw new core_1.NotFoundError('Especialidad');
             }
             await em.removeAndFlush(occupation); //No vemos necesidad de borrado logico aca, tampoco necesidad de cascade, es un caso muy extremo en terminos de negocio
-            return res.status(200).json(occupation);
+            return res.status(200).json({ message: 'Especialidad eliminada', occupation });
         }
         catch (error) {
             console.error(error);

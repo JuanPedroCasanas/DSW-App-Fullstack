@@ -25,7 +25,7 @@ const ProfessionalRoutes_1 = __importDefault(require("./routes/ProfessionalRoute
 const LegalGuardianRoutes_1 = __importDefault(require("./routes/LegalGuardianRoutes"));
 const UserRoutes_1 = __importDefault(require("./routes/UserRoutes"));
 const HealthInsuranceRoutes_1 = __importDefault(require("./routes/HealthInsuranceRoutes"));
-const startingCode_1 = require("./startingCode");
+const testCode_1 = require("./testCode");
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
@@ -55,8 +55,9 @@ app.use((_, res) => {
 async function start() {
     await (0, db_1.initORM)();
     // descomentar estas dos líneas para que la bd se resete
-    await (0, db_1.syncSchema)(); // ⚠️Don't use this in production - resetea la bddddd
-    await (0, startingCode_1.startingCode)(); //SACAR EN PRODUCCION
+    //await syncSchema(); // ⚠️Don't use this in production - resetea la bddddd
+    //await startingCode(); //SACAR EN PRODUCCION
+    await (0, testCode_1.testCode)(); //SACAR EN PRODUCCION
     app.listen(port, () => {
         console.log(`App listening on http://localhost:${port}`);
     });
