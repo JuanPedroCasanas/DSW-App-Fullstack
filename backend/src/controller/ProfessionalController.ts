@@ -87,7 +87,7 @@ export class ProfessionalController {
             const em = await getORM().em.fork();
             const professional = await em.findOne(Professional, {id: idProfessional});
 
-            if(!professional)
+            if(!professional|| !professional?.isActive)
             {
                 throw new NotFoundError('Profesional');
             }
@@ -122,7 +122,7 @@ export class ProfessionalController {
         try {
             const em = await getORM().em.fork();
             const professional = await em.findOne(Professional, { id : idProfessional });
-            if(!professional) {
+            if(!professional || !professional?.isActive) {
                 throw new NotFoundError('Profesional');
             }
             const healthInsurance = await em.findOne(HealthInsurance, { id : idHealthInsurance });
@@ -159,7 +159,7 @@ export class ProfessionalController {
         try {
             const em = await getORM().em.fork();
             const professional = await em.findOne(Professional, { id : idProfessional });
-            if(!professional) {
+            if(!professional || !professional?.isActive) {
                 throw new NotFoundError('Profesional');
             }
             const healthInsurance = await em.findOne(HealthInsurance, { id : idHealthInsurance });
@@ -197,7 +197,7 @@ export class ProfessionalController {
         try {
             const em = await getORM().em.fork();
             const professional = await em.findOne(Professional, { id: idProfessional });
-            if (!professional) {
+            if (!professional || !professional?.isActive) {
                 throw new NotFoundError('Profesional');
             }
             return res.status(200).json(professional);
@@ -235,7 +235,7 @@ export class ProfessionalController {
             const em = await getORM().em.fork();
             const professional = await em.findOne(Professional, { id : idProfessional });
 
-            if (!professional) {
+            if (!professional || !professional?.isActive) {
                 throw new NotFoundError('Profesional');
             }
 

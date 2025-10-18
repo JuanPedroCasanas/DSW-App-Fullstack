@@ -83,7 +83,7 @@ class LegalGuardianController {
         const em = await (0, db_1.getORM)().em.fork();
         const legalGuardian = await em.findOne(LegalGuardian_1.LegalGuardian, { id: id });
         try {
-            if (!legalGuardian) {
+            if (!legalGuardian || !legalGuardian?.isActive) {
                 throw new BaseHttpError_1.NotFoundError('Responsable Legal');
             }
             legalGuardian.firstName = firstName;
@@ -116,7 +116,7 @@ class LegalGuardianController {
         try {
             const em = await (0, db_1.getORM)().em.fork();
             const legalGuardian = await em.findOne(LegalGuardian_1.LegalGuardian, { id: idLegalGuardian });
-            if (!legalGuardian) {
+            if (!legalGuardian || !legalGuardian?.isActive) {
                 throw new BaseHttpError_1.NotFoundError('Responsable Legal');
             }
             return res.status(200).json(LegalGuardian_1.LegalGuardian);
@@ -139,7 +139,7 @@ class LegalGuardianController {
         try {
             const em = await (0, db_1.getORM)().em.fork();
             const legalGuardian = await em.findOne(LegalGuardian_1.LegalGuardian, { id: idLegalGuardian });
-            if (!legalGuardian) {
+            if (!legalGuardian || !legalGuardian?.isActive) {
                 throw new BaseHttpError_1.NotFoundError('Responsable Legal');
             }
             await legalGuardian.guardedPatients.init(); // Las colecciones entiendo son lazy loaded, espero a que carguen
@@ -164,7 +164,7 @@ class LegalGuardianController {
         try {
             const em = await (0, db_1.getORM)().em.fork();
             const legalGuardian = await em.findOne(LegalGuardian_1.LegalGuardian, { id: idLegalGuardian });
-            if (!legalGuardian) {
+            if (!legalGuardian || !legalGuardian?.isActive) {
                 throw new BaseHttpError_1.NotFoundError('Responsable Legal');
             }
             legalGuardian.isActive = false;

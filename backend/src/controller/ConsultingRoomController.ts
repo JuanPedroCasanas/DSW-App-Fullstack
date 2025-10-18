@@ -51,7 +51,7 @@ export class ConsultingRoomController {
             const em = await getORM().em.fork();
             const consultingRoom = await em.findOne(ConsultingRoom, { id: idConsultingRoom });
 
-            if(!consultingRoom)
+            if(!consultingRoom|| !consultingRoom?.isActive)
             {
                 throw new NotFoundError('Consultorio');
             }
@@ -82,7 +82,7 @@ export class ConsultingRoomController {
         try {
             const em = await getORM().em.fork();
             const consultingRoom = await em.findOne(ConsultingRoom, { id: idConsultingRoom });
-            if (!consultingRoom) {
+            if (!consultingRoom|| !consultingRoom?.isActive) {
                 throw new NotFoundError('Consultorio');
             }
             return res.status(200).json(consultingRoom);
@@ -122,7 +122,7 @@ export class ConsultingRoomController {
             const em = await getORM().em.fork();
             const consultingRoom = await em.findOne(ConsultingRoom, { id: idConsultingRoom });
 
-            if (!consultingRoom) {
+            if (!consultingRoom || !consultingRoom?.isActive) {
                 throw new NotFoundError('Consultorio')
             }
             

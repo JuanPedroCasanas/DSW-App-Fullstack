@@ -75,7 +75,7 @@ class ProfessionalController {
         try {
             const em = await (0, db_1.getORM)().em.fork();
             const professional = await em.findOne(Professional_1.Professional, { id: idProfessional });
-            if (!professional) {
+            if (!professional || !professional?.isActive) {
                 throw new BaseHttpError_1.NotFoundError('Profesional');
             }
             professional.firstName = firstName;
@@ -105,7 +105,7 @@ class ProfessionalController {
         try {
             const em = await (0, db_1.getORM)().em.fork();
             const professional = await em.findOne(Professional_1.Professional, { id: idProfessional });
-            if (!professional) {
+            if (!professional || !professional?.isActive) {
                 throw new BaseHttpError_1.NotFoundError('Profesional');
             }
             const healthInsurance = await em.findOne(HealthInsurance_1.HealthInsurance, { id: idHealthInsurance });
@@ -137,7 +137,7 @@ class ProfessionalController {
         try {
             const em = await (0, db_1.getORM)().em.fork();
             const professional = await em.findOne(Professional_1.Professional, { id: idProfessional });
-            if (!professional) {
+            if (!professional || !professional?.isActive) {
                 throw new BaseHttpError_1.NotFoundError('Profesional');
             }
             const healthInsurance = await em.findOne(HealthInsurance_1.HealthInsurance, { id: idHealthInsurance });
@@ -169,7 +169,7 @@ class ProfessionalController {
         try {
             const em = await (0, db_1.getORM)().em.fork();
             const professional = await em.findOne(Professional_1.Professional, { id: idProfessional });
-            if (!professional) {
+            if (!professional || !professional?.isActive) {
                 throw new BaseHttpError_1.NotFoundError('Profesional');
             }
             return res.status(200).json(professional);
@@ -203,7 +203,7 @@ class ProfessionalController {
         try {
             const em = await (0, db_1.getORM)().em.fork();
             const professional = await em.findOne(Professional_1.Professional, { id: idProfessional });
-            if (!professional) {
+            if (!professional || !professional?.isActive) {
                 throw new BaseHttpError_1.NotFoundError('Profesional');
             }
             professional.isActive = false;

@@ -124,7 +124,7 @@ class PatientController {
             }
             const em = await (0, db_1.getORM)().em.fork();
             const patient = await em.findOne(Patient_1.Patient, { id: idPatient });
-            if (!patient) {
+            if (!patient || !patient?.isActive) {
                 throw new BaseHttpError_1.NotFoundError("Paciente");
             }
             patient.firstName = firstName;
@@ -152,7 +152,7 @@ class PatientController {
         try {
             const em = await (0, db_1.getORM)().em.fork();
             const patient = await em.findOne(Patient_1.Patient, { id: idPatient });
-            if (!patient) {
+            if (!patient || !patient?.isActive) {
                 throw new BaseHttpError_1.NotFoundError("Paciente");
             }
             return res.status(200).json(patient);
@@ -186,7 +186,7 @@ class PatientController {
         try {
             const em = await (0, db_1.getORM)().em.fork();
             const patient = await em.findOne(Patient_1.Patient, { id: idPatient });
-            if (!patient) {
+            if (!patient || !patient?.isActive) {
                 throw new BaseHttpError_1.NotFoundError("Paciente");
             }
             patient.isActive = false;

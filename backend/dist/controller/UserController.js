@@ -17,12 +17,15 @@ class UserController {
         try {
             const em = (await (0, db_1.getORM)()).em.fork();
             const { mail, password } = req.body;
+            if (!mail || !password) {
+                return res.status(400).json({ error: 'Email o contraseña incorrecta' });
+            }
             const user = await em.findOne(User_1.User, { mail });
             if (!user)
-                return res.status(404).json({ error: 'User not found' });
+                return res.status(404).json({ error: 'User no encontrado' });
             const valid = await bcrypt_1.default.compare(password, user.password);
             if (!valid)
-                return res.status(401).json({ error: 'Invalid credentials' });
+                return res.status(401).json({ error: 'Credenciales Invalidos' });
             const token = jsonwebtoken_1.default.sign({ idUser: user.id }, JWT_SECRET, { expiresIn: '1h' });
             res.json({ user, token });
         }
@@ -40,7 +43,7 @@ class UserController {
     static async getOne(req, res) {
         const em = (await (0, db_1.getORM)()).em.fork();
         const user = await em.findOne(User_1.User, { id: Number(req.params.id) });
-        if (!user)
+        if (!user || !user?.isActive)
             return res.status(404).json({ error: 'User not found' });
         res.json(user);
     }
@@ -56,7 +59,7 @@ class UserController {
             }
             const em = (await (0, db_1.getORM)()).em.fork();
             const user = await em.findOne(User_1.User, { id: Number(req.params.id) });
-            if (!user) {
+            if (!user || !user?.isActive) {
                 throw new BaseHttpError_1.NotFoundError('Usuario');
             }
             user.mail = mail;

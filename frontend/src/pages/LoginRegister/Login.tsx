@@ -1,16 +1,23 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import "./login.css"; // creamos este archivo en el paso 2
 // import eyeIcon from "./eyeicon.png"; // de alguna manera asi no funciona, pero bueno!
 
+type User = {
+  mail: string;
+  password: string;
+  isActive:boolean;
+};
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
-  const [remember, setRemember] = useState(true);
-  const [message, setMessage] = useState('');      
-  const [isError, setIsError] = useState(false);   
-  const [isLoading, setIsLoading] = useState(false); 
+  const [remember, setRemember] = useState(false);
+  const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const eyeIconUrl = new URL("./eyeicon.png", import.meta.url).href; // tengo que hacer esta huevada para que me vea el ojito! podes creer!
   
@@ -69,6 +76,7 @@ export default function Login() {
             
           
             setMessage("¡Inicio de sesión exitoso!");
+            navigate ('/admin)');
             
             
         } else {

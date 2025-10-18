@@ -148,7 +148,7 @@ export class PatientController {
             const em = await getORM().em.fork();
             const patient = await em.findOne(Patient, {id: idPatient});
 
-            if(!patient)
+            if(!patient|| !patient?.isActive)
             {
                 throw new NotFoundError("Paciente")
             }
@@ -176,13 +176,13 @@ export class PatientController {
     static async getPatient(req: Request, res: Response) {
         const idPatient = Number(req.params.id);
 
-        if (!idPatient) {
+        if (!idPatient      ) {
             return res.status(400).json({ message: 'Se requiere la ID del paciente' });
         }
         try {
             const em = await getORM().em.fork();
             const patient = await em.findOne(Patient, { id: idPatient });
-            if (!patient) {
+            if (!patient|| !patient?.isActive) {
                 throw new NotFoundError("Paciente")
             }
             return res.status(200).json(patient);
@@ -219,7 +219,7 @@ export class PatientController {
             const em = await getORM().em.fork();
             const patient = await em.findOne(Patient, { id : idPatient });
 
-            if (!patient) {
+            if (!patient || !patient?.isActive) {
                 throw new NotFoundError("Paciente")
             }
 

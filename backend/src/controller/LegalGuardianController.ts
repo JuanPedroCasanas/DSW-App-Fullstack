@@ -95,7 +95,7 @@ export class LegalGuardianController {
         const legalGuardian = await em.findOne(LegalGuardian, {id: id});
 
             try {
-            if(!legalGuardian)
+            if(!legalGuardian|| !legalGuardian?.isActive)
             {
                 throw new NotFoundError('Responsable Legal');
             }
@@ -137,7 +137,7 @@ export class LegalGuardianController {
         try {
             const em = await getORM().em.fork();
             const legalGuardian = await em.findOne(LegalGuardian, { id: idLegalGuardian });
-            if (!legalGuardian) {
+            if (!legalGuardian|| !legalGuardian?.isActive) {
                 throw new NotFoundError('Responsable Legal')
             }
             return res.status(200).json(LegalGuardian);
@@ -161,7 +161,7 @@ export class LegalGuardianController {
         try {
             const em = await getORM().em.fork();
             const legalGuardian = await em.findOne(LegalGuardian, { id: idLegalGuardian });
-            if (!legalGuardian) {
+            if (!legalGuardian|| !legalGuardian?.isActive) {
                 throw new NotFoundError('Responsable Legal')
             }
             await legalGuardian.guardedPatients.init(); // Las colecciones entiendo son lazy loaded, espero a que carguen
@@ -188,7 +188,7 @@ export class LegalGuardianController {
             const em = await getORM().em.fork();
             const legalGuardian = await em.findOne(LegalGuardian, { id : idLegalGuardian });
 
-            if (!legalGuardian) {
+            if (!legalGuardian|| !legalGuardian?.isActive) {
                 throw new NotFoundError('Responsable Legal');
             }
 

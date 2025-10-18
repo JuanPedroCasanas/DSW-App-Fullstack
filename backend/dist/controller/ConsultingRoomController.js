@@ -39,7 +39,7 @@ class ConsultingRoomController {
         try {
             const em = await (0, db_1.getORM)().em.fork();
             const consultingRoom = await em.findOne(ConsultingRoom_1.ConsultingRoom, { id: idConsultingRoom });
-            if (!consultingRoom) {
+            if (!consultingRoom || !consultingRoom?.isActive) {
                 throw new BaseHttpError_1.NotFoundError('Consultorio');
             }
             consultingRoom.description = description;
@@ -64,7 +64,7 @@ class ConsultingRoomController {
         try {
             const em = await (0, db_1.getORM)().em.fork();
             const consultingRoom = await em.findOne(ConsultingRoom_1.ConsultingRoom, { id: idConsultingRoom });
-            if (!consultingRoom) {
+            if (!consultingRoom || !consultingRoom?.isActive) {
                 throw new BaseHttpError_1.NotFoundError('Consultorio');
             }
             return res.status(200).json(consultingRoom);
@@ -98,7 +98,7 @@ class ConsultingRoomController {
         try {
             const em = await (0, db_1.getORM)().em.fork();
             const consultingRoom = await em.findOne(ConsultingRoom_1.ConsultingRoom, { id: idConsultingRoom });
-            if (!consultingRoom) {
+            if (!consultingRoom || !consultingRoom?.isActive) {
                 throw new BaseHttpError_1.NotFoundError('Consultorio');
             }
             consultingRoom.isActive = false;

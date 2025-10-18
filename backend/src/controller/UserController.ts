@@ -3,7 +3,7 @@ import { getORM } from '../orm/db';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { User } from '../model/entities/User';
-import { BaseHttpError, NotFoundError } from '../model/errors/BaseHttpError';
+import { BaseHttpError, InvalidEmailFormatError, NotFoundError } from '../model/errors/BaseHttpError';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
 const SALT_ROUNDS = parseInt(process.env.SALT_ROUNDS ?? "10") //Los env son strings, parseo por las dudas y si no esta definido defaulteo a 10
@@ -15,12 +15,15 @@ export class UserController {
         try {
             const em = (await getORM()).em.fork();
             const { mail, password } = req.body;
+            if (!mail || !password) {
+                return res.status(400).json({ error: 'Email o contraseña incorrecta' });
+            }
 
             const user = await em.findOne(User, { mail });
-            if (!user) return res.status(404).json({ error: 'User not found' });
+            if (!user) return res.status(404).json({ error: 'User no encontrado' });
 
             const valid = await bcrypt.compare(password, user.password);
-            if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
+            if (!valid) return res.status(401).json({ error: 'Credenciales Invalidos' });
 
             const token = jwt.sign({ idUser: user.id }, JWT_SECRET, { expiresIn: '1h' });
             res.json({ user, token });
@@ -41,7 +44,8 @@ export class UserController {
     static async getOne(req: Request, res: Response) {
         const em = (await getORM()).em.fork();
         const user = await em.findOne(User, { id: Number(req.params.id) });
-        if (!user) return res.status(404).json({ error: 'User not found' });
+        if (!user||!user?.isActive) 
+            return res.status(404).json({ error: 'User not found' });
         res.json(user);
     }
 
@@ -61,7 +65,7 @@ export class UserController {
                 const em = (await getORM()).em.fork();
                 const user = await em.findOne(User, { id: Number(req.params.id) });
                 
-                if (!user) {
+                if (!user|| !user?.isActive) {
                     throw new NotFoundError('Usuario');
                 }
 
