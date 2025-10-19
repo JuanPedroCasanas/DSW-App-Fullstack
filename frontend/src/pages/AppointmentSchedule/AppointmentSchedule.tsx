@@ -1,9 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import './appointmentSchedule.css';
 
-// ========================
-// Utilidades de fechas
-// ========================
+/* =================== Utils de fechas =================== */
 function pad(n: number) { return n.toString().padStart(2,'0'); }
 function toISO(d: Date) { return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
 function toDDMMYYYY(iso: string) {
@@ -16,93 +14,128 @@ function getMonthMeta(base: Date) {
   const first = new Date(year, month, 1);
   const last = new Date(year, month+1, 0);
   const daysInMonth = last.getDate();
-  // Semana que empieza en Lunes (1) y termina en Domingo (0 o 7)
-  const jsDayToMonStart = (d: number) => (d === 0 ? 7 : d); // 1..7
-  const leadingBlanks = jsDayToMonStart(first.getDay()) - 1; // 0..6
+  const jsDayToMonStart = (d: number) => (d === 0 ? 7 : d); // L=1..D=7
+  const leadingBlanks = jsDayToMonStart(first.getDay()) - 1;
   const monthName = base.toLocaleString('es-AR', { month: 'long' });
   return { year, month, first, last, daysInMonth, leadingBlanks, monthName };
 }
 function isPast(d: Date) {
   const now = new Date();
-  // Comparar por fecha sin hora
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const cmp = new Date(d.getFullYear(), d.getMonth(), d.getDate());
   return cmp < today;
 }
 
-// ========================
-// HARDCODEADOOSSSS 
-// hay que eliminarlossss
-// solo como ejemplo :)
-type Specialty = { id: 'psi' | 'psp'; nombre: string };
+/* =================== Tipos & Config =================== */
 
-const SPECIALTIES: Specialty[] = [
-  { id: 'psi', nombre: 'Psicología' },
-  { id: 'psp', nombre: 'Psicopedagogía' },
-];
+type Occupation = { id: string; name: string };
 
-type Professional = { id: string; nombre: string; specialtyId: Specialty['id'] };
+type Professional = {
+  id: string;
+  firstName: string;
+  lastName: string;
+};
 
-const PROFESSIONALS: Professional[] = [
-  // Psicología
-  { id: 'p-ana', nombre: 'Lic. Ana Pérez', specialtyId: 'psi' },
-  { id: 'p-martin', nombre: 'Lic. Martín Gómez', specialtyId: 'psi' },
-  // Psicopedagogía
-  { id: 'p-sofia', nombre: 'Lic. Sofía Torres', specialtyId: 'psp' },
-  { id: 'p-diego', nombre: 'Lic. Diego Rivas', specialtyId: 'psp' },
-];
+type AppointmentStatus = 'assigned' | 'completed' | 'canceled' | 'missed';
+type Appointment = {
+  id: string;
+  professionalId: string;
+  occupationId: string; // en backend es "occupation", no "specialty"
+  dateISO: string;      // YYYY-MM-DD
+  time: string;         // HH:mm
+  status: AppointmentStatus;
+};
 
-// Config de slots de ejemplo (siempre 60')
-const EXAMPLE_SLOTS = ['09:00','10:00','11:00','14:00','15:00','16:00'];
+// Slots fijos de 60' (si el backend provee agenda dinámica, avisame y lo integramos)
+const WORKING_SLOTS = ['09:00','10:00','11:00','14:00','15:00','16:00'];
 
-// Disponibilidad por profesional en el mes actual: lista de días del mes que tienen al menos 1 turno.
-// Por simplicidad, asigno distintos patrones. Domingos NO cuentan disponibilidad.
-function buildAvailabilityForCurrentMonth() {
-  const base = new Date();
-  const { year, month, daysInMonth } = getMonthMeta(base);
-  const isSunday = (d: Date) => d.getDay() === 0;
+/* =================== API layer =================== */
+async function safeText(res: Response) { try { return await res.text(); } catch { return ''; } }
 
-  const patterns: Record<string, number[]> = {
-    // Días del mes con disponibilidad por profesional (números de día)
-    'p-ana': [1, 3, 5, 8, 10, 15, 17, 22, 24, 29],
-    'p-martin': [2, 4, 9, 11, 16, 18, 23, 25, 30],
-    'p-sofia': [1, 6, 7, 13, 14, 20, 21, 27, 28],
-    'p-diego': [2, 5, 12, 19, 26],
-  };
-  
-  const availability: Record<string, Set<string>> = {};
+async function apiGetAllAppointments(): Promise<Appointment[]> {
+  const res = await fetch(`http://localhost:2000/Appointment/getAll`, { method: 'GET' });
+  if (!res.ok) {
+    const msg = await safeText(res);
+    throw new Error(`Error al cargar turnos (${res.status}): ${msg || res.statusText}`);
+  }
+  return res.json();
+}
 
-  Object.keys(patterns).forEach(pid => {
-    availability[pid] = new Set<string>();
-    patterns[pid].forEach(dayNum => {
-      if (dayNum >= 1 && dayNum <= daysInMonth) {
-        const d = new Date(year, month, dayNum);
-        if (!isSunday(d)) {
-          availability[pid].add(toISO(d));
-        }
-      }
-    });
+async function apiAssignAppointment(payload: {
+  professionalId: string;
+  occupationId: string;
+  dateISO: string;
+  time: string;
+}) {
+  const res = await fetch(`http://localhost:2000/Appointment/assign`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
   });
-  return availability;
+  if (res.status === 409) {
+    const msg = await safeText(res);
+    const err: any = new Error(msg || 'Conflicto: el turno ya fue tomado.');
+    err.name = 'ConflictError';
+    throw err;
+  }
+  if (!res.ok) {
+    const msg = await safeText(res);
+    throw new Error(`Error al confirmar turno (${res.status}): ${msg || res.statusText}`);
+  }
+  try { return await res.json(); } catch { return {}; }
 }
 
-const AVAILABILITY_BY_PRO = buildAvailabilityForCurrentMonth();
-
-// Slots por fecha: para hacerlo visible, algunos días tendrán menos ranuras.
-function getSlotsFor(professionalId: string, isoDate: string): string[] {
-  const available = AVAILABILITY_BY_PRO[professionalId];
-  if (!available || !available.has(isoDate)) return [];
-  // Sembrar variedad: según el día del mes
-  const day = parseInt(isoDate.split('-')[2], 10);
-  if (day % 5 === 0) return ['09:00', '10:00'];
-  if (day % 3 === 0) return ['11:00', '14:00', '15:00'];
-  return EXAMPLE_SLOTS;
+async function apiGetOccupations(): Promise<Occupation[]> {
+  const res = await fetch(`http://localhost:2000/Occupation/getAll`, { method: 'GET' });
+  if (!res.ok) {
+    const msg = await safeText(res);
+    throw new Error(`Error al cargar especialidades (${res.status}): ${msg || res.statusText}`);
+  }
+  return res.json();
 }
 
-// ========================
-// Componentes
-// ========================
+async function apiGetProfessionalsByOccupation(occupationId: string): Promise<Professional[]> {
+  // Ruta final que dejaste: /getProfessionalsByOccupation/:id
+  const res = await fetch(`http://localhost:2000/Professional/getProfessionalsByOccupation/${encodeURIComponent(occupationId)}`, {
+    method: 'GET'
+  });
+  if (!res.ok) {
+    const msg = await safeText(res);
+    throw new Error(`Error al cargar profesionales (${res.status}): ${msg || res.statusText}`);
+  }
+  return res.json();
+}
 
+/* =================== Derivadores de disponibilidad =================== */
+function deriveAvailableDaysForMonth(appointments: Appointment[], professionalId: string, base: Date) {
+  const { year, month, daysInMonth } = getMonthMeta(base);
+  const set = new Set<string>();
+  for (let d=1; d<=daysInMonth; d++) {
+    const date = new Date(year, month, d);
+    const iso = toISO(date);
+    const isSunday = date.getDay() === 0;
+    if (isSunday || isPast(date)) continue;
+    const dayTaken = new Set(
+      appointments
+        .filter(a => a.professionalId === professionalId && a.dateISO === iso && (a.status === 'assigned' || a.status === 'completed'))
+        .map(a => a.time)
+    );
+    const hasFree = WORKING_SLOTS.some(h => !dayTaken.has(h));
+    if (hasFree) set.add(iso);
+  }
+  return set;
+}
+
+function deriveFreeSlotsForDay(appointments: Appointment[], professionalId: string, dateISO: string) {
+  const taken = new Set(
+    appointments
+      .filter(a => a.professionalId === professionalId && a.dateISO === dateISO && (a.status === 'assigned' || a.status === 'completed'))
+      .map(a => a.time)
+  );
+  return WORKING_SLOTS.filter(h => !taken.has(h));
+}
+
+/* =================== UI helpers =================== */
 const WeekdayLabels: React.FC = () => (
   <div className="appointment-schedule__weekday-row" aria-hidden>
     {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((w, i) => (
@@ -110,62 +143,126 @@ const WeekdayLabels: React.FC = () => (
     ))}
   </div>
 );
+const fullName = (p?: Professional) => p ? `${p.firstName} ${p.lastName}` : '' ;
 
+/* =================== Componente =================== */
 export default function AppointmentSchedule() {
-  const today = new Date(); // ver,,,,
-  const [selectedSpecialtyId, setSelectedSpecialtyId] = useState<Specialty['id'] | ''>('');
+  //hago esto para evitar un loop infinito 
+  const todayRef = React.useRef(new Date());     // se conserva entre renders
+  const today = todayRef.current;
+
+
+  // Catálogos
+  const [occupations, setOccupations] = useState<Occupation[]>([]);
+  const [professionals, setProfessionals] = useState<Professional[]>([]);
+  const [loadingMeta, setLoadingMeta] = useState(true);
+  const [loadingProfessionals, setLoadingProfessionals] = useState(false);
+
+  // Filtros
+  const [selectedOccupationId, setSelectedOccupationId] = useState<Occupation['id']>('');
   const [selectedProfessionalId, setSelectedProfessionalId] = useState<string>('');
+
+  // Selección
   const [selectedDateISO, setSelectedDateISO] = useState<string>('');
   const [selectedSlot, setSelectedSlot] = useState<string>('');
 
+  // Turnos
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loadingMonth, setLoadingMonth] = useState(false);
   const [loadingSlots, setLoadingSlots] = useState(false);
-  const [slots, setSlots] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
+  // Modal
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [bookingState, setBookingState] = useState<'idle'|'submitting'|'success'|'error'>('idle');
 
-  // Filtro de profesionales por especialidad
-  const professionals = useMemo(() => {
-    return PROFESSIONALS.filter(p => p.specialtyId === selectedSpecialtyId);
-  }, [selectedSpecialtyId]);
+  /* Carga inicial: occupations */
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        setLoadingMeta(true);
+        const occs = await apiGetOccupations();
+        if (cancelled) return;
+        setOccupations(occs);
+      } catch (e: any) {
+        setError(e?.message || 'No se pudieron cargar las especialidades.');
+      } finally {
+        setLoadingMeta(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
-  const currentMonthMeta = useMemo(() => getMonthMeta(today), []);
-
-  // Reset dependencias cuando cambia selección
+  /* Al cambiar Especialidad, traer profesionales filtrados */
   useEffect(() => {
     setSelectedProfessionalId('');
     setSelectedDateISO('');
     setSelectedSlot('');
-  }, [selectedSpecialtyId]);
+    setProfessionals([]);
+
+    if (!selectedOccupationId) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        setLoadingProfessionals(true);
+        const pros = await apiGetProfessionalsByOccupation(String(selectedOccupationId));
+        if (cancelled) return;
+        setProfessionals(pros);
+      } catch (e: any) {
+        setError(e?.message || 'No se pudieron cargar los profesionales.');
+        setProfessionals([]);
+      } finally {
+        setLoadingProfessionals(false);
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [selectedOccupationId]);
+
+  /* Al elegir profesional, cargar turnos del mes (y filtrar por mes actual) */
+  const currentMonthMeta = useMemo(() => getMonthMeta(today), []);
 
   useEffect(() => {
     setSelectedDateISO('');
     setSelectedSlot('');
     if (!selectedProfessionalId) return;
-    // Simular carga de disponibilidad mensual
-    setLoadingMonth(true);
-    const t = setTimeout(() => setLoadingMonth(false), 400);
-    return () => clearTimeout(t);
-  }, [selectedProfessionalId]);
 
-  useEffect(() => {
-    setSelectedSlot('');
-    if (!selectedProfessionalId || !selectedDateISO) { setSlots([]); return; }
-    setLoadingSlots(true);
-    const t = setTimeout(() => {
-      setSlots(getSlotsFor(selectedProfessionalId, selectedDateISO));
-      setLoadingSlots(false);
-    }, 350);
-    return () => clearTimeout(t);
-  }, [selectedProfessionalId, selectedDateISO]);
+    let cancelled = false;
+    (async () => {
+      try {
+        setError(null);
+        setLoadingMonth(true);
+        // Si tu backend acepta filtros: /getAll?professionalId=...&month=YYYY-MM
+        const all = await apiGetAllAppointments();
+        if (cancelled) return;
 
-  // Helpers de render del calendario
+        const { year, month } = currentMonthMeta;
+        const start = new Date(year, month, 1);
+        const end = new Date(year, month+1, 0);
+        const inMonth = all.filter(a => {
+          const [Y,M,D] = a.dateISO.split('-').map(Number);
+          const d = new Date(Y, (M-1), D);
+          return d >= start && d <= end;
+        });
+
+        setAppointments(inMonth);
+      } catch (e: any) {
+        setError(e?.message || 'Error al cargar turnos.');
+        setAppointments([]);
+      } finally {
+        setLoadingMonth(false);
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [selectedProfessionalId, currentMonthMeta]);
+
+  /* Disponibilidad & slots derivados */
   const daysArray = useMemo(() => {
-    
-    // year month todavia no lo usamos pero lo dejo por las dudas
     const { daysInMonth, leadingBlanks } = currentMonthMeta;
-    const items: (number | null)[] = [];
+    const items: (number|null)[] = [];
     for (let i=0; i<leadingBlanks; i++) items.push(null);
     for (let d=1; d<=daysInMonth; d++) items.push(d);
     return items;
@@ -177,36 +274,73 @@ export default function AppointmentSchedule() {
     return `${cap} ${today.getFullYear()}`;
   }, [currentMonthMeta, today]);
 
-  const canOpenCalendar = selectedProfessionalId !== '';
+  const availableDays = useMemo(() => {
+    if (!selectedProfessionalId) return new Set<string>();
+    return deriveAvailableDaysForMonth(appointments, selectedProfessionalId, today);
+  }, [appointments, selectedProfessionalId, today]);
 
-  // Reglas de selección de día
+  const slots = useMemo(() => {
+    if (!selectedProfessionalId || !selectedDateISO) return [];
+    return deriveFreeSlotsForDay(appointments, selectedProfessionalId, selectedDateISO);
+  }, [appointments, selectedProfessionalId, selectedDateISO]);
+
+  useEffect(() => {
+    if (!selectedProfessionalId || !selectedDateISO) { setLoadingSlots(false); return; }
+    setLoadingSlots(true);
+    const t = setTimeout(() => setLoadingSlots(false), 250);
+    return () => clearTimeout(t);
+  }, [selectedProfessionalId, selectedDateISO]);
+
   function dayState(dayNum: number | null) {
     if (dayNum === null) return { disabled: true, available: false, iso: '' };
     const d = new Date(today.getFullYear(), today.getMonth(), dayNum);
     const iso = toISO(d);
-    const isSunday = d.getDay() === 0; // domingo
+    const isSunday = d.getDay() === 0;
     const past = isPast(d);
-    const available = !!selectedProfessionalId && !!AVAILABILITY_BY_PRO[selectedProfessionalId]?.has(iso);
-    // Reglas: no seleccionar si pasado, si domingo o si no hay disponibilidad
+    const available = !!selectedProfessionalId && availableDays.has(iso);
     const disabled = past || isSunday || !available || !canOpenCalendar;
     return { disabled, available, iso };
   }
 
-  const selectedSpecialty = SPECIALTIES.find(s => s.id === selectedSpecialtyId);
-  const selectedProfessional = PROFESSIONALS.find(p => p.id === selectedProfessionalId);
+  const selectedOccupation = occupations.find(s => s.id === selectedOccupationId);
+  const selectedProfessional = professionals.find(p => p.id === selectedProfessionalId);
 
-  // Acciones
-  function onConfirm() {
+  async function onConfirm() {
+    if (!selectedOccupationId || !selectedProfessionalId || !selectedDateISO || !selectedSlot) return;
     setBookingState('submitting');
-    // Simular reserva; sin precio, presencial, 60'
-    setTimeout(() => {
-      // 1/20 chance de error de concurrencia
-      if (Math.random() < 0.05) {
-        setBookingState('error');
-        return;
-      }
+    setError(null);
+
+    try {
+      await apiAssignAppointment({
+        professionalId: selectedProfessionalId,
+        occupationId: selectedOccupationId,
+        dateISO: selectedDateISO,
+        time: selectedSlot,
+      });
+
+      // Refrescar turnos del mes para bloquear el slot tomado
+      try {
+        const all = await apiGetAllAppointments();
+        const { year, month } = currentMonthMeta;
+        const start = new Date(year, month, 1);
+        const end = new Date(year, month+1, 0);
+        const inMonth = all.filter(a => {
+          const [Y,M,D] = a.dateISO.split('-').map(Number);
+          const d = new Date(Y, (M-1), D);
+          return d >= start && d <= end;
+        });
+        setAppointments(inMonth);
+      } catch {}
+
       setBookingState('success');
-    }, 700);
+    } catch (e: any) {
+      if (e?.name === 'ConflictError') {
+        setBookingState('error');
+      } else {
+        setError(e?.message || 'No se pudo confirmar el turno.');
+        setBookingState('error');
+      }
+    }
   }
 
   function resetModal() {
@@ -214,7 +348,8 @@ export default function AppointmentSchedule() {
     setBookingState('idle');
   }
 
-  const ctaDisabled = !(selectedSpecialtyId && selectedProfessionalId && selectedDateISO && selectedSlot);
+  const canOpenCalendar = !loadingMeta && selectedProfessionalId !== '';
+  const ctaDisabled = !(selectedOccupationId && selectedProfessionalId && selectedDateISO && selectedSlot);
 
   return (
     <section className="appointment-schedule" aria-label="Reservar turno">
@@ -225,16 +360,17 @@ export default function AppointmentSchedule() {
       {/* Filtros */}
       <div className="appointment-schedule__filters">
         <div className="appointment-schedule__field">
-          <label htmlFor="specialty" className="appointment-schedule__label">Especialidad</label>
+          <label htmlFor="occupation" className="appointment-schedule__label">Especialidad</label>
           <select
-            id="specialty"
+            id="occupation"
             className="appointment-schedule__select"
-            value={selectedSpecialtyId}
-            onChange={(e) => setSelectedSpecialtyId(e.target.value as Specialty['id'])}
+            value={selectedOccupationId}
+            onChange={(e) => setSelectedOccupationId(e.target.value as Occupation['id'])}
+            disabled={loadingMeta}
           >
-            <option value="" disabled>Elegí una especialidad</option>
-            {SPECIALTIES.map(s => (
-              <option key={s.id} value={s.id}>{s.nombre}</option>
+            <option value="" disabled>{loadingMeta ? 'Cargando…' : 'Elegí una especialidad'}</option>
+            {occupations.map(o => (
+              <option key={o.id} value={o.id}>{o.name}</option>
             ))}
           </select>
         </div>
@@ -246,11 +382,19 @@ export default function AppointmentSchedule() {
             className="appointment-schedule__select"
             value={selectedProfessionalId}
             onChange={(e) => setSelectedProfessionalId(e.target.value)}
-            disabled={!selectedSpecialtyId || professionals.length === 0}
+            disabled={loadingMeta || !selectedOccupationId || loadingProfessionals || professionals.length === 0}
           >
-            <option value="" disabled>{!selectedSpecialtyId ? 'Primero elegí especialidad' : (professionals.length ? 'Elegí un profesional' : 'Sin profesionales disponibles')}</option>
+            <option value="" disabled>
+              {loadingMeta
+                ? 'Cargando…'
+                : (!selectedOccupationId
+                    ? 'Primero elegí especialidad'
+                    : (loadingProfessionals
+                        ? 'Cargando profesionales…'
+                        : (professionals.length ? 'Elegí un profesional' : 'Sin profesionales disponibles')))}
+            </option>
             {professionals.map(p => (
-              <option key={p.id} value={p.id}>{p.nombre}</option>
+              <option key={p.id} value={p.id}>{fullName(p)}</option>
             ))}
           </select>
         </div>
@@ -263,7 +407,7 @@ export default function AppointmentSchedule() {
           <div className="appointment-schedule__month-note">Solo mes en curso · 60’ · Presencial</div>
         </div>
 
-        {!canOpenCalendar && (
+        {!canOpenCalendar && !loadingMeta && (
           <div className="appointment-schedule__hint">Elegí especialidad y profesional para ver el calendario.</div>
         )}
 
@@ -287,7 +431,7 @@ export default function AppointmentSchedule() {
                         available ? '--available' : '',
                         isSelected ? '--selected' : '',
                       ].filter(Boolean).join(' ')}
-                      onClick={() => { if (!disabled && iso) { setSelectedDateISO(iso); } }}
+                      onClick={() => { if (!disabled && iso) { setSelectedDateISO(iso); setSelectedSlot(''); } }}
                       disabled={disabled || !dayNum}
                       aria-pressed={isSelected}
                       aria-label={dayNum ? `Día ${dayNum}${available ? ' con disponibilidad' : ''}` : undefined}
@@ -334,7 +478,7 @@ export default function AppointmentSchedule() {
         </div>
       )}
 
-      {/* CTA sticky */}
+      {/* CTA */}
       <div className="appointment-schedule__cta">
         <button
           className="appointment-schedule__cta-button"
@@ -345,7 +489,14 @@ export default function AppointmentSchedule() {
         </button>
       </div>
 
-      {/* Modal de confirmación */}
+      {/* Error global */}
+      {error && (
+        <div role="alert" className="appointment-schedule__error-banner">
+          {error}
+        </div>
+      )}
+
+      {/* Modal */}
       {confirmOpen && (
         <div className="appointment-schedule__modal-backdrop" role="presentation" onClick={resetModal}>
           <div
@@ -361,8 +512,8 @@ export default function AppointmentSchedule() {
                 <h3 id="modal-title" className="appointment-schedule__modal-title">Confirmar turno</h3>
                 <div id="modal-desc" className="appointment-schedule__modal-body">
                   <dl className="appointment-schedule__summary">
-                    <div><dt>Especialidad</dt><dd>{selectedSpecialty?.nombre}</dd></div>
-                    <div><dt>Profesional</dt><dd>{selectedProfessional?.nombre}</dd></div>
+                    <div><dt>Especialidad</dt><dd>{selectedOccupation?.name}</dd></div>
+                    <div><dt>Profesional</dt><dd>{fullName(selectedProfessional)}</dd></div>
                     <div><dt>Fecha</dt><dd>{toDDMMYYYY(selectedDateISO)}</dd></div>
                     <div><dt>Hora</dt><dd>{selectedSlot}</dd></div>
                     <div><dt>Duración</dt><dd>60 minutos</dd></div>
@@ -386,7 +537,7 @@ export default function AppointmentSchedule() {
                 <div className="appointment-schedule__success-icon" aria-hidden>✓</div>
                 <h3 className="appointment-schedule__modal-title">¡Turno confirmado!</h3>
                 <p className="appointment-schedule__success-text">
-                  {selectedProfessional?.nombre} · {selectedSpecialty?.nombre}<br />
+                  {fullName(selectedProfessional)} · {selectedOccupation?.name}<br />
                   {toDDMMYYYY(selectedDateISO)} · {selectedSlot} hs · 60’ · Presencial
                 </p>
                 <div className="appointment-schedule__modal-actions">

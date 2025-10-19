@@ -3,6 +3,7 @@ import { getORM } from '../orm/db';
 import { Occupation } from '../model/entities/Occupation';
 import { NotFoundError } from '@mikro-orm/core';
 import { BaseHttpError } from '../model/errors/BaseHttpError';
+import { Professional } from '../model/entities/Professional';
 
 export class OccupationController {
 
@@ -109,7 +110,6 @@ export class OccupationController {
             return res.status(500).json({ message: 'Error al buscar especialidades' });
         }
     }
-
 
     static async deleteOccupation(req: Request, res: Response) {
         const idOccupation = Number(req.params.id);

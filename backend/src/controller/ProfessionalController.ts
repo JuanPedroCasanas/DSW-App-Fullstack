@@ -224,8 +224,33 @@ export class ProfessionalController {
         }
     }
 
+    static async getProfessionalsByOccupation(req: Request, res: Response) {
+        const idOccupation = Number(req.params.id);
+        if(!idOccupation) {
+            return res.status(400).json({ message: 'Se requiere el id de la especialidad para buscar profesionales' });
+        }
+    try {
+        const em = await getORM().em.fork();
+        const occupation = await em.findOne(Occupation, { id: idOccupation });
+        if(!occupation) {
+            throw new NotFoundError('Especialidad');
+        }
+        const professionals = await em.find(Professional, { occupation :  occupation });
+        return res.status(200).json(professionals);
+    } catch (error) {
+        console.error(error);
+        if (error instanceof BaseHttpError) {
+            return res.status(error.status).json(error.toJSON());
+        }
+        else {
+            return res.status(500).json({ message: 'Error al buscar profesionales por especialidad' });
+        }
+    }
+}
+
     static async deleteProfessional(req: Request, res: Response) {
         const idProfessional = Number(req.params.id);
+
         if (!idProfessional) {
             return res.status(400).json({ message: 'Se requiere la id del profesional' });
         }
@@ -241,6 +266,7 @@ export class ProfessionalController {
 
             professional.isActive = false;
             professional.user.isActive = false;
+
 
             await professional.appointments.init();
             await professional.modules.init();

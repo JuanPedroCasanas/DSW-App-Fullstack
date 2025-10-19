@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.testCode = void 0;
-const ConsultingRoomController_1 = require("./controller/ConsultingRoomController");
+const ProfessionalController_1 = require("./controller/ProfessionalController");
 const db_1 = require("./orm/db");
 const testCode = async () => {
     const UNI_PASSWORD = '123';
@@ -31,13 +31,19 @@ const testCode = async () => {
             return this;
         }
     }
-    //update
+    /*
     let req = new FakeRequest({
         idConsultingRoom: 1,
         description: 'Consultorio 1 modificado'
     });
+
     let res = new FakeResponse();
-    ConsultingRoomController_1.ConsultingRoomController.updateConsultingRoom(req, res);
+
+    ConsultingRoomController.updateConsultingRoom(req as any, res as any); */
+    //getProfessionalsByOccupation
+    let req = new FakeRequest({}, { id: 1, });
+    let res = new FakeResponse();
+    ProfessionalController_1.ProfessionalController.getProfessionalsByOccupation(req, res);
 };
 exports.testCode = testCode;
 //# sourceMappingURL=testCode.js.map

@@ -46,7 +46,7 @@ export const testCode = async () => {
     }
     }
 
-    //update
+    /*
     let req = new FakeRequest({
         idConsultingRoom: 1,
         description: 'Consultorio 1 modificado'
@@ -54,6 +54,13 @@ export const testCode = async () => {
 
     let res = new FakeResponse();
 
-    ConsultingRoomController.updateConsultingRoom(req as any, res as any);
+    ConsultingRoomController.updateConsultingRoom(req as any, res as any); */
+
+    //getProfessionalsByOccupation
+    let req = new FakeRequest({}, {id: 1,});
+
+    let res = new FakeResponse();
+
+    ProfessionalController.getProfessionalsByOccupation(req as any, res as any);
 
 }

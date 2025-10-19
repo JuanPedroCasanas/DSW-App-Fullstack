@@ -195,6 +195,30 @@ class ProfessionalController {
             return res.status(500).json({ message: 'Error al buscar los profesionales' });
         }
     }
+    static async getProfessionalsByOccupation(req, res) {
+        const idOccupation = Number(req.params.id);
+        if (!idOccupation) {
+            return res.status(400).json({ message: 'Se requiere el id de la especialidad para buscar profesionales' });
+        }
+        try {
+            const em = await (0, db_1.getORM)().em.fork();
+            const occupation = await em.findOne(Occupation_1.Occupation, { id: idOccupation });
+            if (!occupation) {
+                throw new BaseHttpError_1.NotFoundError('Especialidad');
+            }
+            const professionals = await em.find(Professional_1.Professional, { occupation: occupation });
+            return res.status(200).json(professionals);
+        }
+        catch (error) {
+            console.error(error);
+            if (error instanceof BaseHttpError_1.BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            else {
+                return res.status(500).json({ message: 'Error al buscar profesionales por especialidad' });
+            }
+        }
+    }
     static async deleteProfessional(req, res) {
         const idProfessional = Number(req.params.id);
         if (!idProfessional) {

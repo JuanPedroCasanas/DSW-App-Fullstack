@@ -236,6 +236,31 @@ export class AppointmentController {
         }
     }
 }
+    // REHACER..
+    static async getAppointmentsByDateAndProfessional(req: Request, res: Response) {
+       /* const idPatient = Number(req.params.id);
+        if(!idPatient) {
+            return res.status(400).json({ message: 'Se requiere el id del paciente para los turnos a buscar' });
+        }
+    try {
+        const em = await getORM().em.fork();
+        const patient = await em.findOne(Patient, { id: idPatient });
+        if(!patient) {
+            throw new NotFoundError('Paciente');
+        }
+        const appointments = await em.find(Appointment, { patient :  patient });
+        return res.status(200).json(appointments);
+
+    } catch (error) {
+        console.error(error);
+        if (error instanceof BaseHttpError) {
+            return res.status(error.status).json(error.toJSON());
+        }
+        else {
+            return res.status(500).json({ message: 'Error al buscar turnos por paciente' });
+        }
+    } */
+}
 
 
 }

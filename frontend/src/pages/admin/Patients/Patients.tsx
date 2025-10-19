@@ -26,6 +26,7 @@ const formatDate = (iso?: string) => {
   const [y, m, d] = iso.split("-");
   return `${d}/${m}/${y}`;
 };
+
 const normalizePhone = (v: string) => v.replace(/[^\d+]/g, "");
 const validatePatient = (p: Partial<Patient>) => {
   const errors: Record<string, string> = {};

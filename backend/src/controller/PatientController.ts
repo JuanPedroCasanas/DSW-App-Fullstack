@@ -200,7 +200,7 @@ export class PatientController {
     static async getPatients(req: Request, res: Response) {
         try {
             const em = await getORM().em.fork();
-            const patients = await em.find(Patient, {});
+            const patients = await em.findAll(Patient, {});
             return res.status(200).json(patients);
 
         } catch (error) {

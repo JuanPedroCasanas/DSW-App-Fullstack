@@ -170,7 +170,7 @@ class PatientController {
     static async getPatients(req, res) {
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const patients = await em.find(Patient_1.Patient, {});
+            const patients = await em.findAll(Patient_1.Patient, {});
             return res.status(200).json(patients);
         }
         catch (error) {

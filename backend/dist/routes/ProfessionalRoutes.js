@@ -11,6 +11,7 @@ router.post('/add', ProfessionalController_1.ProfessionalController.addProfessio
 router.post('/update', ProfessionalController_1.ProfessionalController.updateProfessional);
 router.get('/getAll', ProfessionalController_1.ProfessionalController.getProfessionals);
 router.get('/get/:id', ProfessionalController_1.ProfessionalController.getProfessional);
+router.get('/getProfessionalsByOccupation/:id', ProfessionalController_1.ProfessionalController.getProfessionalsByOccupation); //id de especialidad
 router.delete('/delete/:id', ProfessionalController_1.ProfessionalController.deleteProfessional);
 exports.default = router;
 //# sourceMappingURL=ProfessionalRoutes.js.map

@@ -129,6 +129,26 @@ export const startingCode = async () => {
     await ProfessionalController.addProfessional(req as any, res as any);
 
     req = new FakeRequest({
+       firstName: 'Lucas',
+       lastName: 'Luna',
+       telephone: '1111',
+       mail: 'lucas_luna@gmail.com',
+       password: UNI_PASSWORD,
+       occupationId: 1
+    });
+    await ProfessionalController.addProfessional(req as any, res as any);
+
+    req = new FakeRequest({
+       firstName: 'Joel',
+       lastName: 'Arnold',
+       telephone: '1111',
+       mail: 'joel@gmail.com',
+       password: UNI_PASSWORD,
+       occupationId: 1
+    });
+    await ProfessionalController.addProfessional(req as any, res as any);
+
+    req = new FakeRequest({
        firstName: 'Pedro',
        lastName: 'Picapiedra',
        telephone: '1111',

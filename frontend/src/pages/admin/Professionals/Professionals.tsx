@@ -1,26 +1,45 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./professionals.css";
+import { Toast } from "@/components/Toast";
 
 /** Modelo simple: viene del backend */
 type Professional = {
   id: string;
-  nombre: string;
-  apellido: string;
-  especialidadId: string; // ID de especialidad (string por ahora)
-  telefono?: string;
-  activo: boolean;
+  firstName: string;
+  lastName: string;
+  occupation: string; // ID de especialidad (string por ahora)
+  telephone?: string;
+  isActive: boolean;
 };
 
+//Genera un toast para las respuestas del backend
+async function handleResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
+  const resJson = await res.json().catch(() => ({}));
+
+  if (res.ok) {
+    const successMessage = `${resJson.message} Id: ${resJson.profesional?.id}, Nombre: ${resJson.profesional?.firstName}`;
+    return { message: successMessage, type: "success" };
+  } else {
+    if (res.status === 500 || res.status === 400) {
+      return { message: resJson.message ?? "Error interno del servidor", type: "error" };
+    } else {
+      //const errorMessage = `Error: ${resJson.error} Codigo: ${resJson.code} ${resJson.message}`
+      const errorMessage = JSON.stringify(resJson);
+      return { message: errorMessage.trim(), type: "error" };
+    }
+  }
+}
+
+
 /* ---- Utils ---- */
-const uid = () => Math.random().toString(36).slice(2, 10);
 const sameJSON = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
 const validateProfessional = (p: Partial<Professional>) => {
   const errors: Record<string, string> = {};
-  if (!p.nombre?.trim()) errors.nombre = "Nombre obligatorio.";
-  if (!p.apellido?.trim()) errors.apellido = "Apellido obligatorio.";
-  if (!p.especialidadId?.trim()) errors.especialidadId = "Especialidad obligatoria.";
-  if (p.telefono && !/^[\d\s()+-]{6,20}$/.test(p.telefono.trim()))
+  if (!p.firstName?.trim()) errors.nombre = "Nombre obligatorio.";
+  if (!p.lastName?.trim()) errors.apellido = "Apellido obligatorio.";
+  if (!p.occupation?.trim()) errors.especialidadId = "Especialidad obligatoria.";
+  if (p.telephone && !/^[\d\s()+-]{6,20}$/.test(p.telephone.trim()))
     errors.telefono = "Teléfono inválido.";
   return errors;
 };
@@ -29,54 +48,41 @@ export default function Professionals() {
   /** Estado principal: por defecto con algunos ejemplos */
   const [list, setList] = useState<Professional[]>([]);
 
-  // Hardcodeados como ejemplo (remplazá por tu fetch real)
-  useEffect(() => {
-    setList([
-      {
-        id: "1",
-        nombre: "Lucía",
-        apellido: "García",
-        especialidadId: "Psicopedagogia",
-        telefono: "34155551111",
-        activo: true,
-      },
-      {
-        id: "2",
-        nombre: "Julián",
-        apellido: "Paz",
-        especialidadId: "Psicologia",
-        telefono: "3414442222",
-        activo: false,
-      },
-    ]);
-  }, []);
+  /*Pantallita de error o exito al terminar una accion*/
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
-  /* --- Integración backend (placeholder) ---
-     Reemplazá la URL y el shape según tu API. */
-  // useEffect(() => {
-  //   (async () => {
-  //     const res = await fetch("/api/professionals");
-  //     if (!res.ok) return;
-  //     const data: Professional[] = await res.json();
-  //     setList(data);
-  //   })();
-  // }, []);
+  // para ver todos los profesionales
+   useEffect(() => {
+   (async () => {
+ 
+       const res = await fetch("http://localhost:2000/Professional/getAll");
 
-  /* ---- Agregar ---- */
+      if (!res.ok){
+        const toastData = await handleResponse(res);
+        setToast(toastData);
+      } else {
+        const data: Professional[] = await res.json();
+        setList(data);
+      }
+
+   })()
+ }, []); 
+
+  /* ---- Agregar en desuso, ya que los profesionales se registran!  */
   const [showAdd, setShowAdd] = useState(false);
   const [addStep, setAddStep] = useState<"form" | "confirm">("form");
   const [addForm, setAddForm] = useState<Partial<Professional>>({
-    nombre: "",
-    apellido: "",
-    especialidadId: "",
-    telefono: "",
-    activo: true,
+    firstName: "",
+    lastName: "",
+    occupation: "",
+    telephone: "",
+    isActive: true,
   });
   const [addSnapshot, setAddSnapshot] = useState<Partial<Professional> | null>(null);
   const addErrors = useMemo(() => validateProfessional(addForm), [addForm]);
 
   const openAdd = () => {
-    const initial = { nombre: "", apellido: "", especialidadId: "", telefono: "", activo: true };
+    const initial = { firstName: "", lastName: "", occupation: "", telephone: "", isACtive: true };
     setAddForm(initial);
     setAddSnapshot(initial);
     setAddStep("form");
@@ -91,24 +97,40 @@ export default function Professionals() {
       closeAdd();
     }
   };
-  const handleAddContinue = (e: React.FormEvent) => {
+  const handleAddContinue = (e: React.FormEvent) => { //en desuso, lo dejo por las dudas
     e.preventDefault();
     if (Object.keys(addErrors).length) return;
     setAddStep("confirm");
   };
-  const handleAddConfirm = () => {
-    const nuevo: Professional = {
-      id: uid(), // en real, lo devuelve el backend
-      nombre: (addForm.nombre ?? "").trim(),
-      apellido: (addForm.apellido ?? "").trim(),
-      especialidadId: (addForm.especialidadId ?? "").trim(),
-      telefono: addForm.telefono?.trim() || "",
-      activo: !!addForm.activo,
-    };
-    setList((prev) => [...prev, nuevo]);
-    setShowAdd(false);
-    alert("Profesional agregado (simulado).");
-  };
+  const handleAddConfirm = () => { //en desuso
+    (async () => {
+
+        const nuevo = {
+            firstName: (addForm.firstName ?? "").trim(),
+            lastName: (addForm.lastName ?? "").trim(),
+            occupation: (addForm.occupation ?? "").trim(),
+            telephone: addForm.telephone?.trim() || "",
+            isActive: true,
+        };
+
+        const res = await fetch("http://localhost:2000/Professional/add", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(nuevo),
+        });
+
+        const toastData = await handleResponse(res);
+        setToast(toastData);
+      
+        // Recargar
+        const resGet = await fetch("http://localhost:2000/Professional/getAll");
+        const data: Professional[] = await resGet.json();
+        setList(data);
+
+       setShowAdd(false);
+
+    })();
+  }; 
 
   /* ---- Editar ---- */
   const [editTarget, setEditTarget] = useState<Professional | null>(null);
@@ -119,11 +141,11 @@ export default function Professionals() {
 
   const openEdit = (p: Professional) => {
     const initial: Partial<Professional> = {
-      nombre: p.nombre,
-      apellido: p.apellido,
-      especialidadId: p.especialidadId,
-      telefono: p.telefono ?? "",
-      activo: p.activo,
+      firstName: p.firstName,
+      lastName: p.lastName,
+      occupation: p.occupation,
+      telephone: p.telephone ?? "",
+      isActive: p.isActive,
     };
     setEditTarget(p);
     setEditForm(initial);
@@ -148,36 +170,73 @@ export default function Professionals() {
     if (Object.keys(editErrors).length) return;
     setEditStep("confirm");
   };
+
   const handleEditConfirm = () => {
-    if (!editTarget) return;
-    setList((prev) =>
-      prev.map((p) =>
-        p.id === editTarget.id
-          ? {
-              ...p,
-              nombre: (editForm.nombre ?? "").trim(),
-              apellido: (editForm.apellido ?? "").trim(),
-              especialidadId: (editForm.especialidadId ?? "").trim(),
-              telefono: editForm.telefono?.trim() || "",
-              activo: !!editForm.activo,
-            }
-          : p
-      )
-    );
-    closeEdit();
-    alert("Profesional actualizado (simulado).");
-  };
+  if (!editTarget) return;
+  (async () => {
+
+      const payload = {
+        id: editForm.id,
+        firstName: (editForm.firstName ?? "").trim(),
+        lastName: (editForm.lastName ?? "").trim(),
+        occupation: (editForm.occupation ?? "").trim(),
+        telephone: editForm.telephone?.trim() || "",
+        isActive: editForm.isActive,
+      };
+
+      const res = await fetch("http://localhost:2000/Professional/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      
+      // Refrescamos localmente
+      setList((prev) =>
+        prev.map((p) => (p.id === editTarget.id ? { ...p, firstName: payload.firstName } : p))
+      ); 
+
+      const toastData = await handleResponse(res);
+      setToast(toastData);
+
+      closeEdit();
+    
+  })();
+};
+
 
   /* ---- Eliminar ---- */
   const [deleteTarget, setDeleteTarget] = useState<Professional | null>(null);
   const openDelete = (p: Professional) => setDeleteTarget(p);
   const closeDelete = () => setDeleteTarget(null);
-  const handleDeleteConfirm = () => {
+  /*const handleDeleteConfirm = () => {
     if (!deleteTarget) return;
     setList((prev) => prev.filter((p) => p.id !== deleteTarget.id));
     setDeleteTarget(null);
     alert("Profesional eliminado (simulado).");
+  }; */
+
+  const handleDeleteConfirm = () => {
+    if (!deleteTarget) return;
+    (async () => {
+        const res = await fetch(
+          `http://localhost:2000/Professional/${deleteTarget.id}`, 
+          {
+            method: "DELETE",
+        });
+
+      // Recargar
+        const resGet = await fetch("http://localhost:2000/Professional/getAll");
+        const data: Professional[] = await resGet.json();
+        setList(data); 
+
+        const toastData = await handleResponse(res);
+        setToast(toastData);
+
+      setDeleteTarget(null);
+
+    })();
   };
+
 
   /* ---- Descartar cambios ---- */
   const [discardCtx, setDiscardCtx] = useState<{ open: boolean; context?: "add" | "edit" }>({
@@ -190,6 +249,7 @@ export default function Professionals() {
     setDiscardCtx({ open: false });
   };
 
+  
   /* ---- ESC para cerrar ---- */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -247,12 +307,12 @@ export default function Professionals() {
                 {list.map((p) => (
                   <tr key={p.id}>
                     <td data-label="ID">{p.id}</td>
-                    <td data-label="Nombre">{p.nombre}</td>
-                    <td data-label="Apellido">{p.apellido}</td>
-                    <td data-label="Especialidad (ID)">{p.especialidadId}</td>
-                    <td data-label="Teléfono">{p.telefono || "—"}</td>
+                    <td data-label="Nombre">{p.firstName}</td>
+                    <td data-label="Apellido">{p.lastName}</td>
+                    <td data-label="Especialidad (ID)">{p.occupation}</td>
+                    <td data-label="Teléfono">{p.telephone || "—"}</td>
                     <td data-label="Activo">
-                      {p.activo ? (
+                      {p.isActive ? (
                         <span className="pro-badge pro-badge--ok">Sí</span>
                       ) : (
                         <span className="pro-badge pro-badge--off">No</span>
@@ -265,13 +325,13 @@ export default function Professionals() {
                         onClick={() => openEdit(p)}
                       >
                         Editar
-                      </button>
+                      </button> 
                       <button
                         type="button"
                         className="ui-btn ui-btn--danger ui-btn--sm"
                         onClick={() => openDelete(p)}
                       >
-                        Eliminar
+                        Inhabilitar
                       </button>
                     </td>
                   </tr>
@@ -279,17 +339,19 @@ export default function Professionals() {
               </tbody>
             </table>
           </div>
+        </>
+      )} 
 
-          {/* Agregar */}
+          {/* Agregar -> en desuso
           <div className="pro-footer">
             <button type="button" className="ui-btn ui-btn--primary" onClick={openAdd}>
               Agregar profesional
             </button>
           </div>
         </>
-      )}
+      )} 
 
-      {/* ===== Modal: Agregar ===== */}
+       =====  Agregar ===== EN DESUSO ya que los profesionales se registran! 
       {showAdd && (
         <div className="pro-modal-backdrop" onClick={tryCloseAdd} role="presentation">
           <div
@@ -311,8 +373,8 @@ export default function Professionals() {
                     <label htmlFor="add-nombre">Nombre</label>
                     <input
                       id="add-nombre"
-                      value={addForm.nombre ?? ""}
-                      onChange={(e) => setAddForm((f) => ({ ...f, nombre: e.target.value }))}
+                      value={addForm.firstName ?? ""}
+                      onChange={(e) => setAddForm((f) => ({ ...f, firstName: e.target.value }))}
                       aria-invalid={!!addErrors.nombre}
                       aria-describedby={addErrors.nombre ? "add-nombre-err" : undefined}
                     />
@@ -326,8 +388,8 @@ export default function Professionals() {
                     <label htmlFor="add-apellido">Apellido</label>
                     <input
                       id="add-apellido"
-                      value={addForm.apellido ?? ""}
-                      onChange={(e) => setAddForm((f) => ({ ...f, apellido: e.target.value }))}
+                      value={addForm.lastName ?? ""}
+                      onChange={(e) => setAddForm((f) => ({ ...f, lastName: e.target.value }))}
                       aria-invalid={!!addErrors.apellido}
                       aria-describedby={addErrors.apellido ? "add-apellido-err" : undefined}
                     />
@@ -341,9 +403,9 @@ export default function Professionals() {
                     <label htmlFor="add-especialidad">Especialidad (ID)</label>
                     <input
                       id="add-especialidad"
-                      value={addForm.especialidadId ?? ""}
+                      value={addForm.occupation ?? ""}
                       onChange={(e) =>
-                        setAddForm((f) => ({ ...f, especialidadId: e.target.value }))
+                        setAddForm((f) => ({ ...f, occupation: e.target.value }))
                       }
                       aria-invalid={!!addErrors.especialidadId}
                       aria-describedby={addErrors.especialidadId ? "add-esp-err" : undefined}
@@ -358,8 +420,8 @@ export default function Professionals() {
                     <label htmlFor="add-telefono">Teléfono (opcional)</label>
                     <input
                       id="add-telefono"
-                      value={addForm.telefono ?? ""}
-                      onChange={(e) => setAddForm((f) => ({ ...f, telefono: e.target.value }))}
+                      value={addForm.telephone ?? ""}
+                      onChange={(e) => setAddForm((f) => ({ ...f, telephone: e.target.value }))}
                       aria-invalid={!!addErrors.telefono}
                       aria-describedby={addErrors.telefono ? "add-tel-err" : undefined}
                       placeholder="+54 9 11 ..."
@@ -374,14 +436,14 @@ export default function Professionals() {
                     <label className="pro-checkbox">
                       <input
                         type="checkbox"
-                        checked={!!addForm.activo}
+                        checked={!!addForm.isActive}
                         onChange={(e) =>
-                          setAddForm((f) => ({ ...f, activo: e.currentTarget.checked }))
+                          setAddForm((f) => ({ ...f, isActive: e.currentTarget.checked }))
                         }
                       />
                       <span>Activo</span>
                     </label>
-                  </div>
+                  </div> 
 
                   <div className="pro-modal-actions">
                     <button type="button" className="ui-btn ui-btn--outline" onClick={tryCloseAdd}>
@@ -399,19 +461,19 @@ export default function Professionals() {
                 <p id="pro-add-desc">Revisá que los datos sean correctos.</p>
                 <ul className="pro-summary">
                   <li>
-                    <strong>Nombre:</strong> {addForm.nombre}
+                    <strong>Nombre:</strong> {addForm.firstName}
                   </li>
                   <li>
-                    <strong>Apellido:</strong> {addForm.apellido}
+                    <strong>Apellido:</strong> {addForm.lastName}
                   </li>
                   <li>
-                    <strong>Especialidad (ID):</strong> {addForm.especialidadId}
+                    <strong>Especialidad (ID):</strong> {addForm.occupation}
                   </li>
                   <li>
-                    <strong>Teléfono:</strong> {addForm.telefono || "—"}
+                    <strong>Teléfono:</strong> {addForm.telephone || "—"}
                   </li>
                   <li>
-                    <strong>Activo:</strong> {addForm.activo ? "Sí" : "No"}
+                    <strong>Activo:</strong> {addForm.isActive ? "Sí" : "No"}
                   </li>
                 </ul>
                 <div className="pro-modal-actions">
@@ -430,9 +492,10 @@ export default function Professionals() {
             )}
           </div>
         </div>
-      )}
+      )} 
 
-      {/* ===== Modal: Editar ===== */}
+      ===== Modal: Editar ===== */}
+
       {editTarget && (
         <div className="pro-modal-backdrop" onClick={tryCloseEdit} role="presentation">
           <div
@@ -454,7 +517,7 @@ export default function Professionals() {
                     <label htmlFor="edit-nombre">Nombre</label>
                     <input
                       id="edit-nombre"
-                      value={editForm.nombre ?? ""}
+                      value={editForm.firstName ?? ""}
                       onChange={(e) => setEditForm((f) => ({ ...f, nombre: e.target.value }))}
                       aria-invalid={!!editErrors.nombre}
                       aria-describedby={editErrors.nombre ? "edit-nombre-err" : undefined}
@@ -469,7 +532,7 @@ export default function Professionals() {
                     <label htmlFor="edit-apellido">Apellido</label>
                     <input
                       id="edit-apellido"
-                      value={editForm.apellido ?? ""}
+                      value={editForm.lastName ?? ""}
                       onChange={(e) => setEditForm((f) => ({ ...f, apellido: e.target.value }))}
                       aria-invalid={!!editErrors.apellido}
                       aria-describedby={editErrors.apellido ? "edit-apellido-err" : undefined}
@@ -484,7 +547,7 @@ export default function Professionals() {
                     <label htmlFor="edit-especialidad">Especialidad (ID)</label>
                     <input
                       id="edit-especialidad"
-                      value={editForm.especialidadId ?? ""}
+                      value={editForm.occupation ?? ""}
                       onChange={(e) =>
                         setEditForm((f) => ({ ...f, especialidadId: e.target.value }))
                       }
@@ -501,7 +564,7 @@ export default function Professionals() {
                     <label htmlFor="edit-telefono">Teléfono (opcional)</label>
                     <input
                       id="edit-telefono"
-                      value={editForm.telefono ?? ""}
+                      value={editForm.telephone ?? ""}
                       onChange={(e) => setEditForm((f) => ({ ...f, telefono: e.target.value }))}
                       aria-invalid={!!editErrors.telefono}
                       aria-describedby={editErrors.telefono ? "edit-tel-err" : undefined}
@@ -517,7 +580,7 @@ export default function Professionals() {
                     <label className="pro-checkbox">
                       <input
                         type="checkbox"
-                        checked={!!editForm.activo}
+                        checked={!!editForm.isActive}
                         onChange={(e) =>
                           setEditForm((f) => ({ ...f, activo: e.currentTarget.checked }))
                         }
@@ -545,19 +608,19 @@ export default function Professionals() {
                     <strong>ID:</strong> {editTarget?.id}
                   </li>
                   <li>
-                    <strong>Nombre:</strong> {editForm.nombre}
+                    <strong>Nombre:</strong> {editForm.firstName}
                   </li>
                   <li>
-                    <strong>Apellido:</strong> {editForm.apellido}
+                    <strong>Apellido:</strong> {editForm.lastName}
                   </li>
                   <li>
-                    <strong>Especialidad (ID):</strong> {editForm.especialidadId}
+                    <strong>Especialidad (ID):</strong> {editForm.occupation}
                   </li>
                   <li>
-                    <strong>Teléfono:</strong> {editForm.telefono || "—"}
+                    <strong>Teléfono:</strong> {editForm.telephone || "—"}
                   </li>
                   <li>
-                    <strong>Activo:</strong> {editForm.activo ? "Sí" : "No"}
+                    <strong>Activo:</strong> {editForm.isActive ? "Sí" : "No"}
                   </li>
                 </ul>
                 <div className="pro-modal-actions">
@@ -593,7 +656,7 @@ export default function Professionals() {
             <p id="pro-del-desc">
               ¿Estás segura/o de eliminar a{" "}
               <strong>
-                {deleteTarget.nombre} {deleteTarget.apellido}
+                {deleteTarget.firstName} {deleteTarget.lastName}
               </strong>
               ?
             </p>
@@ -633,6 +696,16 @@ export default function Professionals() {
           </div>
         </div>
       )}
-    </section>
+
+    {/* ===== TOAST ===== */}
+    {toast && (
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast(null)}
+      />
+    )}
+      
+  </section>
   );
 }
