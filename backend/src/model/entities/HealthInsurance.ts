@@ -28,9 +28,9 @@ export class HealthInsurance {
   @OneToMany(() => LegalGuardian, legalGuardian => legalGuardian.healthInsurance)
   legalGuardians = new Collection<LegalGuardian>(this);
 
-constructor(name: string) {
+  constructor(name: string) {
     this.name = name;
     this.isActive = true;
-}
+  }
 
 }

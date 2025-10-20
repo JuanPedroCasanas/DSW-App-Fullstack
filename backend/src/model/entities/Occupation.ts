@@ -7,6 +7,7 @@ export class Occupation {
 
   @Property()
   name!: string;
+  
 
   constructor(name: string)
   {

@@ -41,6 +41,8 @@ export class Module {
   @ManyToOne(() => ModuleType)
   moduleType!: ModuleType;
 
+
+  
   private calculateEndTime(moduleType: ModuleType, startTime: string): string {
     let endTime: string;
     let duration = moduleType.duration;

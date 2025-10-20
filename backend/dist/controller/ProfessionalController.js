@@ -9,6 +9,7 @@ const BaseHttpError_1 = require("../model/errors/BaseHttpError");
 const AppointmentStatus_1 = require("../model/enums/AppointmentStatus");
 const ModuleStatus_1 = require("../model/enums/ModuleStatus");
 const HealthInsurance_1 = require("../model/entities/HealthInsurance");
+const safeSerialize_1 = require("../utils/safeSerialize");
 class ProfessionalController {
     static home(req, res) {
         return res.send('Soy el controlador de profesional!');
@@ -46,7 +47,7 @@ class ProfessionalController {
             professional.user = profUser;
             profUser.professional = professional;
             await em.persistAndFlush(profUser);
-            return res.status(201).json({ message: 'Se agrego correctamente el profesional ', professional });
+            return res.status(201).json({ message: 'Se agrego correctamente el profesional ', professional: (0, safeSerialize_1.safeSerialize)(professional, ['user', 'occupation', 'healthInsurances', 'modules', 'appointments']) });
         }
         catch (error) {
             console.error(error);
@@ -82,7 +83,7 @@ class ProfessionalController {
             professional.lastName = lastName;
             professional.telephone = telephone;
             await em.flush();
-            return res.status(201).json({ message: 'Professional updated', professional });
+            return res.status(201).json({ message: 'Profesional actualizado correctamente:', professional: (0, safeSerialize_1.safeSerialize)(professional, ['user', 'occupation', 'healthInsurances', 'modules', 'appointments']) });
         }
         catch (error) {
             console.error(error);
@@ -187,7 +188,9 @@ class ProfessionalController {
     static async getProfessionals(req, res) {
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const professionals = await em.findAll(Professional_1.Professional);
+            const professionals = await em.find(Professional_1.Professional, {}, {
+                populate: ["occupation"], // Para devolver el objeto entero de occupation al front
+            });
             return res.status(200).json(professionals);
         }
         catch (error) {
@@ -206,7 +209,9 @@ class ProfessionalController {
             if (!occupation) {
                 throw new BaseHttpError_1.NotFoundError('Especialidad');
             }
-            const professionals = await em.find(Professional_1.Professional, { occupation: occupation });
+            const professionals = await em.find(Professional_1.Professional, { occupation: occupation }, {
+                populate: ["occupation"], // Para devolver el objeto entero de occupation al front
+            });
             return res.status(200).json(professionals);
         }
         catch (error) {
@@ -241,7 +246,7 @@ class ProfessionalController {
                 module.status = ModuleStatus_1.ModuleStatus.Canceled;
             }
             await em.flush();
-            return res.status(201).json({ message: 'Se elimino correctamente el profesional ', professional });
+            return res.status(201).json({ message: 'Se elimino correctamente el profesional ', professional: (0, safeSerialize_1.safeSerialize)(professional, ['user', 'occupation', 'healthInsurances', 'modules', 'appointments']) });
         }
         catch (error) {
             console.error(error);

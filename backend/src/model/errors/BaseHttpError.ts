@@ -20,7 +20,7 @@ export class BaseHttpError extends Error {
 
 export class NotFoundError extends BaseHttpError {
   constructor(resource: string) {
-    super(404, 'NOT_FOUND', `El recurso '${resource}' no pudo ser encontrado`);
+    super(404, 'NOT_FOUND', `El recurso '${resource}' no pudo ser encontrado o se encuentra deshabilitado`);
   }
 }
 

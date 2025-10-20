@@ -33,6 +33,7 @@ export class User {
   @OneToOne(() => LegalGuardian, (lg) => lg.user, { owner: true, nullable: true, cascade: [Cascade.PERSIST] })
   legalGuardian?: LegalGuardian;
   
+  
   @BeforeCreate()
   @BeforeUpdate()
   assignAndCheckRole() {
@@ -48,4 +49,6 @@ export class User {
     this.password = password;
     this.isActive = true;
   }
+
+  
 }

@@ -19,7 +19,7 @@ class BaseHttpError extends Error {
 exports.BaseHttpError = BaseHttpError;
 class NotFoundError extends BaseHttpError {
     constructor(resource) {
-        super(404, 'NOT_FOUND', `El recurso '${resource}' no pudo ser encontrado`);
+        super(404, 'NOT_FOUND', `El recurso '${resource}' no pudo ser encontrado o se encuentra deshabilitado`);
     }
 }
 exports.NotFoundError = NotFoundError;

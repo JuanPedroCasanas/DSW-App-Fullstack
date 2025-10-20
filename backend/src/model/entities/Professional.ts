@@ -40,12 +40,13 @@ export class Professional {
   @OneToOne(() => User, (u) => u.professional)
   user!: User;
   
-constructor(firstName: string, lastName: string, telephone: string, occupation: Occupation) {
-    this.firstName = firstName;
-    this.lastName = lastName;
-    this.telephone = telephone;
-    this.occupation = occupation
-    this.isActive = true;
+  
+  constructor(firstName: string, lastName: string, telephone: string, occupation: Occupation) {
+      this.firstName = firstName;
+      this.lastName = lastName;
+      this.telephone = telephone;
+      this.occupation = occupation
+      this.isActive = true;
 
-}
+  }
 }
