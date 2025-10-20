@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
-import "./login.css"; // creamos este archivo en el paso 2
+import { Toast } from "@/components/Toast";
+import "./login.css"; 
 // import eyeIcon from "./eyeicon.png"; // de alguna manera asi no funciona, pero bueno!
 
 type User = {
@@ -9,96 +10,74 @@ type User = {
   password: string;
   isActive:boolean;
 };
-export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPwd, setShowPwd] = useState(false);
-  const [remember, setRemember] = useState(false);
-  const [message, setMessage] = useState("");
-  const [isError, setIsError] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
+async function handleResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
+  const resJson = await res.json().catch(() => ({}));
 
-  const eyeIconUrl = new URL("./eyeicon.png", import.meta.url).href; // tengo que hacer esta huevada para que me vea el ojito! podes creer!
-  
-  // Precarga "Recordarme" si ya guardaste un email antes
-  useEffect(() => {
-    const saved = localStorage.getItem("rememberEmail");
-    if (saved) setEmail(saved);
-  }, []);
-  
-  function handleChange(
-  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
-  const { name, value } = e.target;
-  
-  // Usamos un switch para actualizar la variable de estado correcta
-  switch (name) {
-    case "email":
-      setEmail(value);
-      break;
-    case "password":
-      setPassword(value);
-      break;
+  if (res.ok) {
+    const successMessage = `${resJson.message} Id: ${resJson.user?.mail}, Nombre: ${resJson.user?.password}`;
+    return { message: successMessage, type: "success" };
+  } else {
+    if (res.status === 500 || res.status === 400) {
+      return { message: resJson.message ?? "Error interno del servidor", type: "error" };
+    } else {
+      const errorMessage = `Error: ${resJson.error} Codigo: ${resJson.code} ${resJson.message}`
+      return { message: errorMessage.trim(), type: "error" };
+    }
   }
 }
 
-  async function onSubmit(e: React.FormEvent) {
+export default function Login() {
+  const [datos, setDatos] = useState({
+    mail: "",
+    password: "",
+    isActive: true,
+  });
+  const navigate = useNavigate();
+  const [remember, setRemember] = useState(false);
+  const [showPwd, setShowPwd] = useState(false);
+  const eyeIconUrl = new URL("./eyeicon.png", import.meta.url).href; // tengo que hacer esta huevada para que me vea el ojito! podes creer!
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+   let { name, value } = e.target;
+   let newDatos = { ...datos, [name]: value };
+  setDatos(newDatos);
+  }
+ 
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setMessage('');
-    setIsError(false);
-    setIsLoading(true); 
-
-    const endpoint = 'http://localhost:2000/User/login'; 
-    
-    const dataToSend = {
-        mail: email,
-        password: password,
-    };
-    
+    const form = e.target as HTMLFormElement;
+    if (!form.mail || !form.password) {
+      const toastData = { message: "Por favor, complete todos los campos correctamente.", type: "error" as const };
+      setToast(toastData);
+    return;
+    } 
     try {
-        
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dataToSend)
-        });
+    const res = await fetch("http://localhost:2000/User/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(datos),
+    });
 
-        
-        if (response.ok) {
-            const data = await response.json(); 
-            
-            
-            if (remember) {
-                localStorage.setItem("rememberEmail", email);
-            } else {
-                localStorage.removeItem("rememberEmail");
-            }
-            
-          
-            setMessage("¡Inicio de sesión exitoso!");
-            navigate ('/admin)');
-            
-            
-        } else {
-     
-            const errorData = await response.json(); 
-           
-            setMessage(errorData.message || 'Correo o contraseña incorrectos.'); 
-            setIsError(true);
-        }
-
-    } catch (error) {
-       
-        setMessage('🚨 Error de conexión: El servidor no está disponible.');
-        setIsError(true);
-    } finally {
-        setIsLoading(false); // Desactivar carga siempre
+    const data = await res.json();
+    if (!res.ok) {
+      const toastData = { message: data.message || "Error en el inicio de sesión", type: "error" as const };
+      setToast(toastData);
+      return;
     }
-}
+    const toastData = { message: "Login Exitoso perra", type: "success" as const };
+    navigate ("/");
+  
+    
+    } catch (error) {
+    alert("Error de conexión con el servidor");
+    console.error(error);
+    }
+  };
 
-  return (
+return (
     <main className="login">
-      <form className="frame" onSubmit={onSubmit} noValidate>
+      <form className="frame" onSubmit={handleSubmit} noValidate>
         {/* Encabezado */}
         <header className="div">
          {/* <h1 className="text-wrapper">Bienvenido</h1> */}
@@ -117,14 +96,14 @@ export default function Login() {
           </label>
           <div className="div-wrapper input">
             <input
-              id="email"
-              name="email"
-              type="email"
+              id="mmail"
+              name="mail"
+              type={showPwd ? "text" : "mail"}
               className="input__control"
-              placeholder="ejemplo: psico@narrativas.com.ar"
-              value={email}
-              onChange={handleChange}
-              autoComplete="email"
+              placeholder="psico@narrativas.com.ar"
+              value={datos.mail}
+              onChange={handleInputChange}
+              autoComplete="mail"
               required
             />
           </div>
@@ -142,8 +121,8 @@ export default function Login() {
               type={showPwd ? "text" : "password"}
               className="input__control"
               placeholder="•••••••••"
-              value={password}
-              onChange={handleChange}
+              value={datos.password}
+              onChange={handleInputChange}
               autoComplete="current-password"
               required
             />
@@ -180,7 +159,15 @@ export default function Login() {
             </NavLink>
           </div>
         </div>
+        {/* ===== TOAST ===== */}
+            {toast && (
+              <Toast
+                message={toast.message}
+                type={toast.type}
+                onClose={() => setToast(null)}
+              />
+            )}
       </form>
     </main>
   );
-} 
+}

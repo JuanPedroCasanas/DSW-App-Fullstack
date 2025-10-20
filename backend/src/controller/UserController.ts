@@ -18,7 +18,6 @@ export class UserController {
             if (!mail || !password) {
                 return res.status(400).json({ error: 'Email o contraseña incorrecta' });
             }
-
             const user = await em.findOne(User, { mail });
             if (!user) return res.status(404).json({ error: 'User no encontrado' });
 
