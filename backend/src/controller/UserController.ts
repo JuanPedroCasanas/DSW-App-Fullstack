@@ -24,8 +24,12 @@ export class UserController {
             const valid = await bcrypt.compare(password, user.password);
             if (!valid) return res.status(401).json({ error: 'Credenciales Invalidos' });
 
+            const person = user.patient || user.legalGuardian || user.professional;
+            const name = person ? person.firstName : '';
+            const lastName = person ? person.lastName : '';
+
             const token = jwt.sign({ idUser: user.id }, JWT_SECRET, { expiresIn: '1h' });
-            res.json({ user, token });
+            res.json({ user, token, name, lastName });
         } 
         catch (err: any) {
             res.status(500).json({ error: err.message });

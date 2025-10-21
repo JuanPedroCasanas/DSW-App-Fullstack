@@ -38,6 +38,14 @@ export default function Login() {
   const eyeIconUrl = new URL("./eyeicon.png", import.meta.url).href; // tengo que hacer esta huevada para que me vea el ojito! podes creer!
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
+useEffect(() => {
+    const toastData = (navigate as any).location?.state?.toastMessage;
+
+    if (toastData) {
+        setToast(toastData);
+    }
+}, [navigate]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
    let { name, value } = e.target;
    let newDatos = { ...datos, [name]: value };
@@ -63,12 +71,16 @@ export default function Login() {
     if (!res.ok) {
       const toastData = { message: data.message || "Error en el inicio de sesión", type: "error" as const };
       setToast(toastData);
-      return;
-    }
-    const toastData = { message: "Login Exitoso perra", type: "success" as const };
-    navigate ("/");
-  
+      return;}
     
+    const name = data.user.patient?.firstName || data.user.legalGuardian?.firstName || data.user.professional?.firstName ;
+    console.log('Nombre usado para el toast:', name);
+    const toastData = { 
+        message: "¡Bienvenido ${name}!"
+    };
+    navigate("/", { state: { toastMessage: toastData } });
+    
+  
     } catch (error) {
     alert("Error de conexión con el servidor");
     console.error(error);

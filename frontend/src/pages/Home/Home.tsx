@@ -1,7 +1,13 @@
 // src/pages/Home.tsx
 import { NavLink } from "react-router-dom";
+ import { useLocation } from 'react-router-dom';
+ import { Toast } from "@/components/Toast";
 
 export default function Home() {
+ 
+// ... dentro de tu componente Home
+const location = useLocation();
+const toastMessage = location.state?.toastMessage;
   return (
     <main className="home">
       <section className="home-hero">
