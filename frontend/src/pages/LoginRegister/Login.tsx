@@ -54,12 +54,13 @@ useEffect(() => {
  
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const form = e.target as HTMLFormElement;
-    if (!form.mail || !form.password) {
-      const toastData = { message: "Por favor, complete todos los campos correctamente.", type: "error" as const };
-      setToast(toastData);
-    return;
-    } 
+    if (!datos.mail || !datos.password) {
+        const toastData = { 
+            message: "Por favor, ingrese su correo electrónico y contraseña.", 
+            type: "error" as const 
+        };
+        setToast(toastData); 
+        return}; 
     try {
     const res = await fetch("http://localhost:2000/User/login", {
       method: "POST",
@@ -69,23 +70,25 @@ useEffect(() => {
 
     const data = await res.json();
     if (!res.ok) {
-      const toastData = { message: data.message || "Error en el inicio de sesión", type: "error" as const };
+      const toastData = { message: data.message || "Mail o contraseña incorrecto", type: "error" as const };
       setToast(toastData);
       return;}
     
-    const name = data.user.patient?.firstName || data.user.legalGuardian?.firstName || data.user.professional?.firstName ;
+    const name = data.name;
     console.log('Nombre usado para el toast:', name);
     const toastData = { 
-        message: "¡Bienvenido ${name}!"
+        message: "¡Bienvenido ${name}!",
+        type: "success" as const
     };
+   
     navigate("/", { state: { toastMessage: toastData } });
     
   
     } catch (error) {
     alert("Error de conexión con el servidor");
     console.error(error);
-    }
-  };
+    };
+  }
 
 return (
     <main className="login">
