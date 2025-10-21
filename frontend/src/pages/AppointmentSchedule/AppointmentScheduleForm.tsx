@@ -115,7 +115,7 @@ export const AppointmentScheduleForm: React.FC<Props> = (props) => {
       <div className="appointment-schedule__calendar">
         <div className="appointment-schedule__month-header">
           <div className="appointment-schedule__month-label">{monthLabel}</div>
-          <div className="appointment-schedule__month-note">Solo mes en curso · 60’ · Presencial</div>
+          <div className="appointment-schedule__month-note">Presencial</div>
         </div>
 
         {!canOpenCalendar && !loadingMeta && (
