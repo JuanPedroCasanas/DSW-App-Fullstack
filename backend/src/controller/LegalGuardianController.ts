@@ -6,6 +6,7 @@ import { User } from '../model/entities/User';
 import { createUser } from '../services/UserCreationService';
 import { BaseHttpError, NotFoundError } from '../model/errors/BaseHttpError';
 import { AppointmentStatus } from '../model/enums/AppointmentStatus';
+import { safeSerialize } from '../utils/safeSerialize';
 export class LegalGuardianController {
 
     static home(req: Request, res: Response) {
@@ -52,7 +53,7 @@ export class LegalGuardianController {
             lgUser.legalGuardian = legalGuardian;
                     
             await em.persistAndFlush(lgUser);
-            return res.status(201).json({ message: 'Se agrego correctamente el responsable legal ', legalGuardian });
+            return res.status(201).json({ message: 'Se agrego correctamente el responsable legal ', legalGuardian: safeSerialize(legalGuardian) });
             
         } catch (error) {
             console.error(error);
@@ -113,9 +114,9 @@ export class LegalGuardianController {
             }
 
             legalGuardian.healthInsurance = healthInsurance;
-            await em.persistAndFlush(LegalGuardian);
+            await em.flush();
 
-            return res.status(201).json({ message: 'Responsable Legal actualizado correctamente', LegalGuardian });
+            return res.status(201).json({ message: 'Responsable Legal actualizado correctamente', legalGuardian: safeSerialize(legalGuardian) });
 
         } catch (error) {
             console.error(error);
@@ -125,6 +126,17 @@ export class LegalGuardianController {
             else {
                 return res.status(500).json({ message: 'Error al actualizar responsable legal' });
             }
+        }
+    }
+
+    static async getLegalGuardians(req: Request, res: Response) {
+        try {
+            const em = await getORM().em.fork();
+            const legalGuardians = await em.findAll(LegalGuardian);
+            return res.status(200).json(safeSerialize(legalGuardians));
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Error al buscar responsables legales' });
         }
     }
 
@@ -140,7 +152,7 @@ export class LegalGuardianController {
             if (!legalGuardian|| !legalGuardian?.isActive) {
                 throw new NotFoundError('Responsable Legal')
             }
-            return res.status(200).json(LegalGuardian);
+            return res.status(200).json(safeSerialize(legalGuardian));
         } catch (error) {
             console.error(error);
             if (error instanceof BaseHttpError) {
@@ -166,7 +178,7 @@ export class LegalGuardianController {
             }
             await legalGuardian.guardedPatients.init(); // Las colecciones entiendo son lazy loaded, espero a que carguen
             const legalGuardianPatients = legalGuardian.guardedPatients;
-            return res.status(200).json(legalGuardianPatients);
+            return res.status(200).json(safeSerialize(legalGuardianPatients));
         } catch (error) {
             console.error(error);
             if (error instanceof BaseHttpError) {
@@ -206,7 +218,7 @@ export class LegalGuardianController {
 
             await em.flush();
             
-            return res.status(201).json({message: 'Se eliminó correctamente el responsable legal', legalGuardian});
+            return res.status(201).json({message: 'Se eliminó correctamente el responsable legal', legalGuardian: safeSerialize(legalGuardian)});
         } catch (error) {
             console.error(error);
             if (error instanceof BaseHttpError) {

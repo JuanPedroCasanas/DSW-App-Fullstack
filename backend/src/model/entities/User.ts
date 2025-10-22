@@ -24,7 +24,7 @@ export class User {
 
   //Cascade persist hace que cuando se haga un persiste de un User en mikroORM, se haga tambien un persiste de los pacientes, responsables legales
   // y profesionales en memoria asociados con dicha clase
-  @OneToOne(() => Professional, (p) => p.user, { owner: true, nullable: true, cascade: [Cascade.PERSIST] })
+  @OneToOne(() => Professional, (p) => p.user, { owner: true, nullable: true, cascade: [Cascade.PERSIST]})
   professional?: Professional;
 
   @OneToOne(() => Patient, (p) => p.user, { owner: true, nullable: true, cascade: [Cascade.PERSIST] })

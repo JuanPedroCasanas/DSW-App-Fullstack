@@ -57,10 +57,12 @@ export const testCode = async () => {
     ConsultingRoomController.updateConsultingRoom(req as any, res as any); */
 
     //getProfessionalsByOccupation
-    let req = new FakeRequest({}, {id: 1,});
+    let req = new FakeRequest({},{id:1});
 
     let res = new FakeResponse();
 
-    ProfessionalController.getProfessionalsByOccupation(req as any, res as any);
+    //PatientController.getPatients(req as any, res as any);
+    ProfessionalController.getProfessional(req as any, res as any);
+
 
 }

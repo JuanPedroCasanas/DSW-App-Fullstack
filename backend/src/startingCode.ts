@@ -158,36 +158,19 @@ export const startingCode = async () => {
     });
     await ProfessionalController.addProfessional(req as any, res as any);
 
+    //MODULOS
     req = new FakeRequest({
-        day: 1, startTime: '9:00', endTime: '18:00', validMonth: 10, validYear: 2025, professionalId: 1, consultingRoomId: 1
+        day: 1, startTime: '9:00', endTime: '18:00', validMonth: 10, validYear: 2025, idProfessional: 1, idConsultingRoom: 1
     });
     
     await ModuleController.addModules(req as any, res as any);
-
-    //deberia tirar error
     req = new FakeRequest({
-        day: 1, startTime: '3:00', endTime: '13:00', validMonth: 10, validYear: 2025, professionalId: 1, consultingRoomId: 1
+        day: 1, startTime: '18:00', endTime: '19:00', validMonth: 10, validYear: 2025, idProfessional: 2, idConsultingRoom: 1
     });
     
     await ModuleController.addModules(req as any, res as any);
-
-    //deberia tirar error
     req = new FakeRequest({
-        day: 1, startTime: '17:00', endTime: '19:00', validMonth: 10, validYear: 2025, professionalId: 1, consultingRoomId: 1
-    });
-    
-    await ModuleController.addModules(req as any, res as any);
-
-    //NO deberia tirar error
-    req = new FakeRequest({
-        day: 1, startTime: '18:00', endTime: '19:00', validMonth: 10, validYear: 2025, professionalId: 2, consultingRoomId: 1
-    });
-    
-    await ModuleController.addModules(req as any, res as any);
-
-    //NO deberia tirar error
-    req = new FakeRequest({
-        day: 1, startTime: '13:00', endTime: '15:00', validMonth: 10, validYear: 2025, professionalId: 2, consultingRoomId: 2
+        day: 1, startTime: '13:00', endTime: '15:00', validMonth: 10, validYear: 2025, idProfessional: 2, idConsultingRoom: 2
     });
     
     await ModuleController.addModules(req as any, res as any);
@@ -200,7 +183,7 @@ export const startingCode = async () => {
         "password": UNI_PASSWORD,
         "telephone": "3333333",
         "mail": "monchius@example.com",
-        "idhealthInsurance": 2
+        "idHealthInsurance": 2
     });
 
     await LegalGuardianController.addLegalGuardian(req as any, res as any);
@@ -213,7 +196,7 @@ export const startingCode = async () => {
         "password": UNI_PASSWORD,
         "telephone": "+54 9 11 4567 8920",
         "mail": "lucia.fernandez@example.com",
-        "healthInsuranceId": 3
+        "idHealthInsurance": 3
     });
 
     await PatientController.addIndependentPatient(req as any, res as any);
@@ -222,22 +205,14 @@ export const startingCode = async () => {
         "firstName": "Mini",
         "lastName": "ME",
         "birthdate": "2010-07-21",
-        "legalGuardianId": 1
+        "idLegalGuardian": 1
     });
 
     await PatientController.addDependentPatient(req as any, res as any);
 
-
     //Turnos
     req = new FakeRequest({
         idAppointment: 1, idPatient: 1
-    });
-
-    await AppointmentController.assignAppointment(req as any, res as any);
-
-    //Debería tirar error
-    req = new FakeRequest({
-        idAppointment: 1, idPatient: 2
     });
 
     await AppointmentController.assignAppointment(req as any, res as any);
@@ -247,33 +222,4 @@ export const startingCode = async () => {
     });
 
     await AppointmentController.assignAppointment(req as any, res as any);
-
-
-
-
-
-    req = new FakeRequest({}, {id: 1});
-    await ProfessionalController.deleteProfessional(req as any, res as any);
-
-
-    //deberia tirar error, prof inhabilitado
-    req = new FakeRequest({
-        day: 1, startTime: '10:00', endTime: '14:00', validMonth: 10, validYear: 2025, professionalId: 1, consultingRoomId: 1
-    });
-    
-    await ModuleController.addModules(req as any, res as any);
-
-
-
-    //Ok, porque el modulo que estaba aca esta cancelado
-    req = new FakeRequest({
-        day: 1, startTime: '10:00', endTime: '14:00', validMonth: 10, validYear: 2025, professionalId: 2, consultingRoomId: 1
-    });
-    
-    await ModuleController.addModules(req as any, res as any);
-
-    //Deberia cascadear los inhabilitar a paciente y sus turnos
-    req = new FakeRequest({}, {id: 1}); 
-    await LegalGuardianController.deleteLegalGuardian(req as any, res as any);
-
 }

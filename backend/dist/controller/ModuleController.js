@@ -39,7 +39,7 @@ class ModuleController {
         return res.send('Soy el controlador de modulos!');
     }
     static async addModules(req, res) {
-        let { day, startTime, endTime, validMonth, validYear, professionalId, idConsultingRoom } = req.body;
+        let { day, startTime, endTime, validMonth, validYear, idProfessional, idConsultingRoom } = req.body;
         if (!day) {
             return res.status(400).json({ message: 'Se requiere especificar el día.' });
         }
@@ -55,7 +55,7 @@ class ModuleController {
         if (!validYear) {
             return res.status(400).json({ message: 'Se requiere especificar el año de validez para el/los módulo(s).' });
         }
-        if (!professionalId) {
+        if (!idProfessional) {
             return res.status(400).json({ message: 'Se requiere el ID del profesional asignado al/los módulo(s).' });
         }
         if (!idConsultingRoom) {
@@ -64,7 +64,7 @@ class ModuleController {
         try {
             const em = await (0, db_1.getORM)().em.fork();
             // Buscar entidades relacionadas
-            const professional = await em.findOne(Professional_1.Professional, { id: professionalId });
+            const professional = await em.findOne(Professional_1.Professional, { id: idProfessional });
             const consultingRoom = await em.findOne(ConsultingRoom_1.ConsultingRoom, { id: idConsultingRoom });
             const moduleTypes = await em.findAll(ModuleType_1.ModuleType, { orderBy: { duration: 'DESC' } }); //Los ordeno de mayor a menor para hacer un calculo posterior
             if (!professional || !professional?.isActive) {
@@ -145,7 +145,7 @@ class ModuleController {
     }
     //METODO MAL HECHO, VERIFICAR SI HACE FALTA, PARA MI NO.
     static async updateModule(req, res) {
-        const { day, startTime, validMonth, professionalId, consultingRoom, moduleType } = req.body;
+        const { day, startTime, validMonth, idProfessional, consultingRoom, moduleType } = req.body;
         if (!day) {
             return res.status(400).json({ message: 'Module day is required' });
         }
@@ -155,7 +155,7 @@ class ModuleController {
         if (!validMonth) {
             return res.status(400).json({ message: 'Module valid month is required' });
         }
-        if (!professionalId) {
+        if (!idProfessional) {
             return res.status(400).json({ message: 'Module professional id is required' });
         }
         if (!consultingRoom) {

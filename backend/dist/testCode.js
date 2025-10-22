@@ -41,9 +41,10 @@ const testCode = async () => {
 
     ConsultingRoomController.updateConsultingRoom(req as any, res as any); */
     //getProfessionalsByOccupation
-    let req = new FakeRequest({}, { id: 1, });
+    let req = new FakeRequest({}, { id: 1 });
     let res = new FakeResponse();
-    ProfessionalController_1.ProfessionalController.getProfessionalsByOccupation(req, res);
+    //PatientController.getPatients(req as any, res as any);
+    ProfessionalController_1.ProfessionalController.getProfessional(req, res);
 };
 exports.testCode = testCode;
 //# sourceMappingURL=testCode.js.map

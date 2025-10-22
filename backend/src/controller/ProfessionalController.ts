@@ -201,7 +201,7 @@ export class ProfessionalController {
             if (!professional || !professional?.isActive) {
                 throw new NotFoundError('Profesional');
             }
-            return res.status(200).json(professional);
+            return res.status(200).json(safeSerialize(professional));
         } catch (error) {
             console.error(error);
             if (error instanceof BaseHttpError) {
@@ -219,7 +219,7 @@ export class ProfessionalController {
             const professionals = await em.find(Professional, {}, {
                 populate: ["occupation"], // Para devolver el objeto entero de occupation al front
             });
-            return res.status(200).json(professionals);
+            return res.status(200).json(safeSerialize(safeSerialize(professionals)));
 
         } catch (error) {
             console.error(error);
@@ -241,7 +241,7 @@ export class ProfessionalController {
         const professionals = await em.find(Professional, { occupation :  occupation }, {
                 populate: ["occupation"], // Para devolver el objeto entero de occupation al front
             });
-        return res.status(200).json(professionals);
+        return res.status(200).json(safeSerialize(professionals));
     } catch (error) {
         console.error(error);
         if (error instanceof BaseHttpError) {

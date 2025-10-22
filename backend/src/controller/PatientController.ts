@@ -6,6 +6,7 @@ import { createUser } from '../services/UserCreationService';
 import { HealthInsurance } from '../model/entities/HealthInsurance';
 import { BaseHttpError, NotFoundError } from '../model/errors/BaseHttpError';
 import { AppointmentStatus } from '../model/enums/AppointmentStatus';
+import { safeSerialize } from '../utils/safeSerialize';
 
 export class PatientController {
 
@@ -15,7 +16,7 @@ export class PatientController {
 
     //Para pacientes que no dependen de un responsable legal, se les crea usuario para acceder
     static async addIndependentPatient(req: Request, res: Response) {
-        const { firstName, lastName, birthdate, password, telephone, mail, healthInsuranceId} = req.body;
+        const { firstName, lastName, birthdate, password, telephone, mail, idHealthInsurance} = req.body;
 
         if (!firstName) {
             return res.status(400).json({ message: 'Se requiere nombre' });
@@ -35,7 +36,7 @@ export class PatientController {
         if (!password) {
             return res.status(400).json({ message: 'Se requiere una contraseña valida' });
         }
-        if (!healthInsuranceId) {
+        if (!idHealthInsurance) {
             return res.status(400).json({ message: 'Se requiere una Id de obra social valida' });
         }
 
@@ -43,19 +44,19 @@ export class PatientController {
         try {            
             const em = await getORM().em.fork();
 
-            const healthInsurance: HealthInsurance | undefined = await em.findOne(HealthInsurance, { id: healthInsuranceId}) ?? undefined;
+            const healthInsurance: HealthInsurance | undefined = await em.findOne(HealthInsurance, { id: idHealthInsurance}) ?? undefined;
            
             if(!healthInsurance) {
                 throw new NotFoundError("Obra social");
             }
 
-            const patient = new Patient(firstName, lastName, birthdate, healthInsurance,  telephone,);
+            const patient = new Patient(firstName, lastName, birthdate, healthInsurance,  telephone);
             const patUser = await createUser(mail, password);
             patient.user = patUser;
             patUser.patient = patient;
             await em.persistAndFlush(patUser);
 
-            return res.status(201).json({ message: 'Se agrego correctamente el paciente', patient });
+            return res.status(201).json({ message: 'Se agrego correctamente el paciente', patient: safeSerialize(patient) });
         } catch (error) {
             console.error(error);
             if (error instanceof BaseHttpError) {
@@ -69,7 +70,7 @@ export class PatientController {
 
     //Para pacientes que dependen de un responsable legal, sin usuario ni info de contacto
     static async addDependentPatient(req: Request, res: Response) {
-            const { firstName, lastName, birthdate, legalGuardianId } = req.body;
+            const { firstName, lastName, birthdate, idLegalGuardian } = req.body;
 
             if (!firstName) {
                 return res.status(400).json({ message: 'Se requiere nombre' });
@@ -80,7 +81,7 @@ export class PatientController {
             if (!birthdate) {
                 return res.status(400).json({ message: 'Se requiere una fecha de nacimiento valida' });
             }   
-            if (!legalGuardianId) {
+            if (!idLegalGuardian) {
                 return res.status(400).json({ message: 'Se requiere una ID de responsable legal valida' });
             }
 
@@ -88,7 +89,7 @@ export class PatientController {
             
                 const em = await getORM().em.fork();
 
-                let legalGuardian = await em.findOne(LegalGuardian, { id: legalGuardianId });
+                let legalGuardian = await em.findOne(LegalGuardian, { id: idLegalGuardian });
                 if(!legalGuardian) {
                     throw new NotFoundError("Responsable legal");
                 }
@@ -99,7 +100,7 @@ export class PatientController {
                 await em.persistAndFlush(patient);
                 
 
-                return res.status(201).json({ message: 'Se añadió correctamente al paciente', patient});
+                return res.status(201).json({ message: 'Se añadió correctamente al paciente', patient: safeSerialize(patient)});
             } catch (error) {
                 console.error(error);
                 if (error instanceof BaseHttpError) {
@@ -118,7 +119,6 @@ export class PatientController {
         const { lastName } = req.body;
         const { birthdate } = req.body;   
         const { telephone } = req.body;
-        const { type } = req.body;
         try
         {
             if(!idPatient)
@@ -141,10 +141,6 @@ export class PatientController {
             {
                 return res.status(400).json({ message: 'Patient new telephone is required' });
             }
-            if(!type)
-            {
-                return res.status(400).json({ message: 'Patient new type is required' });
-            }
             const em = await getORM().em.fork();
             const patient = await em.findOne(Patient, {id: idPatient});
 
@@ -160,7 +156,7 @@ export class PatientController {
 
             await em.flush();
 
-            return res.status(201).json({ message: 'Los datos del paciente fueron actualizados', patient });
+            return res.status(201).json({ message: 'Los datos del paciente fueron actualizados', patient: safeSerialize(patient) });
         }
         catch (error){
                 console.error(error);
@@ -185,7 +181,7 @@ export class PatientController {
             if (!patient|| !patient?.isActive) {
                 throw new NotFoundError("Paciente")
             }
-            return res.status(200).json(patient);
+            return res.status(200).json(safeSerialize(patient));
         } catch (error) {
             console.error(error);
             if (error instanceof BaseHttpError) {
@@ -201,7 +197,7 @@ export class PatientController {
         try {
             const em = await getORM().em.fork();
             const patients = await em.findAll(Patient, {});
-            return res.status(200).json(patients);
+            return res.status(200).json(safeSerialize(patients));
 
         } catch (error) {
             console.log(error);
@@ -236,7 +232,7 @@ export class PatientController {
             }
 
             await em.flush();
-            return res.status(200).json(patient);
+            return res.status(200).json(safeSerialize(patient));
         } catch (error) {
             console.error(error);
             if (error instanceof BaseHttpError) {
