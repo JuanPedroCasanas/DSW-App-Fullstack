@@ -6,6 +6,7 @@ import ModuleController from "./controller/ModuleController";
 import { OccupationController } from "./controller/OccupationController";
 import { PatientController } from "./controller/PatientController";
 import { ProfessionalController } from "./controller/ProfessionalController";
+import { UserController } from "./controller/UserController";
 import { ModuleType } from "./model/entities/ModuleType";
 import { User } from "./model/entities/User";
 import { getORM } from "./orm/db";
@@ -57,12 +58,9 @@ export const testCode = async () => {
     ConsultingRoomController.updateConsultingRoom(req as any, res as any); */
 
     //getProfessionalsByOccupation
-    let req = new FakeRequest({},{id:1});
+    let req = new FakeRequest({},{id: 1});
 
     let res = new FakeResponse();
-
-    //PatientController.getPatients(req as any, res as any);
-    ProfessionalController.getProfessional(req as any, res as any);
-
-
+    AppointmentController.getAvailableAppointmentsByProfessional(req as any, res as any);
+    //ConsultingRoomController.getConsultingRoomByModule(req as any, res as any);
 }

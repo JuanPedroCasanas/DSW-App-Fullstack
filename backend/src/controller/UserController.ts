@@ -4,6 +4,10 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { User } from '../model/entities/User';
 import { BaseHttpError, InvalidEmailFormatError, NotFoundError } from '../model/errors/BaseHttpError';
+import { safeSerialize } from '../utils/safeSerialize';
+import { LegalGuardian } from '../model/entities/LegalGuardian';
+import { Professional } from '../model/entities/Professional';
+import { Patient } from '../model/entities/Patient';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
 const SALT_ROUNDS = parseInt(process.env.SALT_ROUNDS ?? "10") //Los env son strings, parseo por las dudas y si no esta definido defaulteo a 10
@@ -18,18 +22,16 @@ export class UserController {
             if (!mail || !password) {
                 return res.status(400).json({ error: 'Email o contraseña incorrecta' });
             }
-            const user = await em.findOne(User, { mail });
-            if (!user) return res.status(404).json({ error: 'User no encontrado' });
+            const user = await em.findOne(User, { mail }, { populate: ['patient', 'professional', 'legalGuardian'] }); 
+            if (!user) return res.status(404).json({ error: 'User no encontrado' }); //Deberia ser un NotFoundError quizas
 
             const valid = await bcrypt.compare(password, user.password);
             if (!valid) return res.status(401).json({ error: 'Credenciales Invalidos' });
 
-            const person = user.patient || user.legalGuardian || user.professional;
-            const name = person ? person.firstName : '';
-            const lastName = person ? person.lastName : '';
+            let person: Patient | LegalGuardian | Professional | undefined;
 
             const token = jwt.sign({ idUser: user.id }, JWT_SECRET, { expiresIn: '1h' });
-            res.json({ user, token, name, lastName });
+            res.json({ user: safeSerialize(user) ,token });
         } 
         catch (err: any) {
             res.status(500).json({ error: err.message });

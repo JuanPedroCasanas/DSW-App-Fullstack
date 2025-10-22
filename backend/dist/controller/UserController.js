@@ -9,6 +9,7 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const User_1 = require("../model/entities/User");
 const BaseHttpError_1 = require("../model/errors/BaseHttpError");
+const safeSerialize_1 = require("../utils/safeSerialize");
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
 const SALT_ROUNDS = parseInt(process.env.SALT_ROUNDS ?? "10"); //Los env son strings, parseo por las dudas y si no esta definido defaulteo a 10
 class UserController {
@@ -20,17 +21,15 @@ class UserController {
             if (!mail || !password) {
                 return res.status(400).json({ error: 'Email o contraseña incorrecta' });
             }
-            const user = await em.findOne(User_1.User, { mail });
+            const user = await em.findOne(User_1.User, { mail }, { populate: ['patient', 'professional', 'legalGuardian'] });
             if (!user)
-                return res.status(404).json({ error: 'User no encontrado' });
+                return res.status(404).json({ error: 'User no encontrado' }); //Deberia ser un NotFoundError quizas
             const valid = await bcrypt_1.default.compare(password, user.password);
             if (!valid)
                 return res.status(401).json({ error: 'Credenciales Invalidos' });
-            const person = user.patient || user.legalGuardian || user.professional;
-            const name = person ? person.firstName : '';
-            const lastName = person ? person.lastName : '';
+            let person;
             const token = jsonwebtoken_1.default.sign({ idUser: user.id }, JWT_SECRET, { expiresIn: '1h' });
-            res.json({ user, token, name, lastName });
+            res.json({ user: (0, safeSerialize_1.safeSerialize)(user), token });
         }
         catch (err) {
             res.status(500).json({ error: err.message });

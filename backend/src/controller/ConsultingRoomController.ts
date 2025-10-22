@@ -157,5 +157,32 @@ export class ConsultingRoomController {
         }
     }
 
+        static async getConsultingRoomByModule(req: Request, res: Response) {
+        const idModule = Number(req.params.id);
+
+        if (!idModule) {
+            return res.status(400).json({ message: 'Se requiere una id de Modulo' });
+        }
+
+        try {
+            const em = await getORM().em.fork();
+            const module = await em.findOne(Module, { id: idModule }, { populate: ['consultingRoom'] });
+            if (!module || module.status == ModuleStatus.Canceled) {
+                throw new NotFoundError('Modulo');
+            }
+            const consultingRoom = module.consultingRoom;
+            return res.status(200).json(consultingRoom);
+        } catch (error) {
+            console.error(error);
+            if (error instanceof BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            else {
+                return res.status(500).json({ message: 'Error al buscar consultorio' });
+            }
+        }
+    }
+
+
 
 }
