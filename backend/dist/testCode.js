@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.testCode = void 0;
-const ProfessionalController_1 = require("./controller/ProfessionalController");
+const UserController_1 = require("./controller/UserController");
 const db_1 = require("./orm/db");
 const testCode = async () => {
     const UNI_PASSWORD = '123';
@@ -41,10 +41,10 @@ const testCode = async () => {
 
     ConsultingRoomController.updateConsultingRoom(req as any, res as any); */
     //getProfessionalsByOccupation
-    let req = new FakeRequest({}, { id: 1 });
+    let req = new FakeRequest({ mail: "monchius@example.com", password: '123' });
     let res = new FakeResponse();
     //PatientController.getPatients(req as any, res as any);
-    ProfessionalController_1.ProfessionalController.getProfessional(req, res);
+    UserController_1.UserController.login(req, res);
 };
 exports.testCode = testCode;
 //# sourceMappingURL=testCode.js.map
