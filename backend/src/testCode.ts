@@ -61,6 +61,6 @@ export const testCode = async () => {
     let req = new FakeRequest({},{id: 1});
 
     let res = new FakeResponse();
-    AppointmentController.getAvailableAppointmentsByProfessional(req as any, res as any);
+    //AppointmentController.getAvailableAppointmentsByProfessional(req as any, res as any);
     //ConsultingRoomController.getConsultingRoomByModule(req as any, res as any);
 }

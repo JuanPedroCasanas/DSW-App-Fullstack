@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.testCode = void 0;
-const AppointmentController_1 = require("./controller/AppointmentController");
 const db_1 = require("./orm/db");
 const testCode = async () => {
     const UNI_PASSWORD = '123';
@@ -43,7 +42,7 @@ const testCode = async () => {
     //getProfessionalsByOccupation
     let req = new FakeRequest({}, { id: 1 });
     let res = new FakeResponse();
-    AppointmentController_1.AppointmentController.getAvailableAppointmentsByProfessional(req, res);
+    //AppointmentController.getAvailableAppointmentsByProfessional(req as any, res as any);
     //ConsultingRoomController.getConsultingRoomByModule(req as any, res as any);
 };
 exports.testCode = testCode;

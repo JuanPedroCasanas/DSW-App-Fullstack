@@ -13,10 +13,11 @@ import {
   deriveAvailableDaysForMonth,
   deriveFreeSlotsForDay,
   fullName,
+  getLocalDateISOFromStart,
+  Patient,
+  fullNamePatient
 } from './appointmentSchedule.types';
 import { AppointmentScheduleForm } from './AppointmentScheduleForm';
-
-// para crear la ramaaaaaaaaaaaaaaaaa
 
 //Genera un toast para las respuestas del backend
 async function handleResponse(res: Response): Promise<{ message: string; type: 'success' | 'error' }> {
@@ -30,7 +31,6 @@ async function handleResponse(res: Response): Promise<{ message: string; type: '
         : resJson.appointment
         ? ` Turno: ${resJson.appointment?.id ?? ''}`
         : '');
-
     return { message: successMessage.trim(), type: 'success' };
   } else {
     if (res.status === 500 || res.status === 400) {
@@ -55,10 +55,18 @@ export default function AppointmentSchedule() {
   const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [loadingMeta, setLoadingMeta] = useState(true);
   const [loadingProfessionals, setLoadingProfessionals] = useState(false);
+  
+  // Pacientes
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [loadingPatients, setLoadingPatients] = useState(false);
+
+
 
   // Filtros / selección
   const [selectedOccupationId, setSelectedOccupationId] = useState<Occupation['id']>('');
   const [selectedProfessionalId, setSelectedProfessionalId] = useState<string>('');
+  const [selectedPatientId, setSelectedPatientId] = useState<string>('');
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | number | null>(null);
   const [selectedDateISO, setSelectedDateISO] = useState<string>('');
   const [selectedSlot, setSelectedSlot] = useState<string>('');
 
@@ -71,6 +79,44 @@ export default function AppointmentSchedule() {
   // Modal
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [bookingState, setBookingState] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+
+
+  // pacientes (activos primero)
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        setLoadingPatients(true);
+        // ⚠️ Si tu backend tiene /Patient/getAllActive usalo acá.
+        const res = await fetch(`http://localhost:2000/Patient/getAll`, { method: 'GET' });
+        if (!res.ok) {
+          const toastData = await handleResponse(res);
+          if (!cancelled) setToast(toastData);
+          return;
+        }
+        const all: Patient[] = await res.json();
+        const actives = all.filter(p => p.isActive);
+        if (!cancelled) setPatients(actives);
+      } catch {
+        if (!cancelled) setToast({ message: 'No se pudieron cargar los pacientes.', type: 'error' });
+      } finally {
+        if (!cancelled) setLoadingPatients(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Al cambiar de paciente: resetear todo lo dependiente
+  useEffect(() => {
+    // si no hay paciente, limpiar filtros y turnos
+    setSelectedOccupationId('');
+    setProfessionals([]);
+    setSelectedProfessionalId('');
+    setSelectedDateISO('');
+    setSelectedSlot('');
+    setAppointments([]);
+  }, [selectedPatientId]);
+
 
   // especialidades (todas)
   useEffect(() => {
@@ -149,9 +195,9 @@ export default function AppointmentSchedule() {
         setError(null);
         setLoadingMonth(true);
 
-        // esto no deberia ser un getAll. Esto deberia filtrar por profesional, los turnos del mes
-        // ojo: todos los turnos se crean cuando se alquila un modulo, entonces ya tienen id
-        const res = await fetch(`http://localhost:2000/Appointment/getAll`, { 
+        console.log(selectedProfessionalId);
+
+        const res = await fetch(`http://localhost:2000/Appointment/getAvailableAppointmentsByProfessional/${selectedProfessionalId}`, { 
           method: 'GET' 
         });
 
@@ -162,16 +208,19 @@ export default function AppointmentSchedule() {
         }
 
         const all: Appointment[] = await res.json();
-
-        // Filtrado por mes actual -> el fetch deberia traer lo necesario para no tener que hacer esta huevada
+      
         const { year, month } = currentMonthMeta;
         const start = new Date(year, month, 1);
         const end = new Date(year, month + 1, 0);
-        const inMonth = all.filter((a) => {
-          const [Y, M, D] = a.dateISO.split('-').map(Number);
+
+        const inMonth = all.filter(a => {
+          const iso = getLocalDateISOFromStart(a); // "YYYY-MM-DD" local
+          const [Y, M, D] = iso.split('-').map(Number);
           const d = new Date(Y, M - 1, D);
           return d >= start && d <= end;
         });
+
+
 
         if (!cancelled) setAppointments(inMonth);
       } 
@@ -215,6 +264,30 @@ export default function AppointmentSchedule() {
     return deriveFreeSlotsForDay(appointments, selectedProfessionalId, selectedDateISO);
   }, [appointments, selectedProfessionalId, selectedDateISO]);
 
+
+  const slotIdMap = useMemo(() => {
+    // Mapea "HH:mm" (local) -> appointment.id del día seleccionado
+    const map = new Map<string, string | number>();
+    if (!selectedProfessionalId || !selectedDateISO) return map;
+
+    // Recorremos los appointments del profesional en ese día (local)
+    for (const a of appointments) {
+      if (String(a.professional) !== String(selectedProfessionalId)) continue;
+      if (getLocalDateISOFromStart(a) !== selectedDateISO) continue;
+      if (a.status !== 'available') continue;
+
+      // Convertir startTime UTC -> hora local HH:mm (igual a deriveFreeSlotsForDay)
+      const d = new Date(a.startTime);
+      const hh = String(d.getHours()).padStart(2, '0');
+      const mm = String(d.getMinutes()).padStart(2, '0');
+      const hhmm = `${hh}:${mm}`;
+
+      // Guardamos el id (si hay duplicados de hora por cualquier motivo, el último pisa al anterior)
+      map.set(hhmm, a.id);
+    }
+    return map;
+  }, [appointments, selectedProfessionalId, selectedDateISO]);
+
   useEffect(() => {
     if (!selectedProfessionalId || !selectedDateISO) {
       setLoadingSlots(false);
@@ -238,23 +311,26 @@ export default function AppointmentSchedule() {
     return { disabled, available, iso };
   }
 
-  // ====== Confirmar turno (POST /assign) con Toast ======
+  // ====== Confirmar turno ======
   async function onConfirm() {
     if (!selectedOccupationId || !selectedProfessionalId || !selectedDateISO || !selectedSlot) return;
     setBookingState('submitting');
     setError(null);
 
-    const payload = { //falta id de paciente y el id de turno
-      professionalId: selectedProfessionalId,
-      occupationId: selectedOccupationId,
-      dateISO: selectedDateISO,
-      time: selectedSlot,
+    const payload = { //el assign del back solamente usa id de turno e id de paciente
+      idAppointment: selectedAppointmentId, //ID DE TURNO
+      idPatient: selectedPatientId,
     };
 
     try {
 
       // FALTA... el id de paciente para asignar...
-      // tambien falta el id de turno!!
+      
+      if (!selectedAppointmentId) {
+        setToast({ message: 'Elegí un horario válido antes de confirmar.', type: 'error' });
+        setBookingState('error');
+        return;
+      }
 
       const res = await fetch(`http://localhost:2000/Appointment/assign`, {
         method: 'POST',
@@ -277,14 +353,19 @@ export default function AppointmentSchedule() {
         const resAll = await fetch(`http://localhost:2000/Appointment/getAll`, { method: 'GET' });
         if (resAll.ok) {
           const all: Appointment[] = await resAll.json();
+
+
           const { year, month } = currentMonthMeta;
           const start = new Date(year, month, 1);
-          const end = new Date(year, month + 1, 0);
+          const end   = new Date(year, month + 1, 0);
+          const normalizeDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
           const inMonth = all.filter((a) => {
-            const [Y, M, D] = a.dateISO.split('-').map(Number);
-            const d = new Date(Y, M - 1, D);
-            return d >= start && d <= end;
+            const dLocal = new Date(a.startTime);
+            const day    = normalizeDay(dLocal);
+            return day >= start && day <= end;
           });
+
           setAppointments(inMonth);
         } else {
           const td = await handleResponse(resAll);
@@ -312,6 +393,12 @@ export default function AppointmentSchedule() {
   return (
     <>
       <AppointmentScheduleForm
+
+        patients={patients}
+        loadingPatients={loadingPatients}
+        selectedPatientId={selectedPatientId}
+        onChangePatient={setSelectedPatientId}
+
         occupations={occupations}
         professionals={professionals}
         loadingMeta={loadingMeta}
@@ -335,8 +422,12 @@ export default function AppointmentSchedule() {
         onPickDay={(iso) => {
           setSelectedDateISO(iso);
           setSelectedSlot('');
+          setSelectedAppointmentId(null);
         }}
-        onPickSlot={setSelectedSlot}
+        onPickSlot={(hhmm: string) => {
+          setSelectedSlot(hhmm);
+          setSelectedAppointmentId(slotIdMap.get(hhmm) ?? null);
+        }}
         onOpenConfirm={() => setConfirmOpen(true)}
         onCloseConfirm={resetModal}
         onConfirm={onConfirm}

@@ -1,14 +1,16 @@
 // pages/AppointmentSchedule/AppointmentScheduleForm.tsx
 import React from 'react';
 import './appointmentSchedule.css';
-// src/pages/AppointmentSchedule/AppointmentScheduleForm.tsx
-import { toDDMMYYYY, fullName } from './appointmentSchedule.types';
+import { toDDMMYYYY, fullName, Patient, fullNamePatient } from './appointmentSchedule.types';
 
 type Props = {
+  
+  patients: Patient[];
   occupations: { id: string; name: string }[];
   professionals: { id: string; firstName: string; lastName: string }[];
   loadingMeta: boolean;
   loadingProfessionals: boolean;
+  loadingPatients: boolean;
 
   monthLabel: string;
   daysArray: (number | null)[];
@@ -20,12 +22,14 @@ type Props = {
 
   selectedOccupationId: string;
   selectedProfessionalId: string;
+  selectedPatientId: string;
   selectedDateISO: string;
   selectedSlot: string;
   selectedOccupationName?: string;
   selectedProfessionalFullName?: string;
   error?: string | null;
 
+  onChangePatient: (id: string) => void;
   onChangeOccupation: (id: string) => void;
   onChangeProfessional: (id: string) => void;
   onPickDay: (iso: string) => void;
@@ -48,14 +52,14 @@ const WeekdayLabels: React.FC = () => (
 
 export const AppointmentScheduleForm: React.FC<Props> = (props) => {
   const {
-    occupations, professionals,
-    loadingMeta, loadingProfessionals,
+    occupations, professionals, patients,
+    loadingMeta, loadingProfessionals, loadingPatients, 
     monthLabel, daysArray, dayState,
     canOpenCalendar, loadingMonth, slots, loadingSlots,
     selectedOccupationId, selectedProfessionalId, selectedDateISO, selectedSlot,
-    selectedOccupationName, selectedProfessionalFullName,
+    selectedOccupationName, selectedProfessionalFullName, selectedPatientId, 
     error,
-    onChangeOccupation, onChangeProfessional, onPickDay, onPickSlot,
+    onChangeOccupation, onChangeProfessional, onPickDay, onPickSlot, onChangePatient,
     onOpenConfirm, onCloseConfirm, onConfirm,
     confirmOpen, bookingState,
   } = props;
@@ -69,47 +73,81 @@ export const AppointmentScheduleForm: React.FC<Props> = (props) => {
       </header>
 
       {/* Filtros */}
-      <div className="appointment-schedule__filters">
-        <div className="appointment-schedule__field">
-          <label htmlFor="occupation" className="appointment-schedule__label">Especialidad</label>
-          <select
-            id="occupation"
-            className="appointment-schedule__select"
-            value={selectedOccupationId}
-            onChange={(e) => onChangeOccupation(e.target.value)}
-            disabled={loadingMeta}
-          >
-            <option value="" disabled>{loadingMeta ? 'Cargando…' : 'Elegí una especialidad'}</option>
-            {occupations.map(function (o) {
-              return <option key={o.id} value={o.id}>{o.name}</option>;
-            })}
-          </select>
-        </div>
-
-        <div className="appointment-schedule__field">
-          <label htmlFor="professional" className="appointment-schedule__label">Profesional</label>
-          <select
-            id="professional"
-            className="appointment-schedule__select"
-            value={selectedProfessionalId}
-            onChange={(e) => onChangeProfessional(e.target.value)}
-            disabled={loadingMeta || !selectedOccupationId || loadingProfessionals || professionals.length === 0}
-          >
-            <option value="" disabled>
-              {loadingMeta
-                ? 'Cargando…'
-                : (!selectedOccupationId
-                    ? 'Primero elegí especialidad'
-                    : (loadingProfessionals
-                        ? 'Cargando profesionales…'
-                        : (professionals.length ? 'Elegí un profesional' : 'Sin profesionales disponibles')))}
+    <section className="appointment-schedule__filters">
+      {/* === Paciente (requerido) === */}
+      <div className="appointment-schedule__field">
+        <label className="appointment-schedule__label" htmlFor="patient">Paciente</label>
+        <select
+          id="patient"
+          className="appointment-schedule__select"
+          value={selectedPatientId}
+          onChange={(e) => onChangePatient(e.target.value)}
+          disabled={loadingPatients}
+        >
+          <option value="">Seleccioná un paciente activo</option>
+          {patients.map((p) => (
+            <option key={String(p.id)} value={String(p.id)}>
+              {p.firstName} {p.lastName}
             </option>
-            {professionals.map(function (p) {
-              return <option key={p.id} value={p.id}>{fullName(p)}</option>;
-            })}
-          </select>
-        </div>
+          ))}
+        </select>
+        {loadingPatients && (
+          <div className="appointment-schedule__loading">Cargando pacientes…</div>
+        )}
       </div>
+
+      {/* === Especialidad === */}
+      <div className="appointment-schedule__field">
+        <label className="appointment-schedule__label" htmlFor="occupation">Especialidad</label>
+        <select
+          id="occupation"
+          className="appointment-schedule__select"
+          value={selectedOccupationId}
+          onChange={(e) => onChangeOccupation(e.target.value)}
+          disabled={loadingMeta || !selectedPatientId}
+        >
+          <option value="">{loadingMeta ? 'Cargando…' : 'Elegí una especialidad'}</option>
+          {occupations.map((o) => (
+            <option key={o.id} value={o.id}>{o.name}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* === Profesional === */}
+      <div className="appointment-schedule__field">
+        <label className="appointment-schedule__label" htmlFor="professional">Profesional</label>
+        <select
+          id="professional"
+          className="appointment-schedule__select"
+          value={selectedProfessionalId}
+          onChange={(e) => onChangeProfessional(e.target.value)}
+          disabled={
+            loadingMeta ||
+            !selectedPatientId ||
+            !selectedOccupationId ||
+            loadingProfessionals ||
+            professionals.length === 0
+          }
+        >
+          <option value="">
+            {loadingMeta
+              ? 'Cargando…'
+              : !selectedOccupationId
+                ? 'Primero elegí especialidad'
+                : loadingProfessionals
+                  ? 'Cargando profesionales…'
+                  : professionals.length
+                    ? 'Elegí un profesional'
+                    : 'Sin profesionales disponibles'}
+          </option>
+          {professionals.map((p) => (
+            <option key={String(p.id)} value={String(p.id)}>
+              {p.firstName} {p.lastName}
+            </option>
+          ))}
+        </select>
+      </div>
+    </section>
 
       {/* Calendario */}
       <div className="appointment-schedule__calendar">
