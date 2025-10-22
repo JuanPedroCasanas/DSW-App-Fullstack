@@ -18,7 +18,7 @@ export class UserController {
             if (!mail || !password) {
                 return res.status(400).json({ error: 'Email o contraseña incorrecta' });
             }
-            const user = await em.findOne(User, { mail });
+            const user = await em.findOne(User, { mail }); //Deberia ser un NotFoundError quizas
             if (!user) return res.status(404).json({ error: 'User no encontrado' });
 
             const valid = await bcrypt.compare(password, user.password);
