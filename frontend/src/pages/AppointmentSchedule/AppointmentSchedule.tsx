@@ -16,6 +16,8 @@ import {
 } from './appointmentSchedule.types';
 import { AppointmentScheduleForm } from './AppointmentScheduleForm';
 
+// para crear la ramaaaaaaaaaaaaaaaaa
+
 //Genera un toast para las respuestas del backend
 async function handleResponse(res: Response): Promise<{ message: string; type: 'success' | 'error' }> {
   const resJson = await res.json().catch(() => ({}));
