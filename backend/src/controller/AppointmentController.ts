@@ -237,7 +237,7 @@ export class AppointmentController {
     }
 }
     // REHACER..
-    static async getAppointmentsByDateAndProfessional(req: Request, res: Response) {
+    static async getAppointmentsByMonthAndProfessional(req: Request, res: Response) {
        /* const idPatient = Number(req.params.id);
         if(!idPatient) {
             return res.status(400).json({ message: 'Se requiere el id del paciente para los turnos a buscar' });
@@ -262,5 +262,32 @@ export class AppointmentController {
     } */
 }
 
+    static async getAvailableAppointmentsByProfessional(req: Request, res: Response) {
+        const idProfessional = Number(req.params.id);
+        if(!idProfessional) {
+            return res.status(400).json({ message: 'Se requiere el id del profesional para los turnos a buscar' });
+        }
+
+
+        try {
+            
+            const em = await getORM().em.fork();
+
+            const professional = await em.findOne(Professional, {id: idProfessional});
+
+            if (!professional || ){
+            
+            }
+
+            const appointments = await em.find(Appointment, { status : AppointmentStatus.Available, professional.id : idProfessional});
+            return res.json(appointments);
+
+            
+
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Error al buscar los turnos' });
+        }
+    }
 
 }
