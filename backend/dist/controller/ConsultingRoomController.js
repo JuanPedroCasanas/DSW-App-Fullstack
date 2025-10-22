@@ -126,6 +126,30 @@ class ConsultingRoomController {
             }
         }
     }
+    static async getConsultingRoomByModule(req, res) {
+        const idModule = Number(req.params.id);
+        if (!idModule) {
+            return res.status(400).json({ message: 'Se requiere una id de Modulo' });
+        }
+        try {
+            const em = await (0, db_1.getORM)().em.fork();
+            const module = await em.findOne(Module_1.Module, { id: idModule }, { populate: ['consultingRoom'] });
+            if (!module || module.status == ModuleStatus_1.ModuleStatus.Canceled) {
+                throw new BaseHttpError_1.NotFoundError('Modulo');
+            }
+            const consultingRoom = module.consultingRoom;
+            return res.status(200).json(consultingRoom);
+        }
+        catch (error) {
+            console.error(error);
+            if (error instanceof BaseHttpError_1.BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            else {
+                return res.status(500).json({ message: 'Error al buscar consultorio' });
+            }
+        }
+    }
 }
 exports.ConsultingRoomController = ConsultingRoomController;
 //# sourceMappingURL=ConsultingRoomController.js.map

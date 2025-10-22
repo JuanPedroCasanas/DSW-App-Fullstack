@@ -58,10 +58,9 @@ export const testCode = async () => {
     ConsultingRoomController.updateConsultingRoom(req as any, res as any); */
 
     //getProfessionalsByOccupation
-    let req = new FakeRequest({mail: "monchius@example.com", password: '123'});
+    let req = new FakeRequest({},{id: 1});
 
     let res = new FakeResponse();
-
-    //PatientController.getPatients(req as any, res as any);
-    UserController.login(req as any, res as any);
+    AppointmentController.getAvailableAppointmentsByProfessional(req as any, res as any);
+    //ConsultingRoomController.getConsultingRoomByModule(req as any, res as any);
 }

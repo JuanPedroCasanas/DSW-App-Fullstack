@@ -4,8 +4,10 @@ exports.AppointmentController = void 0;
 const db_1 = require("../orm/db");
 const Appointment_1 = require("../model/entities/Appointment");
 const Patient_1 = require("../model/entities/Patient");
+const Professional_1 = require("../model/entities/Professional");
 const AppointmentStatus_1 = require("../model/enums/AppointmentStatus");
 const BaseHttpError_1 = require("../model/errors/BaseHttpError");
+const safeSerialize_1 = require("../utils/safeSerialize");
 class AppointmentController {
     static home(req, res) {
         return res.send('Soy el controlador de turnos!');
@@ -196,30 +198,50 @@ class AppointmentController {
             }
         }
     }
-    // REHACER..
-    static async getAppointmentsByDateAndProfessional(req, res) {
-        /* const idPatient = Number(req.params.id);
-         if(!idPatient) {
-             return res.status(400).json({ message: 'Se requiere el id del paciente para los turnos a buscar' });
-         }
-     try {
-         const em = await getORM().em.fork();
-         const patient = await em.findOne(Patient, { id: idPatient });
-         if(!patient) {
-             throw new NotFoundError('Paciente');
-         }
-         const appointments = await em.find(Appointment, { patient :  patient });
-         return res.status(200).json(appointments);
- 
-     } catch (error) {
-         console.error(error);
-         if (error instanceof BaseHttpError) {
-             return res.status(error.status).json(error.toJSON());
-         }
-         else {
-             return res.status(500).json({ message: 'Error al buscar turnos por paciente' });
-         }
-     } */
+    /*
+    static async getAppointmentsByMonthAndProfessional(req: Request, res: Response) {
+        const idPatient = Number(req.params.id);
+        if(!idPatient) {
+            return res.status(400).json({ message: 'Se requiere el id del paciente para los turnos a buscar' });
+        }
+    try {
+        const em = await getORM().em.fork();
+        const patient = await em.findOne(Patient, { id: idPatient });
+        if(!patient) {
+            throw new NotFoundError('Paciente');
+        }
+        const appointments = await em.find(Appointment, { patient :  patient });
+        return res.status(200).json(appointments);
+
+    } catch (error) {
+        console.error(error);
+        if (error instanceof BaseHttpError) {
+            return res.status(error.status).json(error.toJSON());
+        }
+        else {
+            return res.status(500).json({ message: 'Error al buscar turnos por paciente' });
+        }
+    }
+}
+    */
+    static async getAvailableAppointmentsByProfessional(req, res) {
+        const idProfessional = Number(req.params.id);
+        if (!idProfessional) {
+            return res.status(400).json({ message: 'Se requiere el id del profesional para los turnos a buscar' });
+        }
+        try {
+            const em = await (0, db_1.getORM)().em.fork();
+            const professional = await em.findOne(Professional_1.Professional, { id: idProfessional });
+            if (!professional || !professional.isActive) {
+                throw new BaseHttpError_1.NotFoundError('Profesional');
+            }
+            const appointments = await em.find(Appointment_1.Appointment, { status: AppointmentStatus_1.AppointmentStatus.Available, professional: professional });
+            return res.json((0, safeSerialize_1.safeSerialize)(appointments));
+        }
+        catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Error al buscar los turnos' });
+        }
     }
 }
 exports.AppointmentController = AppointmentController;
