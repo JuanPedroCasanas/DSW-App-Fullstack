@@ -1,21 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./professionals.css";
 import { Toast } from "@/components/Toast";
-
-/** Modelo simple: viene del backend */
-type Occupation = {
-  id: number;
-  name: string 
-};
-
-type Professional = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  occupation: Occupation; // ID de especialidad (string por ahora)
-  telephone?: string;
-  isActive: boolean;
-};
+import { Occupation, Professional } from "./professionalTypes";
 
 //Genera un toast para las respuestas del backend
 async function handleResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {

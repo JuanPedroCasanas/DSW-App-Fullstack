@@ -1,19 +1,6 @@
 import { useState, useEffect } from 'react';
-import './ProfessionalHelathInsurance.css';
-
-type Professional = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  occupation: Occupation; // ID de especialidad (string por ahora)
-  telephone?: string;
-  isActive: boolean;
-  healthInsurances: HealthInsurance
-};
-type HealthInsurance = {
-  id:string;
-  name:string;
-}
+import './ProfessionalHealthInsurance.css';
+import { Professional } from '../AppointmentSchedule/appointmentSchedule.types';
 
 async function handleResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
   const resJson = await res.json().catch(() => ({}));
@@ -67,11 +54,9 @@ export default function ProfessionalHealthInsurances() {
   
 
   
-  
-} 
-  return (
+    return (
     <h1>Listado de obras sociales admitidas por el profesional</h1>
     
     
   );
-}
+} 

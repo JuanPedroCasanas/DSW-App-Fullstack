@@ -2,13 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import "./healthInsurances.css";
 import { Toast } from "@/components/Toast";
 
-
-/** Modelo simple: viene del backend */
-type HealthInsurance = {
-  id: string;
-  name: string;
-  isActive: boolean;
-};
+import { HealthInsurance } from "./healthInsurancesTypes";
 
 //Genera un toast para las respuestas del backend
 async function handleResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
