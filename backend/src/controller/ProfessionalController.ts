@@ -214,12 +214,20 @@ export class ProfessionalController {
     }
 
     static async getProfessionals(req: Request, res: Response) {
+        let includeInactive:boolean;
+        if (req.query.includeInactive === undefined) {
+            includeInactive = true;
+        } else {
+            includeInactive = req.query.includeInactive === 'true'; 
+            // true si el string es 'true', false si es cualquier otra cosa
+        }
         try {
             const em = await getORM().em.fork();
-            const professionals = await em.find(Professional, {}, {
+            const whereCondition = (includeInactive) ? {} : {isActive: true};
+            const professionals = await em.find(Professional, whereCondition, {
                 populate: ["occupation"], // Para devolver el objeto entero de occupation al front
             });
-            return res.status(200).json(safeSerialize(safeSerialize(professionals)));
+            return res.status(200).json(safeSerialize(professionals));
 
         } catch (error) {
             console.error(error);
@@ -232,13 +240,24 @@ export class ProfessionalController {
         if(!idOccupation) {
             return res.status(400).json({ message: 'Se requiere el id de la especialidad para buscar profesionales' });
         }
+
+        let includeInactive:boolean;
+        if (req.query.includeInactive === undefined) {
+            includeInactive = true;
+        } else {
+            includeInactive = req.query.includeInactive === 'true'; 
+            // true si el string es 'true', false si es cualquier otra cosa
+        }
+
+
     try {
         const em = await getORM().em.fork();
         const occupation = await em.findOne(Occupation, { id: idOccupation });
         if(!occupation) {
             throw new NotFoundError('Especialidad');
         }
-        const professionals = await em.find(Professional, { occupation :  occupation }, {
+        const whereCondition = (includeInactive) ? { occupation :  occupation } : { occupation :  occupation, isActive: true };
+        const professionals = await em.find(Professional, whereCondition, {
                 populate: ["occupation"], // Para devolver el objeto entero de occupation al front
             });
         return res.status(200).json(safeSerialize(professionals));

@@ -88,6 +88,10 @@
 .btn:active { transform: translateY(1px); }
 .btn--primary { background: var(--variable-collection-primary); color: #fff; }
 .btn--ghost { background: #f9f9f9; border-color: rgba(0,0,0,.06); color: #213547; }
+.btn--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
 /* Leyenda */
 .moduleRent__legend {
@@ -189,6 +193,7 @@
 .slot.is-selectable { cursor: pointer; }
 .slot.is-disabled { cursor: not-allowed; opacity: .9; }
 
+
 /* Estados (tinte + acento, independ. de las líneas del overlay) */
 .slot.is-available {
   background-color: var(--bg-available);
@@ -210,6 +215,12 @@
   outline-offset: -2px;
 }
 .slot__time { opacity: .55; font-size: 11px; }
+.slot.is-selected {
+  outline: 2px solid var(--slot-outline);
+  outline-offset: -2px;
+  background-color: color-mix(in srgb, var(--ax-available) 40%, white); /* un tinte visible */
+}
+
 
 /* ===== Footer ===== */
 .moduleRent__footer {

@@ -9,6 +9,7 @@ import { DayOfWeek } from '../model/enums/DayOfWeek';
 import { Appointment } from '../model/entities/Appointment';
 import { AppointmentStatus } from '../model/enums/AppointmentStatus';
 import { ModuleStatus } from '../model/enums/ModuleStatus';
+import { safeSerialize } from '../utils/safeSerialize';
 
 
 export default class ModuleController  {
@@ -189,12 +190,12 @@ export default class ModuleController  {
                 }
             }
 
-            await em.flush()
+            await em.flush();
 
             
 
 
-            return res.status(201).json({ message: 'Modulos correctamente añadidos', modules });
+            return res.status(201).json({ message: 'Modulos correctamente añadidos', modules: safeSerialize(modules) });
         } catch (error) {
             console.error(error);
             if (error instanceof BaseHttpError) {
@@ -290,6 +291,38 @@ export default class ModuleController  {
             } catch (error) {
                 console.error(error);
                 return res.status(500).json({ message: 'Failed to fetch modules' });
+            }
+        }
+
+    static async getCurrentMonthModulesByConsultingRoom(req: Request, res: Response) {
+            const idConsultingRoom = Number(req.params.id);
+            const currentDate: Date = new Date();
+            const currentMonth: number = (currentDate.getMonth()) + 1; //getMonth devuelve un valor del 0 al 11, por eso le sumo 1
+            const currentYear: number = currentDate.getFullYear();
+            if(!idConsultingRoom)
+            {
+                return res.status(400).json({ message: 'Se requiere el id de consultorio' });
+            }
+            try {
+
+                const em = await getORM().em.fork();
+                const consultingRoom = await em.findOne(ConsultingRoom, { id: idConsultingRoom });
+
+                if(!consultingRoom || !consultingRoom.isActive) {
+                    throw new NotFoundError("Consultorio");
+                }
+
+                const modules = await em.find(Module, { consultingRoom : consultingRoom, validYear: currentYear, validMonth: currentMonth });
+                return res.status(200).json(safeSerialize(modules));
+
+            } catch (error) {
+                console.error(error);
+                if (error instanceof BaseHttpError) {
+                    return res.status(error.status).json(error.toJSON());
+                }
+                else {
+                    return res.status(500).json({ message: 'Error buscar modulo' });
+                }
             }
         }
     }

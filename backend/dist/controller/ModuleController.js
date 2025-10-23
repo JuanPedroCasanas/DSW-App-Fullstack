@@ -9,6 +9,7 @@ const BaseHttpError_1 = require("../model/errors/BaseHttpError");
 const Appointment_1 = require("../model/entities/Appointment");
 const AppointmentStatus_1 = require("../model/enums/AppointmentStatus");
 const ModuleStatus_1 = require("../model/enums/ModuleStatus");
+const safeSerialize_1 = require("../utils/safeSerialize");
 class ModuleController {
     //HELPERS
     static calculateHours(startTime, endTime) {
@@ -131,7 +132,7 @@ class ModuleController {
                 }
             }
             await em.flush();
-            return res.status(201).json({ message: 'Modulos correctamente añadidos', modules });
+            return res.status(201).json({ message: 'Modulos correctamente añadidos', modules: (0, safeSerialize_1.safeSerialize)(modules) });
         }
         catch (error) {
             console.error(error);
@@ -206,6 +207,33 @@ class ModuleController {
         catch (error) {
             console.error(error);
             return res.status(500).json({ message: 'Failed to fetch modules' });
+        }
+    }
+    static async getCurrentMonthModulesByConsultingRoom(req, res) {
+        const idConsultingRoom = Number(req.params.id);
+        const currentDate = new Date();
+        const currentMonth = (currentDate.getMonth()) + 1; //getMonth devuelve un valor del 0 al 11, por eso le sumo 1
+        const currentYear = currentDate.getFullYear();
+        if (!idConsultingRoom) {
+            return res.status(400).json({ message: 'Se requiere el id de consultorio' });
+        }
+        try {
+            const em = await (0, db_1.getORM)().em.fork();
+            const consultingRoom = await em.findOne(ConsultingRoom_1.ConsultingRoom, { id: idConsultingRoom });
+            if (!consultingRoom || !consultingRoom.isActive) {
+                throw new BaseHttpError_1.NotFoundError("Consultorio");
+            }
+            const modules = await em.find(Module_1.Module, { consultingRoom: consultingRoom, validYear: currentYear, validMonth: currentMonth });
+            return res.status(200).json((0, safeSerialize_1.safeSerialize)(modules));
+        }
+        catch (error) {
+            console.error(error);
+            if (error instanceof BaseHttpError_1.BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            else {
+                return res.status(500).json({ message: 'Error buscar modulo' });
+            }
         }
     }
 }

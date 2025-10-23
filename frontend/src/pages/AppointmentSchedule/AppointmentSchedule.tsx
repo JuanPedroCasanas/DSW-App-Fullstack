@@ -157,7 +157,7 @@ export default function AppointmentSchedule() {
       try {
         setLoadingProfessionals(true);
         const res = await fetch(
-          `http://localhost:2000/Professional/getProfessionalsByOccupation/${encodeURIComponent(String(selectedOccupationId))}`,
+          `http://localhost:2000/Professional/getProfessionalsByOccupation/${encodeURIComponent(String(selectedOccupationId))}?includeInactive=false`,
           { method: 'GET' },
         );
         if (!res.ok) {

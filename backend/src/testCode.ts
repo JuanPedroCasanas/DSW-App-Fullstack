@@ -63,4 +63,5 @@ export const testCode = async () => {
     let res = new FakeResponse();
     //AppointmentController.getAvailableAppointmentsByProfessional(req as any, res as any);
     //ConsultingRoomController.getConsultingRoomByModule(req as any, res as any);
+    ModuleController.getCurrentMonthModulesByConsultingRoom(req as any, res as any);
 }

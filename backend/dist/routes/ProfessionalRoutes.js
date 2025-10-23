@@ -9,8 +9,12 @@ const router = express_1.default.Router();
 router.get('/', ProfessionalController_1.ProfessionalController.home);
 router.post('/add', ProfessionalController_1.ProfessionalController.addProfessional);
 router.post('/update', ProfessionalController_1.ProfessionalController.updateProfessional);
+//Puede incluir /getAll?includeInactive=false para solo obtener profesionales activos
+//(Por defecto incluye profesionales inactivos)
 router.get('/getAll', ProfessionalController_1.ProfessionalController.getProfessionals);
 router.get('/get/:id', ProfessionalController_1.ProfessionalController.getProfessional);
+//Puede incluir /getAll?includeInactive=false para solo obtener profesionales activos
+//(Por defecto incluye profesionales inactivos)
 router.get('/getProfessionalsByOccupation/:id', ProfessionalController_1.ProfessionalController.getProfessionalsByOccupation); //id de especialidad
 router.delete('/delete/:id', ProfessionalController_1.ProfessionalController.deleteProfessional);
 exports.default = router;

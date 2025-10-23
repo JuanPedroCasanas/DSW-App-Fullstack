@@ -1,310 +1,318 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import "./moduleRent.css";
-
-// OJOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-// ESTO DEBERIA DEVOLVER EL MES Y EL AÑO!!!!!!!!!!!!!!!!!!!!!
-// 100% necesario para el backend que ademas de todo DEVUELVA ESO !!!!!!
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11
-
-type DayKey = "lun" | "mar" | "mie" | "jue" | "vie" | "sab";
-type SlotState = "available" | "mine" | "reserved" | "unavailable";
-type SlotId = `${DayKey}-${string}`;
-type Availability = Record<DayKey, Record<string, SlotState>>;
+import { Availability, ConsultingRoom, DayKey, Professional, SlotId, SlotState } from "./moduleRentTypes";
+import { Toast } from "@/components/Toast";
 
 const DAYS: DayKey[] = ["lun", "mar", "mie", "jue", "vie", "sab"];
 const DAY_LABELS: Record<DayKey, string> = {
-  lun: "Lunes",
-  mar: "Martes",
-  mie: "Miércoles",
-  jue: "Jueves",
-  vie: "Viernes",
-  sab: "Sábado",
+  lun: "Lunes", mar: "Martes", mie: "Miércoles", jue: "Jueves", vie: "Viernes", sab: "Sábado",
 };
-
-/** Filas de la grilla: 08:00 → 20:00 (inclusive) */
 const HOURS = [
   "08:00","09:00","10:00","11:00","12:00",
   "13:00","14:00","15:00","16:00","17:00",
   "18:00","19:00","20:00",
 ];
 
-/** Reglas de disponibilidad (según Axure):
- *  - Lun–Vie: 14..20 habilitado (inclusive)
- *  - Sáb: 08..12 habilitado (inclusive)
- */
 const isAllowed = (day: DayKey, hour: string): boolean => {
   const H = Number(hour.slice(0, 2));
   if (day === "sab") return H >= 8 && H <= 12;
-  return H >= 14 && H <= 20;
+  return H >= 8 && H <= 20;
 };
 
+const add60 = (hhmm: string) => {
+  const [hh, mm] = hhmm.split(":").map(Number);
+  const d = new Date(2000, 0, 1, hh, mm);
+  d.setMinutes(d.getMinutes() + 60);
+  return `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+};
 
+const numToDay = (n: number): DayKey => DAYS[n-1] ?? "lun";
 
-// Mock de consultorios para UI
-const CONSULTORIOS = [
-  { id: "c1", name: "Consultorio 1" },
-  { id: "c2", name: "Consultorio 2" },
-  { id: "c3", name: "Consultorio 3" },
-];
-
-// Construye disponibilidad base (sin “ejemplos” para evitar confusión visual)
 const buildBaseAvailability = (): Availability => {
-  const base: Availability = { lun: {}, mar: {}, mie: {}, jue: {}, vie: {}, sab: {} };
-  DAYS.forEach((d) => {
-    HOURS.forEach((h) => {
-      base[d][h] = isAllowed(d, h) ? "available" : "unavailable";
+  const base: Availability = { lun:{}, mar:{}, mie:{}, jue:{}, vie:{}, sab:{} };
+  DAYS.forEach(d => {
+    HOURS.forEach(h => {
+      base[d][h] = isAllowed(d,h) ? "available" : "unavailable";
     });
   });
-
-    // Horarios de prueba
-  base.lun["15:00"] = "reserved"; // Ocupado por otro
-  base.mie["18:00"] = "mine";     // Alquilado por vos
-  base.sab["10:00"] = "reserved"; // Ocupado por otro
-
-
-
   return base;
 };
 
-
 export default function ModuleRent() {
-  const [consultorioId, setConsultorioId] = useState(CONSULTORIOS[0].id);
-  const [availability] = useState<Availability>(() => buildBaseAvailability());
+  const [consultingRoomId, setConsultingRoomId] = useState<number | null>(null);
+  const [availability, setAvailability] = useState<Availability>(buildBaseAvailability);
   const [selected, setSelected] = useState<Set<SlotId>>(new Set());
+  const [rangeStart, setRangeStart] = useState<SlotId | null>(null);
+  const [professionals, setProfessionals] = useState<Professional[]>([]);
+  const [consultingRooms, setConsultingRooms] = useState<ConsultingRoom[]>([]);
+  const [selectedProfessionalId, setSelectedProfessionalId] = useState<number | null>(null);
+  
+  
+  // === cargar consultorios ===
+  useEffect(() => {
+    const fetchConsultingRooms = async () => {
+      try {
+        const res = await fetch("http://localhost:2000/ConsultingRoom/getAll?includeInactive=false");
+        const data: ConsultingRoom[] = await res.json();
+        setConsultingRooms(data);
+        if (data.length) setConsultingRoomId(data[0].id);
+      } catch(err) { console.error(err); }
+    };
+    fetchConsultingRooms();
+  }, []);
 
-  // Drag / long-press + tap corto en mobile
-  const dragRef = useRef<{
-    active: boolean;
-    day?: DayKey;
-    startIndex?: number;
-    timer?: number | null;
-    pendingId?: SlotId;
-    longPress?: boolean;
-  }>({ active: false, day: undefined, startIndex: undefined, timer: null, pendingId: undefined, longPress: false });
+  // === cargar profesionales ===
+  useEffect(() => {
+    const fetchProfessionals = async () => {
+      try {
+        const res = await fetch("http://localhost:2000/Professional/getAll?includeInactive=false");
+        const data: Professional[] = await res.json();
+        setProfessionals(data);
+        if (data.length) setSelectedProfessionalId(data[0].id);
+      } catch(err) { console.error(err); }
+    };
+    fetchProfessionals();
+  }, []);
 
-  const isSelectable = (state: SlotState) => state === "available";
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
-  const toggleOne = (id: SlotId) => {
-    setSelected((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id); // lo tengo que corregir, no se por qué tira error
-      return next;
-    });
-  };
 
-  const selectRangeSameDay = (day: DayKey, i1: number, i2: number) => {
-    const [from, to] = i1 <= i2 ? [i1, i2] : [i2, i1];
-    const next = new Set<SlotId>(selected);
+  // === cargar módulos ===
+  useEffect(() => {
+    fetchModules();
+  }, [consultingRoomId, selectedProfessionalId]);
+
+  
+  // === Limpiar rangos al cambiar de dia/consultorio o clickear por tercera vez
+  useEffect(() => {
+    clearSelection();
+    setRangeStart(null);
+}, [consultingRoomId]);
+
+  const fetchModules = async () => {
+    if (consultingRoomId == null || selectedProfessionalId == null) return;
+      try {
+        const res = await fetch(`http://localhost:2000/Module/getCurrentMonthModulesByConsultingRoom/${consultingRoomId}`);
+        const resJson = await res.json();
+        const next = buildBaseAvailability();
+
+        resJson.forEach((mod:any) => {
+          const day = numToDay(mod.day);
+          let h = mod.startTime.slice(0,5);
+          const end = mod.endTime.slice(0,5);
+          while(h < end){
+            if(HOURS.includes(h)){
+              next[day][h] = mod.professional === selectedProfessionalId ? "mine" : "reserved";
+            }
+            h = add60(h);
+          }
+        });
+
+        // sábados 13:00+ no disponibles
+        HOURS.forEach(h => {
+          if(Number(h.slice(0,2)) >= 13) next.sab[h] = "unavailable";
+        });
+
+        setAvailability(next);
+      } catch(err){ console.error(err); }
+    };
+  // === selección rango a reservar===
+  const selectRange = (clickedId: SlotId) => {
+    const [clickedDay, clickedHour] = clickedId.split("-") as [DayKey, string];
+
+    // Caso: click en otro día o ya había selección previa
+    if (!rangeStart || rangeStart.split("-")[0] !== clickedDay || availability[clickedDay][clickedHour] !== "available") {
+      const state = availability[clickedDay][clickedHour];
+      if (state !== "available") {
+        clearSelection();
+        return
+      }
+
+      setRangeStart(clickedId);
+      setSelected(new Set([clickedId]));
+      return;
+    }
+
+    // Caso normal: extender selección en el mismo día
+    const [startDay, startHour] = rangeStart.split("-") as [DayKey, string];
+
+    const startIndex = HOURS.indexOf(startHour);
+    const endIndex = HOURS.indexOf(clickedHour);
+    if (startIndex === -1 || endIndex === -1) return;
+
+    const [from, to] = startIndex <= endIndex ? [startIndex, endIndex] : [endIndex, startIndex];
+
+    const newSelected = new Set<SlotId>();
     for (let i = from; i <= to; i++) {
       const hour = HOURS[i];
-      const st = availability[day][hour];
-      if (isSelectable(st)) next.add(`${day}-${hour}`);
+      const state = availability[startDay][hour];
+
+      if (state !== "available") break; // detener en bloqueado
+      newSelected.add(`${startDay}-${hour}`);
     }
-    setSelected(next);
+
+    setSelected(newSelected);
   };
 
-  const clearSelection = () => setSelected(new Set());
+  const clearSelection = () => { setSelected(new Set()); setRangeStart(null); };
 
-  const selectionSummary = useMemo(() => {
-    const items = Array.from(selected).map((id) => {
-      const [day, hour] = id.split("-") as [DayKey, string];
-      return { id, day, hour, end: add60(hour) };
-    });
-    items.sort((a, b) => {
-      const d = DAYS.indexOf(a.day) - DAYS.indexOf(b.day);
-      return d !== 0 ? d : timeToMin(a.hour) - timeToMin(b.hour);
-    });
-    return items;
-  }, [selected]);
+  const isSelectable = (s:SlotState) => s==="available";
 
-  const onConfirm = () => {
-    const payload = selectionSummary.map(({ day, hour }) => ({
-      consultorioId, day, start: hour, end: add60(hour),
-    }));
-    // eslint-disable-next-line no-console
-    console.log("ALQUILAR (payload):", payload);
+  async function handleResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
+    const resJson = await res.json().catch(() => ({}));
+    console.log(resJson);
+    if (res.ok) {
+      const successMessage = `${resJson.message} Hora inicio modulos: ${resJson.modules[0].startTime}, 
+        Hora Fin modulos: ${resJson.modules[resJson.modules.length - 1].endTime}, 
+        Profesional: ${resJson.modules[0].professional.lastName} ${resJson.modules[0].professional.firstName},
+        Consultorio: ${resJson.modules[0].consultingRoom.description}`;
+      return { message: successMessage, type: "success" };
+    } else {
+      if (res.status === 500 || res.status === 400) {
+        return { message: resJson.message ?? "Error interno del servidor", type: "error" };
+      } else {
+        const errorMessage = `Error: ${resJson.error} Codigo: ${resJson.code} ${resJson.message}`
+        console.log(errorMessage);
+        return { message: errorMessage.trim(), type: "error" };
+      }
+    }
+  }
+
+  const onConfirm = async () => {
+    if(!selected.size) return;
+
+    const days = Array.from(new Set(Array.from(selected).map(id=>id.split("-")[0] as DayKey)));
+    if(days.length>1){ alert("Solo un día a la vez"); return; }
+
+    const day = days[0];
+    const hours = Array.from(selected).map(id=>id.split("-")[1]).sort();
+
+    for(const h of hours){
+      if(availability[day][h]==="reserved"){ alert("Horario ocupado"); return; }
+    }
+
+    const payload = {
+      day: DAYS.indexOf(day)+1,
+      startTime: hours[0],
+      endTime: add60(hours[hours.length-1]),
+      validMonth: new Date().getMonth()+1,
+      validYear: new Date().getFullYear(),
+      idProfessional: selectedProfessionalId,
+      idConsultingRoom: consultingRoomId
+    };
+
+    try {
+      const res = await fetch("http://localhost:2000/Module/add",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify(payload)
+      });
+      
+      const toastData = await handleResponse(res);
+      console.log(toastData);
+      setToast(toastData);
+      
+      if (res.ok) {
+        const newAvailability = { ...availability };
+        hours.forEach(h => {
+          newAvailability[day][h] = "mine";
+        });
+        setAvailability(newAvailability);
+        clearSelection();
+        await fetchModules();
+      }
+      
+      
+    } catch(err:any){
+        setToast({ message: err.message || "Error desconocido", type: "error" });
+    }
+  };
+
+  const stateClass = (s:SlotState) => {
+    switch(s){
+      case "available": return "is-available";
+      case "mine": return "is-mine";
+      case "reserved": return "is-reserved";
+      default: return "is-unavailable";
+    }
   };
 
   return (
-    <section className="moduleRent" aria-labelledby="moduleRent-title">
+    <section className="moduleRent">
       <header className="moduleRent__controls">
-        <h2 id="moduleRent-title" className="moduleRent__title">Alquiler de consultorios</h2>
-
+        <h2>Alquiler de módulos</h2>
         <div className="moduleRent__filters">
           <label className="field">
             <span className="field__label">Consultorio</span>
-            <select
-              className="field__select"
-              value={consultorioId}
-              onChange={(e) => setConsultorioId(e.target.value)}
-              aria-label="Seleccionar consultorio"
-            >
-              {CONSULTORIOS.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
+            <select value={consultingRoomId ?? undefined} onChange={e=>setConsultingRoomId(Number(e.target.value))}>
+              {consultingRooms.map(c=><option key={c.id} value={c.id}>{c.description}</option>)}
             </select>
           </label>
-
-     {/*probablemente saque este botón de acá, lo dejo por el mometno */}
-          <button type="button" className="btn btn--ghost" onClick={clearSelection} aria-label="Borrar selección">
-            Limpiar
+          <label className="field">
+            <span className="field__label">Profesional</span>
+            <select value={selectedProfessionalId ?? undefined} onChange={e=>setSelectedProfessionalId(Number(e.target.value))}>
+              {professionals.map(p=><option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>)}
+            </select>
+          </label>
+          <button type="button" className="btn btn--ghost" onClick={clearSelection}>Limpiar</button>
+          <div className="moduleRent__legend" aria-label="Leyenda de estados">
+            <span><i className="dot dot--available" /> Disponible</span>
+            <span><i className="dot dot--mine" /> Alquilado por vos</span>
+            <span><i className="dot dot--reserved" /> Ocupado por otro</span>
+            <span><i className="dot dot--unavailable" /> No disponible</span>
+          </div>
+          <button   type="button" className={`btn btn--ghost ${!rangeStart ? "btn--disabled" : ""}`} onClick={clearSelection} disabled={!rangeStart}>
+              Limpiar selección
           </button>
         </div>
-
-        <div className="moduleRent__legend" aria-label="Leyenda de estados">
-          <span><i className="dot dot--available" /> Disponible</span>
-          <span><i className="dot dot--mine" /> Alquilado por vos</span>
-          <span><i className="dot dot--reserved" /> Ocupado por otro</span>
-          <span><i className="dot dot--unavailable" /> No disponible</span>
-        </div>
+        
       </header>
 
-      {/* ÚNICA GRILLA: 1 col de horas + 6 días (Lun–Sáb) */}
-      <div className="schedule" role="grid" aria-label="Disponibilidad semanal (Lun–Sáb)">
-        <div className="schedule__corner" aria-hidden />
-
-        {DAYS.map((d) => (
-          <div key={d} role="columnheader" className="schedule__dayHeader">
-            {DAY_LABELS[d]}
-          </div>
-        ))}
-
-        {HOURS.map((h, rowIdx) => (
+      <div className="schedule">
+        <div className="schedule__corner"/>
+        {DAYS.map(d=><div key={d} className="schedule__dayHeader">{DAY_LABELS[d]}</div>)}
+        {HOURS.map(h=>
           <React.Fragment key={h}>
-            <div role="rowheader" className="schedule__hourLabel">{h}</div>
-
-            {DAYS.map((d) => {
+            <div className="schedule__hourLabel">{h}</div>
+            {DAYS.map(d=>{
               const state = availability[d][h];
-              const id: SlotId = `${d}-${h}`;
+              const id:SlotId = `${d}-${h}`;
               const selectable = isSelectable(state);
               const isSelected = selected.has(id);
-
-              // Pointer handlers: drag en desktop, long-press para rango en mobile,
-              // y tap corto en mobile para toggle simple
-              const onPointerDown: React.PointerEventHandler<HTMLButtonElement> = (e) => {
-                if (!selectable) return;
-                const isTouch = e.pointerType === "touch";
-
-                dragRef.current.active = !isTouch; // en mouse activamos ya
-                dragRef.current.day = d;
-                dragRef.current.startIndex = rowIdx;
-                dragRef.current.longPress = false;
-                dragRef.current.pendingId = isTouch ? id : undefined;
-
-                (e.target as HTMLElement).setPointerCapture(e.pointerId);
-
-                if (isTouch) {
-                  dragRef.current.timer = window.setTimeout(() => {
-                    dragRef.current.active = true;   // entra a modo rango
-                    dragRef.current.longPress = true;
-                    selectRangeSameDay(d, rowIdx, rowIdx);
-                  }, 250);
-                } else {
-                  toggleOne(id); // click inmediato en desktop
-                }
-              };
-
-              const onPointerEnter: React.PointerEventHandler<HTMLButtonElement> = () => {
-                if (
-                  dragRef.current.active &&
-                  dragRef.current.day === d &&
-                  dragRef.current.startIndex != null
-                ) {
-                  selectRangeSameDay(d, dragRef.current.startIndex, rowIdx);
-                }
-              };
-
-              const endDrag = (e: React.PointerEvent<HTMLButtonElement>) => {
-                // Si fue tap corto en mobile (no long-press), togglear aquí
-                if (dragRef.current.timer) {
-                  window.clearTimeout(dragRef.current.timer);
-                  dragRef.current.timer = null;
-                  if (!dragRef.current.longPress && dragRef.current.pendingId === id && selectable) {
-                    toggleOne(id);
-                  }
-                }
-                dragRef.current.active = false;
-                dragRef.current.day = undefined;
-                dragRef.current.startIndex = undefined;
-                dragRef.current.pendingId = undefined;
-                dragRef.current.longPress = false;
-                try { (e.target as HTMLElement).releasePointerCapture(e.pointerId); } catch {} //tambien debo corregir
-              };
-
               return (
                 <button
                   key={id}
                   type="button"
-                  role="gridcell"
-                  aria-selected={isSelected}
                   className={[
                     "slot",
-                    selectable ? "is-selectable" : "is-disabled",
+                    selectable?"is-selectable":"is-disabled",
                     stateClass(state),
+                    isSelected?"is-selected":"",
                   ].join(" ")}
-                  onPointerDown={onPointerDown}
-                  onPointerEnter={onPointerEnter}
-                  onPointerUp={endDrag}
-                  onPointerCancel={endDrag}
+                  onClick={()=>selectRange(id)}
                 >
-                  <span className="slot__time" aria-hidden>{h}</span>
+                  <span className="slot__time">{h} - {add60(h)}</span>
                 </button>
               );
             })}
           </React.Fragment>
-        ))}
+        )}
       </div>
 
       <div className="moduleRent__footer">
-        {selectionSummary.length > 0 && (
-          <div className="moduleRent__summary" aria-live="polite">
-            <div className="summary__title">Seleccionaste</div>
-            <ul className="summary__list">
-              {selectionSummary.map(({ id, day, hour, end }) => (
-                <li key={id} className="summary__item">
-                  <span className="summary__dot" aria-hidden /> {DAY_LABELS[day]} {hour}–{end}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        <button
-          type="button"
-          className="btn btn--primary"
-          disabled={selectionSummary.length === 0}
-          onClick={onConfirm}
-        >
-          ALQUILAR ({selectionSummary.length})
+        <button type="button" className="btn btn--primary" disabled={!selected.size} onClick={onConfirm}>
+          ALQUILAR ({selected.size})
         </button>
-
-        <button type="button" className="btn btn--ghost" onClick={clearSelection} aria-label="Borrar selección">
-            Limpiar
-        </button>
-
       </div>
+
+      {/* ===== TOAST ===== */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </section>
   );
-}
-
-/* ===== Helpers ===== */
-function stateClass(s: SlotState): string {
-  switch (s) {
-    case "available":  return "is-available";
-    case "mine":       return "is-mine";
-    case "reserved":   return "is-reserved";
-    default:           return "is-unavailable";
-  }
-}
-function add60(hhmm: string): string {
-  const [hh, mm] = hhmm.split(":").map(Number);
-  const date = new Date(2000, 0, 1, hh, mm);
-  date.setMinutes(date.getMinutes() + 60);
-  const h = String(date.getHours()).padStart(2, "0");
-  const m = String(date.getMinutes()).padStart(2, "0");
-  return `${h}:${m}`;
-}
-function timeToMin(hhmm: string): number {
-  const [h, m] = hhmm.split(":").map(Number);
-  return h * 60 + m;
 }

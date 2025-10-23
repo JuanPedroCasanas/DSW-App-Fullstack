@@ -8,6 +8,7 @@ router.post('/add', ModuleController.addModules);
 router.post('/update', ModuleController.updateModule);
 router.get('/getAll', ModuleController.getModules);
 router.get('/get/:id', ModuleController.getModule);
+router.get('/getCurrentMonthModulesByConsultingRoom/:id', ModuleController.getCurrentMonthModulesByConsultingRoom);
 //router.delete('/delete/:id', ModuleController.deleteModule);
 
 
