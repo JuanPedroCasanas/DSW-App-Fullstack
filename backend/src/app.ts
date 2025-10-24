@@ -24,17 +24,21 @@ import ProfessionalRoutes from './routes/ProfessionalRoutes';
 import LegalGuardianRoutes from './routes/LegalGuardianRoutes';
 import UserRoutes from './routes/UserRoutes'
 import HealthInsuranceRoutes from './routes/HealthInsuranceRoutes';
-
 import { startingCode } from './startingCode';
+import cookieParser from 'cookie-parser';
 import { testCode } from './testCode';
+
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
+
 app.use(cors({
-    origin: 'http://localhost:3000', // <--- ¡MUY IMPORTANTE! Usa el puerto de Vite.
+    origin: 'http://localhost:3000', // <--- MUY IMPORTANTE! Usa el puerto de Vite.
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
+    credentials: true, // permite enviar cookies
     allowedHeaders: ['Content-Type', 'Authorization'], // Encabezados permitidos
 }));
 
