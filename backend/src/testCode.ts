@@ -58,10 +58,19 @@ export const testCode = async () => {
     ConsultingRoomController.updateConsultingRoom(req as any, res as any); */
 
     //getProfessionalsByOccupation
-    let req = new FakeRequest({},{id: 1});
+    /*let req = new FakeRequest({
+        day: 1,
+        startTime: '9:00',
+        endTime: '11:00',
+        validMonth: 10,
+        validYear: 2025,
+        idProfessional: 1,
+        idConsultingRoom: 1
 
+    });*/
+    let req = new FakeRequest({},{});
     let res = new FakeResponse();
     //AppointmentController.getAvailableAppointmentsByProfessional(req as any, res as any);
     //ConsultingRoomController.getConsultingRoomByModule(req as any, res as any);
-    ModuleController.getCurrentMonthModulesByConsultingRoom(req as any, res as any);
+    
 }

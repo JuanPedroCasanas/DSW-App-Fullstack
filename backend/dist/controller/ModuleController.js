@@ -115,8 +115,9 @@ class ModuleController {
                     const datesInMonth = ModuleController.getDatesForDayOfWeek(newMod.day, newMod.validMonth, newMod.validYear);
                     for (const date of datesInMonth) {
                         for (let k = 0; k < newMod.moduleType.duration; k++) {
-                            const appointmentStart = new Date(newMod.validYear, newMod.validMonth - 1, date.getDate(), hours + k, minutes);
-                            const appointmentEnd = new Date(newMod.validYear, newMod.validMonth - 1, date.getDate(), hours + k + 1, minutes);
+                            //Resto -3 para almacenarlo como GMT-3
+                            const appointmentStart = new Date(newMod.validYear, newMod.validMonth - 1, date.getDate(), hours + k - 3, minutes);
+                            const appointmentEnd = new Date(newMod.validYear, newMod.validMonth - 1, date.getDate(), hours + k + 1 - 3, minutes);
                             const appointment = new Appointment_1.Appointment(newMod, appointmentStart, appointmentEnd, professional, AppointmentStatus_1.AppointmentStatus.Available, undefined, undefined, undefined //Paciente, responsable legal y obra social se asignaran cuando se asigne el turno
                             );
                             await em.persist(appointment);

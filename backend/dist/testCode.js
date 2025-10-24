@@ -1,10 +1,6 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.testCode = void 0;
-const ModuleController_1 = __importDefault(require("./controller/ModuleController"));
 const db_1 = require("./orm/db");
 const testCode = async () => {
     const UNI_PASSWORD = '123';
@@ -44,11 +40,20 @@ const testCode = async () => {
 
     ConsultingRoomController.updateConsultingRoom(req as any, res as any); */
     //getProfessionalsByOccupation
-    let req = new FakeRequest({}, { id: 1 });
+    /*let req = new FakeRequest({
+        day: 1,
+        startTime: '9:00',
+        endTime: '11:00',
+        validMonth: 10,
+        validYear: 2025,
+        idProfessional: 1,
+        idConsultingRoom: 1
+
+    });*/
+    let req = new FakeRequest({}, {});
     let res = new FakeResponse();
     //AppointmentController.getAvailableAppointmentsByProfessional(req as any, res as any);
     //ConsultingRoomController.getConsultingRoomByModule(req as any, res as any);
-    ModuleController_1.default.getCurrentMonthModulesByConsultingRoom(req, res);
 };
 exports.testCode = testCode;
 //# sourceMappingURL=testCode.js.map
