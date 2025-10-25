@@ -110,9 +110,18 @@ class LegalGuardianController {
         }
     }
     static async getLegalGuardians(req, res) {
+        let includeInactive;
+        if (!req.query || req.query.includeInactive === undefined) {
+            includeInactive = true;
+        }
+        else {
+            includeInactive = req.query.includeInactive === 'true';
+            // true si el string es 'true', false si es cualquier otra cosa
+        }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const legalGuardians = await em.findAll(LegalGuardian_1.LegalGuardian);
+            const whereCondition = (includeInactive) ? {} : { isActive: true };
+            const legalGuardians = await em.find(LegalGuardian_1.LegalGuardian, whereCondition);
             return res.status(200).json((0, safeSerialize_1.safeSerialize)(legalGuardians));
         }
         catch (error) {
@@ -140,31 +149,6 @@ class LegalGuardianController {
             }
             else {
                 return res.status(500).json({ message: 'Error al buscar responsable legal' });
-            }
-        }
-    }
-    static async getLegalGuardianPatients(req, res) {
-        const idLegalGuardian = Number(req.params.id);
-        if (!idLegalGuardian) {
-            return res.status(400).json({ message: 'Se requiere ID del responsable legal' });
-        }
-        try {
-            const em = await (0, db_1.getORM)().em.fork();
-            const legalGuardian = await em.findOne(LegalGuardian_1.LegalGuardian, { id: idLegalGuardian });
-            if (!legalGuardian || !legalGuardian?.isActive) {
-                throw new BaseHttpError_1.NotFoundError('Responsable Legal');
-            }
-            await legalGuardian.guardedPatients.init(); // Las colecciones entiendo son lazy loaded, espero a que carguen
-            const legalGuardianPatients = legalGuardian.guardedPatients;
-            return res.status(200).json((0, safeSerialize_1.safeSerialize)(legalGuardianPatients));
-        }
-        catch (error) {
-            console.error(error);
-            if (error instanceof BaseHttpError_1.BaseHttpError) {
-                return res.status(error.status).json(error.toJSON());
-            }
-            else {
-                return res.status(500).json({ message: 'Error al buscar pacientes del responsable legal' });
             }
         }
     }

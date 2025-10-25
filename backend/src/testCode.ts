@@ -17,62 +17,32 @@ export const testCode = async () => {
     let em = await getORM().em.fork();
 
 
+
     class FakeRequest {
         body: any;
-        cookies: Record<string, string>;
-        constructor(body: any = {}, cookies: Record<string,string> = {}) {
-            this.body = body;
-            this.cookies = cookies;
-        }
+        params?: any;
+        query? :any;
     }
 
     class FakeResponse {
-        statusCode: number = 200;
+        statusCode: number | null = null;
         body: any = null;
-        cookies: Record<string, any> = {};
-        
+
         status(code: number) {
             this.statusCode = code;
-            return this;
+            return this; // importantísimo para poder hacer res.status(200).json(...)
         }
 
-        json(payload: any) {
-            this.body = payload;
-            return this;
-        }
-
-        cookie(name: string, value: string, options?: any) {
-            this.cookies[name] = { value, options };
-            return this;
-        }
-
-        clearCookie(name: string, options?: any) {
-            delete this.cookies[name];
+        json(data: any) {
+            this.body = data;
+            console.log("FakeResponse.json called with:", data);
             return this;
         }
     }
 
+    let req = new FakeRequest();
 
-    let req = new FakeRequest({mail: "lucas_luna@gmail.com", password: "123"},{});
+    req.params = {id: 1}
     let res = new FakeResponse();
-    await UserController.login(req as any, res as any)
 
-    let refreshToken = res.cookies.refreshToken.value; // esto es string 
-    let req1 = new FakeRequest({}, { refreshToken });
-    let res1= new FakeResponse();
-
-    console.log(req1);
-    await UserController.refresh(req1 as any, res1 as any);
-    console.log(res1);
-    await UserController.logout(req as any, res1 as any);
-    console.log(res1);
-
-    // Intentar refresh después del logout
-    const refreshTokenAfterLogout = res1.cookies.refreshToken?.value; // safe
-    const reqAfterLogout = new FakeRequest({}, { refreshToken: refreshTokenAfterLogout ?? '' });
-    const resAfterLogout = new FakeResponse();
-
-    await UserController.refresh(reqAfterLogout as any, resAfterLogout as any);
-    console.log(resAfterLogout);
-    
 }

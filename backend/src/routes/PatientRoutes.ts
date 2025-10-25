@@ -6,9 +6,11 @@ const router = express.Router();
 router.get('/', PatientController.home);
 router.post('/addIndPatient', PatientController.addIndependentPatient);
 router.post('/addDepPatient', PatientController.addDependentPatient);
-router.post('/update', PatientController.updatePatient);
+router.post('/updateDepPatient', PatientController.updateDependentPatient);
+router.post('/updateIndPatient', PatientController.updateIndependentPatient);
 router.get('/getAll', PatientController.getPatients);
 router.get('/get/:id', PatientController.getPatient);
+router.get('/getByLegalGuardian/:id', PatientController.getByLegalGuardian)
 router.delete('/delete/:id', PatientController.deletePatient);
 
 

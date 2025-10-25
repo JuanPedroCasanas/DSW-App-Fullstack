@@ -1,13 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./guardedPatients.css";
-
-type Patient = {
-  id: string;
-  nombre: string;
-  apellido: string;
-  /** ISO yyyy-mm-dd */
-  fechaNacimiento: string;
-};
+import { LegalGuardian, Patient } from "./guardedPatientsTypes";
+import { Toast } from "@/components/Toast";
 
 // ---- Utils ----
 const uid = () => Math.random().toString(36).slice(2, 10);
@@ -18,33 +12,102 @@ const formatDate = (iso: string) => {
 };
 const validatePatient = (p: Partial<Patient>) => {
   const errors: Record<string, string> = {};
-  if (!p.nombre?.trim()) errors.nombre = "Nombre obligatorio.";
-  if (!p.apellido?.trim()) errors.apellido = "Apellido obligatorio.";
-  if (!p.fechaNacimiento) errors.fechaNacimiento = "Fecha de nacimiento obligatoria.";
+  if (!p.firstName?.trim()) errors.firstName = "Nombre obligatorio.";
+  if (!p.lastName?.trim()) errors.lastName = "Apellido obligatorio.";
+  if (!p.birthdate) errors.birthdate = "Fecha de nacimiento obligatoria.";
   return errors;
 };
 const sameJSON = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
+
+async function handlePatientControllerResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
+  const resJson = await res.json().catch(() => ({}));
+
+  if (res.ok) {
+    const successMessage = `${resJson.message} Id: ${resJson.professional?.id}, lastName y firstName: ${resJson.patient?.lastName} ${resJson.patient?.firstName}`;
+    return { message: successMessage, type: "success" };
+  } else {
+    if (res.status === 500 || res.status === 400) {
+      return { message: resJson.message ?? "Error interno del servidor", type: "error" };
+    } else {
+      const errorMessage = `Error: ${resJson.error} Codigo: ${resJson.code} ${resJson.message}`
+      return { message: errorMessage.trim(), type: "error" };
+    }
+  }
+}
+
+async function handleLegalControllerResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
+  const resJson = await res.json().catch(() => ({}));
+
+  if (res.ok) {
+    const successMessage = `${resJson.message} Id: ${resJson.professional?.id}, lastName y firstName: ${resJson.patient?.lastName} ${resJson.patient?.firstName}`;
+    return { message: successMessage, type: "success" };
+  } else {
+    if (res.status === 500 || res.status === 400) {
+      return { message: resJson.message ?? "Error interno del servidor", type: "error" };
+    } else {
+      const errorMessage = `Error: ${resJson.error} Codigo: ${resJson.code} ${resJson.message}`
+      return { message: errorMessage.trim(), type: "error" };
+    }
+  }
+}
+
 export default function GuardedPatients() {
-  // Cambiá a [] para ver el estado vacío:
-  const [patients, setPatients] = useState<Patient[]>([
-    { id: "p1", nombre: "Marina", apellido: "Pérez", fechaNacimiento: "2012-06-21" },
-    { id: "p2", nombre: "Tomás", apellido: "García", fechaNacimiento: "2015-11-03" },
-  ]);
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [legalGuardians, setLegalGuardians] = useState<LegalGuardian[]>([]);
+  const [selectedGuardianId, setSelectedGuardianId] = useState<number | null>(null);
 
   // ---------- Agregar (2 pasos + dirty-check) ----------
   const [showAdd, setShowAdd] = useState(false);
   const [addStep, setAddStep] = useState<"form" | "confirm">("form");
   const [addForm, setAddForm] = useState<Partial<Patient>>({
-    nombre: "",
-    apellido: "",
-    fechaNacimiento: "",
-  });
+    firstName: "",
+    lastName: "",
+    birthdate: "",
+  }); 
+  /*Pantallita de error o exito al terminar una accion*/
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [addSnapshot, setAddSnapshot] = useState<Partial<Patient> | null>(null);
   const addErrors = useMemo(() => validatePatient(addForm), [addForm]);
 
+  //Carga desplegable
+  useEffect(() => {
+    (async () => {
+      const res = await fetch("http://localhost:2000/LegalGuardian/getAll?includeInactive=true");
+      if (!res.ok){
+        const toastData = await handleLegalControllerResponse(res);
+        setToast(toastData);
+      } else {
+        const data: LegalGuardian[] = await res.json();
+        setLegalGuardians(data);
+        if (selectedGuardianId === null) {
+          setSelectedGuardianId(data[0]?.id ?? null);
+        }
+      }
+    })()
+  }, []);
+
+  //Carga de lista de pacientes
+  useEffect(() => {
+     if (!selectedGuardianId) return;
+     (async () => {
+         const res = await fetch(`http://localhost:2000/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=true`);
+  
+        if (!res.ok){
+          const toastData = await handlePatientControllerResponse(res);
+          setToast(toastData);
+        } else {
+          const data: Patient[] = await res.json();
+          setPatients(data);
+        }
+  
+     })()
+   }, [selectedGuardianId]); 
+
+
+
   const openAdd = () => {
-    const initial = { nombre: "", apellido: "", fechaNacimiento: "" };
+    const initial = { firstName: "", lastName: "", birthdate: "" };
     setAddForm(initial);
     setAddSnapshot(initial);
     setAddStep("form");
@@ -67,13 +130,14 @@ export default function GuardedPatients() {
     setAddStep("confirm");
   };
   const handleAddConfirm = () => {
-    const nuevo: Patient = {
-      id: uid(),
-      nombre: (addForm.nombre ?? "").trim(),
-      apellido: (addForm.apellido ?? "").trim(),
-      fechaNacimiento: addForm.fechaNacimiento ?? "",
+    const newPatient: Patient = {
+      id: 0,
+      firstName: (addForm.firstName ?? "").trim(),
+      lastName: (addForm.lastName ?? "").trim(),
+      birthdate: addForm.birthdate ?? "",
+      isActive: true,
     };
-    setPatients((prev) => [...prev, nuevo]);
+    setPatients((prev) => [...prev, newPatient]);
     setShowAdd(false);
     alert("Paciente agregado (simulado).");
   };
@@ -87,10 +151,11 @@ export default function GuardedPatients() {
 
   const openEdit = (p: Patient) => {
     const initial = {
-      nombre: p.nombre,
-      apellido: p.apellido,
-      fechaNacimiento: p.fechaNacimiento,
+      firstName: p.firstName,
+      lastName: p.lastName,
+      birthdate: p.birthdate,
     };
+    console.log(initial);
     setEditTarget(p);
     setEditForm(initial);
     setEditSnapshot(initial);
@@ -116,22 +181,31 @@ export default function GuardedPatients() {
     if (Object.keys(editErrors).length) return;
     setEditStep("confirm");
   };
-  const handleEditConfirm = () => {
+  const handleEditConfirm = async () => {
     if (!editTarget) return;
-    setPatients((prev) =>
-      prev.map((p) =>
-        p.id === editTarget.id
-          ? {
-              ...p,
-              nombre: (editForm.nombre ?? "").trim(),
-              apellido: (editForm.apellido ?? "").trim(),
-              fechaNacimiento: editForm.fechaNacimiento ?? "",
-            }
-          : p
-      )
-    );
-    closeEdit();
-    alert("Paciente actualizado (simulado).");
+
+    const payload = {
+      idPatient: editTarget.id,
+      firstName: (editForm.firstName ?? "").trim(),
+      lastName: (editForm.lastName ?? "").trim(),
+      birthdate: editForm.birthdate ?? "",
+    };
+
+
+    const res = await fetch("http://localhost:2000/Patient/updateDepPatient", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const toastData = await handlePatientControllerResponse(res);
+    setToast(toastData); // <-- ahora el toast aparece
+    if (res.ok) {
+      // actualizo la lista local de pacientes
+      setPatients((prev) =>
+        prev.map((p) => (p.id === editTarget.id ? { ...p, ...payload } : p))
+      );
+      closeEdit();
+    }
   };
 
   // ---------- Eliminar (confirmación simple) ----------
@@ -175,6 +249,19 @@ export default function GuardedPatients() {
   return (
     <section className="gp-container">
       <h1 className="gp-title">Pacientes a cargo</h1>
+        <div className="gp-guardian-select">
+            <label htmlFor="guardian" className="sr-only">Responsable legal</label>
+              <select
+                value={selectedGuardianId ?? ""}
+                onChange={(e) => setSelectedGuardianId(Number(e.target.value))}
+              >
+                {legalGuardians.map(g => (
+                  <option key={g.id} value={g.id}>
+                    Id: {g.id}, {g.lastName} {g.firstName}
+                  </option>
+                ))}
+              </select>
+        </div>
 
       {/* ===== Estado vacío ===== */}
       {!hasPatients && (
@@ -207,9 +294,9 @@ export default function GuardedPatients() {
               <tbody>
                 {patients.map((p) => (
                   <tr key={p.id}>
-                    <td data-label="Nombre">{p.nombre}</td>
-                    <td data-label="Apellido">{p.apellido}</td>
-                    <td data-label="Fecha de nacimiento">{formatDate(p.fechaNacimiento)}</td>
+                    <td data-label="firstName">{p.firstName}</td>
+                    <td data-label="lastName">{p.lastName}</td>
+                    <td data-label="birthdate">{formatDate(p.birthdate.split("T")[0])}</td>
                     <td className="gp-actions">
                       <button
                         type="button"
@@ -258,29 +345,29 @@ export default function GuardedPatients() {
                 <p id="gp-add-desc" className="gp-help">Completá los datos del paciente a cargo.</p>
                 <form onSubmit={handleAddContinue} noValidate>
                   <div className="gp-field">
-                    <label htmlFor="add-nombre">Nombre</label>
+                    <label htmlFor="add-firstName">firstName</label>
                     <input
-                      id="add-nombre"
+                      id="add-firstName"
                       type="text"
-                      value={addForm.nombre ?? ""}
-                      onChange={(e) => setAddForm((f) => ({ ...f, nombre: e.target.value }))}
-                      aria-invalid={!!addErrors.nombre}
-                      aria-describedby={addErrors.nombre ? "add-nombre-err" : undefined}
+                      value={addForm.firstName ?? ""}
+                      onChange={(e) => setAddForm((f) => ({ ...f, firstName: e.target.value }))}
+                      aria-invalid={!!addErrors.firstName}
+                      aria-describedby={addErrors.firstName ? "add-firstName-err" : undefined}
                     />
-                    {addErrors.nombre && <p className="gp-error" id="add-nombre-err">{addErrors.nombre}</p>}
+                    {addErrors.firstName && <p className="gp-error" id="add-firstName-err">{addErrors.firstName}</p>}
                   </div>
 
                   <div className="gp-field">
-                    <label htmlFor="add-apellido">Apellido</label>
+                    <label htmlFor="add-lastName">lastName</label>
                     <input
-                      id="add-apellido"
+                      id="add-lastName"
                       type="text"
-                      value={addForm.apellido ?? ""}
-                      onChange={(e) => setAddForm((f) => ({ ...f, apellido: e.target.value }))}
-                      aria-invalid={!!addErrors.apellido}
-                      aria-describedby={addErrors.apellido ? "add-apellido-err" : undefined}
+                      value={addForm.lastName ?? ""}
+                      onChange={(e) => setAddForm((f) => ({ ...f, lastName: e.target.value }))}
+                      aria-invalid={!!addErrors.lastName}
+                      aria-describedby={addErrors.lastName ? "add-lastName-err" : undefined}
                     />
-                    {addErrors.apellido && <p className="gp-error" id="add-apellido-err">{addErrors.apellido}</p>}
+                    {addErrors.lastName && <p className="gp-error" id="add-lastName-err">{addErrors.lastName}</p>}
                   </div>
 
                   <div className="gp-field">
@@ -288,12 +375,12 @@ export default function GuardedPatients() {
                     <input
                       id="add-fecha"
                       type="date"
-                      value={addForm.fechaNacimiento ?? ""}
-                      onChange={(e) => setAddForm((f) => ({ ...f, fechaNacimiento: e.target.value }))}
-                      aria-invalid={!!addErrors.fechaNacimiento}
-                      aria-describedby={addErrors.fechaNacimiento ? "add-fecha-err" : undefined}
+                      value={addForm.birthdate ?? ""}
+                      onChange={(e) => setAddForm((f) => ({ ...f, birthdate: e.target.value }))}
+                      aria-invalid={!!addErrors.birthdate}
+                      aria-describedby={addErrors.birthdate ? "add-fecha-err" : undefined}
                     />
-                    {addErrors.fechaNacimiento && <p className="gp-error" id="add-fecha-err">{addErrors.fechaNacimiento}</p>}
+                    {addErrors.birthdate && <p className="gp-error" id="add-fecha-err">{addErrors.birthdate}</p>}
                   </div>
 
                   <div className="gp-modal-actions">
@@ -311,9 +398,9 @@ export default function GuardedPatients() {
                 <h2 id="gp-add-title">Confirmar nuevo paciente</h2>
                 <p id="gp-add-desc">Revisá que los datos sean correctos.</p>
                 <ul className="gp-summary">
-                  <li><strong>Nombre:</strong> {addForm.nombre}</li>
-                  <li><strong>Apellido:</strong> {addForm.apellido}</li>
-                  <li><strong>Fecha de nacimiento:</strong> {formatDate(addForm.fechaNacimiento || "")}</li>
+                  <li><strong>firstName:</strong> {addForm.firstName}</li>
+                  <li><strong>lastName:</strong> {addForm.lastName}</li>
+                  <li><strong>Fecha de nacimiento:</strong> {formatDate(addForm.birthdate || "")}</li>
                 </ul>
                 <div className="gp-modal-actions">
                   <button type="button" className="ui-btn ui-btn--outline" onClick={() => setAddStep("form")}>
@@ -346,29 +433,29 @@ export default function GuardedPatients() {
                 <p id="gp-edit-desc" className="gp-help">Actualizá los datos necesarios.</p>
                 <form onSubmit={handleEditContinue} noValidate>
                   <div className="gp-field">
-                    <label htmlFor="edit-nombre">Nombre</label>
+                    <label htmlFor="edit-firstName">firstName</label>
                     <input
-                      id="edit-nombre"
+                      id="edit-firstName"
                       type="text"
-                      value={editForm.nombre ?? ""}
-                      onChange={(e) => setEditForm((f) => ({ ...f, nombre: e.target.value }))}
-                      aria-invalid={!!editErrors.nombre}
-                      aria-describedby={editErrors.nombre ? "edit-nombre-err" : undefined}
+                      value={editForm.firstName ?? ""}
+                      onChange={(e) => setEditForm((f) => ({ ...f, firstName: e.target.value }))}
+                      aria-invalid={!!editErrors.firstName}
+                      aria-describedby={editErrors.firstName ? "edit-firstName-err" : undefined}
                     />
-                    {editErrors.nombre && <p className="gp-error" id="edit-nombre-err">{editErrors.nombre}</p>}
+                    {editErrors.firstName && <p className="gp-error" id="edit-firstName-err">{editErrors.firstName}</p>}
                   </div>
 
                   <div className="gp-field">
-                    <label htmlFor="edit-apellido">Apellido</label>
+                    <label htmlFor="edit-lastName">lastName</label>
                     <input
-                      id="edit-apellido"
+                      id="edit-lastName"
                       type="text"
-                      value={editForm.apellido ?? ""}
-                      onChange={(e) => setEditForm((f) => ({ ...f, apellido: e.target.value }))}
-                      aria-invalid={!!editErrors.apellido}
-                      aria-describedby={editErrors.apellido ? "edit-apellido-err" : undefined}
+                      value={editForm.lastName ?? ""}
+                      onChange={(e) => setEditForm((f) => ({ ...f, lastName: e.target.value }))}
+                      aria-invalid={!!editErrors.lastName}
+                      aria-describedby={editErrors.lastName ? "edit-lastName-err" : undefined}
                     />
-                    {editErrors.apellido && <p className="gp-error" id="edit-apellido-err">{editErrors.apellido}</p>}
+                    {editErrors.lastName && <p className="gp-error" id="edit-lastName-err">{editErrors.lastName}</p>}
                   </div>
 
                   <div className="gp-field">
@@ -376,12 +463,12 @@ export default function GuardedPatients() {
                     <input
                       id="edit-fecha"
                       type="date"
-                      value={editForm.fechaNacimiento ?? ""}
-                      onChange={(e) => setEditForm((f) => ({ ...f, fechaNacimiento: e.target.value }))}
-                      aria-invalid={!!editErrors.fechaNacimiento}
-                      aria-describedby={editErrors.fechaNacimiento ? "edit-fecha-err" : undefined}
+                      value={editForm.birthdate ? editForm.birthdate.split("T")[0] : ""}
+                      onChange={(e) => setEditForm((f) => ({ ...f, birthdate: e.target.value }))}
+                      aria-invalid={!!editErrors.birthdate}
+                      aria-describedby={editErrors.birthdate ? "edit-fecha-err" : undefined}
                     />
-                    {editErrors.fechaNacimiento && <p className="gp-error" id="edit-fecha-err">{editErrors.fechaNacimiento}</p>}
+                    {editErrors.birthdate && <p className="gp-error" id="edit-fecha-err">{editErrors.birthdate}</p>}
                   </div>
 
                   <div className="gp-modal-actions">
@@ -399,9 +486,9 @@ export default function GuardedPatients() {
                 <h2 id="gp-edit-title">Confirmar cambios</h2>
                 <p id="gp-edit-desc">Verificá los datos editados.</p>
                 <ul className="gp-summary">
-                  <li><strong>Nombre:</strong> {editForm.nombre}</li>
-                  <li><strong>Apellido:</strong> {editForm.apellido}</li>
-                  <li><strong>Fecha de nacimiento:</strong> {formatDate(editForm.fechaNacimiento || "")}</li>
+                  <li><strong>firstName:</strong> {editForm.firstName}</li>
+                  <li><strong>lastName:</strong> {editForm.lastName}</li>
+                  <li><strong>Fecha de nacimiento:</strong> {formatDate(editForm.birthdate || "")}</li>
                 </ul>
                 <div className="gp-modal-actions">
                   <button type="button" className="ui-btn ui-btn--outline" onClick={() => setEditStep("form")}>
@@ -430,7 +517,7 @@ export default function GuardedPatients() {
           >
             <h2 id="gp-del-title">Eliminar paciente</h2>
             <p id="gp-del-desc">
-              ¿Estás seguro de eliminar a <strong>{deleteTarget.nombre} {deleteTarget.apellido}</strong>?
+              ¿Estás seguro de eliminar a <strong>{deleteTarget.firstName} {deleteTarget.lastName}</strong>?
             </p>
             <div className="gp-modal-actions">
               <button type="button" className="ui-btn ui-btn--outline" onClick={closeDelete}>
@@ -467,6 +554,14 @@ export default function GuardedPatients() {
             </div>
           </div>
         </div>
+      )}
+      {/* ===== TOAST ===== */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
       )}
     </section>
   );

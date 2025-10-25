@@ -6,7 +6,7 @@ const router = express.Router();
 router.get('/', LegalGuardianController.home);
 router.post('/add', LegalGuardianController.addLegalGuardian);
 router.post('/update', LegalGuardianController.updateLegalGuardian);
-//router.get('/getAll', LegalGuardianController.getLegalGuardians);
+router.get('/getAll', LegalGuardianController.getLegalGuardians);
 router.get('/get/:id', LegalGuardianController.getLegalGuardian);
 router.delete('/delete/:id', LegalGuardianController.deleteLegalGuardian);
 

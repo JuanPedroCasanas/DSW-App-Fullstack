@@ -96,38 +96,85 @@ class PatientController {
             }
         }
     }
-    //Revisar este metodo, cambiar de tipo de paciente es problematico, telefono no aplica a pacientes sin rl, ver que onda en grupo
-    static async updatePatient(req, res) {
+    static async updateIndependentPatient(req, res) {
         const { idPatient } = req.body;
         const { firstName } = req.body;
         const { lastName } = req.body;
         const { birthdate } = req.body;
         const { telephone } = req.body;
+        const { idHealthInsurance } = req.body;
         try {
             if (!idPatient) {
-                return res.status(400).json({ message: 'Patient id is required' });
+                return res.status(400).json({ message: 'Se requiere la ID del paciente a modificar' });
             }
             if (!firstName) {
-                return res.status(400).json({ message: 'Patient new name is required' });
+                return res.status(400).json({ message: 'Se requiere el nuevo nombre del paciente' });
             }
             if (!lastName) {
-                return res.status(400).json({ message: 'Patient new last name is required' });
+                return res.status(400).json({ message: 'Se requiere el nuevo apellido del paciente' });
             }
             if (!birthdate) {
-                return res.status(400).json({ message: 'Patient new birthdate is required' });
+                return res.status(400).json({ message: 'Se requiere la nueva fecha de nacimiento del paciente' });
             }
             if (!telephone) {
-                return res.status(400).json({ message: 'Patient new telephone is required' });
+                return res.status(400).json({ message: 'Se requiere el nuevo telefono del paciente' });
+            }
+            if (!idHealthInsurance) {
+                return res.status(400).json({ message: 'Se requiere la nueva OS del paciente' });
             }
             const em = await (0, db_1.getORM)().em.fork();
             const patient = await em.findOne(Patient_1.Patient, { id: idPatient });
             if (!patient || !patient?.isActive) {
                 throw new BaseHttpError_1.NotFoundError("Paciente");
             }
+            const healthInsurance = await em.findOne(HealthInsurance_1.HealthInsurance, { id: idHealthInsurance });
+            if (!healthInsurance || !healthInsurance?.isActive) {
+                throw new BaseHttpError_1.NotFoundError("Obra social");
+            }
             patient.firstName = firstName;
             patient.lastName = lastName;
             patient.birthdate = birthdate;
             patient.telephone = telephone;
+            patient.healthInsurance = healthInsurance;
+            await em.flush();
+            return res.status(201).json({ message: 'Los datos del paciente fueron actualizados', patient: (0, safeSerialize_1.safeSerialize)(patient) });
+        }
+        catch (error) {
+            console.error(error);
+            if (error instanceof BaseHttpError_1.BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            else {
+                return res.status(500).json({ message: 'Error al modificar el paciente' });
+            }
+        }
+    }
+    static async updateDependentPatient(req, res) {
+        const { idPatient } = req.body;
+        const { firstName } = req.body;
+        const { lastName } = req.body;
+        const { birthdate } = req.body;
+        try {
+            if (!idPatient) {
+                return res.status(400).json({ message: 'Se requiere la ID del paciente a modificar' });
+            }
+            if (!firstName) {
+                return res.status(400).json({ message: 'Se requiere el nuevo nombre del paciente' });
+            }
+            if (!lastName) {
+                return res.status(400).json({ message: 'Se requiere el nuevo apellido del paciente' });
+            }
+            if (!birthdate) {
+                return res.status(400).json({ message: 'Se requiere la nueva fecha de nacimiento del paciente' });
+            }
+            const em = await (0, db_1.getORM)().em.fork();
+            const patient = await em.findOne(Patient_1.Patient, { id: Number(idPatient) });
+            if (!patient || !patient?.isActive) {
+                throw new BaseHttpError_1.NotFoundError("Paciente");
+            }
+            patient.firstName = firstName;
+            patient.lastName = lastName;
+            patient.birthdate = birthdate;
             await em.flush();
             return res.status(201).json({ message: 'Los datos del paciente fueron actualizados', patient: (0, safeSerialize_1.safeSerialize)(patient) });
         }
@@ -165,14 +212,48 @@ class PatientController {
         }
     }
     static async getPatients(req, res) {
+        let includeInactive;
+        if (req.query.includeInactive === undefined) {
+            includeInactive = true;
+        }
+        else {
+            includeInactive = req.query.includeInactive === 'true';
+            // true si el string es 'true', false si es cualquier otra cosa
+        }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const patients = await em.findAll(Patient_1.Patient, {});
+            const whereCondition = (includeInactive) ? {} : { isActive: true };
+            const patients = await em.find(Patient_1.Patient, whereCondition);
             return res.status(200).json((0, safeSerialize_1.safeSerialize)(patients));
         }
         catch (error) {
             console.log(error);
             return res.status(500).json({ message: 'Error al buscar los pacientes' });
+        }
+    }
+    static async getByLegalGuardian(req, res) {
+        const idLegalGuardian = Number(req.params.id);
+        let includeInactive;
+        if (!req.query || req.query.includeInactive === undefined) {
+            includeInactive = true;
+        }
+        else {
+            includeInactive = req.query.includeInactive === 'true';
+            // true si el string es 'true', false si es cualquier otra cosa
+        }
+        try {
+            const em = await (0, db_1.getORM)().em.fork();
+            const legalGuardian = await em.findOne(LegalGuardian_1.LegalGuardian, { id: idLegalGuardian });
+            if (!legalGuardian || !legalGuardian.isActive) {
+                throw new BaseHttpError_1.NotFoundError('Responsable Legal');
+            }
+            const whereCondition = (includeInactive) ? { legalGuardian: legalGuardian } : { legalGuardian: legalGuardian, isActive: true };
+            const patients = await em.find(Patient_1.Patient, whereCondition);
+            return res.status(200).json((0, safeSerialize_1.safeSerialize)(patients));
+        }
+        catch (error) {
+            console.log(error);
+            return res.status(500).json({ message: 'Error al buscar los pacientes por responsable legal' });
         }
     }
     static async deletePatient(req, res) {

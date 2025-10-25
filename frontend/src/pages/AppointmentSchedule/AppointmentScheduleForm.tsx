@@ -1,13 +1,13 @@
 // pages/AppointmentSchedule/AppointmentScheduleForm.tsx
 import React from 'react';
 import './appointmentSchedule.css';
-import { toDDMMYYYY, fullName, Patient, fullNamePatient } from './appointmentSchedule.types';
+import { toDDMMYYYY, fullName, Patient, fullNamePatient, Professional } from './appointmentSchedule.types';
 
 type Props = {
   
   patients: Patient[];
   occupations: { id: string; name: string }[];
-  professionals: { id: string; firstName: string; lastName: string }[];
+  professionals: Professional[];
   loadingMeta: boolean;
   loadingProfessionals: boolean;
   loadingPatients: boolean;
