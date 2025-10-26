@@ -183,7 +183,7 @@ export default function HealthInsurancesByProfessional(){
       name:(editForm.name ?? "").trim()
     };
 
-    const res = await fetch("http://localhost:2000/HealthInsruance/updateHealthInsurance", {
+    const res = await fetch("http://localhost:2000/Professional/allotHelathInsurance/${selectedProfessionalID}, ${idHealthInsurance}", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -205,7 +205,7 @@ export default function HealthInsurancesByProfessional(){
   
   const handleDeleteConfirm = () => {
     if (!deleteTarget) return;
-    const res = await fetch('http://localhost:2000/Professional/deleteHealthInsurance/${deleteTarget.id}',
+    const res = await fetch('http://localhost:2000/Professional/forbidHealthInsurance/${deleteTarget.id}',
       {method: "POST",
   });
   if (res.ok) {

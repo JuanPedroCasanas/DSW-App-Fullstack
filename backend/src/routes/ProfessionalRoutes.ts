@@ -6,7 +6,8 @@ const router = express.Router();
 router.get('/', ProfessionalController.home);
 router.post('/add', ProfessionalController.addProfessional);
 router.post('/update', ProfessionalController.updateProfessional);
-
+router.post('/allowHealthInsurance', ProfessionalController.allowHealthInsurance);
+router.post('/forbidHealthInsurance',ProfessionalController.forbidHealthInsurance)
 
 //Puede incluir /getAll?includeInactive=false para solo obtener profesionales activos
 //(Por defecto incluye profesionales inactivos)
