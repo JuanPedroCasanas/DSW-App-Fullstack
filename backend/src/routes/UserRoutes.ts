@@ -37,9 +37,9 @@ const auth = passport.authenticate('jwt', { session: false });
 router.post('/login', (req, res) => UserController.login(req, res));
 
 //Deberian ser protegidos, pero por ahora quedan publicos
-router.get('/users', (req, res) => UserController.getAll(req, res));
-router.get('/users/:id', (req, res) => UserController.getOne(req, res));
-router.post('/users/updatePassword/:id', (req, res) => UserController.updatePassword(req, res));
+router.get('/getAll', (req, res) => UserController.getAll(req, res));
+router.get('/get/:id', (req, res) => UserController.getOne(req, res));
+router.post('/updatePassword', (req, res) => UserController.updatePassword(req, res));
 
 /* Protected asi quedarian al final, ademas de checkear roles
 router.get('/users', auth, (req, res) => UserController.getAll(req, res));

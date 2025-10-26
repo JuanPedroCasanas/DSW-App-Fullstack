@@ -527,7 +527,7 @@ const [form, setForm] = useState<{
             type={toast.type}
             onClose={() => setToast(null)}
           />
-      )}
+        )}
     </main>
   );
 } 

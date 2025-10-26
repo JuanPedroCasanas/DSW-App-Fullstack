@@ -10,6 +10,7 @@ const formatDate = (iso: string) => {
   const [y, m, d] = iso.split("-");
   return `${d}/${m}/${y}`;
 };
+
 const validatePatient = (p: Partial<Patient>) => {
   const errors: Record<string, string> = {};
   if (!p.firstName?.trim()) errors.firstName = "Nombre obligatorio.";
@@ -17,6 +18,7 @@ const validatePatient = (p: Partial<Patient>) => {
   if (!p.birthdate) errors.birthdate = "Fecha de nacimiento obligatoria.";
   return errors;
 };
+
 const sameJSON = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
 
@@ -369,7 +371,7 @@ export default function GuardedPatients() {
                 <p id="gp-add-desc" className="gp-help">Completá los datos del paciente a cargo.</p>
                 <form onSubmit={handleAddContinue} noValidate>
                   <div className="gp-field">
-                    <label htmlFor="add-firstName">firstName</label>
+                    <label htmlFor="add-firstName">Nombre</label>
                     <input
                       id="add-firstName"
                       type="text"
@@ -382,7 +384,7 @@ export default function GuardedPatients() {
                   </div>
 
                   <div className="gp-field">
-                    <label htmlFor="add-lastName">lastName</label>
+                    <label htmlFor="add-lastName">Apellido</label>
                     <input
                       id="add-lastName"
                       type="text"
@@ -457,7 +459,7 @@ export default function GuardedPatients() {
                 <p id="gp-edit-desc" className="gp-help">Actualizá los datos necesarios.</p>
                 <form onSubmit={handleEditContinue} noValidate>
                   <div className="gp-field">
-                    <label htmlFor="edit-firstName">firstName</label>
+                    <label htmlFor="edit-firstName">Nombre</label>
                     <input
                       id="edit-firstName"
                       type="text"
@@ -470,7 +472,7 @@ export default function GuardedPatients() {
                   </div>
 
                   <div className="gp-field">
-                    <label htmlFor="edit-lastName">lastName</label>
+                    <label htmlFor="edit-lastName">Apellido</label>
                     <input
                       id="edit-lastName"
                       type="text"

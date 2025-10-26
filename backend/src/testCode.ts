@@ -44,5 +44,7 @@ export const testCode = async () => {
 
     req.params = {id: 1}
     let res = new FakeResponse();
-
+    //UserController.getAll(req as any, res as any);
 }
+
+    

@@ -102,23 +102,29 @@ export class UserController {
 
     // UPDATE USER
     static async updatePassword(req: Request, res: Response) {
-            try {
-                const { password } = req.body;
+        try {
+            const { idUser } = req.body;
+            const { oldPassword } = req.body;
+            const { newPassword } = req.body;
 
-                if(!password) {
-                    return res.status(400).json({ message: 'Se requiere la nueva contraseña del usuario' });
-                }
+            if(!newPassword) {
+                return res.status(400).json({ message: 'Se requiere la nueva contraseña del usuario' });
+            }
 
-                const em = (await getORM()).em.fork();
-                const user = await em.findOne(User, { id: Number(req.params.id) });
-                
-                if (!user|| !user?.isActive) {
-                    throw new NotFoundError('Usuario');
-                }
+            const em = (await getORM()).em.fork();
+            const user = await em.findOne(User, { id: Number(idUser) });
+            
+            if (!user|| !user?.isActive) {
+                throw new NotFoundError('Usuario');
+            }
+            const valid = await bcrypt.compare(oldPassword, user.password);
+            if (!valid) {
+                return res.status(401).json({ error: 'Contraseña actual erronea' });
+            }
 
-                user.password = await bcrypt.hash(req.body.password, SALT_ROUNDS);
-                await em.flush();
-                res.json(safeSerialize(user));
+            user.password = await bcrypt.hash(newPassword, SALT_ROUNDS);
+            await em.flush();
+            res.json({message: "Contraseña cambiada exitosamente para: ", user: safeSerialize(user) });
         } 
         catch (error){
                 console.error(error);
@@ -136,17 +142,47 @@ export class UserController {
 
     // SACAR ESTE METODO O DEJARLO SOLO ADMIN
     static async getAll(req: Request, res: Response) {
-        const em = (await getORM()).em.fork();
-        const users = await em.find(User, {});
-        res.json(users);
+        let includeInactive:boolean;
+        if (req.query.includeInactive === undefined) {
+            includeInactive = true;
+        } else {
+            includeInactive = req.query.includeInactive === 'true'; 
+        }
+        try {
+            const em = (await getORM()).em.fork();
+            const whereCondition = (includeInactive) ? {} : {isActive: true};
+            const users = await em.find(User, whereCondition, { populate: ['patient', 'professional', 'professional.occupation', 'legalGuardian'] });
+            res.status(200).json(safeSerialize(users));
+        } catch(err) {
+            console.error();
+            return res.status(500).json({ message: 'Error buscar usuarios' });
+        }
     }
 
     // SACAR ESTE METODO O DEJARLO SOLO ADMIN
     static async getOne(req: Request, res: Response) {
-        const em = (await getORM()).em.fork();
-        const user = await em.findOne(User, { id: Number(req.params.id) });
-        if (!user||!user?.isActive) 
-            return res.status(404).json({ error: 'User not found' });
-        res.json(user);
+        const idUser = Number(req.params.id);
+        if(!idUser) {
+            return res.status(404).json({ message: 'Se requiere la id del usuario a buscar'} );
+        }
+        try {
+            const em = (await getORM()).em.fork();
+            const user = await em.findOne(User, { id: idUser }, { populate: ['patient', 'professional', 'legalGuardian'] });
+            
+            if (!user||!user?.isActive) {
+                throw new NotFoundError("Usuario");
+            }
+            
+            res.status(200).json(safeSerialize(user));
+
+            } catch (error) {
+            console.error(error);
+            if (error instanceof BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            else {
+                return res.status(500).json({ message: 'Error buscar el usuario' });
+            }
+        }
     }
 }

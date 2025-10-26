@@ -1,4 +1,11 @@
 /* Contenedor general */
+.ep-main {
+  display: grid;
+
+  align-items: center;
+
+}
+
 .ep-container {
   max-width: 880px;
   margin: 0 auto;
@@ -155,6 +162,17 @@
     #0000
   );
 }
+
+.ep-email-with-btn .ep-email-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start; /* Alinea botón con input */
+}
+
+.ep-email-with-btn .ep-email-row input {
+  flex: 1; /* Input ocupa todo el espacio disponible */
+}
+
 
 /* Grid responsivo para Nombre/Apellido */
 .ep-grid {

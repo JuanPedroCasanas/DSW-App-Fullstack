@@ -60,12 +60,15 @@ class LegalGuardianController {
         }
     }
     static async updateLegalGuardian(req, res) {
-        const { id } = req.body;
+        const { idLegalGuardian } = req.body;
         const { firstName } = req.body;
         const { lastName } = req.body;
         const { birthdate } = req.body;
         const { telephone } = req.body;
         const { idHealthInsurance } = req.body;
+        if (!idLegalGuardian) {
+            return res.status(400).json({ message: 'Se requiere id del responsable legal' });
+        }
         if (!firstName) {
             return res.status(400).json({ message: 'Se requiere nombre del responsable legal' });
         }
@@ -82,7 +85,7 @@ class LegalGuardianController {
             return res.status(400).json({ message: 'Se requiere obra social del responsable legal' });
         }
         const em = await (0, db_1.getORM)().em.fork();
-        const legalGuardian = await em.findOne(LegalGuardian_1.LegalGuardian, { id: id });
+        const legalGuardian = await em.findOne(LegalGuardian_1.LegalGuardian, { id: idLegalGuardian });
         try {
             if (!legalGuardian || !legalGuardian?.isActive) {
                 throw new BaseHttpError_1.NotFoundError('Responsable Legal');

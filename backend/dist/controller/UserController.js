@@ -97,18 +97,24 @@ class UserController {
     // UPDATE USER
     static async updatePassword(req, res) {
         try {
-            const { password } = req.body;
-            if (!password) {
+            const { idUser } = req.body;
+            const { oldPassword } = req.body;
+            const { newPassword } = req.body;
+            if (!newPassword) {
                 return res.status(400).json({ message: 'Se requiere la nueva contraseña del usuario' });
             }
             const em = (await (0, db_1.getORM)()).em.fork();
-            const user = await em.findOne(User_1.User, { id: Number(req.params.id) });
+            const user = await em.findOne(User_1.User, { id: Number(idUser) });
             if (!user || !user?.isActive) {
                 throw new BaseHttpError_1.NotFoundError('Usuario');
             }
-            user.password = await bcrypt_1.default.hash(req.body.password, SALT_ROUNDS);
+            const valid = await bcrypt_1.default.compare(oldPassword, user.password);
+            if (!valid) {
+                return res.status(401).json({ error: 'Contraseña actual erronea' });
+            }
+            user.password = await bcrypt_1.default.hash(newPassword, SALT_ROUNDS);
             await em.flush();
-            res.json((0, safeSerialize_1.safeSerialize)(user));
+            res.json({ message: "Contraseña cambiada exitosamente para: ", user: (0, safeSerialize_1.safeSerialize)(user) });
         }
         catch (error) {
             console.error(error);
@@ -123,17 +129,47 @@ class UserController {
     // DELETE USER Se hace desde el controlador de la persona especifica
     // SACAR ESTE METODO O DEJARLO SOLO ADMIN
     static async getAll(req, res) {
-        const em = (await (0, db_1.getORM)()).em.fork();
-        const users = await em.find(User_1.User, {});
-        res.json(users);
+        let includeInactive;
+        if (req.query.includeInactive === undefined) {
+            includeInactive = true;
+        }
+        else {
+            includeInactive = req.query.includeInactive === 'true';
+        }
+        try {
+            const em = (await (0, db_1.getORM)()).em.fork();
+            const whereCondition = (includeInactive) ? {} : { isActive: true };
+            const users = await em.find(User_1.User, whereCondition, { populate: ['patient', 'professional', 'professional.occupation', 'legalGuardian'] });
+            res.status(200).json((0, safeSerialize_1.safeSerialize)(users));
+        }
+        catch (err) {
+            console.error();
+            return res.status(500).json({ message: 'Error buscar usuarios' });
+        }
     }
     // SACAR ESTE METODO O DEJARLO SOLO ADMIN
     static async getOne(req, res) {
-        const em = (await (0, db_1.getORM)()).em.fork();
-        const user = await em.findOne(User_1.User, { id: Number(req.params.id) });
-        if (!user || !user?.isActive)
-            return res.status(404).json({ error: 'User not found' });
-        res.json(user);
+        const idUser = Number(req.params.id);
+        if (!idUser) {
+            return res.status(404).json({ message: 'Se requiere la id del usuario a buscar' });
+        }
+        try {
+            const em = (await (0, db_1.getORM)()).em.fork();
+            const user = await em.findOne(User_1.User, { id: idUser }, { populate: ['patient', 'professional', 'legalGuardian'] });
+            if (!user || !user?.isActive) {
+                throw new BaseHttpError_1.NotFoundError("Usuario");
+            }
+            res.status(200).json((0, safeSerialize_1.safeSerialize)(user));
+        }
+        catch (error) {
+            console.error(error);
+            if (error instanceof BaseHttpError_1.BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            else {
+                return res.status(500).json({ message: 'Error buscar el usuario' });
+            }
+        }
     }
 }
 exports.UserController = UserController;
