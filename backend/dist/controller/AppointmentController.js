@@ -243,6 +243,17 @@ class AppointmentController {
             return res.status(500).json({ message: 'Error al buscar los turnos' });
         }
     }
+    static async getScheduledAppointments(req, res) {
+        try {
+            const em = await (0, db_1.getORM)().em.fork();
+            const appointments = await em.find(Appointment_1.Appointment, { status: AppointmentStatus_1.AppointmentStatus.Scheduled });
+            return res.json(appointments);
+        }
+        catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Error al buscar los turnos' });
+        }
+    }
 }
 exports.AppointmentController = AppointmentController;
 //# sourceMappingURL=AppointmentController.js.map

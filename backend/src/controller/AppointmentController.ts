@@ -290,4 +290,15 @@ export class AppointmentController {
         }
     }
 
+    static async getScheduledAppointments(req: Request, res: Response) {
+    try {
+        const em = await getORM().em.fork();
+        const appointments = await em.find(Appointment, { status : AppointmentStatus.Scheduled});
+        return res.json(appointments);
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Error al buscar los turnos' });
+    }
+}
 }

@@ -15,7 +15,6 @@ import {
   fullName,
   getLocalDateISOFromStart,
   Patient,
-  fullNamePatient
 } from './appointmentSchedule.types';
 import { AppointmentScheduleForm } from './AppointmentScheduleForm';
 

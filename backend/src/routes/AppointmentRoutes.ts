@@ -10,7 +10,10 @@ router.post('/complete', AppointmentController.completeAppointment);
 router.post('/miss', AppointmentController.missAppointment);
 router.get('/getAll', AppointmentController.getAppointments);
 router.get('/get/:id', AppointmentController.getAppointment);
+
 router.get('/getAvailableAppointmentsByProfessional/:id', AppointmentController.getAvailableAppointmentsByProfessional);
+router.get('/getScheduledAppointments', AppointmentController.getScheduledAppointments);
+
 router.get('/getAppointmentsByPatient/:id', AppointmentController.getAppointmentsByPatient);
 
 export default router;

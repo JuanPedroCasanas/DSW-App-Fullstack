@@ -15,6 +15,7 @@ router.post('/miss', AppointmentController_1.AppointmentController.missAppointme
 router.get('/getAll', AppointmentController_1.AppointmentController.getAppointments);
 router.get('/get/:id', AppointmentController_1.AppointmentController.getAppointment);
 router.get('/getAvailableAppointmentsByProfessional/:id', AppointmentController_1.AppointmentController.getAvailableAppointmentsByProfessional);
+router.get('/getScheduledAppointments', AppointmentController_1.AppointmentController.getScheduledAppointments);
 router.get('/getAppointmentsByPatient/:id', AppointmentController_1.AppointmentController.getAppointmentsByPatient);
 exports.default = router;
 //# sourceMappingURL=AppointmentRoutes.js.map
