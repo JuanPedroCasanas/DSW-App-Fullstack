@@ -1,14 +1,19 @@
 /** Modelo simple: viene del backend */
-export type Occupation = {
+export type HealthInsurance={
+  id:number;
+  name:string;
+ };
+export type Professional ={
   id: number;
-  name: string 
-};
-
-export type Professional = {
-  id: string;
   firstName: string;
   lastName: string;
-  occupation: Occupation; // ID de especialidad (string por ahora)
+  occupation: Occupation; 
   telephone?: string;
   isActive: boolean;
-};
+  healthInsurances: HealthInsurance[];
+  
+ }
+export  type Occupation = {
+  id:string;
+  name: string;
+ }

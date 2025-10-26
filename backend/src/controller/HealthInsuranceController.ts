@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { getORM } from '../orm/db';
 import { HealthInsurance } from '../model/entities/HealthInsurance';
 import { BaseHttpError, NotFoundError } from '../model/errors/BaseHttpError';
+import { Professional } from '../model/entities/Professional';
+import { safeSerialize } from '../utils/safeSerialize';
 
 export class HealthInsuranceController {
 
@@ -110,6 +112,33 @@ export class HealthInsuranceController {
             return res.status(500).json({ message: 'Error al buscar Obras Sociales' });
         }
     }
+    
+        static async getHealthInsuranceByProfessional (req:Request, res: Response){
+            const idProfessional =Number(req.params.id);
+        if (!idProfessional){
+           return res.status(400).json({ message: 'Se requiere el id de profesional para buscar las obras sociales'});
+        }
+        try {
+            const em = await getORM().em.fork();
+            const professional = await em.findOne(Professional , { id: idProfessional});  
+            if(!professional) {
+                throw new NotFoundError('profesional')
+            }
+            await professional.healthInsurances.init();
+
+        const healthInsurances = professional.healthInsurances.getItems();
+        return res.status(200).json(safeSerialize(healthInsurances));
+        } catch (error) {
+        console.error(error);
+        if (error instanceof BaseHttpError) {
+            return res.status(error.status).json(error.toJSON());
+        }
+        return res.status(500).json({ message: 'Error al buscar obras sociales del profesional' });
+    }
+}
+
+
+
 
     static async deleteHealthInsurance(req: Request, res: Response) {
         const idHealthInsurance = Number(req.params.id);
