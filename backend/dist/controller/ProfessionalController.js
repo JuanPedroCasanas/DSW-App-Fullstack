@@ -15,7 +15,7 @@ class ProfessionalController {
         return res.send('Soy el controlador de profesional!');
     }
     static async addProfessional(req, res) {
-        const { firstName, lastName, telephone, mail, password, occupationId } = req.body;
+        const { firstName, lastName, telephone, mail, password, idOccupation } = req.body;
         if (!firstName) {
             return res.status(400).json({ message: 'Se requiere el nombre del profesional' });
         }
@@ -31,12 +31,12 @@ class ProfessionalController {
         if (!password) {
             return res.status(400).json({ message: 'Se requiere una contraseña valida' });
         }
-        if (!occupationId) {
+        if (!idOccupation) {
             return res.status(400).json({ message: 'Se requiere la Id de la especialidad del profesional' });
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            let occupation = await em.findOne(Occupation_1.Occupation, { id: occupationId });
+            let occupation = await em.findOne(Occupation_1.Occupation, { id: idOccupation });
             if (!occupation) {
                 throw new BaseHttpError_1.NotFoundError('Especialidad');
             }

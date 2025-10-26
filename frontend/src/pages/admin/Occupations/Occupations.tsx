@@ -138,6 +138,7 @@ export default function Occupations() {
   };
 
   const handleEditConfirm = () => {
+    if(!editTarget) return;
     (async () => {
 
       const payload = {
@@ -170,6 +171,7 @@ export default function Occupations() {
   const closeDelete = () => setDeleteTarget(null);
 
   const handleDeleteConfirm = () => {
+    if(!deleteTarget) return;
     (async () => {
         
         const res = await fetch(

@@ -92,9 +92,17 @@ export class HealthInsuranceController {
     }
 
     static async getAllHealthInsurances(req: Request, res: Response) {
+        let includeInactive:boolean;
+        if (req.query.includeInactive === undefined) {
+            includeInactive = true;
+        } else {
+            includeInactive = req.query.includeInactive === 'true'; 
+            // true si el string es 'true', false si es cualquier otra cosa
+        }
         try {
             const em = await getORM().em.fork();
-            const healthInsurances = await em.findAll(HealthInsurance);
+            const whereCondition = (includeInactive) ? {} : {isActive: true};
+            const healthInsurances = await em.find(HealthInsurance, whereCondition);
             
             return res.status(200).json(healthInsurances);
         } catch (error) {

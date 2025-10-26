@@ -314,7 +314,7 @@ export class PatientController {
             }
 
             await em.flush();
-            return res.status(200).json(safeSerialize(patient));
+            return res.status(200).json({ message: 'Paciente dado de baja correctamente: ', patient: safeSerialize(patient) });
         } catch (error) {
             console.error(error);
             if (error instanceof BaseHttpError) {

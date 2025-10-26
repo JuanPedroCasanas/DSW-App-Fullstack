@@ -81,9 +81,18 @@ class HealthInsuranceController {
         }
     }
     static async getAllHealthInsurances(req, res) {
+        let includeInactive;
+        if (req.query.includeInactive === undefined) {
+            includeInactive = true;
+        }
+        else {
+            includeInactive = req.query.includeInactive === 'true';
+            // true si el string es 'true', false si es cualquier otra cosa
+        }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const healthInsurances = await em.findAll(HealthInsurance_1.HealthInsurance);
+            const whereCondition = (includeInactive) ? {} : { isActive: true };
+            const healthInsurances = await em.find(HealthInsurance_1.HealthInsurance, whereCondition);
             return res.status(200).json(healthInsurances);
         }
         catch (error) {

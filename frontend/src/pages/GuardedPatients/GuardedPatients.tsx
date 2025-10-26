@@ -22,9 +22,8 @@ const sameJSON = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringif
 
 async function handlePatientControllerResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
   const resJson = await res.json().catch(() => ({}));
-
   if (res.ok) {
-    const successMessage = `${resJson.message} Id: ${resJson.professional?.id}, lastName y firstName: ${resJson.patient?.lastName} ${resJson.patient?.firstName}`;
+    const successMessage = `${resJson.message} Id: ${resJson.patient?.id}, Nombre: ${resJson.patient?.lastName} ${resJson.patient?.firstName}`;
     return { message: successMessage, type: "success" };
   } else {
     if (res.status === 500 || res.status === 400) {
@@ -36,11 +35,11 @@ async function handlePatientControllerResponse(res: Response): Promise<{ message
   }
 }
 
-async function handleLegalControllerResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
+async function handleLegalGuardianControllerResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
   const resJson = await res.json().catch(() => ({}));
 
   if (res.ok) {
-    const successMessage = `${resJson.message} Id: ${resJson.professional?.id}, lastName y firstName: ${resJson.patient?.lastName} ${resJson.patient?.firstName}`;
+    const successMessage = `${resJson.message} Id: ${resJson.legalGuardian?.id}, Nombre: ${resJson.legalGuardian?.lastName} ${resJson.legalGuardian?.firstName}`;
     return { message: successMessage, type: "success" };
   } else {
     if (res.status === 500 || res.status === 400) {
@@ -75,7 +74,7 @@ export default function GuardedPatients() {
     (async () => {
       const res = await fetch("http://localhost:2000/LegalGuardian/getAll?includeInactive=true");
       if (!res.ok){
-        const toastData = await handleLegalControllerResponse(res);
+        const toastData = await handleLegalGuardianControllerResponse(res);
         setToast(toastData);
       } else {
         const data: LegalGuardian[] = await res.json();
@@ -91,7 +90,7 @@ export default function GuardedPatients() {
   useEffect(() => {
      if (!selectedGuardianId) return;
      (async () => {
-         const res = await fetch(`http://localhost:2000/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=true`);
+         const res = await fetch(`http://localhost:2000/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=false`);
   
         if (!res.ok){
           const toastData = await handlePatientControllerResponse(res);
@@ -129,17 +128,28 @@ export default function GuardedPatients() {
     if (Object.keys(addErrors).length) return;
     setAddStep("confirm");
   };
-  const handleAddConfirm = () => {
-    const newPatient: Patient = {
-      id: 0,
+  const handleAddConfirm = async () => {
+    const payload = {
       firstName: (addForm.firstName ?? "").trim(),
       lastName: (addForm.lastName ?? "").trim(),
       birthdate: addForm.birthdate ?? "",
-      isActive: true,
+      idLegalGuardian: selectedGuardianId,
     };
-    setPatients((prev) => [...prev, newPatient]);
-    setShowAdd(false);
-    alert("Paciente agregado (simulado).");
+
+    const res = await fetch("http://localhost:2000/Patient/addDepPatient", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if(res.ok) {
+      const resGet = await fetch(`http://localhost:2000/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=true`);
+      const data: Patient[] = await resGet.json();
+      setPatients(data); 
+    }
+    closeAdd()
+    const toastData = await handlePatientControllerResponse(res);
+    setToast(toastData);
   };
 
   // ---------- Editar (2 pasos + dirty-check) ----------
@@ -155,7 +165,6 @@ export default function GuardedPatients() {
       lastName: p.lastName,
       birthdate: p.birthdate,
     };
-    console.log(initial);
     setEditTarget(p);
     setEditForm(initial);
     setEditSnapshot(initial);
@@ -197,26 +206,41 @@ export default function GuardedPatients() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
-    const toastData = await handlePatientControllerResponse(res);
-    setToast(toastData); // <-- ahora el toast aparece
+
     if (res.ok) {
-      // actualizo la lista local de pacientes
-      setPatients((prev) =>
-        prev.map((p) => (p.id === editTarget.id ? { ...p, ...payload } : p))
-      );
-      closeEdit();
+      const resGet = await fetch(`http://localhost:2000/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=true`);
+      const data: Patient[] = await resGet.json();
+      setPatients(data); 
     }
+    closeEdit();
+    const toastData = await handlePatientControllerResponse(res);
+    setToast(toastData);
   };
 
   // ---------- Eliminar (confirmación simple) ----------
   const [deleteTarget, setDeleteTarget] = useState<Patient | null>(null);
   const openDelete = (p: Patient) => setDeleteTarget(p);
   const closeDelete = () => setDeleteTarget(null);
-  const handleDeleteConfirm = () => {
-    if (!deleteTarget) return;
-    setPatients((prev) => prev.filter((p) => p.id !== deleteTarget.id));
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return; 
+
+    const res = await fetch(
+              `http://localhost:2000/Patient/delete/${deleteTarget.id}`, 
+              {
+                method: "DELETE",
+            });
+
+    // Recargar
+    if(res.ok) {
+      const resGet = await fetch(`http://localhost:2000/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=true`);
+      const data: Patient[] = await resGet.json();
+      setPatients(data); 
+      
+    }
+    closeDelete();
     setDeleteTarget(null);
-    alert("Paciente eliminado (simulado).");
+    const toastData = await handlePatientControllerResponse(res);
+    setToast(toastData);
   };
 
   // ---------- Modal genérico: DESCARTAR cambios ----------

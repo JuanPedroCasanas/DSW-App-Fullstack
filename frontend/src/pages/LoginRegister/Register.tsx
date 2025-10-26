@@ -1,53 +1,136 @@
 import { useMemo, useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import "./login.css"; // Reutilizamos exactamente los estilos del login
+import { HealthInsurance, Occupation } from "./loginRegisterTypes";
+import { Toast } from "@/components/Toast";
 
-type Role = "profesional" | "paciente" | "responsable";
+type Role = "Paciente" | "Profesional" | "Responsable Legal" | "";
+
+async function handleErrorResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
+  const resJson = await res.json().catch(() => ({}));
+    if (res.status === 500 || res.status === 400) {
+      return { message: resJson.message ?? "Error interno del servidor", type: "error" };
+    } else {
+      const errorMessage = `Error: ${resJson.error} Codigo: ${resJson.code} ${resJson.message}`
+      return { message: errorMessage.trim(), type: "error" };
+    }
+}
+
+async function handleProfessionalControllerResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
+  if (res.ok) {
+    const resJson = await res.json().catch(() => ({}));
+    const successMessage = `${resJson.message} Id: ${resJson.professional?.id}, Apellido y nombre: ${resJson.professional?.lastName} ${resJson.professional?.firstName}`;
+    return { message: successMessage, type: "success" };
+  } else {
+    return handleErrorResponse(res);
+  }
+}
+
+async function handlePatientControllerResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
+  if (res.ok) {
+    const resJson = await res.json().catch(() => ({}));
+    const successMessage = `${resJson.message} Id: ${resJson.patient?.id}, Nombre: ${resJson.patient?.lastName} ${resJson.patient?.firstName}`;
+    return { message: successMessage, type: "success" };
+  } else {
+    return handleErrorResponse(res);
+  }
+}
+
+async function handleLegalGuardianControllerResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
+  if (res.ok) {
+    const resJson = await res.json().catch(() => ({}));
+    const successMessage = `${resJson.message} Id: ${resJson.legalGuardian?.id}, Nombre: ${resJson.legalGuardian?.lastName} ${resJson.legalGuardian?.firstName}`;
+    return { message: successMessage, type: "success" };
+  } else {
+    return handleErrorResponse(res);
+  }
+}
+
 
 export default function Register() {
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-    confirmPassword: "", // NEW: confirmación
-    nombre: "",
-    apellido: "",
-    fechaNacimiento: "",
-    telefono: "",
-    rol: "" as "" | Role
-
-  });
 
 
-  // lo estoy poniendo por separado del const [form, setForm] porque por ahora manejamos únicamente el 
-  // register de paciente. Es para no romper el código más que nada. Ni idea, funciona.
-  const [especialidad, setEspecialidad] = useState(0); 
-  const [healthinsuranceId, setHealthInsurance] = useState(0); // Valor por defecto para pacientes
-  const [dependentForm, setDependentForm] = useState({
-    firstName: "",
-    lastName: "",
-    birthdate: "",
-    legalGuardianId: ""
-  });
- 
+const [form, setForm] = useState<{
+  mail: string;
+  password: string;
+  confirmPassword: string;
+  firstName: string;
+  lastName: string;
+  fechaNacimiento: string;
+  telefono: string;
+  role: Role;
+}>({
+  mail: "",
+  password: "",
+  confirmPassword: "",
+  firstName: "",
+  lastName: "",
+  fechaNacimiento: "",
+  telefono: "",
+  role: "Paciente",
+});
+
+  const [occupations, setOccupations] = useState<Occupation[]>([]);
+  const [healthInsurances, setHealthInsurances] = useState<HealthInsurance[]>([]);;
+  const [selectedOccupationId, setSelectedOccupationId]  = useState<number | null>(null);
+  const [selectedHealthInsuranceId, setSelectedHealthInsuranceId]  = useState<number | null>(null);
+
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
   useEffect(() => {
-    if (form.rol !== "profesional") {
-      setEspecialidad(0); 
+    const fetchOccupations = async () => {
+      const res = await fetch("http://localhost:2000/Occupation/getAll");
+      if (!res.ok){
+        const toastData = await handleErrorResponse(res);
+        setToast(toastData);
+      } else {
+        const data: Occupation[] = await res.json();
+        setOccupations(data);
+        if (selectedOccupationId === null) {
+          setSelectedOccupationId(data[0]?.id ?? null);
+        }
+      }
     }
-  }, [form.rol]);
-  useEffect(() => {  if (form.rol !== "paciente") {
-      setHealthInsurance(0);
+
+    const fetchHealthInsurances = async () => {
+      const res = await fetch("http://localhost:2000/HealthInsurance/getAll?includeInactive=false");
+      if (!res.ok){
+        const toastData = await handleErrorResponse(res);
+        setToast(toastData);
+      } else {
+        const data: HealthInsurance[] = await res.json();
+        setHealthInsurances(data);
+        if (selectedHealthInsuranceId === null) {
+          setSelectedHealthInsuranceId(data[0]?.id ?? null);
+        }
+      }
     }
-  }, [form.rol]);
+
+    if(form.role == "Profesional") {
+      fetchOccupations();
+    }
+    if(form.role == "Paciente" || form.role == "Responsable Legal") {
+      fetchHealthInsurances();
+    }
+  }, [form.role]);
+
+
+  //Seleccion inicial de IDs cuando carga la pagina, lo hice asi para que aguante hasta que se pueblen los select
   useEffect(() => {
-  if (form.rol !== "responsable") {
-      setDependentForm({
-        firstName: "",
-        lastName: "",
-        birthdate: "",
-        legalGuardianId: ""
-      });
+    if (form.role === "Profesional" && occupations.length > 0 && selectedOccupationId === null) {
+      setSelectedOccupationId(occupations[0].id);
     }
-    }, [form.rol]);
+  }, [occupations]);
+
+  useEffect(() => {
+    if ((form.role === "Paciente" || form.role === "Responsable Legal") &&
+          healthInsurances.length > 0 && selectedHealthInsuranceId === null) {
+      setSelectedHealthInsuranceId(healthInsurances[0].id);
+    }
+  }, [healthInsurances]);
+
+  
+
   
   
   const [showPwd, setShowPwd] = useState(false);
@@ -73,12 +156,6 @@ export default function Register() {
     const { name, value } = e.target;
     setForm((f) => ({ ...f, [name]: value }));
   }
-  function handleDependentChange(
-  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) {
-  const { name, value } = e.target;
-  setDependentForm((f) => ({ ...f, [name]: value })); 
-}
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -96,17 +173,17 @@ export default function Register() {
 
     // 2. MAPEO DE DATOS BASE (DEL USUARIO PRINCIPAL)
     let dataToSend: any = {
-        firstName: form.nombre,
-        lastName: form.apellido,
+        firstName: form.firstName,
+        lastName: form.lastName,
         birthdate: form.fechaNacimiento,
-        mail: form.email,
+        mail: form.mail,
         password: form.password,
         telephone: form.telefono,
-        rol: form.rol,
-        healthInsuranceId: Number(healthinsuranceId)
+        role: form.role,
+        idHealthInsurance: Number(selectedHealthInsuranceId)
     };
 
-    if (!form.rol) {
+    if (!form.role) {
         alert("Por favor elegí un rol.");
         setIsLoading(false);
         return;
@@ -114,61 +191,47 @@ export default function Register() {
     
     let endpoint = '';
     let dependentEndpoint = ''; 
-    let dependentPayload: any = null; // Inicializado a null para el rol 'responsable'
+    let dependentPayload: any = null; // Inicializado a null para el rol 'Responsable Legal'
     
     // --- 3. LÓGICA DE PREPARACIÓN DE ENDPOINTS Y PAYLOADS (SIN ASYNC/AWAIT) ---
     
-    if (form.rol === 'paciente') {
-        if (!healthinsuranceId) {
+    if (form.role=== 'Paciente') {
+        if (!selectedHealthInsuranceId) {
             setMessage("Por favor elegí una obra social.");
             setIsError(true); 
             setIsLoading(false);
             return;
         }
         endpoint = 'http://localhost:2000/Patient/addIndPatient';
-        dataToSend = {...dataToSend, healthinsurance: healthinsuranceId }; 
+        dataToSend = {...dataToSend, idHealthInsurance: selectedHealthInsuranceId }; 
     }
-    
-    else if (form.rol === 'profesional') {
-        if (!especialidad) {
-            setMessage("Por favor elegí una especialidad.");
+
+    else if (form.role === 'Profesional') {
+        if (!selectedOccupationId) {
+            setMessage("Por favor elegí una occupation.");
             setIsError(true);
             setIsLoading(false);
             return;
         }
         endpoint = 'http://localhost:2000/Professional/add'; 
-        dataToSend = {...dataToSend, occupation: especialidad };
+        dataToSend = {...dataToSend, idOccupation: selectedOccupationId };
     }
     
-    else if (form.rol === 'responsable') { 
+    else if (form.role=== 'Responsable Legal') { 
         // Validación de Obra Social del Responsable Legal (se adjunta a dataToSend)
-        if (!healthinsuranceId) {
-            setMessage("Por favor elegí una obra social para el paciente a cargo.");
+        if (!selectedHealthInsuranceId) {
+            setMessage("Por favor elegí una obra social.");
             setIsError(true); 
-            setIsLoading(false);
-            return;
-        }
-        // Validación de datos del paciente dependiente
-        if (!dependentForm.firstName || !dependentForm.lastName || !dependentForm.birthdate ) {
-            setMessage("Por favor completa todos los datos del paciente a cargo.");
-            setIsError(true);
             setIsLoading(false);
             return;
         }
         
         // Adjuntar Obra Social al payload del Responsable Legal
-        dataToSend = {...dataToSend, healthinsurance: Number(healthinsuranceId) }; 
+        dataToSend = {...dataToSend, idHealthInsurance: selectedHealthInsuranceId }; 
 
         // Definir los dos endpoints
         endpoint = 'http://localhost:2000/LegalGuardian/add'; // 1ra petición
-        dependentEndpoint = 'http://localhost:2000/Patient/addDepPatient'; // 2da petición
 
-        // Preparar el payload del dependiente (sin el ID del responsable todavía)
-        dependentPayload = {
-            name: dependentForm.firstName,
-            lastName: dependentForm.lastName,
-            birthdate: dependentForm.birthdate,
-        };
     } else {
         setMessage("Rol no válido.");
         setIsError(true);
@@ -176,59 +239,31 @@ export default function Register() {
         return;
     }
     
-    // --- 4. EJECUCIÓN ASÍNCRONA UNIFICADA (UN SOLO TRY/CATCH) ---
     try {
-        // A) PRIMERA PETICIÓN (Responsable, Profesional o Paciente)
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dataToSend)
-        });
+      const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dataToSend)
+      });
 
-        const data = await response.json(); 
+      if(response.ok) { //Para no limpiarle toda la form al usuario si sale algo mal
+        setForm({ mail: "", password: "", confirmPassword: "", firstName: "", lastName: "", fechaNacimiento: "", telefono: "", role: "" });
+        setOccupations; 
+        setHealthInsurances;
+      }
 
-        if (!response.ok) { 
-            setMessage(data.message || `Error al registrar ${form.rol}.`);
-            setIsError(true);
-            return; 
-        }
+      let toastData;
 
-        // B) SEGUNDA PETICIÓN (Solo si es Responsable)
-        if (form.rol === 'responsable') {
-            const legalGuardianId = data.id || data.legalGuardianId; 
-
-            if (!legalGuardianId) { throw new Error("ID del responsable no devuelto."); }
-
-            // VINCULAR ID y enviar la SEGUNDA PETICIÓN
-            dependentPayload.legalGuardianId = legalGuardianId;
-            
-            const dependentResponse = await fetch(dependentEndpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(dependentPayload)
-            });
-            
-            if (!dependentResponse.ok) {
-                const dependentData = await dependentResponse.json();
-                setMessage(dependentData.message || 'Error al registrar el paciente a cargo.');
-                setIsError(true);
-                return; 
-            }
-            
-            // ÉXITO DOBLE
-            setMessage('Registro de Responsable y Paciente completado con éxito!');
-
-        } else {
-            // ÉXITO ÚNICO (Profesional o Paciente Individual)
-            setMessage(data.message || '¡Registro completado con éxito!');
-        }
-        
-        
-        setForm({ email: "", password: "", confirmPassword: "", nombre: "", apellido: "", fechaNacimiento: "", telefono: "", rol: "" as "" | Role });
-        setEspecialidad(0); 
-        setHealthInsurance(0);
-        setDependentForm({ firstName: "", lastName: "", birthdate: "", legalGuardianId:""}); // Limpiar dependiente
-
+      if(form.role === "Profesional") {
+        toastData = await handleProfessionalControllerResponse(response)
+      } else if(form.role === "Paciente") {
+        toastData = await handlePatientControllerResponse(response)
+      } else if(form.role === "Responsable Legal") {
+        toastData = await handleLegalGuardianControllerResponse(response)
+      }
+      if(toastData) {
+        setToast(toastData);
+      }
     } catch (error) {
         // Error de red
         setMessage('🚨 Error de conexión: El servidor no está disponible.');
@@ -252,16 +287,16 @@ export default function Register() {
 
           {/* Formulario */}
           <form className="div-2" onSubmit={onSubmit} noValidate>
-            {/* Nombre */}
+            {/* firstName */}
             <div className="div-2">
-              <label className="text-wrapper-3" htmlFor="nombre">Nombre</label>
+              <label className="text-wrapper-3" htmlFor="firstName">Nombre</label>
               <div className="input">
                 <input
-                  id="nombre"
-                  name="nombre"
+                  id="firstName"
+                  name="firstName"
                   className="input__control"
                   placeholder="Tu nombre"
-                  value={form.nombre}
+                  value={form.firstName}
                   onChange={handleChange}
                   autoComplete="given-name"
                   required
@@ -269,16 +304,16 @@ export default function Register() {
               </div>
             </div>
 
-            {/* Apellido */}
+            {/* lastName */}
             <div className="div-2">
-              <label className="text-wrapper-3" htmlFor="apellido">Apellido</label>
+              <label className="text-wrapper-3" htmlFor="lastName">Apellido</label>
               <div className="input">
                 <input
-                  id="apellido"
-                  name="apellido"
+                  id="lastName"
+                  name="lastName"
                   className="input__control"
                   placeholder="Tu apellido"
-                  value={form.apellido}
+                  value={form.lastName}
                   onChange={handleChange}
                   autoComplete="family-name"
                   required
@@ -286,19 +321,19 @@ export default function Register() {
               </div>
             </div>
 
-            {/* Email */}
+            {/* mail */}
             <div className="div-2">
-              <label className="text-wrapper-3" htmlFor="email">Correo electrónico</label>
+              <label className="text-wrapper-3" htmlFor="mail">Correo electrónico</label>
               <div className="input">
                 <input
-                  id="email"
-                  name="email"
-                  type="email"
+                  id="mail"
+                  name="mail"
+                  type="mail"
                   className="input__control"
-                  placeholder="nombre@dominio.com"
-                  value={form.email}
+                  placeholder="mail@dominio.com"
+                  value={form.mail}
                   onChange={handleChange}
-                  autoComplete="email"
+                  autoComplete="mail"
                   required
                 />
               </div>
@@ -409,154 +444,91 @@ export default function Register() {
 
             {/* Rol */}
             <div className="div-2">
-              <label className="text-wrapper-3" htmlFor="rol">Rol</label>
+              <label className="text-wrapper-3" htmlFor="role">Rol</label>
               <div className="input">
                 <select
-                  id="rol"
-                  name="rol"
+                  id="role"
+                  name="role"
                   className="input__control"
-                  value={form.rol}
+                  value={form.role}
                   onChange={handleChange}
                   required
-                >
-                  <option value="" disabled>Elegí una opción</option>
-                  <option value="profesional">Profesional</option>
-                  <option value="paciente">Paciente</option>
-                  <option value="responsable">Responsable legal</option>
+                >                  
+                  <option>Paciente</option>
+                  <option>Responsable Legal</option>
+                  <option>Profesional</option>
                 </select>
               </div>
             </div>
 
-            {/* /* ESPECIALIDAD solo si rol = profesional */ }
-{form.rol === "profesional" && (
-  <>
-    <label htmlFor="especialidad" className="text-wrapper-3" style={{ marginTop: 12 }}>
-      Especialidad
-    </label>
-    <div className="input">
-      <select
-        id="especialidad"
-        name="especialidad"
-        className="input__control"
-        value={especialidad}
-        onChange={(e) => setEspecialidad(Number(e.target.value))}
-        required
-      >
-        <option value="" disabled>Elegí una especialidad</option>
-        <option value="psicopedagogia">Psicopedagogia</option>
-        <option value="psicologia">Psicologia</option>
-      </select>
-    </div>
-  </>
-)}
+            {/* /* occupation solo si rol = profesional */ }
+            {form.role === "Profesional" && (
+              <>
+                <label htmlFor="occupation" className="text-wrapper-3" style={{ marginTop: 12 }}>
+                  Especialidad
+                </label>
+                <div className="input">
+                  <select
+                    id="occupation"
+                    name="occupation"
+                    className="input__control"
+                    value={selectedOccupationId ?? ""}
+                    onChange={(e) => setSelectedOccupationId(Number(e.target.value))}
+                    required
+                  >                  
+                    {occupations.map(g => (
+                      <option key={g.id} value={g.id}>
+                        Id: {g.id}, {g.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </>
+            )}
 
-{/*OBRA SOCIAL: Visible si el rol es PACIENTE O RESPONSABLE */}
-{(form.rol === "paciente" || form.rol === "responsable") && (
-  <>
-    <div className="div-2" style={{ marginTop: 12 }}>
-      <label className="text-wrapper-3" htmlFor="healthInsuranceId">
-        Obra Social
-      </label>
-      <div className="input">
-        <select
-          id="healthInsuranceId"
-          name="healthInsuranceId"
-          className="input__control"
-          value={healthinsuranceId} 
-          onChange={(e) => setHealthInsurance(Number(e.target.value))}
-          required
-        >
-          <option value="0" disabled>Elegí una obra social</option>
-          <option value="1">PARTICULAR</option>
-          <option value="2">OSDE</option>
-          <option value="3">SWISS MEDICAL</option>
-          <option value="4">MEDIFE</option>
-        </select>
-      </div>
-    </div>
-  </>
-)}
-
-{/*  DATOS DEL PACIENTE DEPENDIENTE (Solo si rol = responsable) */}
-{form.rol === "responsable" && (
-  <>
-    <h3 className="text-wrapper-3" style={{ marginTop: 20, marginBottom: 10 }}>
-      Datos del Paciente a Cargo
-    </h3>
-
-    {/* Campo: Nombre del Paciente Dependiente */}
-    <div className="div-2">
-      <label className="text-wrapper-3" htmlFor="depName">Nombre del Paciente</label>
-      <div className="input">
-        <input 
-            id="depName"
-            name="name" 
-            className="input__control"
-            placeholder="Nombre del paciente"
-            value={dependentForm.firstName} 
-            onChange={handleDependentChange} // Usamos el handler del dependiente
-            required 
-        />
-      </div>
-    </div>
-    
-    {/* Campo: Apellido del Paciente Dependiente */}
-    <div className="div-2">
-      <label className="text-wrapper-3" htmlFor="depLastName">Apellido del Paciente</label>
-      <div className="input">
-        <input 
-            id="depLastName"
-            name="lastName" // Clave que coincide con dependentForm.lastName
-            className="input__control"
-            placeholder="Apellido del paciente"
-            value={dependentForm.lastName}
-            onChange={handleDependentChange}
-            required 
-        />
-      </div>
-    </div>
-    
-    {/* Campo: Fecha de Nacimiento del Paciente Dependiente */}
-    <div className="div-2">
-      <label className="text-wrapper-3" htmlFor="depBirthdate">Fecha de Nacimiento del Paciente</label>
-      <div className="input">
-        <input 
-            id="depBirthdate"
-            name="birthdate" // Clave que coincide con dependentForm.birthdate
-            className="input__control"
-            type="date"
-            value={dependentForm.birthdate}
-            onChange={handleDependentChange}
-            max={todayISO} // Puedes reutilizar el max para evitar fechas futuras
-            required 
-        />
-      </div>
-    </div>
-  </>
-)}
+            {/*OBRA SOCIAL: Visible si el rol es Paciente' O RESPONSABLE */}
+            {(form.role=== "Paciente" || form.role=== "Responsable Legal") && (
+              <>
+                <div className="div-2" style={{ marginTop: 12 }}>
+                  <label className="text-wrapper-3" htmlFor="idHealthInsurance">
+                    Obra Social
+                  </label>
+                  <div className="input">
+                    <select
+                      id="idHealthInsurance"
+                      name="idHealthInsurance"
+                      className="input__control"
+                      value={selectedHealthInsuranceId ?? 1} //1 es id de particular 
+                      onChange={(e) => {setSelectedHealthInsuranceId(Number(e.target.value))}}
+                      required
+                    >
+                      {healthInsurances.map(g => (
+                        <option key={g.id} value={g.id}>
+                          Id: {g.id}, {g.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </>
+            )}
          
             {/* CTA */}
-            <div className="div-4">
-              <button type="submit" className="btn-primary">Crear cuenta</button>
-            </div>
+              <div className="div-4">
+                <button type="submit" className="btn-primary">Crear cuenta</button>
+              </div>
 
-          {/* mensajes generales */}
-          {message && (
-            <div
-              role="alert"
-              style={{
-                marginTop: 12,
-                color: isError ? "#d32f2f" : "#2e7d32",
-                fontSize: 14,
-              }}
-            >
-              {message}
-            </div>
-          )}
-
-          </form>
+            </form>
         </div>
+        {/* ===== TOAST ===== */}
+        {toast && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            onClose={() => setToast(null)}
+          />
+      )}
     </main>
   );
-  } 
+} 
 

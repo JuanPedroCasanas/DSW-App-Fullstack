@@ -276,7 +276,7 @@ class PatientController {
                 appointment.status = AppointmentStatus_1.AppointmentStatus.Canceled;
             }
             await em.flush();
-            return res.status(200).json((0, safeSerialize_1.safeSerialize)(patient));
+            return res.status(200).json({ message: 'Paciente dado de baja correctamente: ', patient: (0, safeSerialize_1.safeSerialize)(patient) });
         }
         catch (error) {
             console.error(error);
