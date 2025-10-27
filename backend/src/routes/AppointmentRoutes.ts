@@ -14,6 +14,10 @@ router.get('/get/:id', AppointmentController.getAppointment);
 router.get('/getAvailableAppointmentsByProfessional/:id', AppointmentController.getAvailableAppointmentsByProfessional);
 router.get('/getScheduledAppointments', AppointmentController.getScheduledAppointments);
 
+// funciona: /getAppointmentByStatus?status=scheduled y todos los otros estados que tiene turno
+// lo dejo acá separado del getALl por las dudas
+router.get('/getAppointmentsByStatus', AppointmentController.getAppointmentsByStatus);
+
 router.get('/getAppointmentsByPatient/:id', AppointmentController.getAppointmentsByPatient);
 
 export default router;

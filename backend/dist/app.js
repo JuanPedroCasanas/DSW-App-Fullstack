@@ -27,6 +27,16 @@ const UserRoutes_1 = __importDefault(require("./routes/UserRoutes"));
 const HealthInsuranceRoutes_1 = __importDefault(require("./routes/HealthInsuranceRoutes"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const testCode_1 = require("./testCode");
+// para evitar conversion de fechas UTC
+Date.prototype.toJSON = function () {
+    const year = this.getFullYear();
+    const month = String(this.getMonth() + 1).padStart(2, '0');
+    const day = String(this.getDate()).padStart(2, '0');
+    const hours = String(this.getHours()).padStart(2, '0');
+    const minutes = String(this.getMinutes()).padStart(2, '0');
+    const seconds = String(this.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+};
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cookie_parser_1.default)());

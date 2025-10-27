@@ -205,7 +205,7 @@ export class AppointmentController {
     try {
         const em = await getORM().em.fork();
         const appointments = await em.find(Appointment, { status : AppointmentStatus.Available});
-        return res.json(appointments);
+        return res.status(200).json(appointments);
 
     } catch (error) {
         console.error(error);
@@ -293,12 +293,57 @@ export class AppointmentController {
     static async getScheduledAppointments(req: Request, res: Response) {
     try {
         const em = await getORM().em.fork();
-        const appointments = await em.find(Appointment, { status : AppointmentStatus.Scheduled});
-        return res.json(appointments);
+        const appointments = await em.find(Appointment, { status : AppointmentStatus.Scheduled }, { populate: ['patient', 'professional', 'legalGuardian', 'healthInsurance'] });
+
+        return res.status(200).json(safeSerialize(appointments));
 
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Error al buscar los turnos' });
     }
 }
+
+    static async getAppointmentsByStatus(req: Request, res: Response) {
+
+        let status: string;
+
+        const ALLOWED_STATUSES = new Set<string>(Object.values(AppointmentStatus));
+
+        try {
+            const em = await getORM().em.fork();
+
+            // por las dudas se convierte
+            const raw = (req.query.status ?? '').toString().trim();
+            const status = raw.toLowerCase();
+
+            let whereCondition: Record<string, any> = {};
+            
+            if (raw === '') {
+                // sin filtro -> traer todos
+                whereCondition = {};
+            } 
+             else if (ALLOWED_STATUSES.has(status)) {
+                whereCondition = { status };
+            } 
+             else { // filtro no valido
+                return res.status(400).json({
+                message: `El parámetro 'appointmentStatus' no es válido.`,
+                allowed: Array.from(ALLOWED_STATUSES),
+                received: raw,
+                });
+            }
+
+           // const whereCondition = (appointmentStatus) ? {} : {status: true}; lo dejo por las dudas acá
+            const appointments = await em.find(Appointment, whereCondition,  { 
+                populate: ['patient', 'professional', 'legalGuardian', 'healthInsurance'] }
+
+            );
+
+            return res.status(200).json(safeSerialize(appointments));
+
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Error al buscar los profesionales' });
+        }
+    }
 }
