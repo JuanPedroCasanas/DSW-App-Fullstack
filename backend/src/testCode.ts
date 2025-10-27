@@ -42,9 +42,9 @@ export const testCode = async () => {
 
     let req = new FakeRequest();
 
-    req.params = {id: 1}
+    req.body = {idProfessional: 1, idHealthInsurance: 2}
     let res = new FakeResponse();
-    //UserController.getAll(req as any, res as any);
+    ProfessionalController.allowHealthInsurance(req as any, res as any);
 }
 
     

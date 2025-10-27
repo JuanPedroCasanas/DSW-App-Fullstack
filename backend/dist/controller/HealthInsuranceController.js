@@ -104,6 +104,14 @@ class HealthInsuranceController {
     }
     static async getHealthInsuranceByProfessional(req, res) {
         const idProfessional = Number(req.params.id);
+        let includeInactive;
+        if (req.query.includeInactive === undefined) {
+            includeInactive = true;
+        }
+        else {
+            includeInactive = req.query.includeInactive === 'true';
+            // true si el string es 'true', false si es cualquier otra cosa
+        }
         if (!idProfessional) {
             return res.status(400).json({ message: 'Se requiere el id de profesional para buscar las obras sociales' });
         }
@@ -114,7 +122,10 @@ class HealthInsuranceController {
                 throw new BaseHttpError_1.NotFoundError('profesional');
             }
             await professional.healthInsurances.init();
-            const healthInsurances = professional.healthInsurances.getItems();
+            let healthInsurances = professional.healthInsurances.getItems();
+            if (!includeInactive) {
+                healthInsurances = healthInsurances.filter(insurance => insurance.isActive);
+            }
             return res.status(200).json((0, safeSerialize_1.safeSerialize)(healthInsurances));
         }
         catch (error) {
@@ -122,7 +133,9 @@ class HealthInsuranceController {
             if (error instanceof BaseHttpError_1.BaseHttpError) {
                 return res.status(error.status).json(error.toJSON());
             }
-            return res.status(500).json({ message: 'Error al buscar obras sociales del profesional' });
+            else {
+                return res.status(500).json({ message: 'Error al buscar obras sociales del profesional' });
+            }
         }
     }
     static async deleteHealthInsurance(req, res) {

@@ -104,7 +104,7 @@ export default function EditProfile() {
   //Especialidad
   const [occupationName, setOccupationName] = useState("");
   //OS
-  const[healthInsurances, setHealthInsurances] = useState<HealthInsurance[]>([]);
+  const [healthInsurances, setHealthInsurances] = useState<HealthInsurance[]>([]);
   const [selectedHealthInsuranceId, setSelectedHealthInsuranceId] = useState<number | null>(null);
 
   //Toast

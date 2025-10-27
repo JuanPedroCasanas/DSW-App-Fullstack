@@ -4,7 +4,7 @@ import { Professional } from '../model/entities/Professional';
 import { Occupation } from '../model/entities/Occupation'; 
 import { createUser } from '../services/UserCreationService';
 import { User } from '../model/entities/User';
-import { BaseHttpError, NotFoundError } from '../model/errors/BaseHttpError';
+import { BaseHttpError, EntityAlreadyExistsError, NotFoundError } from '../model/errors/BaseHttpError';
 import { AppointmentStatus } from '../model/enums/AppointmentStatus';
 import { ModuleStatus } from '../model/enums/ModuleStatus';
 import { HealthInsurance } from '../model/entities/HealthInsurance';
@@ -114,6 +114,8 @@ export class ProfessionalController {
     static async allowHealthInsurance(req: Request, res: Response) {
         const { idProfessional, idHealthInsurance } = req.body;
 
+
+
         if(!idProfessional) {
             return res.status(400).json({message:'Se requiere la Id del profesional'});
         }
@@ -122,7 +124,7 @@ export class ProfessionalController {
         }
         try {
             const em = await getORM().em.fork();
-            const professional = await em.findOne(Professional, { id : idProfessional });
+            const professional = await em.findOne(Professional, { id : idProfessional }, {populate: ["healthInsurances"]});
             if(!professional || !professional?.isActive) {
                 throw new NotFoundError('Profesional');
             }
@@ -130,12 +132,15 @@ export class ProfessionalController {
             if(!healthInsurance) {
                 throw new NotFoundError('Obra Social');
             }
+            if(professional.healthInsurances.contains(healthInsurance)) {
+                throw new EntityAlreadyExistsError("Obra social");
+            }
 
             professional.healthInsurances.add(healthInsurance);
 
             em.flush();
 
-            return res.status(201).json({ message: 'Se agrego correctamente la obra social al profesional ', healthInsurance });
+            return res.status(201).json({ message: `Se agrego correctamente la obra social ${healthInsurance.name} al profesional `, professional: safeSerialize(professional) });
 
         } catch (error) {
             console.error(error);
@@ -159,11 +164,12 @@ export class ProfessionalController {
         }
         try {
             const em = await getORM().em.fork();
-            const professional = await em.findOne(Professional, { id : idProfessional });
+            const professional = await em.findOne(Professional, { id : idProfessional }, {populate: ["healthInsurances"]});
             if(!professional || !professional?.isActive) {
                 throw new NotFoundError('Profesional');
             }
             const healthInsurance = await em.findOne(HealthInsurance, { id : idHealthInsurance });
+
             if(!healthInsurance) {
                 throw new NotFoundError('Obra Social');
             }
@@ -176,7 +182,7 @@ export class ProfessionalController {
 
             em.flush();
 
-            return res.status(201).json({ message: 'Se elimino correctamente la obra social al profesional ', healthInsurance });
+            return res.status(201).json({ message: `Se elimino correctamente  la obra social ${healthInsurance.name} al profesional: `, professional: safeSerialize(professional) });
 
         } catch (error) {
             console.error(error);
@@ -234,6 +240,29 @@ export class ProfessionalController {
             return res.status(500).json({ message: 'Error al buscar los profesionales' });
         }
     }
+
+    static async getProfessionalsIncludeHealthInsurances(req: Request, res: Response) {
+        let includeInactive:boolean;
+        if (req.query.includeInactive === undefined) {
+            includeInactive = true;
+        } else {
+            includeInactive = req.query.includeInactive === 'true'; 
+            // true si el string es 'true', false si es cualquier otra cosa
+        }
+        try {
+            const em = await getORM().em.fork();
+            const whereCondition = (includeInactive) ? {} : {isActive: true};
+            const professionals = await em.find(Professional, whereCondition, {
+                populate: ["occupation", "healthInsurances"],
+            });
+            return res.status(200).json(safeSerialize(professionals));
+
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Error al buscar los profesionales' });
+        }
+    }
+
 
     static async getProfessionalsByOccupation(req: Request, res: Response) {
         const idOccupation = Number(req.params.id);

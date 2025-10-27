@@ -14,6 +14,7 @@ router.post('/forbidHealthInsurance', ProfessionalController_1.ProfessionalContr
 //Puede incluir /getAll?includeInactive=false para solo obtener profesionales activos
 //(Por defecto incluye profesionales inactivos)
 router.get('/getAll', ProfessionalController_1.ProfessionalController.getProfessionals);
+router.get('/getAllWithHealthInsurances', ProfessionalController_1.ProfessionalController.getProfessionalsIncludeHealthInsurances);
 router.get('/get/:id', ProfessionalController_1.ProfessionalController.getProfessional);
 //Puede incluir /getAll?includeInactive=false para solo obtener profesionales activos
 //(Por defecto incluye profesionales inactivos)

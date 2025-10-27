@@ -24,6 +24,12 @@ export class NotFoundError extends BaseHttpError {
   }
 }
 
+export class EntityAlreadyExistsError extends BaseHttpError {
+    constructor(resource: string) {
+    super(409, 'ENTITY_ALREADY_EXISTS', `El recurso '${resource}' ya fue agregado con anterioridad`);
+  }
+}
+
 export class EntityDisabledError extends BaseHttpError {
   constructor(resource: string, id: string) {
     super(403, 'ENTITY_DISABLED', `El recurso '${resource}' de id '${id}' se encuentra deshabilitado`);

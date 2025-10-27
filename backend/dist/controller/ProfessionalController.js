@@ -105,7 +105,7 @@ class ProfessionalController {
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const professional = await em.findOne(Professional_1.Professional, { id: idProfessional });
+            const professional = await em.findOne(Professional_1.Professional, { id: idProfessional }, { populate: ["healthInsurances"] });
             if (!professional || !professional?.isActive) {
                 throw new BaseHttpError_1.NotFoundError('Profesional');
             }
@@ -113,9 +113,12 @@ class ProfessionalController {
             if (!healthInsurance) {
                 throw new BaseHttpError_1.NotFoundError('Obra Social');
             }
+            if (professional.healthInsurances.contains(healthInsurance)) {
+                throw new BaseHttpError_1.EntityAlreadyExistsError("Obra social");
+            }
             professional.healthInsurances.add(healthInsurance);
             em.flush();
-            return res.status(201).json({ message: 'Se agrego correctamente la obra social al profesional ', healthInsurance });
+            return res.status(201).json({ message: `Se agrego correctamente la obra social ${healthInsurance.name} al profesional `, professional: (0, safeSerialize_1.safeSerialize)(professional) });
         }
         catch (error) {
             console.error(error);
@@ -137,7 +140,7 @@ class ProfessionalController {
         }
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const professional = await em.findOne(Professional_1.Professional, { id: idProfessional });
+            const professional = await em.findOne(Professional_1.Professional, { id: idProfessional }, { populate: ["healthInsurances"] });
             if (!professional || !professional?.isActive) {
                 throw new BaseHttpError_1.NotFoundError('Profesional');
             }
@@ -150,7 +153,7 @@ class ProfessionalController {
             }
             professional.healthInsurances.remove(healthInsurance);
             em.flush();
-            return res.status(201).json({ message: 'Se elimino correctamente la obra social al profesional ', healthInsurance });
+            return res.status(201).json({ message: `Se elimino correctamente  la obra social ${healthInsurance.name} al profesional: `, professional: (0, safeSerialize_1.safeSerialize)(professional) });
         }
         catch (error) {
             console.error(error);
@@ -199,6 +202,28 @@ class ProfessionalController {
             const whereCondition = (includeInactive) ? {} : { isActive: true };
             const professionals = await em.find(Professional_1.Professional, whereCondition, {
                 populate: ["occupation"], // Para devolver el objeto entero de occupation al front
+            });
+            return res.status(200).json((0, safeSerialize_1.safeSerialize)(professionals));
+        }
+        catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Error al buscar los profesionales' });
+        }
+    }
+    static async getProfessionalsIncludeHealthInsurances(req, res) {
+        let includeInactive;
+        if (req.query.includeInactive === undefined) {
+            includeInactive = true;
+        }
+        else {
+            includeInactive = req.query.includeInactive === 'true';
+            // true si el string es 'true', false si es cualquier otra cosa
+        }
+        try {
+            const em = await (0, db_1.getORM)().em.fork();
+            const whereCondition = (includeInactive) ? {} : { isActive: true };
+            const professionals = await em.find(Professional_1.Professional, whereCondition, {
+                populate: ["occupation", "healthInsurances"],
             });
             return res.status(200).json((0, safeSerialize_1.safeSerialize)(professionals));
         }
