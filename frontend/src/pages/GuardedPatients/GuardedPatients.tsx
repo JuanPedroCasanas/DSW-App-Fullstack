@@ -4,7 +4,6 @@ import { LegalGuardian, Patient } from "./guardedPatientsTypes";
 import { Toast } from "@/components/Toast";
 
 // ---- Utils ----
-const uid = () => Math.random().toString(36).slice(2, 10);
 const formatDate = (iso: string) => {
   if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso || "";
   const [y, m, d] = iso.split("-");
@@ -424,8 +423,8 @@ export default function GuardedPatients() {
                 <h2 id="gp-add-title">Confirmar nuevo paciente</h2>
                 <p id="gp-add-desc">Revisá que los datos sean correctos.</p>
                 <ul className="gp-summary">
-                  <li><strong>firstName:</strong> {addForm.firstName}</li>
-                  <li><strong>lastName:</strong> {addForm.lastName}</li>
+                  <li><strong>Nombre:</strong> {addForm.firstName}</li>
+                  <li><strong>Apellido:</strong> {addForm.lastName}</li>
                   <li><strong>Fecha de nacimiento:</strong> {formatDate(addForm.birthdate || "")}</li>
                 </ul>
                 <div className="gp-modal-actions">
@@ -512,8 +511,8 @@ export default function GuardedPatients() {
                 <h2 id="gp-edit-title">Confirmar cambios</h2>
                 <p id="gp-edit-desc">Verificá los datos editados.</p>
                 <ul className="gp-summary">
-                  <li><strong>firstName:</strong> {editForm.firstName}</li>
-                  <li><strong>lastName:</strong> {editForm.lastName}</li>
+                  <li><strong>Nombre:</strong> {editForm.firstName}</li>
+                  <li><strong>Apellido:</strong> {editForm.lastName}</li>
                   <li><strong>Fecha de nacimiento:</strong> {formatDate(editForm.birthdate || "")}</li>
                 </ul>
                 <div className="gp-modal-actions">

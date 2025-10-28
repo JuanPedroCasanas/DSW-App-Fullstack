@@ -4,9 +4,8 @@ export default function PatientPortal() {
   return (
     <main className="home">
       <h2>Portal Paciente</h2>
-      <section className="home-hero">
 
-        {/* mobile-first */}
+
         <NavLink
           to="/appointment-schedule"
           className="cta-primary"
@@ -22,8 +21,8 @@ export default function PatientPortal() {
         >
           Editar perfil
         </NavLink>
-        
-      </section>
+  
+
     </main>
   );
 }

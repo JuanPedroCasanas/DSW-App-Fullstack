@@ -116,12 +116,12 @@ export const startingCode = async () => {
 
     await OccupationController.addOccupation(req as any, res as any);
 
-
+/*
     //PROFESIONALES
     req = new FakeRequest({
        firstName: 'Pablo',
        lastName: 'Marmol',
-       telephone: '1111',
+       telephone: '3413678909',
        mail: 'kukatrap@gmail.com',
        password: UNI_PASSWORD,
        occupationId: 1
@@ -222,4 +222,5 @@ export const startingCode = async () => {
     });
 
     await AppointmentController.assignAppointment(req as any, res as any);
+    */
 }

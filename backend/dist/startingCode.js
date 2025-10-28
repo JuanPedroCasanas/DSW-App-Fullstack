@@ -1,17 +1,9 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.startingCode = void 0;
-const AppointmentController_1 = require("./controller/AppointmentController");
 const ConsultingRoomController_1 = require("./controller/ConsultingRoomController");
 const HealthInsuranceController_1 = require("./controller/HealthInsuranceController");
-const LegalGuardianController_1 = require("./controller/LegalGuardianController");
-const ModuleController_1 = __importDefault(require("./controller/ModuleController"));
 const OccupationController_1 = require("./controller/OccupationController");
-const PatientController_1 = require("./controller/PatientController");
-const ProfessionalController_1 = require("./controller/ProfessionalController");
 const ModuleType_1 = require("./model/entities/ModuleType");
 const db_1 = require("./orm/db");
 const startingCode = async () => {
@@ -94,94 +86,113 @@ const startingCode = async () => {
         name: 'Psicologo'
     });
     await OccupationController_1.OccupationController.addOccupation(req, res);
-    //PROFESIONALES
-    req = new FakeRequest({
-        firstName: 'Pablo',
-        lastName: 'Marmol',
-        telephone: '1111',
-        mail: 'kukatrap@gmail.com',
-        password: UNI_PASSWORD,
-        occupationId: 1
-    });
-    await ProfessionalController_1.ProfessionalController.addProfessional(req, res);
-    req = new FakeRequest({
-        firstName: 'Lucas',
-        lastName: 'Luna',
-        telephone: '1111',
-        mail: 'lucas_luna@gmail.com',
-        password: UNI_PASSWORD,
-        occupationId: 1
-    });
-    await ProfessionalController_1.ProfessionalController.addProfessional(req, res);
-    req = new FakeRequest({
-        firstName: 'Joel',
-        lastName: 'Arnold',
-        telephone: '1111',
-        mail: 'joel@gmail.com',
-        password: UNI_PASSWORD,
-        occupationId: 1
-    });
-    await ProfessionalController_1.ProfessionalController.addProfessional(req, res);
-    req = new FakeRequest({
-        firstName: 'Pedro',
-        lastName: 'Picapiedra',
-        telephone: '1111',
-        mail: 'pepe@gmail.com',
-        password: UNI_PASSWORD,
-        occupationId: 2
-    });
-    await ProfessionalController_1.ProfessionalController.addProfessional(req, res);
-    //MODULOS
-    req = new FakeRequest({
-        day: 1, startTime: '9:00', endTime: '18:00', validMonth: 10, validYear: 2025, idProfessional: 1, idConsultingRoom: 1
-    });
-    await ModuleController_1.default.addModules(req, res);
-    req = new FakeRequest({
-        day: 1, startTime: '18:00', endTime: '19:00', validMonth: 10, validYear: 2025, idProfessional: 2, idConsultingRoom: 1
-    });
-    await ModuleController_1.default.addModules(req, res);
-    req = new FakeRequest({
-        day: 1, startTime: '13:00', endTime: '15:00', validMonth: 10, validYear: 2025, idProfessional: 2, idConsultingRoom: 2
-    });
-    await ModuleController_1.default.addModules(req, res);
-    //RESPONSABLE LEGAL
-    req = new FakeRequest({
-        "firstName": "Moncho",
-        "lastName": "Lopez",
-        "birthdate": "1990-07-21",
-        "password": UNI_PASSWORD,
-        "telephone": "3333333",
-        "mail": "monchius@example.com",
-        "idHealthInsurance": 2
-    });
-    await LegalGuardianController_1.LegalGuardianController.addLegalGuardian(req, res);
-    //PACIENTES
-    req = new FakeRequest({
-        "firstName": "Lucía",
-        "lastName": "Fernández",
-        "birthdate": "1993-07-21",
-        "password": UNI_PASSWORD,
-        "telephone": "+54 9 11 4567 8920",
-        "mail": "lucia.fernandez@example.com",
-        "idHealthInsurance": 3
-    });
-    await PatientController_1.PatientController.addIndependentPatient(req, res);
-    req = new FakeRequest({
-        "firstName": "Mini",
-        "lastName": "ME",
-        "birthdate": "2010-07-21",
-        "idLegalGuardian": 1
-    });
-    await PatientController_1.PatientController.addDependentPatient(req, res);
-    //Turnos
-    req = new FakeRequest({
-        idAppointment: 1, idPatient: 1
-    });
-    await AppointmentController_1.AppointmentController.assignAppointment(req, res);
-    req = new FakeRequest({
-        idAppointment: 40, idPatient: 2
-    });
-    await AppointmentController_1.AppointmentController.assignAppointment(req, res);
+    /*
+        //PROFESIONALES
+        req = new FakeRequest({
+           firstName: 'Pablo',
+           lastName: 'Marmol',
+           telephone: '3413678909',
+           mail: 'kukatrap@gmail.com',
+           password: UNI_PASSWORD,
+           occupationId: 1
+        });
+        await ProfessionalController.addProfessional(req as any, res as any);
+    
+        req = new FakeRequest({
+           firstName: 'Lucas',
+           lastName: 'Luna',
+           telephone: '1111',
+           mail: 'lucas_luna@gmail.com',
+           password: UNI_PASSWORD,
+           occupationId: 1
+        });
+        await ProfessionalController.addProfessional(req as any, res as any);
+    
+        req = new FakeRequest({
+           firstName: 'Joel',
+           lastName: 'Arnold',
+           telephone: '1111',
+           mail: 'joel@gmail.com',
+           password: UNI_PASSWORD,
+           occupationId: 1
+        });
+        await ProfessionalController.addProfessional(req as any, res as any);
+    
+        req = new FakeRequest({
+           firstName: 'Pedro',
+           lastName: 'Picapiedra',
+           telephone: '1111',
+           mail: 'pepe@gmail.com',
+           password: UNI_PASSWORD,
+           occupationId: 2
+        });
+        await ProfessionalController.addProfessional(req as any, res as any);
+    
+        //MODULOS
+        req = new FakeRequest({
+            day: 1, startTime: '9:00', endTime: '18:00', validMonth: 10, validYear: 2025, idProfessional: 1, idConsultingRoom: 1
+        });
+        
+        await ModuleController.addModules(req as any, res as any);
+        req = new FakeRequest({
+            day: 1, startTime: '18:00', endTime: '19:00', validMonth: 10, validYear: 2025, idProfessional: 2, idConsultingRoom: 1
+        });
+        
+        await ModuleController.addModules(req as any, res as any);
+        req = new FakeRequest({
+            day: 1, startTime: '13:00', endTime: '15:00', validMonth: 10, validYear: 2025, idProfessional: 2, idConsultingRoom: 2
+        });
+        
+        await ModuleController.addModules(req as any, res as any);
+    
+        //RESPONSABLE LEGAL
+        req = new FakeRequest({
+            "firstName": "Moncho",
+            "lastName": "Lopez",
+            "birthdate": "1990-07-21",
+            "password": UNI_PASSWORD,
+            "telephone": "3333333",
+            "mail": "monchius@example.com",
+            "idHealthInsurance": 2
+        });
+    
+        await LegalGuardianController.addLegalGuardian(req as any, res as any);
+    
+        //PACIENTES
+        req = new FakeRequest({
+            "firstName": "Lucía",
+            "lastName": "Fernández",
+            "birthdate": "1993-07-21",
+            "password": UNI_PASSWORD,
+            "telephone": "+54 9 11 4567 8920",
+            "mail": "lucia.fernandez@example.com",
+            "idHealthInsurance": 3
+        });
+    
+        await PatientController.addIndependentPatient(req as any, res as any);
+    
+        req = new FakeRequest({
+            "firstName": "Mini",
+            "lastName": "ME",
+            "birthdate": "2010-07-21",
+            "idLegalGuardian": 1
+        });
+    
+        await PatientController.addDependentPatient(req as any, res as any);
+    
+        //Turnos
+        req = new FakeRequest({
+            idAppointment: 1, idPatient: 1
+        });
+    
+        await AppointmentController.assignAppointment(req as any, res as any);
+    
+        req = new FakeRequest({
+            idAppointment: 40, idPatient: 2
+        });
+    
+        await AppointmentController.assignAppointment(req as any, res as any);
+        */
 };
 exports.startingCode = startingCode;
 //# sourceMappingURL=startingCode.js.map

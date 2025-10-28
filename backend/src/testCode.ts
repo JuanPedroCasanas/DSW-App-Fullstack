@@ -13,6 +13,7 @@ import { getORM } from "./orm/db";
 
 export const testCode = async () => {
 
+        /*
     const UNI_PASSWORD = '123';
     let em = await getORM().em.fork();
 
@@ -45,6 +46,7 @@ export const testCode = async () => {
     req.body = {idProfessional: 1, idHealthInsurance: 2}
     let res = new FakeResponse();
     ProfessionalController.allowHealthInsurance(req as any, res as any);
+    */
 }
 
     
