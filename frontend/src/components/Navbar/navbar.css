@@ -1,81 +1,84 @@
-/* Este archivo asume variables globales en index.css:
-:root {
-  --variable-collection-light-grey: rgba(246, 246, 246, 1);
-  --variable-collection-primary:     rgba(59, 154, 184, 1);
-  --variable-collection-white:       rgba(255, 255, 255, 1);
-  --nav-h: 90px;
-}
-*/
+/* ==========================================================================
+   NAVBAR (Mobile-first)
+   Asume variables globales en :root (index.css):
+   --variable-collection-light-grey, --variable-collection-primary,
+   --variable-collection-white, --nav-h
+   ========================================================================== */
 
-/* Barra fija: arriba, ancho completo */
+/* Reset mínimo para enlaces en la nav */
+.nav a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* --- Contenedor fijo superior --- */
 .nav {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
 
-  height: var(--nav-h);
-  background: var(--variable-collection-white);
-  color: #111; /* color de texto general */
-  border-bottom: 1px solid #e2e2e2;
+  height: var(--nav-h, 64px); /* móvil: un poco más compacta */
+  background: var(--variable-collection-white, #fff);
+  color: #111;
 
+  border-bottom: 1px solid #e2e2e2;
   z-index: 1000;
-  transition: box-shadow .2s;
+  transition: box-shadow .2s ease;
+
+  /* safe areas (iOS notch) */
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
 }
 
-/* Sombra cuando scrollea */
 .nav--scrolled {
   box-shadow: 0 10px 30px rgba(0,0,0,.06);
 }
 
+/* --- Wrapper interno --- */
 .nav__inner {
   height: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 16px;
-
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: .75rem;
 }
 
-/* Marca */
+/* --- Brand --- */
 .nav__brand {
   display: inline-flex;
   align-items: center;
   gap: .6rem;
   font-weight: 700;
-  color: inherit;
-  text-decoration: none;
 }
 
-/* Nuevo: estilos del logo */
 .nav__logo {
   display: inline-block;
-  height: 32px;     /* ajustable a tu gusto */
-  width: auto;      /* mantiene proporción de la imagen */
-  border-radius: 6px;         /* opcional, sacalo si no querés esquinas redondeadas */
-  box-shadow: inset 0 0 0 2px rgba(0,0,0,.04); /* opcional, similar al “dot” anterior */
+  height: 28px; /* móvil: un toque más chico */
+  width: auto;
+  border-radius: 6px; /* opcional */
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,.04); /* opcional */
 }
-
 
 .nav__title {
   font-size: 1rem;
+  line-height: 1;
 }
 
-/* Botón hamburguesa (mobile) */
+/* --- Toggle (hamburguesa) - visible en mobile por defecto --- */
 .nav__toggle {
   margin-left: auto;
-  width: 42px;
-  height: 42px;
+  width: 44px;              /* toque accesible */
+  height: 44px;             /* toque accesible */
   border: 1px solid rgba(0,0,0,.08);
-  background: var(--variable-collection-light-grey);
+  background: var(--variable-collection-light-grey, #f6f6f6);
   border-radius: 10px;
-
-  display: flex;
+  display: inline-flex;
   flex-direction: column;
   justify-content: center;
   gap: 5px;
+  cursor: pointer;
 }
 
 .nav__toggle-bar {
@@ -83,38 +86,37 @@
   width: 20px;
   background: currentColor;
   border-radius: 2px;
-  transition: .2s;
+  transition: transform .2s ease, opacity .2s ease;
   align-self: center;
 }
 
-/* Efecto “X” al abrir */
-.x1 { transform: translateY(7px) rotate(45deg); }
-.x2 { opacity: 0; }
-.x3 { transform: translateY(-7px) rotate(-45deg); }
+/* Efecto “X” cuando el menú está abierto */
+.nav__toggle.is-open .nav__toggle-bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav__toggle.is-open .nav__toggle-bar:nth-child(2) { opacity: 0; }
+.nav__toggle.is-open .nav__toggle-bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-/* Menú desplegable (mobile) */
+/* --- Menú desplegable (mobile) --- */
 .nav__menu {
   position: absolute;
   inset-inline: 0;
   top: calc(100% + 6px);
-  background: var(--variable-collection-white);
-
+  background: var(--variable-collection-white, #fff);
   border: 1px solid rgba(0,0,0,.08);
   border-radius: 12px;
-
   margin: 0 1rem;
   padding: .5rem;
-
-  display: none;
+  display: none;            /* oculto por defecto en mobile */
+  box-shadow: 0 8px 24px rgba(0,0,0,.08);
 }
 
-.nav__menu.is-open { display: block; }
+.nav__menu.is-open {
+  display: block;
+}
 
 .nav__list {
   list-style: none;
   margin: 0;
   padding: 0;
-
   display: grid;
   gap: 4px;
 }
@@ -123,29 +125,86 @@
   display: block;
   padding: .65rem .75rem;
   border-radius: 10px;
-  color: inherit;
-  text-decoration: none;
 }
 
-/* Fallback + versión con color-mix usando tu --primary */
+/* Hover/focus states (usando tu --primary) */
 .nav__link:hover {
-  background: rgba(59, 154, 184, .08);
   background: color-mix(in srgb, var(--variable-collection-primary) 12%, transparent);
 }
-
 .nav__link.is-active {
-  background: rgba(59, 154, 184, .15);
   background: color-mix(in srgb, var(--variable-collection-primary) 18%, transparent);
   color: var(--variable-collection-primary);
 }
 
-/* Desktop */
+/* CTA: en mobile va DENTRO del menú (no el de la derecha) */
+.nav__cta { display: none; }            /* contenedor del CTA de desktop */
+.nav__cta--mobile { margin-top: .25rem; }
+
+.nav__cta .item-link,
+.nav__menu .item-link--as-link {
+  align-items: center;
+  background-color: var(--variable-collection-primary);
+  border-radius: 6px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  padding: 14px 12px;
+  width: 100%;               /* mobile: ocupar ancho del menú */
+  color: #fff;
+  text-decoration: none;
+  box-shadow: 0 1px 0 rgba(0,0,0,.02) inset;
+  transition: filter .15s ease, transform .02s ease;
+}
+.nav__cta .item-link:hover,
+.nav__menu .item-link--as-link:hover { filter: brightness(0.97); }
+.nav__cta .item-link:active,
+.nav__menu .item-link--as-link:active { transform: translateY(1px); }
+.nav__cta .text-wrapper,
+.nav__menu .item-link--as-link .text-wrapper {
+  color: #fff;
+  display: flex;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 18px;
+  white-space: nowrap;
+  width: fit-content;
+}
+
+/* --- Accesibilidad: foco visible --- */
+.nav__toggle:focus-visible,
+.nav__link:focus-visible,
+.nav__menu .item-link--as-link:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--variable-collection-primary) 40%, transparent);
+  outline-offset: 2px;
+}
+
+/* --- Motion reducido --- */
+@media (prefers-reduced-motion: reduce) {
+  .nav,
+  .nav__toggle-bar {
+    transition: none !important;
+  }
+}
+
+/* ==========================================================================
+   BREAKPOINTS (>=768px) - Mejora progresiva para tablet/desktop
+   ========================================================================== */
 @media (min-width: 768px) {
+  .nav { height: var(--nav-h, 90px); }
+
+  .nav__inner {
+    padding-left: 0;  /* ya tenemos safe areas en .nav */
+    padding-right: 0;
+    gap: 1rem;
+  }
+
+  /* El toggle desaparece en desktop */
   .nav__toggle { display: none; }
 
+  /* El menú pasa a estar en línea, sin tarjeta */
   .nav__menu {
     position: static;
-    display: flex !important;
+    display: block !important;   /* visible siempre en >=768px */
     background: transparent;
     border: none;
     box-shadow: none;
@@ -156,64 +215,16 @@
   .nav__list {
     display: flex;
     gap: .25rem;
+    align-items: center;
   }
-}
 
+  .nav__link { padding: .65rem .6rem; }
 
-.nav__cta {
-  margin-left: auto;            /* empuja el CTA a la derecha */
-  display: none;                /* oculto por defecto (mobile) */
-}
-
-/* CTA dentro del menú (mobile): visible por defecto */
-.nav__cta--mobile {
-  margin-top: .25rem;
-}
-
-@media (min-width: 768px) {
-  .nav__cta {
-    display: inline-flex;       /* mostrar CTA en desktop */
+  /* CTA a la derecha, fuera del menú */
+  .nav__cta { 
+    margin-left: auto;
+    display: inline-flex;
   }
-  .nav__cta--mobile {
-    display: none;              /* ocultar CTA del menú en desktop */
-  }
+  .nav__cta .item-link { width: 215px; }  /* como tu diseño */
+  .nav__cta--mobile { display: none; }
 }
-
-/* Estilos del botón según Anima/Figma */
-.nav__cta .item-link,
-.nav__menu .item-link--as-link {
-  align-items: center;
-  background-color: var(--variable-collection-primary); /* de index.css */
-  border-radius: 6px;
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  padding: 14px 12px;
-  width: 215px;                         /* podés ajustar si querés */
-  color: #fff;
-  text-decoration: none;
-  box-shadow: 0 1px 0 rgba(0,0,0,.02) inset;
-  transition: filter .15s ease, transform .02s ease;
-}
-
-.nav__cta .item-link:hover,
-.nav__menu .item-link--as-link:hover {
-  filter: brightness(0.97);
-}
-
-.nav__cta .item-link:active,
-.nav__menu .item-link--as-link:active {
-  transform: translateY(1px);
-}
-
-.nav__cta .text-wrapper,
-.nav__menu .item-link--as-link .text-wrapper {
-  color: #ffffff;
-  display: flex;
-  font-size: 16px;
-  font-weight: 500;     /* Inter-Medium ~ 500 */
-  line-height: 18px;
-  white-space: nowrap;
-  width: fit-content;
-}
-

@@ -286,9 +286,12 @@ export default class ModuleController  {
     static async getModules(req: Request, res: Response) {
             try {
                 const em = await getORM().em.fork();
-                const modules = await em.findAll(Module);
+
+                const modules = await em.findAll(Module, {
+                    populate: ["professional", "consultingRoom", "moduleType"],
+                });
+
                 return res.status(200).json(modules);
-    
             } catch (error) {
                 console.error(error);
                 return res.status(500).json({ message: 'Failed to fetch modules' });
