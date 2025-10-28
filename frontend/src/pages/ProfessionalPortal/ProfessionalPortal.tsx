@@ -5,7 +5,6 @@ export default function ProfessionalPortal() {
   return (
     <main className="home">
       <h2>Portal Profesional</h2>
-      <section className="home-hero">
 
         <NavLink
           to="/professional-health-insurances"
@@ -38,8 +37,7 @@ export default function ProfessionalPortal() {
         >
           Listado de turnos
         </NavLink>
-
-      </section>
+        
     </main>
   );
 }
