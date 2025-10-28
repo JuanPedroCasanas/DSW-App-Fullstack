@@ -26,7 +26,6 @@ const LegalGuardianRoutes_1 = __importDefault(require("./routes/LegalGuardianRou
 const UserRoutes_1 = __importDefault(require("./routes/UserRoutes"));
 const HealthInsuranceRoutes_1 = __importDefault(require("./routes/HealthInsuranceRoutes"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
-const testCode_1 = require("./testCode");
 // para evitar conversion de fechas UTC
 Date.prototype.toJSON = function () {
     const year = this.getFullYear();
@@ -70,7 +69,6 @@ async function start() {
     // descomentar estas dos líneas para que la bd se resete
     //await syncSchema(); // ⚠️Don't use this in production - resetea la bddddd
     //await startingCode(); //SACAR EN PRODUCCION
-    await (0, testCode_1.testCode)(); //SACAR EN PRODUCCION
     app.listen(port, () => {
         console.log(`App listening on http://localhost:${port}`);
     });

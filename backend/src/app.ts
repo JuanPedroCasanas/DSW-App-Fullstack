@@ -26,7 +26,6 @@ import UserRoutes from './routes/UserRoutes'
 import HealthInsuranceRoutes from './routes/HealthInsuranceRoutes';
 import { startingCode } from './startingCode';
 import cookieParser from 'cookie-parser';
-import { testCode } from './testCode';
 
 // para evitar conversion de fechas UTC
 Date.prototype.toJSON = function() {
@@ -84,7 +83,6 @@ async function start() {
   // descomentar estas dos líneas para que la bd se resete
   //await syncSchema(); // ⚠️Don't use this in production - resetea la bddddd
   //await startingCode(); //SACAR EN PRODUCCION
-  await testCode(); //SACAR EN PRODUCCION
 
   app.listen(port, () => {
     console.log(`App listening on http://localhost:${port}`);
