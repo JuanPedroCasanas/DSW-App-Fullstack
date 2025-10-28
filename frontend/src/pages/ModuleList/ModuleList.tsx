@@ -1,127 +1,296 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { Toast } from '@/components/Toast';
 import './moduleList.css';
+import type { Module, Professional,  ConsultingRoom } from './moduleList.types';
+import {
+  handleConsultingRoomControllerResponse,
+  handleModuleControllerResponse,
+  handleProfessionalControllerResponse
+} from './moduleListHandleResponses';
+
+// para el nombre completo de profesional
+const fullName = (p?: { firstName?: string; lastName?: string }) =>
+  `${p?.firstName ?? ''} ${p?.lastName ?? ''}`.trim();
+
+// todos los meses -> para pasarlo a una descripcion (en vez de numero)
+const ALL_MONTHS = Array.from({ length: 12 }, (_, i) => String(i + 1));
+
+const monthLabel = (m: string | number): string => {
+  const idx = Number(m) - 1;
+  if (Number.isNaN(idx) || idx < 0 || idx > 11) return '-';
+  const name = new Date(2000, idx, 1).toLocaleString('es-AR', { month: 'long' });
+  return name.charAt(0).toUpperCase() + name.slice(1);
+};
 
 
-// hardcodeados como ejemplo
-const mockConsultorios = [
-  { id: 'c1', nombre: 'Consultorio 1' },
-  { id: 'c2', nombre: 'Consultorio 2' },
-];
-
-const mockModulos = [
-  { id: 'm1', consultorioId: 'c1', profesional: 'Luciana Gómez', tipoModulo: 'Medio módulo', mes: 'Octubre' },
-  { id: 'm2', consultorioId: 'c1', profesional: 'Juan Pérez', tipoModulo: 'Módulo completo', mes: 'Septiembre' },
-  { id: 'm3', consultorioId: 'c2', profesional: 'Marcelo Torres', tipoModulo: 'Sexto de módulo', mes: 'Octubre' },
-];
-
-// meses hardcodeados tambien, seguro dsp se une con el backend
-const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-
-// función principal
 export default function ModuleList() {
-  const [consultorioSeleccionado, setConsultorioSeleccionado] = useState('todos');
-  const [filtros, setFiltros] = useState({
-    profesional: '',
-    tipo: '',
-    mes: '',
+
+  const [modules, setModules] = useState<Module[]>([]);
+  const [consultingRooms, setConsultingRooms] = useState<ConsultingRoom[]>([]);
+  const [professionals, setProfessionals] = useState<Professional[]>([]);
+
+  //const [moduleTypes, setModuleTypes] = useState<ModuleType[]>([]);
+
+
+  const [loading, setLoading] = useState<boolean>(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  // Filtros
+  const [filters, setFilters] = useState<{
+    professionalId: string;
+    moduleTypeId: string;
+    month: string;
+    consultingRoomId: string;
+  }>({
+    professionalId: '',
+    moduleTypeId: '',
+    month: '',
+    consultingRoomId: '',
   });
 
-  const profesionalesUnicos = Array.from(
-    new Set(mockModulos.map((m) => m.profesional))
-  );
+  const handleFilterChange = (
+    field: 'professionalId' | 'moduleTypeId' | 'month' | 'consultingRoomId',
+    value: string
+  ) => setFilters((prev) => ({ ...prev, [field]: value }));
 
-  const tiposModulos = Array.from(
-    new Set(mockModulos.map((m) => m.tipoModulo))
-  );
-
-  const handleConsultorioChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setConsultorioSeleccionado(e.target.value);
+  const clearFilters = () => {
+    setFilters({
+      professionalId: '',
+      moduleTypeId: '',
+      month: '',
+      consultingRoomId: '',
+    });
   };
 
-  const handleFiltroChange = (campo: string, valor: string) => {
-    setFiltros((prev) => ({ ...prev, [campo]: valor }));
+  const getModules = async (): Promise<Module[] | undefined> => {
+    const res = await fetch('http://localhost:2000/Module/getAll');
+    if (!res.ok) {
+      const toastData = await handleModuleControllerResponse(res);
+      setToast(toastData);
+      return;
+    }
+    const data: Module[] = await res.json();
+    return Array.isArray(data) ? (data as Module[]).filter((m) => m?.id != null) : [];
   };
 
-  const modulosFiltrados = mockModulos.filter((modulo) => {
-    const coincideConsultorio = consultorioSeleccionado === 'todos' || modulo.consultorioId === consultorioSeleccionado;
-    const coincideProfesional = filtros.profesional === '' || modulo.profesional === filtros.profesional;
-    const coincideTipo = filtros.tipo === '' || modulo.tipoModulo === filtros.tipo;
-    const coincideMes = filtros.mes === '' || modulo.mes === filtros.mes;
-    return coincideConsultorio && coincideProfesional && coincideTipo && coincideMes;
-  });
+  const getProfessionals = async (): Promise<Professional[] | undefined> => {
+    const res = await fetch('http://localhost:2000/Professional/getAll');
+    if (!res.ok) {
+      const toastData = await handleProfessionalControllerResponse(res);
+      setToast(toastData);
+      return;
+    }
+    const data: Professional[] = await res.json();
+    return Array.isArray(data) ? (data as Professional[]).filter((pr) => pr?.id != null) : [];
+  };
 
-  const consultoriosAMostrar = consultorioSeleccionado === 'todos'
-    ? mockConsultorios
-    : mockConsultorios.filter((c) => c.id === consultorioSeleccionado);
+  const getConsultingRooms = async (): Promise<ConsultingRoom[] | undefined> => {
+    const res = await fetch('http://localhost:2000/ConsultingRoom/getAll');
+    if (!res.ok) {
+      const toastData = await handleConsultingRoomControllerResponse(res);
+      setToast(toastData);
+      return;
+    }
+    const data: ConsultingRoom[] = await res.json();
+    return Array.isArray(data) ? (data as ConsultingRoom[]).filter((c) => c?.id != null) : [];
+  };
+
+    // ESTE NO ANDA ME DI CUENTA QUE NO TIENE CONTROLADOR NI RUTAS...
+  /*const getModuleTypes = async (): Promise<ModuleType[] | undefined> => {
+    const res = await fetch('http://localhost:2000/ModuleType/getAll');
+    if (!res.ok) {
+      const toastData = await handleModuleTypeControllerResponse(res);
+      setToast(toastData);
+      return;
+    }
+    const data: ModuleType[] = await res.json();
+    return Array.isArray(data) ? (data as ModuleType[]).filter((t) => t?.id != null) : [];
+  }; */
+
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const mods = await getModules(); 
+      const crooms = await getConsultingRooms();
+      const profs = await getProfessionals();
+      //const mtypes = await getModuleTypes();
+
+      if (!mods || !crooms || !profs){
+        return;
+      }
+
+      if (mods) setModules(mods);
+      if (crooms) setConsultingRooms(crooms);
+      if (profs) setProfessionals(profs);
+
+      //if (mtypes) setModuleTypes(mtypes);
+      
+    } catch (err) {
+      console.error('Error loading data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  // para traer los tipos d emodulos de los modulos... para no hacer un get
+  const derivedModuleTypes = useMemo(
+    () => Array.from(
+        new Map(
+          modules
+            .filter(m => m.moduleType?.id != null)
+            .map(m => {
+              const id = String(m.moduleType!.id);
+              return [id, m.moduleType?.name ?? `Tipo ${id}`] as const;
+            })
+        ),
+        ([id, name]) => ({ id, name })
+      ).sort((a, b) => a.name.localeCompare(b.name, 'es')),
+    [modules]
+  );
+
+  // filtros
+  const filteredModules = useMemo(() => {
+    return modules.filter((m) => {
+      const matchProfessional =
+        !filters.professionalId || String(m.professional?.id) === filters.professionalId;
+
+      const matchType =
+        !filters.moduleTypeId || String(m.moduleType?.id) === filters.moduleTypeId;
+
+    
+      const moduleMonth = String(Number(m.validMonth));
+      const matchMonth = !filters.month || moduleMonth === filters.month;
+
+      const matchConsultingRoom =
+        !filters.consultingRoomId || String(m.consultingRoom?.id ?? '') === filters.consultingRoomId;
+
+      return matchProfessional && matchType && matchMonth && matchConsultingRoom;
+    });
+  }, [modules, filters]);
+
+// para traer la descripcion en vez de la id de consultorio
+  const resolveRoomDescription = (m: Module): string => {
+    const id = m.consultingRoom?.id != null ? String(m.consultingRoom.id) : '';
+    if (!id) return '-';
+    if (m.consultingRoom?.description) return m.consultingRoom.description;
+    const found = consultingRooms.find((r) => String(r.id) === id);
+    return found?.description ?? '-';
+  };
+
 
   return (
-    <div className="module-list-container">
-      <h1>Listado de Módulos</h1>
+    <section className="module-list-container">
+      <h1>Listado de módulos</h1>
 
-      <label htmlFor="consultorio-select">Filtros:</label>
-      <select id="consultorio-select" onChange={handleConsultorioChange} value={consultorioSeleccionado}>
-        <option value="todos">Todos los consultorios</option>
-        {mockConsultorios.map((c) => (
-          <option key={c.id} value={c.id}>{c.nombre}</option>
-        ))}
-      </select>
+      {/* Filtros */}
+      <div className="filtros" aria-label="Filtros de módulos">
 
-      <div className="filtros">
+        {/* Profesional */}
+        <label htmlFor="filter-professional">Profesional:</label>
         <select
-          value={filtros.profesional}
-          onChange={(e) => handleFiltroChange('profesional', e.target.value)}
+          id="filter-professional"
+          value={filters.professionalId}
+          onChange={(e) => handleFilterChange('professionalId', e.target.value)}
+          aria-label="Profesionales"
+          title="Profesionales"
         >
-          <option value="">Todos los profesionales</option>
-          {profesionalesUnicos.map((nombre) => (
-            <option key={nombre} value={nombre}>{nombre}</option>
+          <option value="">Todos</option>
+          {professionals.map((pr) => (
+            <option key={`${pr.id}`} value={String(pr.id)}>
+              {fullName(pr)}
+            </option>
           ))}
         </select>
 
+        {/* Tipo de módulo */}
+        <label htmlFor="filter-module-type">Tipo de módulo:</label>
+        <select
+          id="filter-module-type"
+          value={filters.moduleTypeId}
+          onChange={(e) => handleFilterChange('moduleTypeId', e.target.value)}
+          aria-label="Tipos de módulo"
+          title="Tipos de módulo"
+        >
+          {/* Mes */} 
+        <option value="">Todos</option>
+          {derivedModuleTypes.map((t) => (
+            <option key={`type-${t.id}`} value={String(t.id)}>
+              {t.name}
+            </option>
+          ))} 
+        </select>
 
-          <select
-            value={filtros.tipo}
-            onChange={(e) => handleFiltroChange('tipo', e.target.value)}
-          >
-            <option value="">Todos los tipos de módulo</option>
-            {tiposModulos.map((tipo) => (
-              <option key={tipo} value={tipo}>{tipo}</option>
-            ))}
-          </select>
-
-
-        <select value={filtros.mes} onChange={(e) => handleFiltroChange('mes', e.target.value)}>
-          <option value="">Todos los meses</option>
-          {meses.map((mes) => (
-            <option key={mes} value={mes}>{mes}</option>
+        {/* Mes */}
+        <label htmlFor="filter-month">Mes:</label>
+        <select
+          id="filter-month"
+          value={filters.month}
+          onChange={(e) => handleFilterChange('month', e.target.value)}
+          aria-label="Mes"
+          title="Mes"
+        >
+          <option value="">Todos</option>
+          {ALL_MONTHS.map((m) => (
+            <option key={`month-${m}`} value={m}>
+              {monthLabel(m)}
+            </option>
           ))}
         </select>
+
+        {/* Consultorio */}
+        <label htmlFor="filter-room">Consultorio:</label>
+        <select
+          id="filter-room"
+          value={filters.consultingRoomId}
+          onChange={(e) => handleFilterChange('consultingRoomId', e.target.value)}
+          aria-label="Consultorios"
+          title="Consultorios"
+        >
+          <option value="">Todos</option>
+          {consultingRooms.map((c) => (
+            <option key={`room-${c.id}`} value={String(c.id)}>
+              {c.description}
+            </option>
+          ))}
+        </select>
+
+        <button type="button" className="btn" onClick={clearFilters} aria-label="Limpiar filtros">
+          Limpiar filtros
+        </button>
       </div>
 
-      {consultoriosAMostrar.map((consultorio) => (
-        <div key={consultorio.id} className="consultorio-section">
-          <h2>{consultorio.nombre}</h2>
-          <table className="module-table">
-            <thead>
-              <tr>
-                <th>Profesional</th>
-                <th>Tipo de módulo</th>
-                <th>Mes</th>
+      {/* Tabla */}
+      {loading ? (
+        <p>Cargando módulos...</p>
+      ) : (
+        <table className="module-table" role="table">
+          <thead>
+            <tr>
+              <th>Profesional</th>
+              <th>Tipo de módulo</th>
+              <th>Mes</th>
+              <th>Consultorio</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredModules.map((m) => (
+              <tr key={m.id}>
+                <td>{fullName(m.professional)}</td>
+                <td>{m.moduleType?.name}</td>
+                <td>{monthLabel(String(Number(m.validMonth)))}</td>
+                <td>{resolveRoomDescription(m)}</td>
               </tr>
-            </thead>
-            <tbody>
-              {modulosFiltrados
-                .filter((m) => m.consultorioId === consultorio.id)
-                .map((modulo) => (
-                  <tr key={modulo.id}>
-                    <td>{modulo.profesional}</td>
-                    <td>{modulo.tipoModulo}</td>
-                    <td>{modulo.mes}</td>
-                  </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ))}
-    </div>
+            ))}
+          </tbody>
+        </table>
+      )}
+
+      {/* Toast */}
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+    </section>
   );
 }

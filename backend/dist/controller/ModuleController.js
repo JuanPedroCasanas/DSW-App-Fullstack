@@ -202,7 +202,9 @@ class ModuleController {
     static async getModules(req, res) {
         try {
             const em = await (0, db_1.getORM)().em.fork();
-            const modules = await em.findAll(Module_1.Module);
+            const modules = await em.findAll(Module_1.Module, {
+                populate: ["professional", "consultingRoom", "moduleType"],
+            });
             return res.status(200).json(modules);
         }
         catch (error) {
