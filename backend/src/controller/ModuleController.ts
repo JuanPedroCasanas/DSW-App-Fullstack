@@ -271,14 +271,14 @@ export default class ModuleController  {
                 throw new NotFoundError("Modulo");
             }
 
-            return res.status(200).json(module);
+            return res.status(200).json(safeSerialize(module)); //No deberia ser necesario serializar si no se populan clases con usuario, pero por si acaso
         } catch (error) {
             console.error(error);
             if (error instanceof BaseHttpError) {
                 return res.status(error.status).json(error.toJSON());
             }
             else {
-                return res.status(500).json({ message: 'Error buscar modulo' });
+                return res.status(500).json({ message: 'Error al buscar modulo' });
             }
         }
     }
@@ -291,10 +291,10 @@ export default class ModuleController  {
                     populate: ["professional", "consultingRoom", "moduleType"],
                 });
 
-                return res.status(200).json(modules);
+                return res.status(200).json(safeSerialize(modules));
             } catch (error) {
                 console.error(error);
-                return res.status(500).json({ message: 'Failed to fetch modules' });
+                return res.status(500).json({ message: 'Error al buscar modulos' });
             }
         }
 
