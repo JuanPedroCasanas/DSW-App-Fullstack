@@ -1,4 +1,3 @@
-/* (Rebuild) appointmentSchedule.css baseline — aligned to index.css */
 .appointment-schedule {
   --as-primary: var(--color-primary);
   --as-surface: var(--variable-collection-white);
@@ -19,7 +18,6 @@
   background: transparent;
 }
 
-/* Header */
 .appointment-schedule__header {
   margin-block: var(--sp-1) var(--sp-3);
 }
@@ -30,7 +28,6 @@
   color: #213547;
 }
 
-/* Filters */
 .appointment-schedule__filters {
   display: grid;
   gap: var(--sp-3);
@@ -71,7 +68,6 @@
   margin-top: 4px;
 }
 
-/* Calendar */
 .appointment-schedule__calendar {
   margin-top: var(--sp-3);
   margin-bottom: 1px;
@@ -107,7 +103,6 @@
   border: 1px dashed #cfcfcf;
 }
 
-/* Skeleton shimmer */
 @keyframes as-shimmer {
   0% { background-position: 100% 0; }
   100% { background-position: 0 0; }
@@ -122,7 +117,6 @@
   animation: as-shimmer 1.2s infinite;
 }
 
-/* Grid */
 .appointment-schedule__grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(44px, 1fr));
@@ -144,7 +138,6 @@
   color: #9a2e2e;
 }
 
-/* Days */
 .appointment-schedule__day {
   position: relative;
   aspect-ratio: 1/1;
@@ -190,13 +183,11 @@
   background: color-mix(in srgb, var(--as-primary) 80%, white);
 }
 
-/* Focus states */
 .appointment-schedule :where(button, [role="button"], .appointment-schedule__day, .appointment-schedule__select):focus-visible {
   outline: 3px solid color-mix(in srgb, var(--as-primary) 40%, white);
   outline-offset: 3px;
 }
 
-/* Slots */
 .appointment-schedule__slots {
   margin-top: var(--sp-4);
 }
@@ -250,7 +241,6 @@
   border: 1px dashed #cfcfcf;
 }
 
-/* CTA */
 .appointment-schedule__cta {
   position: sticky;
   bottom: 0;
@@ -293,7 +283,6 @@
   cursor: not-allowed;
 }
 
-/* Modal */
 .appointment-schedule__modal-backdrop {
   position: fixed;
   inset: 0;
@@ -406,7 +395,7 @@
   color: #213547;
 }
 
-/* Media queries */
+/* la parte de pantallas chicas medianas y grandes */
 @media (min-width: 640px) {
   .appointment-schedule__grid {
     gap: var(--sp-3);
@@ -439,7 +428,7 @@
   }
 }
 
-/* Dark mode */
+/* Dark mode -> esto me parece una huevada mistica pero bueno */
 @media (prefers-color-scheme: dark) {
   .appointment-schedule__select,
   .appointment-schedule__day,
@@ -459,7 +448,7 @@
   }
 }
 
-/* Reduced motion */
+
 @media (prefers-reduced-motion: reduce) {
   .appointment-schedule__calendar-skeleton,
   .appointment-schedule__slots-skeleton {
@@ -471,9 +460,7 @@
   }
 }
 
-/* =============================
- Ajustes de coherencia visual y usabilidad (mobile-first)
- ============================= */
+
 .appointment-schedule {
   --as-border: color-mix(in srgb, var(--as-primary) 14%, #d6d6d6);
 }

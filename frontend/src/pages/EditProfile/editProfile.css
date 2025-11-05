@@ -1,48 +1,76 @@
-/* Contenedor general */
+/* ========================================================================== */
+/* Edit Profile – Mobile-first responsive                                     */
+/* Mantengo nombres y variables originales. Ajustes para pantallas chicas,    */
+/* medianas y grandes, con mejoras de accesibilidad y layout fluido.          */
+/* ========================================================================== */
+
+/* Base y normalizaciones muy suaves */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+/* Evitar saltos horizontales en mobile por sombras/bordes */
+body { overflow-x: hidden; }
+
+/* -------------------------------------------------------------------------- */
+/* Contenedor general                                                          */
+/* -------------------------------------------------------------------------- */
 .ep-main {
   display: grid;
-
-  align-items: center;
-
+  align-items: start; /* en mobile conviene comenzar arriba */
+  min-height: 100%;
 }
 
+/* Contenedor central con padding fluido */
 .ep-container {
   max-width: 880px;
   margin: 0 auto;
   padding: 16px clamp(12px, 4vw, 24px);
 }
 
-/* Título */
+/* -------------------------------------------------------------------------- */
+/* Título                                                                      */
+/* -------------------------------------------------------------------------- */
 .ep-title {
   margin: 0 0 12px 0;
   font-size: clamp(22px, 3.2vw, 28px);
   color: #213547;
+  line-height: 1.25;
 }
 
-/* Tarjeta */
+/* -------------------------------------------------------------------------- */
+/* Tarjeta                                                                     */
+/* -------------------------------------------------------------------------- */
 .ep-card {
   background: var(--variable-collection-white);
   border-radius: 12px;
-  padding: 16px;
+  padding: clamp(12px, 4vw, 16px); /* menos padding en pantallas chicas */
   box-shadow: 0 6px 16px rgba(0,0,0,.08);
   border: 1px solid rgba(0,0,0,.06);
   margin-block: 10px;
 }
 
-/* Fieldset/Legend */
+/* -------------------------------------------------------------------------- */
+/* Fieldset/Legend                                                             */
+/* -------------------------------------------------------------------------- */
 .ep-fieldset {
   border: 0;
   padding: 0;
   margin: 0;
   min-inline-size: 0;
 }
+
 .ep-legend {
   font-weight: 600;
   margin-bottom: 8px;
   color: #213547;
 }
 
-/* Campos */
+/* -------------------------------------------------------------------------- */
+/* Campos                                                                      */
+/* -------------------------------------------------------------------------- */
 .ep-field {
   display: flex;
   flex-direction: column;
@@ -55,6 +83,7 @@
   color: #213547;
 }
 
+/* En iOS, fuentes <16px disparan zoom. Aseguramos 16px mínimo. */
 .ep-field input,
 .ep-field select {
   appearance: none;
@@ -63,7 +92,10 @@
   color: #213547;
   border-radius: 8px;
   padding: 12px 12px;
-  font-size: 1rem;
+  font-size: 16px; /* accesible en mobile */
+  line-height: 1.2;
+  width: 100%;
+  min-height: 44px; /* táctil */
   transition: border-color .15s ease, box-shadow .15s ease;
 }
 
@@ -78,7 +110,9 @@
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--variable-collection-primary) 25%, white);
 }
 
-/* Password con botón mostrar/ocultar */
+/* -------------------------------------------------------------------------- */
+/* Password con botón mostrar/ocultar                                         */
+/* -------------------------------------------------------------------------- */
 .ep-password-wrap {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -86,18 +120,20 @@
   gap: 8px;
 }
 
+/* Botón ghost alineado a altura táctil */
 .ep-btn-ghost {
   background: transparent;
   color: var(--variable-collection-primary);
   border: 1px solid color-mix(in srgb, var(--variable-collection-primary) 35%, #0000);
   padding: 10px 12px;
   border-radius: 8px;
+  min-height: 44px;
 }
-.ep-btn-ghost:hover {
-  filter: brightness(.98);
-}
+.ep-btn-ghost:hover { filter: brightness(.98); }
 
-/* Errores y ayudas */
+/* -------------------------------------------------------------------------- */
+/* Errores y ayudas                                                            */
+/* -------------------------------------------------------------------------- */
 .ep-error {
   color: #b42318;
   background: #fef3f2;
@@ -107,7 +143,6 @@
   font-size: 0.92rem;
   margin: 4px 0 0 0;
 }
-
 .ep-help {
   color: rgba(0,0,0,.65);
   font-size: 0.9rem;
@@ -123,15 +158,18 @@
   padding: 10px 12px;
 }
 
-/* Acciones */
+/* -------------------------------------------------------------------------- */
+/* Acciones                                                                    */
+/* -------------------------------------------------------------------------- */
 .ep-actions {
   display: flex;
+  flex-wrap: wrap; /* evita desbordes en mobile */
   justify-content: flex-end;
   gap: 8px;
   margin-top: 12px;
 }
 
-/* Botón primario (usa tu variable de color primario) */
+/* Botón primario */
 .ep-btn {
   background: var(--variable-collection-primary);
   color: #fff;
@@ -143,12 +181,9 @@
   transition: filter .15s ease, transform .02s ease;
   min-height: 44px; /* táctil */
 }
-.ep-btn:hover { filter: brightness(.97); }
-.ep-btn:active { transform: translateY(1px); }
-.ep-btn:disabled {
-  opacity: .6;
-  cursor: not-allowed;
-}
+.ep-btn:hover   { filter: brightness(.97); }
+.ep-btn:active  { transform: translateY(1px); }
+.ep-btn:disabled{ opacity: .6; cursor: not-allowed; }
 
 /* Divider entre formularios */
 .ep-divider {
@@ -163,40 +198,70 @@
   );
 }
 
+/* -------------------------------------------------------------------------- */
+/* Email con botón (verificación, etc.)                                       */
+/* -------------------------------------------------------------------------- */
 .ep-email-with-btn .ep-email-row {
   display: flex;
   gap: 12px;
   align-items: flex-start; /* Alinea botón con input */
+  width: 100%;
+  flex-wrap: wrap; /* en mobile, evita overflow */
 }
-
 .ep-email-with-btn .ep-email-row input {
-  flex: 1; /* Input ocupa todo el espacio disponible */
+  flex: 1; /* Input ocupa el espacio disponible */
+  min-width: 200px; /* sugiere wrap antes de colapsar demasiado */
+}
+.ep-email-with-btn .ep-email-row .ep-btn,
+.ep-email-with-btn .ep-email-row .ep-btn-ghost,
+.ep-email-with-btn .ep-email-row .ep-btn-outline {
+  flex: 0 0 auto;
 }
 
+/* En pantallas muy chicas, apilar input y botón para prolijidad */
+@media (max-width: 399px) {
+  .ep-email-with-btn .ep-email-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .ep-email-with-btn .ep-email-row input,
+  .ep-email-with-btn .ep-email-row .ep-btn,
+  .ep-email-with-btn .ep-email-row .ep-btn-ghost,
+  .ep-email-with-btn .ep-email-row .ep-btn-outline {
+    width: 100%;
+  }
+}
 
-/* Grid responsivo para Nombre/Apellido */
+/* -------------------------------------------------------------------------- */
+/* Grid responsivo para Nombre/Apellido                                       */
+/* -------------------------------------------------------------------------- */
 .ep-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr; /* mobile-first: una columna */
   gap: 10px;
 }
 @media (min-width: 640px) {
   .ep-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr; /* dos columnas en >=640px */
     gap: 12px;
   }
 }
 
-/* === Acciones del pie de página === */
+/* -------------------------------------------------------------------------- */
+/* Acciones del pie de página                                                  */
+/* -------------------------------------------------------------------------- */
 .ep-footer-actions {
   margin: 22px auto 28px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr; /* en mobile, vertical y full width */
   gap: 12px;
   max-width: 520px;
 }
-@media (min-width: 640px) {
-  .ep-footer-actions { gap: 14px; }
+@media (min-width: 480px) {
+  .ep-footer-actions {
+    grid-template-columns: 1fr 1fr; /* desde medianas, dos columnas */
+    gap: 14px;
+  }
 }
 
 /* Botón secundario */
@@ -216,17 +281,20 @@
   border-color: rgba(0,0,0,.26);
 }
 
-/* Botón de cancelar */
+/* Botón de cancelar / peligro */
 :root {
-  --ep-danger: #d92d20; 
+  --ep-danger: #d92d20;
 }
 .ep-btn-danger {
   background: var(--ep-danger);
+  color: #fff;
 }
-.ep-btn-danger:hover { filter: brightness(.97); }
+.ep-btn-danger:hover  { filter: brightness(.97); }
 .ep-btn-danger:active { transform: translateY(1px); }
 
-/* === Modal de confirmación === */
+/* -------------------------------------------------------------------------- */
+/* Modal de confirmación                                                       */
+/* -------------------------------------------------------------------------- */
 .ep-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -244,7 +312,7 @@
   border-radius: 14px;
   box-shadow: 0 10px 30px rgba(0,0,0,.20);
   border: 1px solid rgba(0,0,0,.06);
-  padding: 18px 16px;
+  padding: clamp(16px, 3vw, 18px);
 }
 
 .ep-modal h2 {
@@ -258,6 +326,30 @@
 
 .ep-modal-actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 10px;
+}
+@media (min-width: 420px) {
+  .ep-modal-actions {
+    grid-template-columns: 1fr 1fr; /* dos columnas cuando entra */
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Utilidades mínimas (prefijo ep-)                                           */
+/* -------------------------------------------------------------------------- */
+.ep-hide-on-mobile { display: none; }
+@media (min-width: 640px) {
+  .ep-hide-on-mobile { display: initial; }
+}
+
+.ep-full-width { width: 100%; }
+
+/* Botones a ancho completo en mobile si son los únicos en su fila */
+@media (max-width: 359px) {
+  .ep-actions .ep-btn,
+  .ep-actions .ep-btn-outline,
+  .ep-actions .ep-btn-danger {
+    width: 100%;
+  }
 }

@@ -1,10 +1,4 @@
-/* debugConsole.css
-   Diseño responsive (mobile-first) para la consola de debug.
-   - Mobile: grilla prolija (1–2 columnas según ancho)
-   - Desktop: botones en fila con wrap
-*/
 
-/* ======= Layout base ======= */
 .dc-page {
   padding: 16px;
   display: grid;
@@ -27,8 +21,7 @@
   font-size: 0.95rem;
 }
 
-/* ======= Acciones (botones) ======= */
-/* Mobile: grilla que se adapta; cada botón ocupa toda su celda */
+
 .dc-actions {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -36,7 +29,7 @@
   align-items: stretch;
 }
 
-/* Botón base para NavLink (anchor) */
+
 .dc-button {
   display: inline-flex;
   align-items: center;
@@ -51,7 +44,7 @@
   background: var(--variable-collection-primary, #3B9AB8);
   box-shadow: 0 1px 0 rgba(0,0,0,.02) inset;
   transition: filter .15s ease, transform .02s ease, box-shadow .15s ease;
-  /* Mobile: que ocupe el ancho de su celda */
+
   inline-size: 100%;
 }
 
@@ -62,22 +55,21 @@
   outline-offset: 3px;
 }
 
-/* Variante secundaria (opcional) */
+
 .dc-button.is-ghost {
   background: transparent;
   color: var(--variable-collection-primary, #3B9AB8);
   border: 2px solid color-mix(in srgb, var(--variable-collection-primary, #3B9AB8) 65%, white);
 }
 
-/* ======= Listado/Secciones ======= */
+
 .dc-list h3 {
   margin: 8px 0;
   font-size: clamp(1.05rem, 0.95rem + 0.4vw, 1.25rem);
 }
 
-/* ======= Desktop / pantallas medianas+ ======= */
+
 @media (min-width: 768px) {
-  /* En desktop, pasamos a fila; si no entran, hacen wrap a una segunda línea */
   .dc-actions {
     display: flex;
     flex-wrap: wrap;
@@ -85,19 +77,17 @@
   }
 
   .dc-button {
-    inline-size: auto;           /* deja de estirarse */
-    min-inline-size: 180px;      /* ancho mínimo cómodo */
+    inline-size: auto;         
+    min-inline-size: 180px;      
   }
 }
 
-/* ======= Extra pequeño (muy angosto) ======= */
 @media (max-width: 360px) {
   .dc-page { padding: 12px; }
-  .dc-button { padding: 11px 12px; font-size: 13.5px; }
+  .dc-button { padding: 11px 1px; font-size: 13.5px; }
 }
 
-/* ======= Alternativa opcional: carrusel horizontal en mobile =======
-   Si preferís SIEMPRE uno al lado del otro en pantallas chicas, descomentá:
+/* alternativa para pantallas chicas, lo dejo por las dudas:
 
 .dc-actions { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 4px; }
 .dc-actions::-webkit-scrollbar { height: 6px; }

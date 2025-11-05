@@ -11,7 +11,6 @@ export default function Home() {
     <main className="home">
       <section className="home-hero">
 
-        {/* mobile-first */}
         <NavLink
           to="/patient-portal"
           className="cta-primary"
