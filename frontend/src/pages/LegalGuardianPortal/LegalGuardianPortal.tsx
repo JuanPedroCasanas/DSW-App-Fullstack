@@ -32,13 +32,9 @@ export default function LegalGuardianPortal() {
           Editar perfil
         </NavLink>
 
-<<<<<<< HEAD
-    </main>
-=======
       </nav>
 
     </section>
->>>>>>> entrega-reg
   );
 }
 

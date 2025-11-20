@@ -33,12 +33,8 @@ export default function ProfessionalPortal() {
           Listado de turnos
         </NavLink>
         
-<<<<<<< HEAD
-    </main>
-=======
       </nav>
 
     </section>
->>>>>>> entrega-reg
   );
 }

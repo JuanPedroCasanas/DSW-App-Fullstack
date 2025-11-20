@@ -211,67 +211,7 @@ button:focus, button:focus-visible {
 .about-right a:hover { text-decoration: underline; }
 
 
-<<<<<<< HEAD
-/* ====== Hero centrado ====== */
-.home-hero {
-  min-height: calc(100vh - var(--nav-h));
-  padding: 24px 16px;
-  display: grid;
-  place-items: center;
-  text-align: center;
-  gap: 18px;
-} 
-
-/* ====== Home (mobile-first) ====== */
-.home-hero {
-  min-height: calc(100dvh - var(--nav-h));
-  padding-inline: max(16px, env(safe-area-inset-left));
-  padding-inline-end: max(16px, env(safe-area-inset-right));
-  padding-block: 24px;
-
-  display: grid;
-  align-content: center;
-  justify-items: center;
-  gap: 18px;
-  text-align: center;
-}
-
-/* Botón CTA: full-width en mobile */
-.cta-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  inline-size: 100%;          /* ocupa todo el ancho en mobile */
-  min-height: 48px;           /* tamaño dedo-friendly */
-  padding: 14px 12px;
-
-  background-color: var(--variable-collection-primary);
-  color: #fff;
-  border-radius: 10px;
-  text-decoration: none;
-
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 1;
-
-  box-shadow: 0 1px 0 rgba(0,0,0,.02) inset;
-  transition: filter .15s ease, transform .02s ease;
-  margin:10px;
-}
-.cta-primary:hover { filter: brightness(0.97); }
-.cta-primary:active { transform: translateY(1px); }
-
-/* Accesibilidad: foco visible para teclado */
-.cta-primary:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--variable-collection-primary) 40%, white);
-  outline-offset: 3px;
-}
-
-/* ====== Mejoras en pantallas medianas/grandes ====== */
-=======
 /* Tablet*/
->>>>>>> entrega-reg
 @media (min-width: 768px) {
   .home-hero { gap: var(--sp-6); }
 
