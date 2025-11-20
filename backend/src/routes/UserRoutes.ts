@@ -5,10 +5,11 @@ import { UserController } from '../controller/UserController';
 import { User } from '../model/entities/User';
 import { getORM } from '../orm/db';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
+const JWT_SECRET = process.env.JWT_SECRET || 'supersecret'; //Aun no implementado el secret en .ENV
 const router = express.Router();
 
-// Passport JWT Strategy
+
+//Estrategia uqe usaremos al loguear
 passport.use(
   new JwtStrategy(
     {
@@ -28,7 +29,7 @@ passport.use(
   )
 );
 
-// Middleware to protect routes
+// Middleware
 const auth = passport.authenticate('jwt', { session: false });
 
 // Routes

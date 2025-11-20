@@ -160,7 +160,7 @@ export default function ModuleRent() {
 
   async function handleResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
     const resJson = await res.json().catch(() => ({}));
-    console.log(resJson);
+
     if (res.ok) {
       const successMessage = `${resJson.message} Hora inicio modulos: ${resJson.modules[0].startTime}, 
         Hora Fin modulos: ${resJson.modules[resJson.modules.length - 1].endTime}, 
@@ -172,7 +172,7 @@ export default function ModuleRent() {
         return { message: resJson.message ?? "Error interno del servidor", type: "error" };
       } else {
         const errorMessage = `Error: ${resJson.error} Codigo: ${resJson.code} ${resJson.message}`
-        console.log(errorMessage);
+      
         return { message: errorMessage.trim(), type: "error" };
       }
     }
@@ -209,7 +209,7 @@ export default function ModuleRent() {
       });
       
       const toastData = await handleResponse(res);
-      console.log(toastData);
+      
       setToast(toastData);
       
       if (res.ok) {

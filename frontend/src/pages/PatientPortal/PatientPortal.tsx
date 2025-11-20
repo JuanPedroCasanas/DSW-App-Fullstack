@@ -1,28 +1,18 @@
 import { NavLink } from "react-router-dom";
+import "./patientPortal.css";
 
 export default function PatientPortal() {
   return (
-    <main className="home">
+    <section className="patient-portal">
       <h2>Portal Paciente</h2>
 
+      <nav className="patient-portal-nav">
 
-        <NavLink
-          to="/appointment-schedule"
-          className="cta-primary"
-          aria-label="Ir a reservar turno"
-        >
-          Reservar turno
-        </NavLink>
+        <NavLink to="/appointment-schedule">Reservar turno</NavLink>
+        <NavLink to="/edit-profile">Editar perfil</NavLink>
         
-        <NavLink
-          to="/edit-profile"
-          className="cta-primary"
-          aria-label="Ir a editar perfil"
-        >
-          Editar perfil
-        </NavLink>
-  
+      </nav>
 
-    </main>
+    </section>
   );
 }

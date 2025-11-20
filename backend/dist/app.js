@@ -44,7 +44,7 @@ app.use(passport_1.default.initialize());
 app.use((0, cors_1.default)({
     origin: 'http://localhost:3000', // <--- MUY IMPORTANTE! Usa el puerto de Vite.
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
-    credentials: true, // permite enviar cookies
+    credentials: true, // permite enviar credenciales en cookies, se usara para regularidad
     allowedHeaders: ['Content-Type', 'Authorization'], // Encabezados permitidos
 }));
 const port = process.env.PORT || 2000; //puse para que el puerto del back sea 2000 aunque no se que tan bien este

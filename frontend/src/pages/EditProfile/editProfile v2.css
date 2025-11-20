@@ -1,0 +1,263 @@
+/* Contenedor general */
+.ep-main {
+  display: grid;
+
+  align-items: center;
+
+}
+
+.ep-container {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 16px clamp(12px, 4vw, 24px);
+}
+
+/* Título */
+.ep-title {
+  margin: 0 0 12px 0;
+  font-size: clamp(22px, 3.2vw, 28px);
+  color: #213547;
+}
+
+/* Tarjeta */
+.ep-card {
+  background: var(--variable-collection-white);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 6px 16px rgba(0,0,0,.08);
+  border: 1px solid rgba(0,0,0,.06);
+  margin-block: 10px;
+}
+
+/* Fieldset/Legend */
+.ep-fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-inline-size: 0;
+}
+.ep-legend {
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #213547;
+}
+
+/* Campos */
+.ep-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-block: 10px;
+}
+
+.ep-field label {
+  font-size: 0.95rem;
+  color: #213547;
+}
+
+.ep-field input,
+.ep-field select {
+  appearance: none;
+  border: 1px solid rgba(0,0,0,.15);
+  background: white;
+  color: #213547;
+  border-radius: 8px;
+  padding: 12px 12px;
+  font-size: 1rem;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.ep-field input::placeholder {
+  color: rgba(0,0,0,.4);
+}
+
+.ep-field input:focus,
+.ep-field select:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--variable-collection-primary) 50%, #0000);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--variable-collection-primary) 25%, white);
+}
+
+/* Password con botón mostrar/ocultar */
+.ep-password-wrap {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.ep-btn-ghost {
+  background: transparent;
+  color: var(--variable-collection-primary);
+  border: 1px solid color-mix(in srgb, var(--variable-collection-primary) 35%, #0000);
+  padding: 10px 12px;
+  border-radius: 8px;
+}
+.ep-btn-ghost:hover {
+  filter: brightness(.98);
+}
+
+/* Errores y ayudas */
+.ep-error {
+  color: #b42318;
+  background: #fef3f2;
+  border: 1px solid #ffdad6;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  margin: 4px 0 0 0;
+}
+
+.ep-help {
+  color: rgba(0,0,0,.65);
+  font-size: 0.9rem;
+}
+
+/* Banner de error general */
+.ep-banner.error {
+  margin-top: 8px;
+  color: #b42318;
+  background: #fef3f2;
+  border: 1px solid #ffdad6;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+/* Acciones */
+.ep-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/* Botón primario (usa tu variable de color primario) */
+.ep-btn {
+  background: var(--variable-collection-primary);
+  color: #fff;
+  border: 0;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter .15s ease, transform .02s ease;
+  min-height: 44px; /* táctil */
+}
+.ep-btn:hover { filter: brightness(.97); }
+.ep-btn:active { transform: translateY(1px); }
+.ep-btn:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+/* Divider entre formularios */
+.ep-divider {
+  margin: 18px 0;
+  border: 0;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    #0000,
+    color-mix(in srgb, var(--variable-collection-primary) 25%, #0000),
+    #0000
+  );
+}
+
+.ep-email-with-btn .ep-email-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start; /* Alinea botón con input */
+}
+
+.ep-email-with-btn .ep-email-row input {
+  flex: 1; /* Input ocupa todo el espacio disponible */
+}
+
+
+/* Grid responsivo para Nombre/Apellido */
+.ep-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+@media (min-width: 640px) {
+  .ep-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+}
+
+/* === Acciones del pie de página === */
+.ep-footer-actions {
+  margin: 22px auto 28px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  max-width: 520px;
+}
+@media (min-width: 640px) {
+  .ep-footer-actions { gap: 14px; }
+}
+
+/* Botón secundario */
+.ep-btn-outline {
+  background: #fff;
+  color: #213547;
+  border: 1px solid rgba(0,0,0,.18);
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter .15s ease, transform .02s ease, border-color .15s ease;
+  min-height: 44px;
+}
+.ep-btn-outline:hover {
+  filter: brightness(.99);
+  border-color: rgba(0,0,0,.26);
+}
+
+/* Botón de cancelar */
+:root {
+  --ep-danger: #d92d20; 
+}
+.ep-btn-danger {
+  background: var(--ep-danger);
+}
+.ep-btn-danger:hover { filter: brightness(.97); }
+.ep-btn-danger:active { transform: translateY(1px); }
+
+/* === Modal de confirmación === */
+.ep-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.40);
+  display: grid;
+  place-items: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.ep-modal {
+  width: min(480px, 100%);
+  background: var(--variable-collection-white, #fff);
+  color: #213547;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.20);
+  border: 1px solid rgba(0,0,0,.06);
+  padding: 18px 16px;
+}
+
+.ep-modal h2 {
+  margin: 0 0 6px 0;
+  font-size: clamp(18px, 2.8vw, 20px);
+}
+.ep-modal p {
+  margin: 0 0 14px 0;
+  line-height: 1.5;
+}
+
+.ep-modal-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}

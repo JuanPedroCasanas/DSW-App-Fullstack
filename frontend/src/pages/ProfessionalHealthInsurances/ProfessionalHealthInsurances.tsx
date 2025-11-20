@@ -317,7 +317,7 @@ export default function HealthInsurancesByProfessional(){
         </>
       )}
 
-      {/* ===== MODAL: Agregar (2 pasos con dirty-check) ===== */}
+      {/* =====  Agregar ===== */}
       {showAdd && (
         <div className="gp-modal-backdrop" onClick={tryCloseAdd} role="presentation">
           <div
@@ -334,12 +334,13 @@ export default function HealthInsurancesByProfessional(){
                 <form onSubmit={handleAddContinue} noValidate>
                   <div className="gp-field">
                     <label htmlFor="name">Obras Sociales</label>
-                    <select
-                      value={selectedHealthInsuranceId ?? healthInsurances[0].id ?? ""}
-                      onChange={e => setSelectedHealthInsuranceId(Number(e.target.value))}
-                      aria-label="healthInsurances"
-                      title="healthInsurances"
-                    >
+                      <select
+                        value={selectedHealthInsuranceId ?? healthInsurances?.[0]?.id ?? ""}
+                        onChange={e => setSelectedHealthInsuranceId(Number(e.target.value))}
+                        disabled={!healthInsurances?.length}
+                        aria-label="healthInsurances"
+                        title="healthInsurances"
+                      >
                       {healthInsurances.map(hI => (
                         <option key={hI.id} value={hI.id}>
                           {`Id ${hI.id} - ${hI.name}`}

@@ -9,9 +9,9 @@ const passport_jwt_1 = require("passport-jwt");
 const UserController_1 = require("../controller/UserController");
 const User_1 = require("../model/entities/User");
 const db_1 = require("../orm/db");
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
+const JWT_SECRET = process.env.JWT_SECRET || 'supersecret'; //Aun no implementado el secret en .ENV
 const router = express_1.default.Router();
-// Passport JWT Strategy
+//Estrategia uqe usaremos al loguear
 passport_1.default.use(new passport_jwt_1.Strategy({
     jwtFromRequest: passport_jwt_1.ExtractJwt.fromAuthHeaderAsBearerToken(),
     secretOrKey: JWT_SECRET,
@@ -27,7 +27,7 @@ passport_1.default.use(new passport_jwt_1.Strategy({
         return done(err, false);
     }
 }));
-// Middleware to protect routes
+// Middleware
 const auth = passport_1.default.authenticate('jwt', { session: false });
 // Routes
 // Public

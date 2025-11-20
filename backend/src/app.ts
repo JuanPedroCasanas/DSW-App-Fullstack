@@ -24,9 +24,7 @@ import ProfessionalRoutes from './routes/ProfessionalRoutes';
 import LegalGuardianRoutes from './routes/LegalGuardianRoutes';
 import UserRoutes from './routes/UserRoutes'
 import HealthInsuranceRoutes from './routes/HealthInsuranceRoutes';
-import { startingCode } from './startingCode';
 import cookieParser from 'cookie-parser';
-import { testCode } from './testCode';
 
 // para evitar conversion de fechas UTC
 Date.prototype.toJSON = function() {
@@ -50,11 +48,11 @@ app.use(passport.initialize());
 app.use(cors({
     origin: 'http://localhost:3000', // <--- MUY IMPORTANTE! Usa el puerto de Vite.
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
-    credentials: true, // permite enviar cookies
+    credentials: true, // permite enviar credenciales en cookies, se usara para regularidad
     allowedHeaders: ['Content-Type', 'Authorization'], // Encabezados permitidos
 }));
 
-const port = process.env.PORT|| 2000; //puse para que el puerto del back sea 2000 aunque no se que tan bien este
+const port = process.env.PORT || 2000; //puse para que el puerto del back sea 2000 aunque no se que tan bien este
 
 app.use((req: Request, res: Response, next: NextFunction) => {
     RequestContext.create(getORM().em, next);
@@ -70,8 +68,6 @@ app.use('/User', UserRoutes);
 app.use('/Professional', ProfessionalRoutes);
 app.use('/LegalGuardian', LegalGuardianRoutes);
 app.use('/HealthInsurance', HealthInsuranceRoutes);
-
-
 
 
 app.use((_, res) => {
