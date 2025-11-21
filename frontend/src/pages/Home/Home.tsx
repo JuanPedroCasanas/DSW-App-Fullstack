@@ -1,57 +1,37 @@
-// src/pages/Home.tsx
-import { NavLink } from "react-router-dom";
- import { useLocation } from 'react-router-dom';
- import { Toast } from "@/components/Toast";
+import { useLocation } from "react-router-dom";
+import { Toast } from "@/components/Toast";
+import Page from "@/components/ui/Page";
+import SectionHeader from "@/components/ui/SectionHeader";
+import ActionGrid from "@/components/ui/ActionGrid";
+import NavButton from "@/components/ui/NavButton";
 
 export default function Home() {
-    
   const location = useLocation();
   const toastMessage = location.state?.toastMessage;
+
   return (
-    <main className="home">
-      <section className="home-hero">
+    <Page>
+      <SectionHeader
+        title="Bienvenido"
+        subtitle="Selecciona el portal al que deseas acceder"
+      />
 
-        <NavLink
-          to="/patient-portal"
-          className="cta-primary"
-          aria-label="Ir al portal de paciente"
-        >
-          Portal Paciente
-        </NavLink>
-
-        <NavLink
-          to="/legal-guardian-portal"
-          className="cta-primary"
-          aria-label="Ir al portal del responsable legal"
-        >
-          Portal Responsable Legal
-        </NavLink>
-
-        <NavLink
-          to="/professional-portal"
-          className="cta-primary"
-          aria-label="Ir al portal del profesional"
-        >
-          Portal Profesional
-        </NavLink>
-
-        <NavLink
-          to="/debug-console"
-          className="cta-primary"
-          aria-label="Ir a la consola debug"
-        >
+      <ActionGrid>
+        <NavButton to="/patient-portal">Portal Paciente</NavButton>
+        <NavButton to="/legal-guardian-portal">Portal Responsable Legal</NavButton>
+        <NavButton to="/professional-portal">Portal Profesional</NavButton>
+        <NavButton to="/debug-console" variant="ghost">
           Portal Debug
-        </NavLink>
-        {/* ===== TOAST ===== */}
-            {toastMessage && (
-              <Toast
-                message={toastMessage.message}
-                type={toastMessage.type}
-                onClose={() => {}}
-              />
-            )}
+        </NavButton>
+      </ActionGrid>
 
-      </section>
-    </main>
+      {toastMessage && (
+        <Toast
+          message={toastMessage.message}
+          type={toastMessage.type}
+          onClose={() => {}}
+        />
+      )}
+    </Page>
   );
 }

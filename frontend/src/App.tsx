@@ -28,7 +28,7 @@ export default function App() {
   return (
     <>
       <Navbar />
-      <main style={{ maxWidth: 1100, margin: "0 auto", padding: "1rem" }}>
+      <main style={{ maxWidth: 1100, margin: "0 auto", padding: "1rem" }} className="pt-[64px] md:pt-[90px]">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
