@@ -17,14 +17,6 @@ export class AppointmentController {
 
     static async assignAppointment(req: Request, res: Response) {
         const { idAppointment, idPatient } = req.body;
-
-        if(!idAppointment) {
-            return res.status(400).json({ message: 'Se requiere el id de turno a asignar' });
-        }
-        if(!idPatient) {
-            return res.status(400).json({ message: 'Se requiere el id de paciente a asignar' });
-        }
-
         try {
             const em = await getORM().em.fork();
 
@@ -67,12 +59,7 @@ export class AppointmentController {
 
     //Solo los profesionales y pacientes pueden cancelar turnos
     static async cancelAppointment(req: Request, res: Response) {
-        const { idAppointment } = req.body;
-
-        if(!idAppointment)
-        {
-            return res.status(400).json({ message: 'Se requiere el id de turno a modificar' });
-        }
+        const idAppointment = Number(req.params.id);
 
         try {
         const em = await getORM().em.fork();
@@ -100,12 +87,7 @@ export class AppointmentController {
 
     //Solo los profesionales pueden completar turnos
     static async completeAppointment(req: Request, res: Response) {
-        const { idAppointment } = req.body;
-
-        if(!idAppointment)
-        {
-            return res.status(400).json({ message: 'Se requiere el id de turno a modificar' });
-        }
+        const idAppointment = Number(req.params.id);
 
         try {
             const em = await getORM().em.fork();
@@ -133,12 +115,7 @@ export class AppointmentController {
 
     //Solo los profesionales pueden marcar turnos como sin asistencia
     static async missAppointment(req: Request, res: Response) {
-        const { idAppointment } = req.body;
-
-        if(!idAppointment)
-        {
-            return res.status(400).json({ message: 'Se requiere el id de turno a modificar' });
-        }
+        const idAppointment = Number(req.params.id);
 
         try {
             const em = await getORM().em.fork();
@@ -167,10 +144,6 @@ export class AppointmentController {
 
     static async getAppointment(req: Request, res: Response) {
         const idAppointment = Number(req.params.id);
-
-        if (!idAppointment) {
-            return res.status(400).json({ message: 'Se requiere el id del turno a buscar' });
-        }
         try {
             const em = await getORM().em.fork();
             const appointment = await em.findOne(Appointment, { id: idAppointment });
@@ -215,9 +188,6 @@ export class AppointmentController {
 
     static async getAppointmentsByPatient(req: Request, res: Response) {
         const idPatient = Number(req.params.id);
-        if(!idPatient) {
-            return res.status(400).json({ message: 'Se requiere el id del paciente para los turnos a buscar' });
-        }
     try {
         const em = await getORM().em.fork();
         const patient = await em.findOne(Patient, { id: idPatient });
@@ -237,40 +207,9 @@ export class AppointmentController {
         }
     }
 }
-    /*
-    static async getAppointmentsByMonthAndProfessional(req: Request, res: Response) {
-        const idPatient = Number(req.params.id);
-        if(!idPatient) {
-            return res.status(400).json({ message: 'Se requiere el id del paciente para los turnos a buscar' });
-        }
-    try {
-        const em = await getORM().em.fork();
-        const patient = await em.findOne(Patient, { id: idPatient });
-        if(!patient) {
-            throw new NotFoundError('Paciente');
-        }
-        const appointments = await em.find(Appointment, { patient :  patient });
-        return res.status(200).json(appointments);
-
-    } catch (error) {
-        console.error(error);
-        if (error instanceof BaseHttpError) {
-            return res.status(error.status).json(error.toJSON());
-        }
-        else {
-            return res.status(500).json({ message: 'Error al buscar turnos por paciente' });
-        }
-    }
-}
-    */
-
     static async getAvailableAppointmentsByProfessional(req: Request, res: Response) {
         const idProfessional = Number(req.params.id);
-
-        if(!idProfessional) {
-            return res.status(400).json({ message: 'Se requiere el id del profesional para los turnos a buscar' });
-        }
-
+        
         try {
             const em = await getORM().em.fork();
             const professional = await em.findOne(Professional, {id: idProfessional});
@@ -304,8 +243,6 @@ export class AppointmentController {
 }
 
     static async getAppointmentsByStatus(req: Request, res: Response) {
-
-        let status: string;
 
         const ALLOWED_STATUSES = new Set<string>(Object.values(AppointmentStatus));
 
