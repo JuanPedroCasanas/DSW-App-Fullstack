@@ -1,49 +1,37 @@
-// DebugConsole.tsx
-import { NavLink } from "react-router-dom";
-import "./debugConsole.css";
+import Page from "@/components/ui/Page";
+import SectionHeader from "@/components/ui/SectionHeader";
+import ActionGrid from "@/components/ui/ActionGrid";
+import NavButton from "@/components/ui/NavButton";
 
-export default function DebugConsole() {
+export default function DebugConsolePage() {
   return (
-    <section className="dc-page">
-      <header className="dc-header">
-        <h2>Portal de debug</h2>
-        <p className="dc-subtitle">
-          CRUDS
-        </p>
-      </header>
+    <Page>
+      <SectionHeader
+        title="CRUDS"
+      />
+      <ActionGrid>
+        <NavButton to="/admin/consulting-rooms">Consultorios</NavButton>
+        <NavButton to="/admin/health-insurances">Obras sociales</NavButton>
+        <NavButton to="/admin/specialties">Especialidades</NavButton>
+        <NavButton to="/admin/professionals">Profesionales</NavButton>
 
-      {/* Links a los cruds */}
-      <nav aria-label="Acciones de debug" className="dc-actions">
-        <NavLink to="/admin/consulting-rooms" className="dc-button">Consultorios</NavLink>
+        <NavButton to="/admin/modules" variant="ghost"> Modulos </NavButton>
 
-        
-        <NavLink to="/admin/health-insurances" className="dc-button">Obras sociales</NavLink>
-        <NavLink to="/admin/occupations" className="dc-button">Especialidades</NavLink>
+        <NavButton to="/admin/appointments" variant="ghost"> Turnos </NavButton>
+        <NavButton to="/admin/module-types" variant="ghost"> Tipos de Módulos </NavButton>
+        <NavButton to="/admin/patients" variant="ghost"> Pacientes </NavButton>
+        <NavButton to="/admin/legal-guardians" variant="ghost"> Responsables Legales </NavButton>
 
-        <NavLink to="/admin/professionals" className="dc-button">Profesionales</NavLink>
+      </ActionGrid>
 
-       {/* <NavLink to="/admin/modules" className="dc-button">Módulos (a implementar) </NavLink>
-        <NavLink to="/admin/appointments" className="dc-button">Turnos (a implementar) </NavLink>
-        <NavLink to="/admin/module-types" className="dc-button">Tipos de Módulos (a implementar) </NavLink>
-        <NavLink to="/admin/patients" className="dc-button">Pacientes (a implementar)</NavLink>
-        <NavLink to="/admin/legal-guardians" className="dc-button">Responsables Legales (a implementar)</NavLink> */}
+      <SectionHeader
+        title= "Listados"
+      />
+      <ActionGrid>
+        <NavButton to="/admin/module-list">Listado de Modulos</NavButton>
+      </ActionGrid>
 
-
-      </nav>
-
-    {/* Listados */}
-      <p className="dc-subtitle">
-          Listados
-      </p>
-      <nav aria-label="Listados" className="dc-actions">
-        <NavLink
-          to="/module-list"
-          className="dc-button"
-          aria-label="Ir al listado de módulos"
-        >
-          Listado de módulos
-        </NavLink>
-      </nav>
-    </section>
+    </Page>
   );
 }
+
