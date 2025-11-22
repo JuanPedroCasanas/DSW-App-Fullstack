@@ -59,7 +59,7 @@ export class AppointmentController {
 
     //Solo los profesionales y pacientes pueden cancelar turnos
     static async cancelAppointment(req: Request, res: Response) {
-        const idAppointment = Number(req.params.id);
+        const idAppointment = Number(req.params.idAppointment);
 
         try {
         const em = await getORM().em.fork();
@@ -87,7 +87,7 @@ export class AppointmentController {
 
     //Solo los profesionales pueden completar turnos
     static async completeAppointment(req: Request, res: Response) {
-        const idAppointment = Number(req.params.id);
+        const idAppointment = Number(req.params.idAppointment);
 
         try {
             const em = await getORM().em.fork();
@@ -115,7 +115,7 @@ export class AppointmentController {
 
     //Solo los profesionales pueden marcar turnos como sin asistencia
     static async missAppointment(req: Request, res: Response) {
-        const idAppointment = Number(req.params.id);
+        const idAppointment = Number(req.params.idAppointment);
 
         try {
             const em = await getORM().em.fork();
@@ -143,7 +143,7 @@ export class AppointmentController {
 
 
     static async getAppointment(req: Request, res: Response) {
-        const idAppointment = Number(req.params.id);
+        const idAppointment = Number(req.params.idAppointment);
         try {
             const em = await getORM().em.fork();
             const appointment = await em.findOne(Appointment, { id: idAppointment });
@@ -187,7 +187,7 @@ export class AppointmentController {
 }
 
     static async getAppointmentsByPatient(req: Request, res: Response) {
-        const idPatient = Number(req.params.id);
+        const idPatient = Number(req.params.idPatient);
     try {
         const em = await getORM().em.fork();
         const patient = await em.findOne(Patient, { id: idPatient });
@@ -208,7 +208,7 @@ export class AppointmentController {
     }
 }
     static async getAvailableAppointmentsByProfessional(req: Request, res: Response) {
-        const idProfessional = Number(req.params.id);
+        const idProfessional = Number(req.params.idProfessional);
         
         try {
             const em = await getORM().em.fork();

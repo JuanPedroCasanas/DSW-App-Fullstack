@@ -16,10 +16,6 @@ export class ConsultingRoomController {
     static async addConsultingRoom(req: Request, res: Response) {
         const { description } = req.body;
 
-        if (!description) {
-            return res.status(400).json({ message: 'Se requiere una descripción, ej: Consultorio 1' });
-        }
-
         try {
             const consultingRoom = new ConsultingRoom(description);
             
@@ -38,15 +34,6 @@ export class ConsultingRoomController {
         const { idConsultingRoom } = req.body;
         const { description } = req.body;
 
-        if(!idConsultingRoom)
-        {
-            return res.status(400).json({ message: 'Se requiere una id de consultorio' });
-        }
-        if(!description)
-        {
-            return res.status(400).json({ message: 'Se requiere una nueva descripción de consultorio' });
-        }
-
         try {
             const em = await getORM().em.fork();
             const consultingRoom = await em.findOne(ConsultingRoom, { id: idConsultingRoom });
@@ -60,7 +47,7 @@ export class ConsultingRoomController {
 
             await em.flush();
 
-            return res.status(201).json({ message: 'ConsultingRoom actualizado', consultingRoom });
+            return res.status(201).json({ message: 'Consultorio actualizado', consultingRoom });
             } catch (error) {
                 console.error(error);
                 if (error instanceof BaseHttpError) {
@@ -73,11 +60,7 @@ export class ConsultingRoomController {
     }
 
     static async getConsultingRoom(req: Request, res: Response) {
-        const idConsultingRoom = Number(req.params.id);
-
-        if (!idConsultingRoom) {
-            return res.status(400).json({ message: 'Se requiere una id de consultorio' });
-        }
+        const idConsultingRoom = Number(req.params.idConsultingRoom);
 
         try {
             const em = await getORM().em.fork();
@@ -98,10 +81,21 @@ export class ConsultingRoomController {
     }
 
     static async getConsultingRooms(req: Request, res: Response) {
+        let includeInactive:boolean;
+
+        if (req.query.includeInactive === undefined) {
+            includeInactive = true;
+        } else {
+            includeInactive = req.query.includeInactive === 'true'; 
+            // true si el string es 'true', false si es cualquier otra cosa
+        }
+
         try {
 
+            const whereCondition = (includeInactive) ? {} : {isActive: true};
+
             const em = await getORM().em.fork();
-            const consultingRooms = await em.findAll(ConsultingRoom, {});
+            const consultingRooms = await em.find(ConsultingRoom, whereCondition);
             return res.status(200).json(consultingRooms);
 
         } catch (error) {
@@ -112,11 +106,6 @@ export class ConsultingRoomController {
 
     static async deleteConsultingRoom(req: Request, res: Response) {
         const idConsultingRoom = Number(req.params.idConsultingRoom);
-
-
-        if (!idConsultingRoom) {
-            return res.status(400).json({ message: 'Se requiere una id de consultorio' });
-        }
         try {
 
             const em = await getORM().em.fork();
@@ -156,33 +145,5 @@ export class ConsultingRoomController {
             }
         }
     }
-
-        static async getConsultingRoomByModule(req: Request, res: Response) {
-        const idModule = Number(req.params.id);
-
-        if (!idModule) {
-            return res.status(400).json({ message: 'Se requiere una id de Modulo' });
-        }
-
-        try {
-            const em = await getORM().em.fork();
-            const module = await em.findOne(Module, { id: idModule }, { populate: ['consultingRoom'] });
-            if (!module || module.status == ModuleStatus.Canceled) {
-                throw new NotFoundError('Modulo');
-            }
-            const consultingRoom = module.consultingRoom;
-            return res.status(200).json(consultingRoom);
-        } catch (error) {
-            console.error(error);
-            if (error instanceof BaseHttpError) {
-                return res.status(error.status).json(error.toJSON());
-            }
-            else {
-                return res.status(500).json({ message: 'Error al buscar consultorio' });
-            }
-        }
-    }
-
-
 
 }

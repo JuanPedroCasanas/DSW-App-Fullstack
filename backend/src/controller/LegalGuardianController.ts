@@ -16,28 +16,6 @@ export class LegalGuardianController {
     static async addLegalGuardian(req: Request, res: Response) {
         const { firstName, lastName, birthdate, telephone, mail, password, idHealthInsurance} = req.body;
 
-        if (!firstName) {
-            return res.status(400).json({ message: 'Se requiere nombre del responsable legal' });
-        }
-        if (!lastName) {
-            return res.status(400).json({ message: 'Se requiere apellido del responsable legal' });
-        }
-        if (!birthdate) {
-            return res.status(400).json({ message: 'Se requiere fecha de nacimiento del responsable legal' });
-        }   
-        if (!telephone) {
-            return res.status(400).json({ message: 'Se requiere telefono del responsable legal' });
-        }
-        if (!mail) {
-            return res.status(400).json({ message: 'Se requiere email del responsable legal' });
-        }
-        if (!password) {
-            return res.status(400).json({ message: 'Se requiere contraseña de la cuenta del responsable legal' });
-        }
-        if (!idHealthInsurance) {
-            return res.status(400).json({ message: 'Se requiere obra social del responsable legal' });
-        }
-
         try {         
             const em = await getORM().em.fork();   
             let healthInsurance: HealthInsurance | undefined;
@@ -74,25 +52,6 @@ export class LegalGuardianController {
         const { birthdate } = req.body;   
         const { telephone } = req.body;
         const { idHealthInsurance } = req.body;
-
-        if(!idLegalGuardian) {
-            return res.status(400).json({ message: 'Se requiere id del responsable legal' });
-        }
-        if (!firstName) {
-            return res.status(400).json({ message: 'Se requiere nombre del responsable legal' });
-        }
-        if (!lastName) {
-            return res.status(400).json({ message: 'Se requiere apellido del responsable legal' });
-        }
-        if (!birthdate) {
-            return res.status(400).json({ message: 'Se requiere fecha de nacimiento del responsable legal' });
-        }   
-        if (!telephone) {
-            return res.status(400).json({ message: 'Se requiere telefono del responsable legal' });
-        }
-        if (!idHealthInsurance) {
-            return res.status(400).json({ message: 'Se requiere obra social del responsable legal' });
-        }
 
         
         const em = await getORM().em.fork();
@@ -153,11 +112,8 @@ export class LegalGuardianController {
     }
 
     static async getLegalGuardian(req: Request, res: Response) {
-        const idLegalGuardian = Number(req.params.id);
+        const idLegalGuardian = Number(req.params.idLegalGuardian);
 
-        if (!idLegalGuardian) {
-            return res.status(400).json({ message: 'Se requiere ID del responsable legal' });
-        }
         try {
             const em = await getORM().em.fork();
             const legalGuardian = await em.findOne(LegalGuardian, { id: idLegalGuardian });
@@ -177,10 +133,8 @@ export class LegalGuardianController {
     }
 
     static async deleteLegalGuardian(req: Request, res: Response) {
-        const idLegalGuardian = Number(req.params.id);
-        if (!idLegalGuardian) {
-            return res.status(400).json({ message: 'Se requiere id del responsable legal' });
-        }
+        const idLegalGuardian = Number(req.params.idLegalGuardian);
+
         try {
 
             const em = await getORM().em.fork();

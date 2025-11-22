@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const getByProfessionalAppointmentSchema = z.object({
   params: z.object({
-    id: z.string({ //Los params siempre se mandan como string
+    idProfessional: z.string({ //Los params siempre se mandan como string
       required_error: "Se requiere el id del profesional"
     }).min(1, "Se requiere el id del profesional")
   })

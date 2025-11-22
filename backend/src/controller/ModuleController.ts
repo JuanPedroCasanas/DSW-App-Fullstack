@@ -15,7 +15,7 @@ import { safeSerialize } from '../utils/safeSerialize';
 export default class ModuleController  {
 
     //HELPERS
-     private static calculateHours(startTime: string, endTime: string): number {
+    private static calculateHours(startTime: string, endTime: string): number {
             let [startHours, startMinutes] = startTime.split(":").map(Number);
             let [endHours, endMinutes] = endTime.split(":").map(Number);
 
@@ -31,6 +31,7 @@ export default class ModuleController  {
             let totalHours: number = diffMinutes / 60;
             return totalHours;
     }
+
     private static getDatesForDayOfWeek(dayNumber: DayOfWeek, month: number, year: number): Date[] {
         const dates: Date[] = [];
         const date = new Date(year, month - 1, 1);
@@ -45,7 +46,6 @@ export default class ModuleController  {
 
         return dates;
     }
-
 
     static home(req: Request, res: Response) {
         return res.send('Soy el controlador de modulos!');
@@ -208,54 +208,8 @@ export default class ModuleController  {
         }
     }
 
-
-    //METODO MAL HECHO, VERIFICAR SI HACE FALTA, PARA MI NO.
-    static async updateModule(req: Request, res: Response) {
-        const { day,startTime,validMonth, idProfessional, consultingRoom, moduleType} = req.body;
-
-        if(!day)
-        {
-            return res.status(400).json({ message: 'Module day is required' });
-        }
-        if(!startTime)
-        {
-            return res.status(400).json({ message: 'Module start time is required' });
-        }
-        if(!validMonth)
-        {
-            return res.status(400).json({ message: 'Module valid month is required' });
-        }
-        if(!idProfessional)
-        {
-            return res.status(400).json({ message: 'Module professional id is required' });
-        }
-        if(!consultingRoom)
-        {
-            return res.status(400).json({ message: 'Module consulting room is required' });
-        }
-        if(!moduleType)
-        {
-            return res.status(400).json({ message: 'Module type is required' });
-        }
-    
-        const em = await getORM().em.fork();
-        const idModule = Number(req.params.idModule);
-        const module = await em.findOne(Module, { id : idModule });
-
-
-        if(!module)
-        {
-            return res.status(400).json({ message: 'Module not found' });
-            // throw new Error("Modulo no encontrado");
-        }
-
-        await em.persistAndFlush(module);
-
-        return res.status(201).json({ message: 'Module updated', module });
-    }
-
     static async getModule(req: Request, res: Response) {
-        const idModule = Number(req.params.id);
+        const idModule = Number(req.params.idModule);
 
         if(!idModule)
         {
@@ -299,7 +253,7 @@ export default class ModuleController  {
         }
 
     static async getCurrentMonthModulesByConsultingRoom(req: Request, res: Response) {
-            const idConsultingRoom = Number(req.params.id);
+            const idConsultingRoom = Number(req.params.idConsultingRoom);
             const currentDate: Date = new Date();
             const currentMonth: number = (currentDate.getMonth()) + 1; //getMonth devuelve un valor del 0 al 11, por eso le sumo 1
             const currentYear: number = currentDate.getFullYear();

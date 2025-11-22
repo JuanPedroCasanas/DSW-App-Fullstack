@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const getCancelCompleteMissAppointmentSchema = z.object({
   params: z.object({
-    id: z.string({ //Los params siempre se mandan como string
+    idAppointment: z.string({ //Los params siempre se mandan como string
       required_error: "Se requiere el id del turno"
     }).min(1, "Se requiere el id del turno")
   })

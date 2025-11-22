@@ -13,9 +13,6 @@ export class HealthInsuranceController {
 
     static async addHealthInsurance(req: Request, res: Response) {
         const {name} = req.body;
-        if (!name) {
-            return res.status(400).json({ message: 'Se requiere un nombre de obra social' });
-        }
         try {
             const em = await getORM().em.fork(); 
             const healthInsurance = new HealthInsurance(name);
@@ -35,10 +32,6 @@ export class HealthInsuranceController {
     static async updateHealthInsurance(req: Request, res: Response) {
         
         const {id, name } = req.body;
-    
-        if (!id) {
-            return res.status(400).json({ message: 'Se requiere un id de obra social' });
-        }
 
         if (!name) {
         return res.status(400).json({ message: 'Se requiere un nombre de obra social' });
@@ -69,11 +62,7 @@ export class HealthInsuranceController {
     }
 
     static async getHealthInsurance(req: Request, res: Response) {
-        const idHealthInsurance = Number(req.params.id);
-
-        if (!idHealthInsurance) {
-            return res.status(400).json({ message: 'Se requiere un id de obra social' });
-        }
+        const idHealthInsurance = Number(req.params.idHealthInsurance);
         try {
             const em = await getORM().em.fork();
             const healthInsurance = await em.findOne(HealthInsurance, { id: idHealthInsurance });
@@ -114,7 +103,7 @@ export class HealthInsuranceController {
     }
     
     static async getHealthInsuranceByProfessional (req:Request, res: Response) {
-        const idProfessional = Number(req.params.id);
+        const idProfessional = Number(req.params.idProfessional);
 
         let includeInactive:boolean;
         if (req.query.includeInactive === undefined) {
@@ -122,10 +111,6 @@ export class HealthInsuranceController {
         } else {
             includeInactive = req.query.includeInactive === 'true'; 
             // true si el string es 'true', false si es cualquier otra cosa
-        }
-
-        if (!idProfessional){
-           return res.status(400).json({ message: 'Se requiere el id de profesional para buscar las obras sociales'});
         }
 
         try {
@@ -151,15 +136,8 @@ export class HealthInsuranceController {
     }
 }
 
-
-
-
     static async deleteHealthInsurance(req: Request, res: Response) {
-        const idHealthInsurance = Number(req.params.id);
-
-        if (!idHealthInsurance) {
-            return res.status(400).json({ message: 'Se requiere un id de obra social' });
-        }
+        const idHealthInsurance = Number(req.params.idHealthInsurance);
         try {
             const em = await getORM().em.fork();
             const healthInsurance = await em.findOne(HealthInsurance, { id : idHealthInsurance });
