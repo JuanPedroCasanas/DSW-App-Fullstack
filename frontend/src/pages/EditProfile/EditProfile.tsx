@@ -6,6 +6,16 @@ import { Toast } from "@/components/Toast";
 import { User } from "../LoginRegister/loginRegisterTypes";
 
 
+import Page from "@/components/Layout/Page/Page";
+import SectionHeader from "@/components/Layout/SectionHeader/SectionHeader";
+import ActionGrid from "@/components/ui/ActionGrid/ActionGrid";
+import { FormField } from "@/components/ui/FormField/FormField";
+import { InputPassword } from "@/components/ui/InputPassword/InputPassword";
+import PrimaryButton from "@/components/ui/PrimaryButton/PrimaryButton";
+import { Card } from "@/components/ui/Card/Card";
+
+
+
 async function handleErrorResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
   const resJson = await res.json().catch(() => ({}));
     if (res.status === 500 || res.status === 400) {
@@ -369,257 +379,245 @@ export default function EditProfile() {
   }, [showChangePasswordModal]);
 
   return (
-    <main className="ep-main">
-        <section className="ep-container">
-          {/* === SELECCIONAR USUARIO === */}
-          <h1 className="ep-title">Seleccionar usuario</h1>
-            <div className="ep-field">
-                <label htmlFor="user">Usuario</label>
-              <select
+
+    <Page>
+        <main className="grid min-h-screen">
+            <section className="max-w-3xl mx-auto p-4 sm:p-6">
+            <SectionHeader title="Seleccionar usuario" />
+            <FormField label="Usuario" htmlFor="user">
+                <select
                 id="user"
-                value={selectedUser?.id || ""}
+                className="border rounded-lg p-3 w-full text-gray-700 focus:ring-2 focus:ring-cyan-500"
+                value={selectedUser?.id ?? ""}
                 onChange={(e) => {
-                  const user = users.find((u) => u.id === Number(e.target.value));
-                  setSelectedUser(user || null);
+                    const user = users.find((u) => u.id === Number(e.target.value));
+                    setSelectedUser(user ?? null);
                 }}
-              >
+                >
                 <option value="">Seleccionar…</option>
                 {users.map((user) => (
-                  <option key={user.id} value={user.id}>
+                    <option key={user.id} value={user.id}>
                     {user.id} - {user.mail} — {user.role}
-                  </option>
+                    </option>
                 ))}
-              </select>
-            </div>
-        </section>
+                </select>
+            </FormField>
+            </section>
 
-        { selectedUser && <section>
-          {/* === Cambiar contraseña === */}
-          <div className="ep-card">
-            <div className="ep-field ep-email-with-btn">
-              <label htmlFor="email">Email</label>
-              <div className="ep-email-row">
-                <input
-                  id="email"
-                  type="email"
-                  value={selectedUser?.mail || ""}
-                  readOnly
-                  className="ep-input-disabled"
-                />
-                {!showChangePasswordModal && (
-                  <button
-                    type="button"
-                    className="ep-btn"
-                    onClick={() => setShowChangePasswordModal(true)}
-                  >
-                    Cambiar contraseña
-                  </button>
-                )}
-              </div>
-            </div>
+            {selectedUser && (
+            <section className="space-y-6">
+                {/* === Email + Cambiar contraseña === */}
+                <Card>
+                <FormField label="Email" htmlFor="email">
+                    <div className="flex flex-wrap gap-3">
+                    <input
+                        id="email"
+                        type="email"
+                        value={selectedUser.mail}
+                        readOnly
+                        className="border rounded-lg p-3 w-full sm:flex-1 bg-gray-100"
+                    />
+                    {!showChangePasswordModal && (      
+                        <PrimaryButton
+                        onClick={() => setShowChangePasswordModal(true)}
+                        size="sm"
+                        variant="solid"
+                        >
+                        Cambiar contraseña
+                        </PrimaryButton>
+                    )}
+                    </div>
+                </FormField>
+                </Card>
+
+                {/* === Formulario perfil === */}
+                <form className="space-y-4" onSubmit={handleSubmitProfile} noValidate>
+                <Card>
+                    <fieldset className="space-y-4">
+                    <legend className="text-lg font-semibold mb-4">Datos del perfil</legend>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                        <FormField label="Nombre" htmlFor="nombre">
+                            <input
+                                id="nombre"
+                                type="text"
+                                placeholder="Nombre"
+                                value={firstName}
+                                onChange={(e) => setFirstName(e.target.value)}
+                                className="border rounded-lg p-3 w-full"
+                            />
+                        </FormField>
+                        <FormField label="Apellido" htmlFor="apellido">
+                        <input
+                            id="apellido"
+                            type="text"
+                            placeholder="Apellido"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                            className="border rounded-lg p-3 w-full"
+                        />
+                        </FormField>
+                    </div>
+
+                    <FormField label="Teléfono" htmlFor="telefono">
+                        <input
+                        id="telefono"
+                        type="tel"
+                        placeholder="+54 9 11 1234-5678"
+                        value={telephone}
+                        onChange={(e) => setTelephone(e.target.value)}
+                        className="border rounded-lg p-3 w-full"
+                        />
+                    </FormField>
+
+                    {(selectedUser.legalGuardian || selectedUser.patient) && (
+                        <>
+                        <FormField label="Obra Social" htmlFor="healthInsurance">
+                            <select
+                            id="healthInsurance"
+                            value={selectedHealthInsuranceId ?? ""}
+                            onChange={(e) => setSelectedHealthInsuranceId(Number(e.target.value))}
+                            className="border rounded-lg p-3 w-full"
+                            >
+                            <option value="">Seleccionar…</option>
+                            {healthInsurances.map((h) => (
+                                <option key={h.id} value={h.id}>
+                                {h.name}
+                                </option>
+                            ))}
+                            </select>
+                        </FormField>
+
+                        <FormField label="Fecha de nacimiento" htmlFor="add-fecha">
+                            <input
+                            id="add-fecha"
+                            type="date"
+                            value={birthdate ?? ""}
+                            onChange={(e) => setBirthdate(e.target.value)}
+                            className="border rounded-lg p-3 w-full"
+                            />
+                        </FormField>
+                        </>
+                    )}
+
+                    {selectedUser.professional && (
+                        <FormField label="Especialidad" htmlFor="occupation">
+                        <select id="occupation" disabled value={occupationName} className="border rounded-lg p-3 w-full">
+                            <option>{occupationName || "Sin especialidad"}</option>
+                        </select>
+                        </FormField>
+                    )}
+
+                    <div className="flex justify-center">
+                        
+                    
+                    <ActionGrid>
+                        <PrimaryButton type="submit">Guardar perfil</PrimaryButton>
+                    </ActionGrid>
+
+                    </div>
+
+                    </fieldset>
+                </Card>
+                </form>
+
+                {/* === Footer acciones === */}
+
+                    <div className="flex justify-end gap-3 mt-6">
+                        <PrimaryButton onClick={handleCancel} size="sm">
+                            Cancelar
+                        </PrimaryButton>
+                        <PrimaryButton onClick={openConfirmDelete} size="sm" variant="danger">
+                            Borrar perfil
+                        </PrimaryButton>
+                    </div>
+            </section>
+            )}
+
+            {/* === Modal cambiar contraseña === */}
             
-          </div>
-
-          {/* === Form Datos de perfil === */}
-          <form className="ep-card" onSubmit={handleSubmitProfile} noValidate>
-            <fieldset className="ep-fieldset">
-              <legend className="ep-legend">Datos del perfil</legend>
-
-              <div className="ep-grid">
-                <div className="ep-field">
-                  <label htmlFor="nombre">Nombre</label>
-                  <input
-                    id="nombre"
-                    type="text"
-                    autoComplete="given-name"
-                    placeholder="Nombre"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                  />
-                </div>
-
-                <div className="ep-field">
-                  <label htmlFor="apellido">Apellido</label>
-                  <input
-                    id="apellido"
-                    type="text"
-                    autoComplete="family-name"
-                    placeholder="Apellido"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="ep-field">
-                <label htmlFor="telefono">Teléfono</label>
-                <input
-                  id="telefono"
-                  type="tel"
-                  inputMode="tel"
-                  autoComplete="tel"
-                  placeholder="+54 9 11 1234-5678"
-                  value={telephone}
-                  onChange={(e) => setTelephone(e.target.value)}
-                />
-              </div>
-
-          { (selectedUser.legalGuardian || selectedUser.patient) && (
-            <div className="ep-field">
-              <label htmlFor="healthInsurance">Obra Social</label>
-              <select
-                id="healthInsurance"
-                value={selectedHealthInsuranceId ?? ""}
-                onChange={(e) => setSelectedHealthInsuranceId(Number(e.target.value))}
-              >
-                <option value="">Seleccionar…</option>
-                {healthInsurances.map((healthInsurance) => (
-                  <option key={healthInsurance.id} value={healthInsurance.id}>
-                    {healthInsurance.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {(selectedUser.legalGuardian || selectedUser.patient) && (
-              <div className="gp-field">
-                <label htmlFor="add-fecha">Fecha de nacimiento</label>
-                <input
-                  id="add-fecha"
-                  type="date"
-                  value={birthdate ?? ""}
-                  onChange={(e) => setBirthdate(e.target.value)}
-                />
-              </div>
-          )}
-          { selectedUser.professional && (
-            <div className="ep-field">
-              <label htmlFor="occupation">Especialidad</label>
-              <select id="occupation" disabled value={occupationName}>
-                <option value="">{occupationName || "Sin especialidad"}</option>
-              </select>
-            </div>
-          )}
-              <div className="ep-actions">
-                <button type="submit" className="ep-btn">Guardar perfil</button>
-              </div>
-            </fieldset>
-          </form>
-
-          {/* === Footer de acciones globales === */}
-          <div className="ep-footer-actions">
-            <button type="button" className="ep-btn-outline" onClick={handleCancel}>
-              Cancelar
-            </button>
-            <button type="button" className="ep-btn ep-btn-danger" onClick={openConfirmDelete}>
-              Borrar perfil
-            </button>
-          </div>
-
-          {/* === Modal de confirmación === */}
-          {showConfirmDelete && (
+            {showChangePasswordModal && (
             <div
-              className="ep-modal-backdrop"
-              role="presentation"
-              onClick={closeConfirmDelete}
+                className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50"
+                role="presentation"
+                onClick={() => setShowChangePasswordModal(false)}
             >
-              <div
-                className="ep-modal"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="ep-del-title"
-                aria-describedby="ep-del-desc"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <h2 id="ep-del-title">Eliminar perfil</h2>
-                <p id="ep-del-desc">
-                  ¿Estás seguro de que querés eliminar el perfil con todos sus datos?
-                </p>
-                <div className="ep-modal-actions">
-                  <button type="button" className="ep-btn-outline" onClick={closeConfirmDelete}>
-                    Cancelar
-                  </button>
-                  <button type="button" className="ep-btn ep-btn-danger" onClick={handleConfirmDelete}>
-                    Eliminar
-                  </button>
+                <div
+                    className="bg-white rounded-xl shadow-lg p-6 max-w-md w-full"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="change-pass-title"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                <h2 id="change-pass-title" className="text-lg font-semibold mb-4">
+                    Cambiar contraseña
+                </h2>
+
+                {/* Campos de contraseña */}
+                <div className="space-y-4">
+                    <InputPassword
+                        label="Contraseña Actual"
+                        id="currentPassword"
+                        name="currentPassword"
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        showPwd={showCurrentPassword}
+                        toggleShowPwd={() => setShowCurrentPassword(!showCurrentPassword)}
+                        eyeIconUrl="/icons/eyeicon.png"
+                    />
+                    <InputPassword
+                        label="Nueva contraseña"
+                        id="newPassword"
+                        name="newPassword"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        showPwd={showNewPassword}
+                        toggleShowPwd={() => setShowNewPassword(!showNewPassword)}
+                        eyeIconUrl="/icons/eyeicon.png"
+                    />
+                    <InputPassword
+                        label="Repetir nueva contraseña"
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        showPwd={showNewConfirmPassword}
+                        toggleShowPwd={() => setShowNewConfirmPassword(!showNewConfirmPassword)}
+                        eyeIconUrl="/icons/eyeicon.png"
+                    />
                 </div>
-              </div>
+
+                {/* Botones del modal */}
+                    <div className="flex justify-end gap-3 mt-6">
+                        <PrimaryButton
+                            onClick={() => handleSubmitAuth(currentPassword, newPassword, confirmPassword)}
+                            size="sm"
+                            variant="solid"
+                        >
+                        Guardar
+                        </PrimaryButton>
+
+                        <PrimaryButton onClick={closeSubmitAuth} size="sm" variant="outline">
+                            Cancelar
+                        </PrimaryButton>
+                    </div>
+
+
+                </div>
             </div>
-          )}
+            )}
 
-          {/* === Modal de editar contraseña === */}
-          {showChangePasswordModal && (
-            <div
-              className="ep-modal-backdrop"
-              role="presentation"
-              onClick={() => setShowChangePasswordModal(false)}
-            >
-              <div
-                className="ep-modal"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="change-pass-title"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <h2 id="change-pass-title">Cambiar contraseña</h2>
+        </main>
 
-                <div className="ep-field">
-                  <input
-                    type={showCurrentPassword ? "text" : "password"}
-                    placeholder="Contraseña actual"
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                  />
-                </div>
-                <div className="ep-field">
-                  <input
-                    type={showNewPassword ? "text" : "password"}
-                    placeholder="Contraseña nueva"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                  />
-                </div>
-                <div className="ep-field">
-                  <input
-                    type={showNewConfirmPassword ? "text" : "password"}
-                    placeholder="Confirmar contraseña nueva"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                  />
-                </div>
+        {/* ===== TOAST ===== */}
+        {toast && (
+        <Toast
+            message={toast.message}
+            type={toast.type}
+            onClose={() => setToast(null)}
+        />
+        )}
 
-                <div className="ep-modal-actions">
-                  <button
-                    type="button"
-                    className="ep-btn"
-                    onClick={() => {
-                      handleSubmitAuth(currentPassword, newPassword, confirmPassword);
-                    }}
-                  >
-                    Guardar
-                  </button>
-                  <button
-                    type="button"
-                    className="ep-btn-outline"
-                    onClick={() => closeSubmitAuth()}
-                  >
-                    Cancelar
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-          {/* ===== TOAST ===== */}
-          {toast && (
-            <Toast
-              message={toast.message}
-              type={toast.type}
-              onClose={() => setToast(null)}
-            />
-          )}
-        </section>
-  }
-    </main>
+    </Page>
+
   );
 }

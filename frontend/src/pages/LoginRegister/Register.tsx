@@ -1,8 +1,14 @@
 import { useMemo, useState, useEffect } from "react";
-import { NavLink } from "react-router-dom";
-import "./login.css"; // Reutilizamos exactamente los estilos del login
 import { HealthInsurance, Occupation } from "./loginRegisterTypes";
 import { Toast } from "@/components/Toast";
+
+import Page from "@/components/Layout/Page/Page";
+import SectionHeader from "@/components/Layout/SectionHeader/SectionHeader";
+import { FormField } from "@/components/ui/FormField/FormField";
+import { InputPassword } from "@/components/ui/InputPassword/InputPassword";
+import PrimaryButton from "@/components/ui/PrimaryButton/PrimaryButton";
+import NavButton from "@/components/ui/NavButton/NavButton";
+import ActionGrid from "@/components/ui/ActionGrid/ActionGrid";
 
 type Role = "Paciente" | "Profesional" | "Responsable Legal" | "";
 
@@ -274,261 +280,202 @@ const [form, setForm] = useState<{
 }
  
   return (
-    <main className="login">{/* mismo wrapper que Login para no hacer 45 mil .css */}
-        <div className="frame">
-          {/* Encabezado en el mismo estilo que Login/Anima (anima = la ia de figma) */}
-          <div className="div">
-            <h1 className="login__title">Bienvenido a Narrativas</h1>
-            <h1 className="login__title">Registrarse</h1>
-            <NavLink className="text-wrapper-2" to="/login">
-              ¿Ya tenés cuenta? Iniciar sesión
-            </NavLink>
-          </div>
+ 
+    <Page>
+        <div className="w-full max-w-xl mx-auto bg-white rounded-xl shadow p-8 grid gap-8">
 
-          {/* Formulario */}
-          <form className="div-2" onSubmit={onSubmit} noValidate>
-            {/* firstName */}
-            <div className="div-2">
-              <label className="text-wrapper-3" htmlFor="firstName">Nombre</label>
-              <div className="input">
-                <input
-                  id="firstName"
-                  name="firstName"
-                  className="input__control"
-                  placeholder="Tu nombre"
-                  value={form.firstName}
-                  onChange={handleChange}
-                  autoComplete="given-name"
-                  required
+            {/* Encabezado */}
+            <div className="text-center">
+                <SectionHeader
+                    title="Bienvenido a Narrativas"
+                    subtitle="Registrarse"
                 />
-              </div>
             </div>
 
-            {/* lastName */}
-            <div className="div-2">
-              <label className="text-wrapper-3" htmlFor="lastName">Apellido</label>
-              <div className="input">
-                <input
-                  id="lastName"
-                  name="lastName"
-                  className="input__control"
-                  placeholder="Tu apellido"
-                  value={form.lastName}
-                  onChange={handleChange}
-                  autoComplete="family-name"
-                  required
-                />
-              </div>
-            </div>
+            <NavButton to="/login" variant="ghost">
+                ¿Ya tenés cuenta? Iniciar sesión
+            </NavButton>
 
-            {/* mail */}
-            <div className="div-2">
-              <label className="text-wrapper-3" htmlFor="mail">Correo electrónico</label>
-              <div className="input">
+            {/* Formulario */}
+            <form className="grid gap-4" onSubmit={onSubmit} noValidate>
+            <FormField label="Nombre" htmlFor="firstName">
                 <input
-                  id="mail"
-                  name="mail"
-                  type="mail"
-                  className="input__control"
-                  placeholder="mail@dominio.com"
-                  value={form.mail}
-                  onChange={handleChange}
-                  autoComplete="mail"
-                  required
+                id="firstName"
+                name="firstName"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-black placeholder:text-gray-500"
+                placeholder="Tu nombre"
+                value={form.firstName}
+                onChange={handleChange}
+                autoComplete="given-name"
+                required
                 />
-              </div>
-            </div>
+            </FormField>
+
+            <FormField label="Apellido" htmlFor="lastName">
+                <input
+                id="lastName"
+                name="lastName"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-black placeholder:text-gray-500"
+                placeholder="Tu apellido"
+                value={form.lastName}
+                onChange={handleChange}
+                autoComplete="family-name"
+                required
+                />
+            </FormField>
+
+            <FormField label="Correo electrónico" htmlFor="mail">
+                <input
+                id="mail"
+                name="mail"
+                type="email"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-black placeholder:text-gray-500"
+                placeholder="mail@dominio.com"
+                value={form.mail}
+                onChange={handleChange}
+                autoComplete="email"
+                required
+                />
+            </FormField>
 
             {/* Contraseña */}
-            <div className="div-2">
-              <label className="text-wrapper-3" htmlFor="password">Contraseña</label>
-              <div className="input input--password">
-                <input
-                  id="password"
-                  name="password"
-                  className="input__control"
-                  type={showPwd ? "text" : "password"}
-                  placeholder="Mínimo 8 caracteres"
-                  value={form.password}
-                  onChange={handleChange}
-                  autoComplete="new-password"
-                  minLength={8}
-                  required
+            <FormField label="Contraseña" htmlFor="password">
+                <InputPassword
+                id="password"
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                showPwd={showPwd}
+                toggleShowPwd={() => setShowPwd(v => !v)}
+                eyeIconUrl={eyeIconUrl}
                 />
-                <button
-                  type="button"
-                  className="eye"
-                  aria-label={showPwd ? "Ocultar contraseña" : "Mostrar contraseña"}
-                  onClick={() => setShowPwd((v) => !v)}
-                >
-                  {eyeIconUrl ? <img className="vector" src={eyeIconUrl} alt="" /> : "👁"}
-                </button>
-              </div>
-            </div>
+            </FormField>
 
-
-          {/* Repetir contraseña */}
-          <div className="div-2">
-            <label className="text-wrapper-3" htmlFor="confirmPassword">Repetir contraseña</label>
-            <div className="input input--password">
-              <input
+            {/* Confirmar contraseña */}
+            <FormField label="Repetir contraseña" htmlFor="confirmPassword">
+                <InputPassword
                 id="confirmPassword"
                 name="confirmPassword"
-                className="input__control"
-                type={showConfirmPwd ? "text" : "password"}
-                placeholder="Repetí tu contraseña"
                 value={form.confirmPassword}
                 onChange={handleChange}
-                autoComplete="new-password"
-                minLength={8}
-                required
-                aria-invalid={
-                  form.confirmPassword && form.password !== form.confirmPassword
-                    ? true
-                    : undefined
-                }
-                aria-describedby="confirmPwdHelp"
-              />
-              <button
-                type="button"
-                className="eye"
-                aria-label={showConfirmPwd ? "Ocultar contraseña" : "Mostrar contraseña"}
-                onClick={() => setShowConfirmPwd((v) => !v)}
-              >
-                {eyeIconUrl ? <img className="vector" src={eyeIconUrl} alt="" /> : "👁"}
-              </button>
-            </div>
-            {form.confirmPassword && form.password !== form.confirmPassword && (
-              <small id="confirmPwdHelp" style={{ color: "#d32f2f", marginTop: 4, display: "block" }}>
-                Las contraseñas no coinciden.
-              </small>
-            )}
-          </div>
-
+                showPwd={showConfirmPwd}
+                toggleShowPwd={() => setShowConfirmPwd(v => !v)}
+                eyeIconUrl={eyeIconUrl}
+                />
+                {form.confirmPassword && form.password !== form.confirmPassword && (
+                <small className="text-red-600 mt-1 block">
+                    Las contraseñas no coinciden.
+                </small>
+                )}
+            </FormField>
 
             {/* Fecha de nacimiento */}
-            <div className="div-2">
-              <label className="text-wrapper-3" htmlFor="fechaNacimiento">Fecha de nacimiento</label>
-              <div className="input">
+            <FormField label="Fecha de nacimiento" htmlFor="fechaNacimiento">
                 <input
-                  id="fechaNacimiento"
-                  name="fechaNacimiento"
-                  className="input__control"
-                  type="date"
-                  value={form.fechaNacimiento}
-                  onChange={handleChange}
-                  max={todayISO}
-                  required
+                id="fechaNacimiento"
+                name="fechaNacimiento"
+                type="date"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-black"
+                value={form.fechaNacimiento}
+                onChange={handleChange}
+                max={todayISO}
+                required
                 />
-              </div>
-            </div>
+            </FormField>
 
             {/* Teléfono */}
-            <div className="div-2">
-              <label className="text-wrapper-3" htmlFor="telefono">Teléfono</label>
-              <div className="input">
+            <FormField label="Teléfono" htmlFor="telefono">
                 <input
-                  id="telefono"
-                  name="telefono"
-                  className="input__control"
-                  type="tel"
-                  inputMode="tel"
-                  placeholder="+54 9 341 123 4567"
-                  value={form.telefono}
-                  onChange={handleChange}
-                  autoComplete="tel"
-                  required
+                id="telefono"
+                name="telefono"
+                type="tel"
+                inputMode="tel"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-black placeholder:text-gray-500"
+                placeholder="+54 9 341 123 4567"
+                value={form.telefono}
+                onChange={handleChange}
+                autoComplete="tel"
+                required
                 />
-              </div>
-            </div>
+            </FormField>
 
             {/* Rol */}
-            <div className="div-2">
-              <label className="text-wrapper-3" htmlFor="role">Rol</label>
-              <div className="input">
+            <FormField label="Rol" htmlFor="role">
                 <select
-                  id="role"
-                  name="role"
-                  className="input__control"
-                  value={form.role}
-                  onChange={handleChange}
-                  required
-                >                  
-                  <option>Paciente</option>
-                  <option>Responsable Legal</option>
-                  <option>Profesional</option>
+                id="role"
+                name="role"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-black"
+                value={form.role}
+                onChange={handleChange}
+                required
+                >
+                <option>Paciente</option>
+                <option>Responsable Legal</option>
+                <option>Profesional</option>
                 </select>
-              </div>
-            </div>
+            </FormField>
 
-            {/* /* occupation solo si rol = profesional */ }
+            {/* Especialidad si rol = Profesional */}
             {form.role === "Profesional" && (
-              <>
-                <label htmlFor="occupation" className="text-wrapper-3" style={{ marginTop: 12 }}>
-                  Especialidad
-                </label>
-                <div className="input">
-                  <select
+                <FormField label="Especialidad" htmlFor="occupation">
+                <select
                     id="occupation"
                     name="occupation"
-                    className="input__control"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-3 text-black"
                     value={selectedOccupationId ?? ""}
-                    onChange={(e) => setSelectedOccupationId(Number(e.target.value))}
+                    onChange={e => setSelectedOccupationId(Number(e.target.value))}
                     required
-                  >                  
+                >
                     {occupations.map(g => (
-                      <option key={g.id} value={g.id}>
+                    <option key={g.id} value={g.id}>
                         Id: {g.id}, {g.name}
-                      </option>
+                    </option>
                     ))}
-                  </select>
-                </div>
-              </>
+                </select>
+                </FormField>
             )}
 
-            {/*OBRA SOCIAL: Visible si el rol es Paciente' O RESPONSABLE */}
-            {(form.role=== "Paciente" || form.role=== "Responsable Legal") && (
-              <>
-                <div className="div-2" style={{ marginTop: 12 }}>
-                  <label className="text-wrapper-3" htmlFor="idHealthInsurance">
-                    Obra Social
-                  </label>
-                  <div className="input">
-                    <select
-                      id="idHealthInsurance"
-                      name="idHealthInsurance"
-                      className="input__control"
-                      value={selectedHealthInsuranceId ?? 1} //1 es id de particular 
-                      onChange={(e) => {setSelectedHealthInsuranceId(Number(e.target.value))}}
-                      required
-                    >
-                      {healthInsurances.map(g => (
-                        <option key={g.id} value={g.id}>
-                          Id: {g.id}, {g.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              </>
+            {/* Obra social si rol = Paciente o Responsable Legal */}
+            {(form.role === "Paciente" || form.role === "Responsable Legal") && (
+                <FormField label="Obra Social" htmlFor="idHealthInsurance">
+                <select
+                    id="idHealthInsurance"
+                    name="idHealthInsurance"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-3 text-black"
+                    value={selectedHealthInsuranceId ?? 1}
+                    onChange={e => setSelectedHealthInsuranceId(Number(e.target.value))}
+                    required
+                >
+                    {healthInsurances.map(g => (
+                    <option key={g.id} value={g.id}>
+                        Id: {g.id}, {g.name}
+                    </option>
+                    ))}
+                </select>
+                </FormField>
             )}
-         
+
             {/* CTA */}
-              <div className="div-4">
-                <button type="submit" className="btn-primary">Crear cuenta</button>
-              </div>
-
+            <ActionGrid>
+                <PrimaryButton type="submit" disabled={isLoading}>
+                {isLoading ? "Creando..." : "Crear cuenta"}
+                </PrimaryButton>
+            </ActionGrid>
             </form>
         </div>
+
         {/* ===== TOAST ===== */}
         {toast && (
-          <Toast
+            <Toast
             message={toast.message}
             type={toast.type}
             onClose={() => setToast(null)}
-          />
+            />
         )}
-    </main>
+
+
+    </Page>
+
   );
 } 
 

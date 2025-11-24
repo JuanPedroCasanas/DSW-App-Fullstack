@@ -1,40 +1,27 @@
-// src/pages/Home.tsx
-import { NavLink } from "react-router-dom";
-import './professionalPortal.css';
+import Page from "@/components/Layout/Page/Page";
+import SectionHeader from "@/components/Layout/SectionHeader/SectionHeader";
+import ActionGrid from "@/components/ui/ActionGrid/ActionGrid";
+import NavButton from "@/components/ui/NavButton/NavButton";
 
 export default function ProfessionalPortal() {
+
   return (
-    <section className="professional-portal">
-      <h2>Portal Profesional</h2>
+    <Page>
+      <SectionHeader
+        title="Portal Profesional"
+        subtitle="Selecciona la acción a realizar"
+      />
 
-      <nav className="professional-portal-nav">
+      <ActionGrid>
+        <NavButton to="/professional-health-insurance">Obras Sociales admitidas</NavButton>
 
-        <NavLink
-          to="/professional-health-insurances"
-        >
-          Obras Sociales admitidas
-        </NavLink>
+        <NavButton to="/module-rent">Alquilar módulo</NavButton>
 
-        <NavLink
-          to="/module-rent"
-        >
-          Alquilar módulo
-        </NavLink>
+        <NavButton to="/edit-profile">Editar perfil</NavButton>
 
-        <NavLink
-          to="/edit-profile"
-        >
-          Editar perfil
-        </NavLink>
+        <NavButton to="/appointment-list">Listado de turnos</NavButton>
+      </ActionGrid>
 
-        <NavLink
-          to="/appointment-list"
-        >
-          Listado de turnos
-        </NavLink>
-        
-      </nav>
-
-    </section>
+    </Page>
   );
 }

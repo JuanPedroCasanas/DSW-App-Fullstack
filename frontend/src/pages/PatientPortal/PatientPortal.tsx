@@ -1,18 +1,25 @@
-import { NavLink } from "react-router-dom";
-import "./patientPortal.css";
+import Page from "@/components/Layout/Page/Page";
+import SectionHeader from "@/components/Layout/SectionHeader/SectionHeader";
+import ActionGrid from "@/components/ui/ActionGrid/ActionGrid";
+import NavButton from "@/components/ui/NavButton/NavButton";
 
 export default function PatientPortal() {
+
   return (
-    <section className="patient-portal">
-      <h2>Portal Paciente</h2>
+    <Page>
+      <SectionHeader
+        title="Portal Paciente"
+        subtitle="Selecciona la acción a realizar"
+      />
 
-      <nav className="patient-portal-nav">
+      <ActionGrid>
 
-        <NavLink to="/appointment-schedule">Reservar turno</NavLink>
-        <NavLink to="/edit-profile">Editar perfil</NavLink>
-        
-      </nav>
+        <NavButton to="/appointment-schedule">Reservar turno</NavButton>
 
-    </section>
+        <NavButton to="/edit-profile">Editar perfil</NavButton>
+
+      </ActionGrid>
+
+    </Page>
   );
 }

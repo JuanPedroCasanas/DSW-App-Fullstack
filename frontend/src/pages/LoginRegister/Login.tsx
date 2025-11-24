@@ -2,14 +2,18 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import { Toast } from "@/components/Toast";
-import "./login.css"; 
 // import eyeIcon from "./eyeicon.png"; // de alguna manera asi no funciona, pero bueno!
+import Page from "@/components/Layout/Page/Page";
+import SectionHeader from "@/components/Layout/SectionHeader/SectionHeader";
+import { FormField } from "@/components/ui/FormField/FormField";
+import { InputPassword } from "@/components/ui/InputPassword/InputPassword";
 
 type User = {
   mail: string;
   password: string;
   isActive:boolean;
 };
+
 async function handleResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
   const resJson = await res.json().catch(() => ({}));
 
@@ -91,98 +95,98 @@ useEffect(() => {
   }
 
 return (
-    <main className="login">
-      <form className="frame" onSubmit={handleSubmit} noValidate>
-        {/* Encabezado */}
-        <header className="div">
-         {/* <h1 className="text-wrapper">Bienvenido</h1> */}
-           {/* <h1 className="login__title">Bienvenido a Narrativas</h1> */}
-          <h1 className="login__title">Bienvenido a Narrativas</h1> 
-          
-          <NavLink to="/register" className="text-wrapper-2">
-            ¿Primera vez? Registrarse
+
+
+<Page>
+    <main className="min-h-[calc(100vh-var(--nav-h))] flex justify-center items-start p-4 pt-10">
+
+    <form
+        className="mt-8 w-full max-w-[420px] bg-white text-[#111] rounded-xl p-6 grid gap-6"
+      noValidate
+    >
+      {/* Encabezado */}
+      <div className="text-center">
+         <SectionHeader title="Bienvenido a Narrativas" />
+      </div>
+
+      <div className="text-center">
+        <NavLink
+          to="/register"
+          className="text-[20px] font-medium text-cyan-600 underline whitespace-nowrap"
+        >
+          ¿Primera vez? Registrarse
+        </NavLink>
+      </div>
+
+      {/* Email */}
+      <FormField label="Correo electrónico" htmlFor="mmail">
+        <div className="flex items-center gap-2 w-full border border-[#b5b6b7] rounded-[10px] bg-white px-4 py-[14px]">
+          <input
+            id="mmail"
+            name="mail"
+            type="email"
+            className="flex-1 w-full border-0 outline-0 bg-transparent text-[16px] leading-[22px] text-black placeholder:text-[#7d7d7d]"
+            placeholder="psico@narrativas.com.ar"
+            value={datos.mail}
+            onChange={handleInputChange}
+            autoComplete="email"
+            required
+          />
+        </div>
+      </FormField>
+
+      {/* Password */}
+      <FormField label="Contraseña" htmlFor="password">
+        <InputPassword
+          id="password"
+          name="password"
+          value={datos.password}
+          onChange={handleInputChange}
+          showPwd={showPwd}
+          toggleShowPwd={() => setShowPwd(v => !v)}
+          eyeIconUrl={eyeIconUrl}
+        />
+      </FormField>
+
+      {/* CTA + fila inferior */}
+      <div className="grid gap-4">
+        <button
+          type="submit"
+          className="w-full rounded-[10px] px-3 py-[13px] bg-cyan-600 text-white text-[16px] font-bold leading-[22px] hover:brightness-95 active:translate-y-[1px] transition-[filter,transform] duration-150 ease-in-out"
+        >
+          Iniciar sesión
+        </button>
+
+        <div className="flex items-center justify-between">
+          <label className="inline-flex items-center gap-2">
+            <input
+              className="w-[18px] h-[18px]"
+              type="checkbox"
+              checked={remember}
+              onChange={(e) => setRemember(e.target.checked)}
+            />
+            <span className="text-[16px] font-normal text-black">Recordarme</span>
+          </label>
+
+          <NavLink
+            to="/forgot-password"
+            className="text-[16px] font-medium text-cyan-600 whitespace-nowrap no-underline"
+          >
+            ¿Olvidaste tu contraseña?
           </NavLink>
-        </header>
-
-        {/* Email */}
-        <div className="div-2">
-          <label htmlFor="email" className="text-wrapper-3">
-            Correo electrónico
-          </label>
-          <div className="div-wrapper input">
-            <input
-              id="mmail"
-              name="mail"
-              type={showPwd ? "text" : "mail"}
-              className="input__control"
-              placeholder="psico@narrativas.com.ar"
-              value={datos.mail}
-              onChange={handleInputChange}
-              autoComplete="mail"
-              required
-            />
-          </div>
         </div>
+      </div>
 
-        {/* Password */}
-        <div className="div-2">
-          <label htmlFor="password" className="text-wrapper-3">
-            Contraseña
-          </label>
-          <div className="div-3 input input--password">
-            <input
-              id="password"
-              name="password"
-              type={showPwd ? "text" : "password"}
-              className="input__control"
-              placeholder="•••••••••"
-              value={datos.password}
-              onChange={handleInputChange}
-              autoComplete="current-password"
-              required
-            />
-            <button
-              type="button"
-              className="eye"
-              aria-label={showPwd ? "Ocultar contraseña" : "Mostrar contraseña"}
-              onClick={() => setShowPwd((v) => !v)}
-            >
-              <img className="vector" src={eyeIconUrl} alt="" aria-hidden="true" />
-            </button>
-          </div>
-        </div>
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
+    </form>
+  </main>
+</Page>
 
-        {/* recordarme + contraseña olvidada */}
-        <div className="div-4">
-          <button type="submit" className="btn-primary text-wrapper-6">
-            Iniciar sesión
-          </button>
-
-          <div className="div-5">
-            <label className="div-6">
-              <input
-                className="checkbox"
-                type="checkbox"
-                checked={remember}
-                onChange={(e) => setRemember(e.target.checked)}
-              />
-              <span className="text-wrapper-7">Recordarme</span>
-            </label>
-
-            <NavLink to="/forgot-password" className="text-wrapper-8">
-              ¿Olvidaste tu contraseña?
-            </NavLink>
-          </div>
-        </div>
-        {/* ===== TOAST ===== */}
-            {toast && (
-              <Toast
-                message={toast.message}
-                type={toast.type}
-                onClose={() => setToast(null)}
-              />
-            )}
-      </form>
-    </main>
   );
 }

@@ -7,7 +7,7 @@ type Props = {
 export default function SectionHeader({ title, subtitle }: Props) {
   return (
     <header className="grid gap-1">
-      <h2 className="m-0 text-[clamp(1.25rem,1.1rem+0.8vw,1.75rem)] font-semibold pt-20">
+      <h2 className="m-0 text-[clamp(1.25rem,1.1rem+0.8vw,1.75rem)] font-semibold pt-1">
         {title}
       </h2>
       {subtitle && (

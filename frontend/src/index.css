@@ -27,10 +27,14 @@ html {
   margin: -1px;
 }
 
-/* los colores */
+/* los colores #e6f5f7 */
 :root {
   --color-primary: rgba(59, 154, 184, 1);
   --color-bg: #e6f5f7;
   --color-text: rgba(0, 0, 0, 0.87);
+}
+
+body {
+  background-color: var(--color-bg) !important;
 }
 

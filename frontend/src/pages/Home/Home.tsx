@@ -1,9 +1,9 @@
 import { useLocation } from "react-router-dom";
 import { Toast } from "@/components/Toast";
-import Page from "@/components/ui/Page";
-import SectionHeader from "@/components/ui/SectionHeader";
-import ActionGrid from "@/components/ui/ActionGrid";
-import NavButton from "@/components/ui/NavButton";
+import Page from "@/components/Layout/Page/Page";
+import SectionHeader from "@/components/Layout/SectionHeader/SectionHeader";
+import ActionGrid from "@/components/ui/ActionGrid/ActionGrid";
+import NavButton from "@/components/ui/NavButton/NavButton";
 
 export default function Home() {
   const location = useLocation();

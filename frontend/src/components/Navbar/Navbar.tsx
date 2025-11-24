@@ -1,8 +1,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import ActionGrid from "@/components/ui/ActionGrid";
-import NavButton from "@/components/ui/NavButton";
+import ActionGrid from "@/components/ui/ActionGrid/ActionGrid";
+import NavButton from "@/components/ui/NavButton/NavButton";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -52,7 +52,7 @@ export default function Navbar() {
         "pl-[max(16px,env(safe-area-inset-left))] pr-[max(16px,env(safe-area-inset-right))]",
       ].join(" ")}
       // Altura como variable (matching tu CSS): 64px mobile, 90px md+
-      style={{ ["--nav-h" as any]: "64px" }}
+      style={{ ["--nav-h" as any]: "64px" }} // en algun momento deberia ver como sacar ese rojo del ANY
     >
       {/* Wrapper interno */}
       <div className="h-[var(--nav-h)] md:h-[90px] max-w-6xl mx-auto flex items-center gap-3 py-2 md:py-0">
@@ -109,10 +109,10 @@ export default function Navbar() {
 
         {/* Menú desktop (visible ≥ md) */}
         <div className="hidden md:flex items-center gap-1 ml-4">
-          <NavLink to="/portales" className={linkClass}>
+          <NavLink to="/" className={linkClass}>
             Portales
           </NavLink>
-          <NavLink to="/sobre-nosotros" className={linkClass}>
+          <NavLink to="/about" className={linkClass}>
             Sobre nosotros
           </NavLink>
         </div>
@@ -144,12 +144,12 @@ export default function Navbar() {
         {/* Links principales */}
         <ul className="grid gap-2 list-none p-0 m-0">
           <li>
-            <NavLink to="/portales" className={linkClass}>
+            <NavLink to="/" className={linkClass}>
               Portales
             </NavLink>
           </li>
           <li>
-            <NavLink to="/sobre-nosotros" className={linkClass}>
+            <NavLink to="/about" className={linkClass}>
               Sobre nosotros
             </NavLink>
           </li>

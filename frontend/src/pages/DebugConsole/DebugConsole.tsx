@@ -1,7 +1,7 @@
-import Page from "@/components/ui/Page";
-import SectionHeader from "@/components/ui/SectionHeader";
-import ActionGrid from "@/components/ui/ActionGrid";
-import NavButton from "@/components/ui/NavButton";
+import Page from "@/components/Layout/Page/Page";
+import SectionHeader from "@/components/Layout/SectionHeader/SectionHeader";
+import ActionGrid from "@/components/ui/ActionGrid/ActionGrid";
+import NavButton from "@/components/ui/NavButton/NavButton";
 
 export default function DebugConsolePage() {
   return (
@@ -28,7 +28,7 @@ export default function DebugConsolePage() {
         title= "Listados"
       />
       <ActionGrid>
-        <NavButton to="/admin/module-list">Listado de Modulos</NavButton>
+        <NavButton to="/admin/module-list">Listado de Módulos</NavButton>
       </ActionGrid>
 
     </Page>

@@ -1,55 +1,27 @@
-import { NavLink } from "react-router-dom";
-import './legalGuardianPortal.css';
+import Page from "@/components/Layout/Page/Page";
+import SectionHeader from "@/components/Layout/SectionHeader/SectionHeader";
+import ActionGrid from "@/components/ui/ActionGrid/ActionGrid";
+import NavButton from "@/components/ui/NavButton/NavButton";
 
 export default function LegalGuardianPortal() {
+
   return (
-    <section className="legalGuardian-portal">
-      <h2>Portal Responsable Legal</h2>
+    <Page>
+      <SectionHeader
+        title="Portal Responsable Legal"
+        subtitle="Selecciona la acción a realizar"
+      />
 
-      <nav className="legalGuardian-portal-nav">
+      <ActionGrid>
 
-        <NavLink
-          to="/appointment-schedule"
-          className="cta-primary"
-          aria-label="Ir a reservar turno"
-        >
-          Reservar turno
-        </NavLink>
+        <NavButton to="/appointment-schedule">Reservar turno</NavButton>
 
-        <NavLink
-          to="/guarded-patients"
-          className="cta-primary"
-          aria-label="Ir a paciente a cargo"
-        >
-          Pacientes a cargo
-        </NavLink>
+        <NavButton to="/guarded-patients">Pacientes a cargo</NavButton>
 
-        <NavLink
-          to="/edit-profile"
-          className="cta-primary"
-          aria-label="Ir a editar perfil"
-        >
-          Editar perfil
-        </NavLink>
+        <NavButton to="/edit-profile">Editar perfil</NavButton>
 
-      </nav>
+      </ActionGrid>
 
-    </section>
+    </Page>
   );
 }
-
-/*export default function PatientPortal() {
-  return (
-    <section className="patient-portal">
-      <h2>Portal Paciente</h2>
-
-      <nav className="patient-portal-nav">
-
-        <NavLink to="/appointment-schedule">Reservar turno</NavLink>
-        <NavLink to="/edit-profile">Editar perfil</NavLink>
-        
-      </nav>
-
-    </section>
-  );
-} */
