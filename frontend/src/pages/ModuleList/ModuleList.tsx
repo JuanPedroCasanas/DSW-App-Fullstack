@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Toast } from '@/components/Toast';
+import { Toast } from '@/components/ui/Feedback/Toast';
 import './moduleList.css';
 import type { Module, Professional,  ConsultingRoom } from './moduleList.types';
 import {

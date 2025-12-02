@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./occupations.css";
-import { Toast } from "@/components/Toast";
+import { Toast } from "@/components/ui/Feedback/Toast";
 
 /** Modelo simple: viene del backend */
 type Occupation = {

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import './appointmentSchedule.css';
-import { Toast } from '@/components/Toast';
+import { Toast } from '@/components/ui/Feedback/Toast';
 
 // ==== IMPORTS desde tus otros dos archivos (no se tocan) ====
 import {

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import './ProfessionalHealthInsurance.css';
 import HealthInsurances from '../admin/HealthInsurances/HealthInsurances';
 import  {HealthInsurance, Professional} from "./ProfessionalHealthInsurancesTypes"
-import { Toast } from "@/components/Toast";
+import { Toast } from "@/components/ui/Feedback/Toast";
 
 const validateHealthInsurance = (p: Partial<HealthInsurance>) => {
   const errors: Record<string, string> = {};

@@ -1,18 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"; // si no usás Router, ver nota más abajo
-import "./editProfile.css";
 import { HealthInsurance } from "./editProfileTypes";
-import { Toast } from "@/components/Toast";
+
 import { User } from "../LoginRegister/loginRegisterTypes";
 
 
-import Page from "@/components/Layout/Page/Page";
-import SectionHeader from "@/components/Layout/SectionHeader/SectionHeader";
-import ActionGrid from "@/components/ui/ActionGrid/ActionGrid";
-import { FormField } from "@/components/ui/FormField/FormField";
-import { InputPassword } from "@/components/ui/InputPassword/InputPassword";
-import PrimaryButton from "@/components/ui/PrimaryButton/PrimaryButton";
-import { Card } from "@/components/ui/Card/Card";
+import { Toast, ActionGrid, PrimaryButton, FormField, Card, InputPassword } from "@/components/ui";
+import { Page, SectionHeader } from "@/components/Layout";
 
 
 

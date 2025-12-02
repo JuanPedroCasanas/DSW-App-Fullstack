@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./guardedPatients.css";
 import { LegalGuardian, Patient } from "./guardedPatientsTypes";
-import { Toast } from "@/components/Toast";
+import { Toast } from "@/components/ui/Feedback/Toast";
 
 // ---- Utils ----
 const formatDate = (iso: string) => {

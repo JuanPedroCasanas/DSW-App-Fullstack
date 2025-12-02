@@ -1,8 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
-import "./consultingRooms.css";
-import { Toast } from "@/components/Toast";
 
-/** Modelo simple: viene del backend */
+import { Toast, EmptyState, Modal, Table, SummaryList, ActionGrid, PrimaryButton, FormField, Card } from "@/components/ui";
+import { Page, SectionHeader } from "@/components/Layout";
+
+
+/** Modelo simple: viene del backend
+ * Esto hay que migrarlo a un model types!
+ */
 type ConsultingRoom = {
   id: string;
   description: string;
@@ -237,276 +241,185 @@ export default function ConsultingRooms() {
 
   // HTML.... probablemente deba pasarlo a otro archivo asi no queda alto spaghetti
   return (
-    <section className="cr-container">
-      <h1 className="cr-title">Consultorios</h1>
+  <Page>
+    <SectionHeader title="Consultorios" />
 
-      {/* ===== Estado vacío ===== */}
-      {!hasRooms && (
-        <div className="cr-empty-state" role="status" aria-live="polite">
-          <svg className="cr-empty-icon" viewBox="0 0 24 24" aria-hidden="true">
+    {!hasRooms && (
+      <EmptyState
+        title="No hay consultorios"
+        description="Agregá tu primer consultorio para comenzar."
+        icon={
+          <svg className="w-12 h-12 text-cyan-600" viewBox="0 0 24 24" aria-hidden="true">
             <path
               fill="currentColor"
               d="M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9.5a2 2 0 0 1-2 2H9l-4 4v-4H5a2 2 0 0 1-2-2zM6 6v7.5a.5.5 0 0 0 .5.5H19V6z"
             />
           </svg>
-          <h2>No hay consultorios</h2>
-          <p>Agregá tu primer consultorio para comenzar.</p>
-          <button type="button" className="ui-btn ui-btn--primary" onClick={openAdd}>
-            Agregar consultorio
-          </button>
-        </div>
-      )}
+        }
+        action={<PrimaryButton onClick={openAdd}>Agregar consultorio</PrimaryButton>}
+      />
+    )}
 
-      {/* ===== Tabla (mostrar)===== */}
-      {hasRooms && (
-        <>
-          <div className="cr-table-wrap">
-            <table className="cr-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Descripción</th>
-                  <th>Activo</th>
-                  <th className="cr-col-actions">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rooms.map((r) => (
-                  <tr key={r.id}>
-                    <td data-label="ID">{r.id}</td>
-                    <td data-label="Descripción">{r.description}</td>
-                    <td data-label="Activo">{r.isActive ? "Sí" : "No"}</td>
-                    <td className="cr-actions">
-                      <button
-                        type="button"
-                        className="ui-btn ui-btn--outline ui-btn--sm"
-                        onClick={() => openEdit(r)}
-                      >
-                        Editar
-                      </button>
-                      <button
-                        type="button"
-                        className="ui-btn ui-btn--danger ui-btn--sm"
-                        onClick={() => openDelete(r)}
-                      >
-                        Eliminar
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Agregar */}
-          <div className="cr-footer">
-            <button type="button" className="ui-btn ui-btn--primary" onClick={openAdd}>
-              Agregar consultorio
-            </button>
-          </div>
-        </>
-      )}
-
-      {/* ===== Agregar parte 2 ===== */}
-      {showAdd && (
-        <div className="cr-modal-backdrop" onClick={tryCloseAdd} role="presentation">
-          <div
-            className="cr-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="cr-add-title"
-            aria-describedby="cr-add-desc"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {addStep === "form" ? (
-              <>
-                <h2 id="cr-add-title">Agregar consultorio</h2>
-                <p id="cr-add-desc" className="cr-help">
-                  Completá la descripción del consultorio.
-                </p>
-                <form onSubmit={handleAddContinue} noValidate>
-                  <div className="cr-field">
-                    <label htmlFor="add-descripcion">Descripción</label>
-                    <textarea
-                      id="add-descripcion"
-                      value={addForm.description ?? ""}
-                      onChange={(e) =>
-                        setAddForm((f) => ({ ...f, description: e.target.value }))
-                      }
-                      aria-invalid={!!addErrors.descripcion}
-                      aria-describedby={addErrors.descripcion ? "add-descripcion-err" : undefined}
-                    />
-                    {addErrors.descripcion && (
-                      <p className="cr-error" id="add-descripcion-err">
-                        {addErrors.descripcion}
-                      </p>
-                    )}
-                  </div>
-                  <div className="cr-modal-actions">
-                    <button type="button" className="ui-btn ui-btn--outline" onClick={tryCloseAdd}>
-                      Cancelar
-                    </button>
-                    <button type="submit" className="ui-btn ui-btn--primary">
-                      Continuar
-                    </button>
-                  </div>
-                </form>
-              </>
-            ) : (
-              <>
-                <h2 id="cr-add-title">Confirmar nuevo consultorio</h2>
-                <p id="cr-add-desc">Revisá que los datos sean correctos.</p>
-                <ul className="cr-summary">
-                  <li>
-                    <strong>Descripción:</strong> {addForm.description}
-                  </li>
-                </ul>
-                <div className="cr-modal-actions">
-                  <button
-                    type="button"
-                    className="ui-btn ui-btn--outline"
-                    onClick={() => setAddStep("form")}
+    {/* estructura de la tabla */}
+    {hasRooms && (
+      <>
+      <Card>
+        <Table headers={["ID", "Descripción", "Activo", "Acciones"]}>
+          {rooms.map((r) => (
+            <tr key={r.id} className="even:bg-gray-50 hover:bg-gray-100 transition">
+              <td className="px-4 py-3">{r.id}</td>
+              <td className="px-4 py-3">{r.description}</td>
+              <td className="px-4 py-3">{r.isActive ? "Sí" : "No"}</td>
+              <td className="px-4 py-3">
+                <div className="flex gap-2">
+                  <PrimaryButton
+                    variant="outline"
+                    size="sm"
+                    className="text-gray-700 border-gray-300 hover:bg-gray-50"
+                    onClick={() => openEdit(r)}
                   >
-                    Volver
-                  </button>
-                  <button type="button" className="ui-btn ui-btn--primary" onClick={handleAddConfirm}>
-                    Confirmar
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ===== Editar ===== */}
-      {editTarget && (
-        <div className="cr-modal-backdrop" onClick={tryCloseEdit} role="presentation">
-          <div
-            className="cr-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="cr-edit-title"
-            aria-describedby="cr-edit-desc"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {editStep === "form" ? (
-              <>
-                <h2 id="cr-edit-title">Editar consultorio</h2>
-                <p id="cr-edit-desc" className="cr-help">
-                  Actualizá la descripción.
-                </p>
-                <form onSubmit={handleEditContinue} noValidate>
-                  <div className="cr-field">
-                    <label htmlFor="edit-descripcion">Descripción</label>
-                    <textarea
-                      id="edit-descripcion"
-                      value={editForm.description ?? ""}
-                      onChange={(e) =>
-                        setEditForm((f) => ({ ...f, description: e.target.value }))
-                      }
-                      aria-invalid={!!editErrors.descripcion}
-                      aria-describedby={editErrors.descripcion ? "edit-descripcion-err" : undefined}
-                    />
-                    {editErrors.descripcion && (
-                      <p className="cr-error" id="edit-descripcion-err">
-                        {editErrors.descripcion}
-                      </p>
-                    )}
-                  </div>
-                  <div className="cr-modal-actions">
-                    <button type="button" className="ui-btn ui-btn--outline" onClick={tryCloseEdit}>
-                      Cancelar
-                    </button>
-                    <button type="submit" className="ui-btn ui-btn--primary">
-                      Continuar
-                    </button>
-                  </div>
-                </form>
-              </>
-            ) : (
-              <>
-                <h2 id="cr-edit-title">Confirmar cambios</h2>
-                <p id="cr-edit-desc">Verificá los datos editados.</p>
-                <ul className="cr-summary">
-                  <li>
-                    <strong>ID:</strong> {editTarget?.id}
-                  </li>
-                  <li>
-                    <strong>Descripción:</strong> {editForm.description}
-                  </li>
-                </ul>
-                <div className="cr-modal-actions">
-                  <button
-                    type="button"
-                    className="ui-btn ui-btn--outline"
-                    onClick={() => setEditStep("form")}
+                    Editar
+                  </PrimaryButton>
+                  <PrimaryButton
+                    variant="danger"
+                    size="sm"
+                    className="bg-red-600 text-white hover:bg-red-700"
+                    onClick={() => openDelete(r)}
                   >
-                    Volver
-                  </button>
-                  <button type="button" className="ui-btn ui-btn--primary" onClick={handleEditConfirm}>
-                    Confirmar
-                  </button>
+                    Eliminar
+                  </PrimaryButton>
                 </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+              </td>
+            </tr>
+          ))}
+        </Table>
+      </Card>
 
-      {/* ===== Eliminar ===== */}
-      {deleteTarget && (
-        <div className="cr-modal-backdrop" onClick={closeDelete} role="presentation">
-          <div
-            className="cr-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="cr-del-title"
-            aria-describedby="cr-del-desc"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 id="cr-del-title">Eliminar consultorio</h2>
-            <p id="cr-del-desc">
-              ¿Estás segura/o de eliminar el consultorio <strong>{deleteTarget.description}</strong>?
-            </p>
-            <div className="cr-modal-actions">
-              <button type="button" className="ui-btn ui-btn--outline" onClick={closeDelete}>
+
+        <div className="grid place-items-center mt-4">
+          <PrimaryButton onClick={openAdd}>Agregar consultorio</PrimaryButton>
+        </div>
+      </>
+    )}
+
+    {/* Modal Agregar */}
+    {showAdd && (
+      <Modal title={addStep === "form" ? "Agregar consultorio" : "Confirmar nuevo consultorio"} onClose={tryCloseAdd}>
+        {addStep === "form" ? (
+          <form onSubmit={handleAddContinue} className="space-y-4">
+            <FormField label="Descripción" htmlFor="add-descripcion">
+              <textarea
+                id="add-descripcion"
+                value={addForm.description ?? ""}
+                onChange={(e) => setAddForm((f) => ({ ...f, description: e.target.value }))}
+                className="border rounded-lg p-3 w-full"
+              />
+              {addErrors.descripcion && <p className="text-red-600 text-sm">{addErrors.descripcion}</p>}
+            </FormField>
+            <ActionGrid>
+              <PrimaryButton variant="outline" onClick={tryCloseAdd}>Cancelar</PrimaryButton>
+              <PrimaryButton type="submit">Continuar</PrimaryButton>
+            </ActionGrid>
+          </form>
+        ) : (
+          <>
+            <SummaryList items={[{ label: "Descripción", value: addForm.description ?? "" }]} />
+            <ActionGrid>
+              <PrimaryButton variant="outline" onClick={() => setAddStep("form")}>Volver</PrimaryButton>
+              <PrimaryButton onClick={handleAddConfirm}>Confirmar</PrimaryButton>
+            </ActionGrid>
+          </>
+        )}
+      </Modal>
+    )}
+
+    {/* modal editar */}
+    {editTarget && (
+      <Modal
+        title={editStep === "form" ? "Editar consultorio" : "Confirmar cambios"}
+        onClose={tryCloseEdit}
+      >
+        {editStep === "form" ? (
+          <form onSubmit={handleEditContinue} className="space-y-4">
+            <FormField label="Descripción" htmlFor="edit-descripcion">
+              <textarea
+                id="edit-descripcion"
+                value={editForm.description ?? ""}
+                onChange={(e) =>
+                  setEditForm((f) => ({ ...f, description: e.target.value }))
+                }
+                className="border rounded-lg p-3 w-full"
+              />
+              {/* ajustar el error? dios sabe */}
+              {editErrors.description && (
+                <p className="text-red-600 text-sm">{editErrors.description}</p>
+              )}
+            </FormField>
+
+            <ActionGrid>
+              <PrimaryButton variant="outline" onClick={tryCloseEdit}>
                 Cancelar
-              </button>
-              <button type="button" className="ui-btn ui-btn--danger" onClick={handleDeleteConfirm}>
-                Eliminar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+              </PrimaryButton>
+              <PrimaryButton type="submit">Continuar</PrimaryButton>
+            </ActionGrid>
+          </form>
+        ) : (
+          <>
+            <SummaryList
+              items={[
+                { label: "ID", value: editTarget.id },
+                { label: "Descripción", value: editForm.description ?? "" },
+              ]}
+            />
+            <ActionGrid>
+              <PrimaryButton variant="outline" onClick={() => setEditStep("form")}>
+                Volver
+              </PrimaryButton>
+              <PrimaryButton onClick={handleEditConfirm}>Confirmar</PrimaryButton>
+            </ActionGrid>
+          </>
+        )}
+      </Modal>
+    )}
 
-      {/* ===== Descartar cambios ===== */}
-      {discardCtx.open && (
-        <div className="cr-modal-backdrop" onClick={closeDiscard} role="presentation">
-          <div
-            className="cr-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="cr-discard-title"
-            aria-describedby="cr-discard-desc"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 id="cr-discard-title">Descartar cambios</h2>
-            <p id="cr-discard-desc">Tenés cambios sin guardar. ¿Cerrar de todos modos?</p>
-            <div className="cr-modal-actions">
-              <button type="button" className="ui-btn ui-btn--outline" onClick={closeDiscard}>
-                Seguir editando
-              </button>
-              <button type="button" className="ui-btn ui-btn--danger" onClick={confirmDiscard}>
-                Descartar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+        
+    {deleteTarget && (
+      <Modal title="Eliminar consultorio" onClose={closeDelete}>
+        <p className="text-[#213547] mb-2">
+          ¿Estás segura/o de eliminar el consultorio{" "}
+          <strong>{deleteTarget.description}</strong>?
+        </p>
 
-    {/* ===== TOAST ===== */}
+        <ActionGrid>
+          <PrimaryButton variant="outline" onClick={closeDelete}>
+            Cancelar
+          </PrimaryButton>
+          <PrimaryButton variant="danger" onClick={handleDeleteConfirm}>
+            Eliminar
+          </PrimaryButton>
+        </ActionGrid>
+      </Modal>
+    )}
+
+    {/* descartar cambios */}
+    {discardCtx.open && (
+      <Modal title="Descartar cambios" onClose={closeDiscard}>
+        <p className="text-[#213547] mb-2">
+          Tenés cambios sin guardar. ¿Cerrar de todos modos?
+        </p>
+
+        <ActionGrid>
+          <PrimaryButton variant="outline" onClick={closeDiscard}>
+            Seguir editando
+          </PrimaryButton>
+          <PrimaryButton variant="danger" onClick={confirmDiscard}>
+            Descartar
+          </PrimaryButton>
+        </ActionGrid>
+      </Modal>
+    )}
+
+        {/* ===== TOAST ===== */}
     {toast && (
       <Toast
         message={toast.message}
@@ -515,6 +428,6 @@ export default function ConsultingRooms() {
       />
     )}
 
-    </section>
+  </Page>
   );
 }

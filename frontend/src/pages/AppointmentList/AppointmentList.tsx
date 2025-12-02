@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 
-import { Toast } from "@/components/Toast";
+import { Toast } from "@/components/ui/Feedback/Toast";
 import {
   handleAppointmentControllerResponse,
   handleHealthInsuranceControllerResponse,

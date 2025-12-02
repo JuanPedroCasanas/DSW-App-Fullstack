@@ -1,8 +1,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import ActionGrid from "@/components/ui/ActionGrid/ActionGrid";
-import NavButton from "@/components/ui/NavButton/NavButton";
+import ActionGrid from "@/components/ui/Actions/ActionGrid/ActionGrid";
+import NavButton from "@/components/ui/Actions/NavButton/NavButton";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);

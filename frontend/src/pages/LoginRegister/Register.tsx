@@ -1,14 +1,8 @@
 import { useMemo, useState, useEffect } from "react";
 import { HealthInsurance, Occupation } from "./loginRegisterTypes";
-import { Toast } from "@/components/Toast";
 
-import Page from "@/components/Layout/Page/Page";
-import SectionHeader from "@/components/Layout/SectionHeader/SectionHeader";
-import { FormField } from "@/components/ui/FormField/FormField";
-import { InputPassword } from "@/components/ui/InputPassword/InputPassword";
-import PrimaryButton from "@/components/ui/PrimaryButton/PrimaryButton";
-import NavButton from "@/components/ui/NavButton/NavButton";
-import ActionGrid from "@/components/ui/ActionGrid/ActionGrid";
+import { Toast, FormField,  InputPassword, PrimaryButton, NavButton, ActionGrid } from "@/components/ui";
+import { Page, SectionHeader } from "@/components/Layout";
 
 type Role = "Paciente" | "Profesional" | "Responsable Legal" | "";
 

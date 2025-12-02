@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./moduleRent.css";
 import { Availability, ConsultingRoom, DayKey, Professional, SlotId, SlotState } from "./moduleRentTypes";
-import { Toast } from "@/components/Toast";
+import { Toast } from "@/components/ui/Feedback/Toast";
 
 const DAYS: DayKey[] = ["lun", "mar", "mie", "jue", "vie", "sab"];
 const DAY_LABELS: Record<DayKey, string> = {

@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
-import "./healthInsurances.css";
-import { Toast } from "@/components/Toast";
 
 import { HealthInsurance } from "./healthInsurancesTypes";
+
+import { Toast, EmptyState, Modal, Table, SummaryList, ActionGrid, PrimaryButton, FormField, Card } from "@/components/ui";
+import { Page, SectionHeader } from "@/components/Layout";
 
 //Genera un toast para las respuestas del backend
 async function handleResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
@@ -87,6 +88,7 @@ export default function HealthInsurances() {
 
   const handleAddConfirm = () => {
     (async () => {
+        console.log("addForm.name=", addForm.name);
         const res = await fetch("http://localhost:2000/HealthInsurance/add", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -218,259 +220,187 @@ export default function HealthInsurances() {
 
   const hasItems = items.length > 0;
 
-  return (
-    <section className="hi-container">
-      <h1 className="hi-title">Obras sociales</h1>
 
-      {/* ===== Estado vacío ===== */}
+
+  return (
+    <Page>
+      <SectionHeader title="Obras sociales" />
+
+      {/* Estado vacío */}
       {!hasItems && (
-        <div className="hi-empty-state" role="status" aria-live="polite">
-          <svg className="hi-empty-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <path
-              fill="currentColor"
-              d="M12 2a5 5 0 0 1 5 5v1h1a4 4 0 0 1 0 8h-1v1a5 5 0 0 1-10 0v-1H6a4 4 0 0 1 0-8h1V7a5 5 0 0 1 5-5Z"
-            />
-          </svg>
-          <h2>No hay obras sociales</h2>
-          <p>Agregá la primera obra social para comenzar.</p>
-          <button type="button" className="ui-btn ui-btn--primary" onClick={openAdd}>
-            Agregar obra social
-          </button>
-        </div>
+        <EmptyState
+          title="No hay obras sociales"
+          description="Agregá la primera obra social para comenzar."
+          icon={
+            <svg className="w-12 h-12 text-cyan-600" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M12 2a5 5 0 0 1 5 5v1h1a4 4 0 0 1 0 8h-1v1a5 5 0 0 1-10 0v-1H6a4 4 0 0 1 0-8h1V7a5 5 0 0 1 5-5Z"
+              />
+            </svg>
+          }
+          action={<PrimaryButton onClick={openAdd}>Agregar obra social</PrimaryButton>}
+        />
       )}
 
-      {/* ===== Tabla ===== */}
+      {/* Tabla */}
       {hasItems && (
         <>
-          <div className="hi-table-wrap">
-            <table className="hi-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Nombre</th>
-                  <th>Activo</th>
-                  <th className="hi-col-actions">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((h) => (
-                  <tr key={h.id}>
-                    <td data-label="ID">{h.id}</td>
-                    <td data-label="Nombre">{h.name}</td>
-                    <td data-label="Activo">{h.isActive ? "Sí" : "No"}</td>
-                    <td className="hi-actions">
-                      <button
-                        type="button"
-                        className="ui-btn ui-btn--outline ui-btn--sm"
-                        onClick={() => openEdit(h)}
-                      >
+          <Card>
+            <Table headers={["ID", "Nombre", "Activo", "Acciones"]}>
+              {items.map((h) => (
+                <tr key={h.id} className="even:bg-gray-50 hover:bg-gray-100 transition">
+                  <td className="px-4 py-3">{h.id}</td>
+                  <td className="px-4 py-3">{h.name}</td>
+                  <td className="px-4 py-3">{h.isActive ? "Sí" : "No"}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-2">
+                      <PrimaryButton variant="outline" size="sm" onClick={() => openEdit(h)}>
                         Editar
-                      </button>
-                      <button
-                        type="button"
-                        className="ui-btn ui-btn--danger ui-btn--sm"
-                        onClick={() => openDelete(h)}
-                      >
+                      </PrimaryButton>
+                      <PrimaryButton variant="danger" size="sm" onClick={() => openDelete(h)}>
                         Eliminar
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                      </PrimaryButton>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </Table>
+          </Card>
 
-          {/* Footer: Agregar */}
-          <div className="hi-footer">
-            <button type="button" className="ui-btn ui-btn--primary" onClick={openAdd}>
-              Agregar obra social
-            </button>
+          <div className="grid place-items-center mt-4">
+            <PrimaryButton onClick={openAdd}>Agregar obra social</PrimaryButton>
           </div>
         </>
       )}
 
-      {/* ===== MODAL: Agregar (2 pasos) ===== */}
+      {/* Modal: Agregar (2 pasos) */}
       {showAdd && (
-        <div className="hi-modal-backdrop" onClick={tryCloseAdd} role="presentation">
-          <div
-            className="hi-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="hi-add-title"
-            aria-describedby="hi-add-desc"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {addStep === "form" ? (
-              <>
-                <h2 id="hi-add-title">Agregar obra social</h2>
-                <p id="hi-add-desc" className="hi-help">Completá el nombre.</p>
-                <form onSubmit={handleAddContinue} noValidate>
-                  <div className="hi-field">
-                    <label htmlFor="add-nombre">Nombre</label>
-                    <input
-                      id="add-nombre"
-                      type="text"
-                      value={addForm.name ?? ""}
-                      onChange={(e) => setAddForm((f) => ({ ...f, name: e.target.value }))}
-                      aria-invalid={!!addErrors.name}
-                      aria-describedby={addErrors.name ? "add-nombre-err" : undefined}
-                    />
-                    {addErrors.name && (
-                      <p className="hi-error" id="add-nombre-err">{addErrors.name}</p>
-                    )}
-                  </div>
-                  <div className="hi-modal-actions">
-                    <button type="button" className="ui-btn ui-btn--outline" onClick={tryCloseAdd}>
-                      Cancelar
-                    </button>
-                    <button type="submit" className="ui-btn ui-btn--primary">
-                      Continuar
-                    </button>
-                  </div>
-                </form>
-              </>
-            ) : (
-              <>
-                <h2 id="hi-add-title">Confirmar nueva obra social</h2>
-                <p id="hi-add-desc">Revisá que los datos sean correctos.</p>
-                <ul className="hi-summary">
-                  <li><strong>Nombre:</strong> {addForm.name}</li>
-                </ul>
-                <div className="hi-modal-actions">
-                  <button type="button" className="ui-btn ui-btn--outline" onClick={() => setAddStep("form")}>
-                    Volver
-                  </button>
-                  <button type="button" className="ui-btn ui-btn--primary" onClick={handleAddConfirm}>
-                    Confirmar
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+        <Modal
+          title={addStep === "form" ? "Agregar obra social" : "Confirmar nueva obra social"}
+          onClose={tryCloseAdd}
+        >
+          {addStep === "form" ? (
+            <form onSubmit={handleAddContinue} className="space-y-4">
+              <FormField label="Nombre" htmlFor="add-nombre">
+                <input
+                  id="add-nombre"
+                  name="name"
+                  type="text"
+                  value={addForm.name ?? ""}
+                  onChange={(e) => setAddForm((f) => ({ ...f, name: e.target.value }))}
+                  className="border rounded-lg p-3 w-full focus:ring-2 focus:ring-cyan-500"
+                  autoFocus
+                />
+                {addErrors.name && <p className="text-red-600 text-sm mt-1">{addErrors.name}</p>}
+              </FormField>
+
+              <ActionGrid>
+                <PrimaryButton variant="outline" onClick={tryCloseAdd}>
+                  Cancelar
+                </PrimaryButton>
+                <PrimaryButton type="submit">Continuar</PrimaryButton>
+              </ActionGrid>
+            </form>
+          ) : (
+            <>
+              <SummaryList items={[{ label: "Nombre", value: addForm.name ?? "" }]} />
+              <ActionGrid>
+                <PrimaryButton variant="outline" onClick={() => setAddStep("form")}>
+                  Volver
+                </PrimaryButton>
+                <PrimaryButton onClick={handleAddConfirm}>Confirmar</PrimaryButton>
+              </ActionGrid>
+            </>
+          )}
+        </Modal>
       )}
 
-      {/* ===== MODAL: Editar (2 pasos) ===== */}
+      {/* Modal: Editar (2 pasos) */}
       {editTarget && (
-        <div className="hi-modal-backdrop" onClick={tryCloseEdit} role="presentation">
-          <div
-            className="hi-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="hi-edit-title"
-            aria-describedby="hi-edit-desc"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {editStep === "form" ? (
-              <>
-                <h2 id="hi-edit-title">Editar obra social</h2>
-                <p id="hi-edit-desc" className="hi-help">Actualizá el nombre.</p>
-                <form onSubmit={handleEditContinue} noValidate>
-                  <div className="hi-field">
-                    <label htmlFor="edit-nombre">Nombre</label>
-                    <input
-                      id="edit-nombre"
-                      type="text"
-                      value={editForm.name ?? ""}
-                      onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
-                      aria-invalid={!!editErrors.name}
-                      aria-describedby={editErrors.name ? "edit-nombre-err" : undefined}
-                    />
-                    {editErrors.name && (
-                      <p className="hi-error" id="edit-nombre-err">{editErrors.name}</p>
-                    )}
-                  </div>
-                  <div className="hi-modal-actions">
-                    <button type="button" className="ui-btn ui-btn--outline" onClick={tryCloseEdit}>
-                      Cancelar
-                    </button>
-                    <button type="submit" className="ui-btn ui-btn--primary">
-                      Continuar
-                    </button>
-                  </div>
-                </form>
-              </>
-            ) : (
-              <>
-                <h2 id="hi-edit-title">Confirmar cambios</h2>
-                <p id="hi-edit-desc">Verificá los datos editados.</p>
-                <ul className="hi-summary">
-                  <li><strong>ID:</strong> {editTarget?.id}</li>
-                  <li><strong>Nombre:</strong> {editForm.name}</li>
-                </ul>
-                <div className="hi-modal-actions">
-                  <button type="button" className="ui-btn ui-btn--outline" onClick={() => setEditStep("form")}>
-                    Volver
-                  </button>
-                  <button type="button" className="ui-btn ui-btn--primary" onClick={handleEditConfirm}>
-                    Confirmar
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+        <Modal
+          title={editStep === "form" ? "Editar obra social" : "Confirmar cambios"}
+          onClose={tryCloseEdit}
+        >
+          {editStep === "form" ? (
+            <form onSubmit={handleEditContinue} className="space-y-4">
+              <FormField label="Nombre" htmlFor="edit-nombre">
+                <input
+                  id="edit-nombre"
+                  name="name"
+                  type="text"
+                  value={editForm.name ?? ""}
+                  onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+                  className="border rounded-lg p-3 w-full focus:ring-2 focus:ring-cyan-500"
+                  autoFocus
+                />
+                {editErrors.name && <p className="text-red-600 text-sm mt-1">{editErrors.name}</p>}
+              </FormField>
+
+              <ActionGrid>
+                <PrimaryButton variant="outline" onClick={tryCloseEdit}>
+                  Cancelar
+                </PrimaryButton>
+                <PrimaryButton type="submit">Continuar</PrimaryButton>
+              </ActionGrid>
+            </form>
+          ) : (
+            <>
+              <SummaryList
+                items={[
+                  { label: "ID", value: String(editTarget.id) },
+                  { label: "Nombre", value: editForm.name ?? "" },
+                ]}
+              />
+              <ActionGrid>
+                <PrimaryButton variant="outline" onClick={() => setEditStep("form")}>
+                  Volver
+                </PrimaryButton>
+                <PrimaryButton onClick={handleEditConfirm}>Confirmar</PrimaryButton>
+              </ActionGrid>
+            </>
+          )}
+        </Modal>
       )}
 
-      {/* ===== MODAL: Eliminar ===== */}
+      {/* Modal: Eliminar */}
       {deleteTarget && (
-        <div className="hi-modal-backdrop" onClick={closeDelete} role="presentation">
-          <div
-            className="hi-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="hi-del-title"
-            aria-describedby="hi-del-desc"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 id="hi-del-title">Eliminar obra social</h2>
-            <p id="hi-del-desc">
-              ¿Estás segura/o de eliminar <strong>{deleteTarget.name}</strong>?
-            </p>
-            <div className="hi-modal-actions">
-              <button type="button" className="ui-btn ui-btn--outline" onClick={closeDelete}>
-                Cancelar
-              </button>
-              <button type="button" className="ui-btn ui-btn--danger" onClick={handleDeleteConfirm}>
-                Eliminar
-              </button>
-            </div>
-          </div>
-        </div>
+        <Modal title="Eliminar obra social" onClose={closeDelete}>
+          <p className="text-[#213547] mb-2">
+            ¿Estás segura/o de eliminar <strong>{deleteTarget.name}</strong>?
+          </p>
+          <ActionGrid>
+            <PrimaryButton variant="outline" onClick={closeDelete}>
+              Cancelar
+            </PrimaryButton>
+            <PrimaryButton variant="danger" onClick={handleDeleteConfirm}>
+              Eliminar
+            </PrimaryButton>
+          </ActionGrid>
+        </Modal>
       )}
 
-      {/* ===== MODAL: Descartar cambios ===== */}
+      {/* Modal: Descartar */}
       {discardCtx.open && (
-        <div className="hi-modal-backdrop" onClick={closeDiscard} role="presentation">
-          <div
-            className="hi-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="hi-discard-title"
-            aria-describedby="hi-discard-desc"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 id="hi-discard-title">Descartar cambios</h2>
-            <p id="hi-discard-desc">Tenés cambios sin guardar. ¿Cerrar de todos modos?</p>
-            <div className="hi-modal-actions">
-              <button type="button" className="ui-btn ui-btn--outline" onClick={closeDiscard}>
-                Seguir editando
-              </button>
-              <button type="button" className="ui-btn ui-btn--danger" onClick={confirmDiscard}>
-                Descartar
-              </button>
-            </div>
-          </div>
-        </div>
+        <Modal title="Descartar cambios" onClose={closeDiscard}>
+          <p className="text-[#213547] mb-2">Tenés cambios sin guardar. ¿Cerrar de todos modos?</p>
+          <ActionGrid>
+            <PrimaryButton variant="outline" onClick={closeDiscard}>
+              Seguir editando
+            </PrimaryButton>
+            <PrimaryButton variant="danger" onClick={confirmDiscard}>
+              Descartar
+            </PrimaryButton>
+          </ActionGrid>
+        </Modal>
       )}
-      {/* ===== TOAST ===== */}
+
+      {/* Toast (una sola vez) */}
       {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
+        <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />
       )}
-    </section>
+    </Page>
   );
+
+
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./professionals.css";
-import { Toast } from "@/components/Toast";
+import { Toast } from "@/components/ui/Feedback/Toast";
 import { Occupation, Professional } from "./professionalTypes";
 
 //Genera un toast para las respuestas del backend

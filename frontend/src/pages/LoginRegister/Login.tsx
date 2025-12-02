@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
-import { Toast } from "@/components/Toast";
+
 // import eyeIcon from "./eyeicon.png"; // de alguna manera asi no funciona, pero bueno!
-import Page from "@/components/Layout/Page/Page";
-import SectionHeader from "@/components/Layout/SectionHeader/SectionHeader";
-import { FormField } from "@/components/ui/FormField/FormField";
-import { InputPassword } from "@/components/ui/InputPassword/InputPassword";
+
+import { Toast, FormField,  InputPassword } from "@/components/ui";
+import { Page, SectionHeader } from "@/components/Layout";
+
 
 type User = {
   mail: string;

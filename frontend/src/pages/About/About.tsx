@@ -1,6 +1,5 @@
-import Page from "@/components/Layout/Page/Page";
-import SectionHeader from "@/components/Layout/SectionHeader/SectionHeader";
-import SocialLink from "@/components/ui/SocialLink/SocialLink";
+import { SocialLink } from "@/components/ui";
+import { Page, SectionHeader } from "@/components/Layout";
 
 export default function About() {
   return (
