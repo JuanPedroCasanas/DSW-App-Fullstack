@@ -13,20 +13,13 @@ export default function DebugConsolePage() {
         <NavButton to="/admin/occupations">Especialidades</NavButton>
         <NavButton to="/admin/professionals">Profesionales</NavButton>
 
-        <NavButton to="/admin/modules" variant="ghost"> Modulos </NavButton>
-
-        <NavButton to="/admin/appointments" variant="ghost"> Turnos </NavButton>
-        <NavButton to="/admin/module-types" variant="ghost"> Tipos de Módulos </NavButton>
-        <NavButton to="/admin/patients" variant="ghost"> Pacientes </NavButton>
-        <NavButton to="/admin/legal-guardians" variant="ghost"> Responsables Legales </NavButton>
-
       </ActionGrid>
 
       <SectionHeader
         title= "Listados"
       />
       <ActionGrid>
-        <NavButton to="/admin/module-list">Listado de Módulos</NavButton>
+        <NavButton to="/module-list">Listado de Módulos</NavButton>
       </ActionGrid>
 
     </Page>

@@ -14,14 +14,13 @@ import PatientPortal from "./pages/PatientPortal/PatientPortal";
 import GuardedPatients from "./pages/GuardedPatients/GuardedPatients";
 import ModuleList from "./pages/ModuleList/ModuleList";
 import AppointmentList from "./pages/AppointmentList/AppointmentList";
-import DebugConsole from "./pages/DebugConsole/DebugConsole"; //no entiendo muy bien este error
+import DebugConsole from "./pages/DebugConsole/DebugConsole"; 
 import ConsultingRooms from "./pages/admin/ConsultingRooms/ConsultingRooms";
-import Modules from "./pages/admin/Modules/Modules";
+
 import HealthInsurances from "./pages/admin/HealthInsurances/HealthInsurances";
 import Occupations from "./pages/admin/Occupations/Occupations";
 import Professionals from "./pages/admin/Professionals/Professionals";
-import Patients from "./pages/admin/Patients/Patients";
-import LegalGuardians from "./pages/admin/LegalGuardians/LegalGuardians";
+
 import ProfessionalHealthInsurances from "./pages/ProfessionalHealthInsurances/ProfessionalHealthInsurances";
 
 export default function App() {
@@ -45,7 +44,6 @@ export default function App() {
           <Route path="/professional-portal" element={<ProfessionalPortal />} />
           <Route path="/professional-health-insurances" element={<ProfessionalHealthInsurances />} />
 
-          
 
           <Route path="/legal-guardian-portal" element={<LegalGuardianPortal />} />
           <Route path="/guarded-patients" element={<GuardedPatients />} />
@@ -55,12 +53,9 @@ export default function App() {
         {/* RUTAS PARA EL ADMIN*/}
           <Route path="/debug-console" element={<DebugConsole />} />
           <Route path="/admin/consulting-rooms" element={<ConsultingRooms />} />
-          <Route path="/admin/modules" element={<Modules />} />
           <Route path="/admin/health-insurances" element={<HealthInsurances />} />
           <Route path="/admin/occupations" element={<Occupations />} />
           <Route path="/admin/professionals" element={<Professionals />} />
-          <Route path="/admin/patients" element={<Patients />} />
-          <Route path="/admin/legal-guardians" element={<LegalGuardians />} />
 
           {/* informes */}
           <Route path="/module-list" element={<ModuleList />} />

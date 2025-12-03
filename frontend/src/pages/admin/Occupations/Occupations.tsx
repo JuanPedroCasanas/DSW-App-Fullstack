@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
-import "./occupations.css";
-import { Toast } from "@/components/ui/Feedback/Toast";
+
+import { Toast, EmptyState, Modal, Table, SummaryList, DialogActions, PrimaryButton, FormField, Card } from "@/components/ui";
+import { Page, SectionHeader } from "@/components/Layout";
 
 /** Modelo simple: viene del backend */
 type Occupation = {
@@ -225,259 +226,188 @@ export default function Occupations() {
 
 
   // ya ni es chiste, tengo que separar esto en otro archivo jajajajaj es una banda
-  return (
-    <section className="oc-container">
-      <h1 className="oc-title">Especialidades</h1>
+return (
+  <Page>
+    <SectionHeader title="Especialidades" />
 
-      {/* ===== Estado vacío ===== */}
-      {!hasItems && (
-        <div className="oc-empty-state" role="status" aria-live="polite">
-          <svg className="oc-empty-icon" viewBox="0 0 24 24" aria-hidden="true">
+    {/* Estado vacío */}
+    {!hasItems && (
+      <EmptyState
+        title="No hay especialidades"
+        description="Agregá la primera especialidad para comenzar."
+        icon={
+          <svg className="w-12 h-12 text-cyan-600" viewBox="0 0 24 24" aria-hidden="true">
             <path
               fill="currentColor"
               d="M12 2a5 5 0 0 1 5 5v1h1a4 4 0 0 1 0 8h-1v1a5 5 0 0 1-10 0v-1H6a4 4 0 0 1 0-8h1V7a5 5 0 0 1 5-5Z"
             />
           </svg>
-          <h2>No hay especialidades</h2>
-          <p>Agregá la primera especialidad para comenzar.</p>
-          <button type="button" className="ui-btn ui-btn--primary" onClick={openAdd}>
-            Agregar especialidad
-          </button>
-        </div>
-      )}
-
-      {/* ===== Tabla ===== */}
-      {hasItems && (
-        <>
-          <div className="oc-table-wrap">
-            <table className="oc-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Nombre</th>
-                  <th className="oc-col-actions">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((o) => (
-                  <tr key={o.id}>
-                    <td data-label="ID">{o.id}</td>
-                    <td data-label="Nombre">{o.name}</td>
-                    <td className="oc-actions">
-                      <button
-                        type="button"
-                        className="ui-btn ui-btn--outline ui-btn--sm"
-                        onClick={() => openEdit(o)}
-                      >
-                        Editar
-                      </button>
-                      <button
-                        type="button"
-                        className="ui-btn ui-btn--danger ui-btn--sm"
-                        onClick={() => openDelete(o)}
-                      >
-                        Eliminar
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Agregar */}
-          <div className="oc-footer">
-            <button type="button" className="ui-btn ui-btn--primary" onClick={openAdd}>
-              Agregar especialidad
-            </button>
-          </div>
-        </>
-      )}
-
-      {/* ===== Agregar ===== */}
-      {showAdd && (
-        <div className="oc-modal-backdrop" onClick={tryCloseAdd} role="presentation">
-          <div
-            className="oc-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="oc-add-title"
-            aria-describedby="oc-add-desc"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {addStep === "form" ? (
-              <>
-                <h2 id="oc-add-title">Agregar especialidad</h2>
-                <p id="oc-add-desc" className="oc-help">Completá el nombre.</p>
-                <form onSubmit={handleAddContinue} noValidate>
-                  <div className="oc-field">
-                    <label htmlFor="add-nombre">Nombre</label>
-                    <input
-                      id="add-nombre"
-                      type="text"
-                      value={addForm.name ?? ""}
-                      onChange={(e) => setAddForm((f) => ({ ...f, name: e.target.value }))}
-                      aria-invalid={!!addErrors.name}
-                      aria-describedby={addErrors.name ? "add-nombre-err" : undefined}
-                    />
-                    {addErrors.name && (
-                      <p className="oc-error" id="add-nombre-err">{addErrors.name}</p>
-                    )}
-                  </div>
-                  <div className="oc-modal-actions">
-                    <button type="button" className="ui-btn ui-btn--outline" onClick={tryCloseAdd}>
-                      Cancelar
-                    </button>
-                    <button type="submit" className="ui-btn ui-btn--primary">
-                      Continuar
-                    </button>
-                  </div>
-                </form>
-              </>
-            ) : (
-              <>
-                <h2 id="oc-add-title">Confirmar nueva especialidad</h2>
-                <p id="oc-add-desc">Revisá que los datos sean correctos.</p>
-                <ul className="oc-summary">
-                  <li><strong>Nombre:</strong> {addForm.name}</li>
-                </ul>
-                <div className="oc-modal-actions">
-                  <button type="button" className="ui-btn ui-btn--outline" onClick={() => setAddStep("form")}>
-                    Volver
-                  </button>
-                  <button type="button" className="ui-btn ui-btn--primary" onClick={handleAddConfirm}>
-                    Confirmar
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ===== Editar ===== */}
-      {editTarget && (
-        <div className="oc-modal-backdrop" onClick={tryCloseEdit} role="presentation">
-          <div
-            className="oc-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="oc-edit-title"
-            aria-describedby="oc-edit-desc"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {editStep === "form" ? (
-              <>
-                <h2 id="oc-edit-title">Editar especialidad</h2>
-                <p id="oc-edit-desc" className="oc-help">Actualizá el nombre.</p>
-                <form onSubmit={handleEditContinue} noValidate>
-                  <div className="oc-field">
-                    <label htmlFor="edit-nombre">Nombre</label>
-                    <input
-                      id="edit-nombre"
-                      type="text"
-                      value={editForm.name ?? ""}
-                      onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
-                      aria-invalid={!!editErrors.name}
-                      aria-describedby={editErrors.name ? "edit-nombre-err" : undefined}
-                    />
-                    {editErrors.name && (
-                      <p className="oc-error" id="edit-nombre-err">{editErrors.name}</p>
-                    )}
-                  </div>
-                  <div className="oc-modal-actions">
-                    <button type="button" className="ui-btn ui-btn--outline" onClick={tryCloseEdit}>
-                      Cancelar
-                    </button>
-                    <button type="submit" className="ui-btn ui-btn--primary">
-                      Continuar
-                    </button>
-                  </div>
-                </form>
-              </>
-            ) : (
-              <>
-                <h2 id="oc-edit-title">Confirmar cambios</h2>
-                <p id="oc-edit-desc">Verificá los datos editados.</p>
-                <ul className="oc-summary">
-                  <li><strong>ID:</strong> {editTarget?.id}</li>
-                  <li><strong>Nombre:</strong> {editForm.name}</li>
-                </ul>
-                <div className="oc-modal-actions">
-                  <button type="button" className="ui-btn ui-btn--outline" onClick={() => setEditStep("form")}>
-                    Volver
-                  </button>
-                  <button type="button" className="ui-btn ui-btn--primary" onClick={handleEditConfirm}>
-                    Confirmar
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ===== Eliminar ===== */}
-      {deleteTarget && (
-        <div className="oc-modal-backdrop" onClick={closeDelete} role="presentation">
-          <div
-            className="oc-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="oc-del-title"
-            aria-describedby="oc-del-desc"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 id="oc-del-title">Eliminar especialidad</h2>
-            <p id="oc-del-desc">
-              ¿Estás segura/o de eliminar <strong>{deleteTarget.name}</strong>?
-            </p>
-            <div className="oc-modal-actions">
-              <button type="button" className="ui-btn ui-btn--outline" onClick={closeDelete}>
-                Cancelar
-              </button>
-              <button type="button" className="ui-btn ui-btn--danger" onClick={handleDeleteConfirm}>
-                Eliminar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ===== Descartar cambios ===== */}
-      {discardCtx.open && (
-        <div className="oc-modal-backdrop" onClick={closeDiscard} role="presentation">
-          <div
-            className="oc-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="oc-discard-title"
-            aria-describedby="oc-discard-desc"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 id="oc-discard-title">Descartar cambios</h2>
-            <p id="oc-discard-desc">Tenés cambios sin guardar. ¿Cerrar de todos modos?</p>
-            <div className="oc-modal-actions">
-              <button type="button" className="ui-btn ui-btn--outline" onClick={closeDiscard}>
-                Seguir editando
-              </button>
-              <button type="button" className="ui-btn ui-btn--danger" onClick={confirmDiscard}>
-                Descartar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-    {/* ===== TOAST ===== */}
-    {toast && (
-      <Toast
-        message={toast.message}
-        type={toast.type}
-        onClose={() => setToast(null)}
+        }
+        action={<PrimaryButton onClick={openAdd}>Agregar especialidad</PrimaryButton>}
       />
     )}
-    
-    </section>
+
+    {/* Tabla */}
+    {hasItems && (
+      <>
+        <Card>
+          <Table headers={["ID", "Nombre", "Acciones"]}>
+            {items.map((o) => (
+              <tr key={o.id} className="even:bg-gray-50 hover:bg-gray-100 transition">
+                <td className="px-4 py-3">{o.id}</td>
+                <td className="px-4 py-3">{o.name}</td>
+                <td className="px-4 py-3">
+                  <div className="flex gap-2">
+                    <PrimaryButton variant="outline" size="sm" onClick={() => openEdit(o)}>
+                      Editar
+                    </PrimaryButton>
+                    <PrimaryButton variant="danger" size="sm" onClick={() => openDelete(o)}>
+                      Eliminar
+                    </PrimaryButton>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </Table>
+        </Card>
+
+        <div className="grid place-items-center mt-4">
+          <PrimaryButton onClick={openAdd}>Agregar especialidad</PrimaryButton>
+        </div>
+      </>
+    )}
+
+    {/* Modal: Agregar */}
+    {showAdd && (
+      <Modal
+        title={addStep === "form" ? "Agregar especialidad" : "Confirmar nueva especialidad"}
+        onClose={tryCloseAdd}
+      >
+        {addStep === "form" ? (
+          <form onSubmit={handleAddContinue} className="space-y-4" noValidate>
+            <FormField label="Nombre" htmlFor="add-nombre">
+              <input
+                id="add-nombre"
+                name="name"
+                type="text"
+                value={addForm.name ?? ""}
+                onChange={(e) => setAddForm((f) => ({ ...f, name: e.target.value }))}
+                className="border rounded-lg p-3 w-full focus:ring-2 focus:ring-cyan-500"
+                autoFocus
+              />
+              {addErrors.name && <p className="text-red-600 text-sm mt-1">{addErrors.name}</p>}
+            </FormField>
+
+            {/* Botones del diálogo */}
+            <DialogActions>
+              <PrimaryButton variant="outline" onClick={tryCloseAdd}>
+                Cancelar
+              </PrimaryButton>
+              <PrimaryButton type="submit">Continuar</PrimaryButton>
+            </DialogActions>
+          </form>
+        ) : (
+          <>
+            <SummaryList items={[{ label: "Nombre", value: addForm.name ?? "" }]} />
+
+            {/* Botones del diálogo */}
+            <DialogActions>
+              <PrimaryButton variant="outline" onClick={() => setAddStep("form")}>
+                Volver
+              </PrimaryButton>
+              <PrimaryButton onClick={handleAddConfirm}>Confirmar</PrimaryButton>
+            </DialogActions>
+          </>
+        )}
+      </Modal>
+    )}
+
+    {/* Modal: Editar */}
+    {editTarget && (
+      <Modal title={editStep === "form" ? "Editar especialidad" : "Confirmar cambios"} onClose={tryCloseEdit}>
+        {editStep === "form" ? (
+          <form onSubmit={handleEditContinue} className="space-y-4" noValidate>
+            <FormField label="Nombre" htmlFor="edit-nombre">
+              <input
+                id="edit-nombre"
+                name="name"
+                type="text"
+                value={editForm.name ?? ""}
+                onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+                className="border rounded-lg p-3 w-full focus:ring-2 focus:ring-cyan-500"
+                autoFocus
+              />
+              {editErrors.name && <p className="text-red-600 text-sm mt-1">{editErrors.name}</p>}
+            </FormField>
+
+            {/* Botones del diálogo */}
+            <DialogActions>
+              <PrimaryButton variant="outline" onClick={tryCloseEdit}>
+                Cancelar
+              </PrimaryButton>
+              <PrimaryButton type="submit">Continuar</PrimaryButton>
+            </DialogActions>
+          </form>
+        ) : (
+          <>
+            <SummaryList
+              items={[
+                { label: "ID", value: String(editTarget.id) },
+                { label: "Nombre", value: editForm.name ?? "" },
+              ]}
+            />
+
+            {/* Botones del diálogo */}
+            <DialogActions>
+              <PrimaryButton variant="outline" onClick={() => setEditStep("form")}>
+                Volver
+              </PrimaryButton>
+              <PrimaryButton onClick={handleEditConfirm}>Confirmar</PrimaryButton>
+            </DialogActions>
+          </>
+        )}
+      </Modal>
+    )}
+
+    {/* Modal: Eliminar */}
+    {deleteTarget && (
+      <Modal title="Eliminar especialidad" onClose={closeDelete}>
+        <p className="text-[#213547] mb-2">
+          ¿Estás segura/o de eliminar <strong>{deleteTarget.name}</strong>?
+        </p>
+
+        {/* Botones del diálogo */}
+        <DialogActions>
+          <PrimaryButton variant="outline" onClick={closeDelete}>
+            Cancelar
+          </PrimaryButton>
+          <PrimaryButton variant="danger" onClick={handleDeleteConfirm}>
+            Eliminar
+          </PrimaryButton>
+        </DialogActions>
+      </Modal>
+    )}
+
+    {/* Modal: Descartar cambios */}
+    {discardCtx.open && (
+      <Modal title="Descartar cambios" onClose={closeDiscard}>
+        <p className="text-[#213547] mb-2">Tenés cambios sin guardar. ¿Cerrar de todos modos?</p>
+        <DialogActions>
+          <PrimaryButton variant="outline" onClick={closeDiscard}>
+            Seguir editando
+          </PrimaryButton>
+          <PrimaryButton variant="danger" onClick={confirmDiscard}>
+            Descartar
+          </PrimaryButton>
+        </DialogActions>
+      </Modal>
+    )}
+
+    {/* Toast */}
+    {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+  </Page>
+
+
+
   );
 }

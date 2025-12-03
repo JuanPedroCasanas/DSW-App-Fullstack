@@ -274,7 +274,7 @@ export default function HealthInsurances() {
         </>
       )}
 
-      {/* Modal: Agregar (2 pasos) */}
+      {/* Modal: Agregar */}
       {showAdd && (
         <Modal
           title={addStep === "form" ? "Agregar obra social" : "Confirmar nueva obra social"}

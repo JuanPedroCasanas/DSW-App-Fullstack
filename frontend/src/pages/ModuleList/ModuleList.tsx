@@ -1,6 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Toast } from '@/components/ui/Feedback/Toast';
-import './moduleList.css';
 import type { Module, Professional,  ConsultingRoom } from './moduleList.types';
 import {
   handleConsultingRoomControllerResponse,
@@ -8,9 +6,9 @@ import {
   handleProfessionalControllerResponse
 } from './moduleListHandleResponses';
 
-// para el nombre completo de profesional
-const fullName = (p?: { firstName?: string; lastName?: string }) =>
-  `${p?.firstName ?? ''} ${p?.lastName ?? ''}`.trim();
+import { Toast, EmptyState, Table, PrimaryButton, Card, FilterBar, FormField } from "@/components/ui";
+import { Page, SectionHeader } from "@/components/Layout";
+
 
 // todos los meses -> para pasarlo a una descripcion (en vez de numero)
 const ALL_MONTHS = Array.from({ length: 12 }, (_, i) => String(i + 1));
@@ -183,55 +181,53 @@ export default function ModuleList() {
 
 
   return (
-    <section className="module-list-container">
-      <h1>Listado de módulos</h1>
 
-      {/* Filtros */}
-      <div className="filtros" aria-label="Filtros de módulos">
+  <Page>
+    <SectionHeader title="Listado de módulos" />
 
-        {/* Profesional */}
-        <label htmlFor="filter-professional">Profesional:</label>
+    {/* Filtros */}
+    <FilterBar>
+      {/* Profesional */}
+      <FormField label="Profesional" htmlFor="filter-professional">
         <select
           id="filter-professional"
           value={filters.professionalId}
           onChange={(e) => handleFilterChange('professionalId', e.target.value)}
-          aria-label="Profesionales"
-          title="Profesionales"
+          className="border rounded-lg p-3 w-full focus:ring-2 focus:ring-cyan-500"
         >
           <option value="">Todos</option>
           {professionals.map((pr) => (
-            <option key={`${pr.id}`} value={String(pr.id)}>
-              {fullName(pr)}
+            <option key={pr.id} value={String(pr.id)}>
+              {`${pr.firstName} ${pr.lastName}`}
             </option>
           ))}
         </select>
+      </FormField>
 
-        {/* Tipo de módulo */}
-        <label htmlFor="filter-module-type">Tipo de módulo:</label>
+      {/* Tipo de módulo */}
+      <FormField label="Tipo de módulo" htmlFor="filter-module-type">
         <select
           id="filter-module-type"
           value={filters.moduleTypeId}
           onChange={(e) => handleFilterChange('moduleTypeId', e.target.value)}
-          aria-label="Tipos de módulo"
-          title="Tipos de módulo"
+          className="border rounded-lg p-3 w-full focus:ring-2 focus:ring-cyan-500"
         >
-          {/* Mes */} 
-        <option value="">Todos</option>
+          <option value="">Todos</option>
           {derivedModuleTypes.map((t) => (
             <option key={`type-${t.id}`} value={String(t.id)}>
               {t.name}
             </option>
-          ))} 
+          ))}
         </select>
+      </FormField>
 
-        {/* Mes */}
-        <label htmlFor="filter-month">Mes:</label>
+      {/* Mes */}
+      <FormField label="Mes" htmlFor="filter-month">
         <select
           id="filter-month"
           value={filters.month}
           onChange={(e) => handleFilterChange('month', e.target.value)}
-          aria-label="Mes"
-          title="Mes"
+          className="border rounded-lg p-3 w-full focus:ring-2 focus:ring-cyan-500"
         >
           <option value="">Todos</option>
           {ALL_MONTHS.map((m) => (
@@ -240,15 +236,15 @@ export default function ModuleList() {
             </option>
           ))}
         </select>
+      </FormField>
 
-        {/* Consultorio */}
-        <label htmlFor="filter-room">Consultorio:</label>
+      {/* Consultorio */}
+      <FormField label="Consultorio" htmlFor="filter-room">
         <select
           id="filter-room"
           value={filters.consultingRoomId}
           onChange={(e) => handleFilterChange('consultingRoomId', e.target.value)}
-          aria-label="Consultorios"
-          title="Consultorios"
+          className="border rounded-lg p-3 w-full focus:ring-2 focus:ring-cyan-500"
         >
           <option value="">Todos</option>
           {consultingRooms.map((c) => (
@@ -257,40 +253,51 @@ export default function ModuleList() {
             </option>
           ))}
         </select>
+      </FormField>
 
-        <button type="button" className="btn" onClick={clearFilters} aria-label="Limpiar filtros">
-          Limpiar filtros
-        </button>
-      </div>
+      {/* Botón limpiar */}
+      <PrimaryButton variant="outline" onClick={clearFilters}>
+        Limpiar filtros
+      </PrimaryButton>
+    </FilterBar>
 
-      {/* Tabla */}
-      {loading ? (
-        <p>Cargando módulos...</p>
-      ) : (
-        <table className="module-table" role="table">
-          <thead>
-            <tr>
-              <th>Profesional</th>
-              <th>Tipo de módulo</th>
-              <th>Mes</th>
-              <th>Consultorio</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredModules.map((m) => (
-              <tr key={m.id}>
-                <td>{fullName(m.professional)}</td>
-                <td>{m.moduleType?.name}</td>
-                <td>{monthLabel(String(Number(m.validMonth)))}</td>
-                <td>{resolveRoomDescription(m)}</td>
+    {/* Tabla / Estado */}
+    {loading ? (
+      <p className="mt-4">Cargando módulos...</p>
+    ) : filteredModules.length === 0 ? (
+      <EmptyState
+        title="No hay módulos que coincidan"
+        description="Probá ajustando los filtros."
+        icon={
+          <svg className="w-12 h-12 text-cyan-600" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5m-8.5 8a8.5 8.5 0 0 1 17 0z"
+            />
+          </svg>
+        }
+      />
+    ) : (
+      <Card>
+        <Table headers={["Profesional", "Tipo de módulo", "Mes", "Consultorio"]}>
+          {filteredModules
+            .sort((a, b) => Number(a.id) - Number(b.id)) // opcional: orden por ID
+            .map((m) => (
+              <tr key={m.id} className="even:bg-gray-50 hover:bg-gray-100 transition">
+                <td className="px-4 py-3">{`${m.professional.firstName} ${m.professional.lastName}`}</td>
+                <td className="px-4 py-3">{m.moduleType?.name}</td>
+                <td className="px-4 py-3">{monthLabel(String(Number(m.validMonth)))}</td>
+                <td className="px-4 py-3">{resolveRoomDescription(m)}</td>
               </tr>
             ))}
-          </tbody>
-        </table>
-      )}
+        </Table>
+      </Card>
+    )}
 
-      {/* Toast */}
-      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-    </section>
+    {/* Toast */}
+    {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+  </Page>
+
+
   );
 }

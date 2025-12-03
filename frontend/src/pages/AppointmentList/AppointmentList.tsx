@@ -1,6 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
 
-import { Toast } from "@/components/ui/Feedback/Toast";
 import {
   handleAppointmentControllerResponse,
   handleHealthInsuranceControllerResponse,
@@ -8,7 +7,6 @@ import {
   handleProfessionalControllerResponse
 } from './AppointmentListHandleResponses';
 
-import './appointmentList.css';
 import {
   Appointment,
   HealthInsurance,
@@ -16,6 +14,9 @@ import {
   Patient,
   Filters,
 } from './appointmentList.types';
+
+import { Toast, EmptyState, Table, PrimaryButton, Card, FilterBar, FormField } from "@/components/ui";
+import { Page, SectionHeader } from "@/components/Layout";
 
 
 export default function AppointmentList() {
@@ -164,97 +165,179 @@ export default function AppointmentList() {
 
 
   return (
-    <div className="appointment-list-container">
-      <h1>Listado de turnos reservados</h1>
-      <div className="filters" aria-label="Appointment filters">
-        <select
-          value={filters.professionalId}
-          onChange={e => handleFilterChange('professionalId', e.target.value)}
-          aria-label="All professionals"
-          title="All professionals"
+
+  <Page>
+    <SectionHeader title="Listado de turnos reservados" />
+
+    {/* Filtros */}
+      <FilterBar>
+          {/* Profesional */}
+          <FormField label="Profesional" htmlFor="filter-professional">
+            <select
+              id="filter-professional"
+              value={filters.professionalId}
+              onChange={(e) => handleFilterChange('professionalId', e.target.value)}
+              className="border rounded-lg p-3 w-full focus:ring-2 focus:ring-cyan-500"
+            >
+              <option value="">Todos</option>
+              {professionals
+                .sort((a, b) => fullName(a).localeCompare(fullName(b), 'es'))
+                .map((pr) => (
+                  <option key={`prof-${pr.id}`} value={String(pr.id)}>
+                    {fullName(pr)}
+                  </option>
+                ))}
+            </select>
+          </FormField>
+
+          {/* Paciente */}
+          <FormField label="Paciente" htmlFor="filter-patient">
+            <select
+              id="filter-patient"
+              value={filters.patientId}
+              onChange={(e) => handleFilterChange('patientId', e.target.value)}
+              className="border rounded-lg p-3 w-full focus:ring-2 focus:ring-cyan-500"
+            >
+              <option value="">Todos</option>
+              {patients
+                .sort((a, b) => fullName(a).localeCompare(fullName(b), 'es'))
+                .map((p) => (
+                  <option key={`pat-${p.id}`} value={String(p.id)}>
+                    {fullName(p)}
+                  </option>
+                ))}
+            </select>
+          </FormField>
+
+          {/* Obra social */}
+          <FormField label="Obra social" htmlFor="filter-insurance">
+            <select
+              id="filter-insurance"
+              value={filters.healthInsurance}
+              onChange={(e) => handleFilterChange('healthInsurance', e.target.value)}
+              className="border rounded-lg p-3 w-full focus:ring-2 focus:ring-cyan-500"
+            >
+              <option value="">Todas</option>
+              {healthInsurances
+                .sort((a, b) => a.name.localeCompare(b.name, 'es'))
+                .map((i) => (
+                  <option key={`ins-${i.id}`} value={String(i.id)}>
+                    {i.name}
+                  </option>
+                ))}
+            </select>
+          </FormField>
+
+          {/* Fecha */}
+          <FormField label="Fecha" htmlFor="filter-date">
+            <input
+              id="filter-date"
+              type="date"
+              value={filters.date}
+              onChange={(e) => handleFilterChange('date', e.target.value)}
+              className="border rounded-lg p-3 w-full focus:ring-2 focus:ring-cyan-500"
+            />
+          </FormField>
+
+            {/* Botón limpiar */}
+              <PrimaryButton
+                variant="outline"
+                size="md"
+                className="border-cyan-600 text-cyan-600 hover:bg-gray-50"
+                onClick={() =>
+                  setFilters({
+                    patientId: '',
+                    professionalId: '',
+                    healthInsurance: '',
+                    date: '',
+                  })
+                }
+              >
+                Limpiar filtros
+              </PrimaryButton>
+
+      </FilterBar>
+
+    {/* Tabla / Feedback */}
+    {loadingAppointments ? (
+      <EmptyState
+        title="Cargando turnos..."
+        description="Por favor, esperá un momento."
+        icon={
+          <svg className="w-12 h-12 text-cyan-600 animate-pulse" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M12 22a10 10 0 1 1 10-10 1 1 0 0 1-2 0 8 8 0 1 0-8 8 1 1 0 0 1 0 2Z"
+            />
+          </svg>
+        }
+      />
+    ) : filteredAppointments.length === 0 ? (
+      <EmptyState
+        title="No hay turnos que coincidan"
+        description="Probá ajustando los filtros."
+        icon={
+          <svg className="w-12 h-12 text-cyan-600" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5m-8.5 8a8.5 8.5 0 0 1 17 0z"
+            />
+          </svg>
+        }
+        action={
+          <PrimaryButton
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              setFilters({
+                patientId: '',
+                professionalId: '',
+                healthInsurance: '',
+                date: '',
+              })
+            }
+          >
+            Limpiar filtros
+          </PrimaryButton>
+        }
+      />
+    ) : (
+      <Card>
+        <Table
+          headers={[
+            'Nombre',
+            'Apellido',
+            'Obra Social',
+            'Profesional',
+            'Fecha',
+            'Hora',
+          ]}
         >
-          <option value="">Profesionales</option>
-          {professionals.map(pr => (
-            <option key={`prof-${pr.id}`} value={String(pr.id)}>
-              {fullName(pr)}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={filters.patientId}
-          onChange={e => handleFilterChange('patientId', e.target.value)}
-          aria-label="All patients"
-          title="All patients"
-        >
-          <option value="">Pacientes</option>
-          {patients.map(p => (
-            <option key={`pat-${p.id}`} value={String(p.id)}>
-              {fullName(p)}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={filters.healthInsurance}
-          onChange={e => handleFilterChange('healthInsurance', e.target.value)}
-          aria-label="All healthInsurances"
-          title="All healthInsurances"
-        >
-          <option value="">Obras Sociales</option>
-          {healthInsurances.map(i => (
-            <option key={`ins-${i.id}`} value={i.id}>
-              {i.name}
-            </option>
-          ))}
-        </select>
-
-        <input
-          type="date"
-          value={filters.date}
-          onChange={e => handleFilterChange('date', e.target.value)}
-          aria-label="Date"
-        />
-      </div>
-
-      {loadingAppointments ? (
-        <p>Cargando turnos...</p>
-      ) : (
-        <table className="appointment-table" role="table">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Apellido</th>
-              <th>Obra Social</th>
-              <th>Profesional</th>
-              <th>Fecha</th>
-              <th>Hora</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredAppointments.map(a => (
-              <tr key={a.id}>
-                <td>{a.patient.firstName}</td>
-                <td>{a.patient.lastName}</td>
-                <td>{a.healthInsurance.name}</td>
-                <td>{professionalName(a)}</td>
-                <td>{a.startTime.split("T")[0]}</td>
-                <td>{a.startTime.split("T")[1]}</td> 
-
+          {filteredAppointments
+            .sort((a, b) => a.startTime.localeCompare(b.startTime)) // orden por fecha/hora asc
+            .map((a) => (
+              <tr key={a.id} className="even:bg-gray-50 hover:bg-gray-100 transition">
+                <td className="px-4 py-3">{a.patient.firstName}</td>
+                <td className="px-4 py-3">{a.patient.lastName}</td>
+                <td className="px-4 py-3">{a.healthInsurance.name}</td>
+                <td className="px-4 py-3">{professionalName(a)}</td>
+                <td className="px-4 py-3">{a.startTime.split('T')[0]}</td>
+                <td className="px-4 py-3">{a.startTime.split('T')[1]}</td>
               </tr>
             ))}
-          </tbody>
-        </table>
-      )}
-      {/* ===== TOAST ===== */}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
-    </div>
-    
+        </Table>
+      </Card>
+    )}
+
+    {/* Toast */}
+    {toast && (
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast(null)}
+      />
+    )}
+
+  </Page>
   );
 }
