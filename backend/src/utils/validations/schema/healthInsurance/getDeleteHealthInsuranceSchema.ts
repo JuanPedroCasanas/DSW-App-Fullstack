@@ -1,10 +1,8 @@
 import { z } from "zod";
+import { idHealthInsurance } from "../../schemaProps/params/idHealthInsuranceParam";
 
 export const getDeleteHealthInsuranceSchema = z.object({
   params: z.object({
-    idHealthInsurance: z
-      .string({
-        required_error: "Se requiere la id de la obra social"
-      }).min(1, "Se requiere la id de la obra social")
+    idHealthInsurance
   })
 });

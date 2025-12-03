@@ -1,11 +1,8 @@
 import { z } from "zod";
+import { idLegalGuardian } from "../../schemaProps/params/idLegalGuardianParam";
 
 export const getDeleteLegalGuardianSchema = z.object({
   params: z.object({
-    idLegalGuardian: z
-      .string({
-        required_error: "Se requiere Id del responsable legal"
-      })
-      .min(1, "Se requiere Id del responsable legal")
+    idLegalGuardian
   })
 });

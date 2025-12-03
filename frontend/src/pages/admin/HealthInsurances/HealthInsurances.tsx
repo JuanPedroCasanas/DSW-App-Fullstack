@@ -144,7 +144,7 @@ export default function HealthInsurances() {
   (async () => {
 
       const payload = {
-          id: editTarget.id, 
+          idHealthInsurance: editTarget.id, 
           name: (editForm.name ?? "").trim() };
 
       const res = await fetch("http://localhost:2000/HealthInsurance/update", {

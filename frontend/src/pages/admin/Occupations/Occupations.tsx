@@ -142,7 +142,7 @@ export default function Occupations() {
     (async () => {
 
       const payload = {
-          id: editTarget.id, 
+          idOccupation: editTarget.id, 
           name: (editForm.name ?? "").trim() 
         };
 

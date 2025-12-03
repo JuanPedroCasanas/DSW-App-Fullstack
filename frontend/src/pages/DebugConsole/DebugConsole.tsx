@@ -10,7 +10,7 @@ export default function DebugConsolePage() {
       <ActionGrid>
         <NavButton to="/admin/consulting-rooms">Consultorios</NavButton>
         <NavButton to="/admin/health-insurances">Obras sociales</NavButton>
-        <NavButton to="/admin/specialties">Especialidades</NavButton>
+        <NavButton to="/admin/occupations">Especialidades</NavButton>
         <NavButton to="/admin/professionals">Profesionales</NavButton>
 
         <NavButton to="/admin/modules" variant="ghost"> Modulos </NavButton>

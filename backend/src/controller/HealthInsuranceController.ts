@@ -12,7 +12,7 @@ export class HealthInsuranceController {
     }
 
     static async addHealthInsurance(req: Request, res: Response) {
-        const {name} = req.body;
+        const { name } = req.body;
         try {
             const em = await getORM().em.fork(); 
             const healthInsurance = new HealthInsurance(name);
@@ -31,16 +31,13 @@ export class HealthInsuranceController {
     
     static async updateHealthInsurance(req: Request, res: Response) {
         
-        const {id, name } = req.body;
+        const {idHealthInsurance, name } = req.body;
 
-        if (!name) {
-        return res.status(400).json({ message: 'Se requiere un nombre de obra social' });
-        }
         try {
 
             const em = await getORM().em.fork();
 
-            const healthInsurance = await em.findOne(HealthInsurance, { id: id});
+            const healthInsurance = await em.findOne(HealthInsurance, { id: idHealthInsurance});
 
            if (!healthInsurance) {
                 throw new NotFoundError('Obra Social');

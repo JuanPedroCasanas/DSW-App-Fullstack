@@ -1,16 +1,16 @@
 export type Occupation = {
-  id: string; 
+  id: number; 
   name: string 
 };
 
 export type Professional = { 
-  id: number | string;          // admite number por backend actual
+  id: number;
   firstName: string; 
   lastName: string 
 };
 
 export type Patient = {
-  id: number | string;
+  id: number;
   firstName: string;
   lastName: string;
   isActive: boolean;
@@ -25,7 +25,7 @@ export type AppointmentStatus =
   | 'expired';
 
 export type Appointment = {
-  id: number | string;
+  id: number;
   startTime: string;     // ISO con 'Z' (UTC), ej: "2025-10-06T16:00:00.000Z"
   endTime: string;       // ISO con 'Z'
   status: AppointmentStatus;
@@ -121,7 +121,7 @@ type DeriveOpts = { module?: number | null };
  */
 export function deriveAvailableDaysForMonth(
   appointments: Appointment[],
-  professionalId: string | number,
+  professionalId: number,
   base: Date,
   opts?: DeriveOpts
 ): Set<string> {
@@ -158,7 +158,7 @@ export function deriveAvailableDaysForMonth(
  */
 export function deriveFreeSlotsForDay(
   appointments: Appointment[],
-  professionalId: string | number,
+  professionalId: number,
   dateISO: string,
   opts?: DeriveOpts
 ): string[] {

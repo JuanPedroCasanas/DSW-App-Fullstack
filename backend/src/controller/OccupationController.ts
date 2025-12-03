@@ -7,16 +7,8 @@ import { Professional } from '../model/entities/Professional';
 
 export class OccupationController {
 
-    static home(req: Request, res: Response) {
-        return res.send('Soy el controlador de ocupaciones!');
-    }
-
     static async addOccupation(req: Request, res: Response) {
         const { name } = req.body;
-
-        if (!name) {
-            return res.status(400).json({ message: 'Se requiere nombre de la especialidad' });
-        }
 
         try {
             const occupation = new Occupation(name);
@@ -32,22 +24,13 @@ export class OccupationController {
     }
 
     static async updateOccupation(req: Request, res: Response) {
-        const { id } = req.body;
+        const { idOccupation } = req.body;
         const { name } = req.body;
-
-        if(!id)
-        {
-            return res.status(400).json({ message: 'Se requiere el ID de la especialidad' });
-        }
-        if(!name)
-        {
-            return res.status(400).json({ message: 'Se requiere el nombre de la especialidad' });
-        }
 
         try {
 
             const em = await getORM().em.fork();
-            const occupation = await em.findOne(Occupation, { id: id });
+            const occupation = await em.findOne(Occupation, { id: idOccupation });
 
             if(!occupation)
             {
@@ -72,11 +55,8 @@ export class OccupationController {
     }
 
     static async getOccupation(req: Request, res: Response) {
-        const idOccupation = Number(req.params.id);
+        const idOccupation = Number(req.params.idOccupation);
 
-        if (!idOccupation) {
-            return res.status(400).json({ message: 'Se requiere el ID de la especialidad' });
-        }
         try {
             const em = await getORM().em.fork();
             const occupation = await em.findOne(Occupation, { id : idOccupation });
@@ -112,10 +92,8 @@ export class OccupationController {
     }
 
     static async deleteOccupation(req: Request, res: Response) {
-        const idOccupation = Number(req.params.id);
-        if (!idOccupation) {
-            return res.status(400).json({ message: 'Se requiere ID de la especialidad' });
-        }
+        const idOccupation = Number(req.params.idOccupation);
+
         try {
             const em = await getORM().em.fork();
             const occupation = await em.findOne(Occupation, { id: idOccupation });

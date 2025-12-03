@@ -6,7 +6,7 @@ import { toDDMMYYYY, fullName, Patient, fullNamePatient, Professional } from './
 type Props = {
   
   patients: Patient[];
-  occupations: { id: string; name: string }[];
+  occupations: { id: number; name: string }[];
   professionals: Professional[];
   loadingMeta: boolean;
   loadingProfessionals: boolean;
@@ -20,18 +20,18 @@ type Props = {
   slots: string[];
   loadingSlots: boolean;
 
-  selectedOccupationId: string;
-  selectedProfessionalId: string;
-  selectedPatientId: string;
+  selectedOccupationId: number | null;
+  selectedProfessionalId: number | null;
+  selectedPatientId: number | null;
   selectedDateISO: string;
   selectedSlot: string;
   selectedOccupationName?: string;
   selectedProfessionalFullName?: string;
   error?: string | null;
 
-  onChangePatient: (id: string) => void;
-  onChangeOccupation: (id: string) => void;
-  onChangeProfessional: (id: string) => void;
+  onChangePatient: (id: number) => void;
+  onChangeOccupation: (id: number) => void;
+  onChangeProfessional: (id: number) => void;
   onPickDay: (iso: string) => void;
   onPickSlot: (h: string) => void;
   onOpenConfirm: () => void;
@@ -80,8 +80,8 @@ export const AppointmentScheduleForm: React.FC<Props> = (props) => {
         <select
           id="patient"
           className="appointment-schedule__select"
-          value={selectedPatientId}
-          onChange={(e) => onChangePatient(e.target.value)}
+          value={selectedPatientId ?? ""}
+          onChange={(e) => onChangePatient(Number(e.target.value))}
           disabled={loadingPatients}
         >
           <option value="">Seleccioná un paciente activo</option>
@@ -102,8 +102,8 @@ export const AppointmentScheduleForm: React.FC<Props> = (props) => {
         <select
           id="occupation"
           className="appointment-schedule__select"
-          value={selectedOccupationId}
-          onChange={(e) => onChangeOccupation(e.target.value)}
+          value={selectedOccupationId ?? ""}
+          onChange={(e) => onChangeOccupation(Number(e.target.value))}
           disabled={loadingMeta || !selectedPatientId}
         >
           <option value="">{loadingMeta ? 'Cargando…' : 'Elegí una especialidad'}</option>
@@ -119,8 +119,8 @@ export const AppointmentScheduleForm: React.FC<Props> = (props) => {
         <select
           id="professional"
           className="appointment-schedule__select"
-          value={selectedProfessionalId}
-          onChange={(e) => onChangeProfessional(e.target.value)}
+          value={selectedProfessionalId ?? ""}
+          onChange={(e) => onChangeProfessional(Number(e.target.value))}
           disabled={
             loadingMeta ||
             !selectedPatientId ||

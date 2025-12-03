@@ -1,11 +1,8 @@
 import { z } from "zod";
+import { idConsultingRoom } from "../../schemaProps/params/idConsultingRoomParam";
 
 export const getCurrentMonthModulesByConsultingRoomModuleSchema = z.object({
   params: z.object({
-    idConsultingRoom: z
-      .string({
-        required_error: "Se requiere el id de consultorio"
-      })
-      .min(1, "Se requiere el id de consultorio")
+    idConsultingRoom
   })
 });

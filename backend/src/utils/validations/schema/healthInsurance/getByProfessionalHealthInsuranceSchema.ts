@@ -1,10 +1,6 @@
 import { z } from "zod";
+import { idProfessional } from "../../schemaProps/params/idProfessionalParam";
 
 export const getByProfessionalHealthInsuranceSchema = z.object({
-  params: z.object({
-    idProfessional: z
-      .string({
-        required_error: "Se requiere la id del profesional"
-      }).min(1, "Se requiere la id del profesional")
-  })
+  params: z.object({ idProfessional })
 });

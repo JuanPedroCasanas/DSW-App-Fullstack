@@ -1,10 +1,10 @@
 import express from 'express';
 import { AppointmentController } from '../controller/AppointmentController';
 import { validate } from '../utils/validations/validate';
-import { assignAppointmentSchema } from '../utils/validations/schema/Appointment/assignAppointmentSchema';
-import { getCancelCompleteMissAppointmentSchema } from '../utils/validations/schema/Appointment/getCancelCompleteMissAppointmentSchema';
-import { getByProfessionalAppointmentSchema } from '../utils/validations/schema/Appointment/getByProfessionalAppointmentSchema';
-import { getByPatientAppointmentSchema } from '../utils/validations/schema/Appointment/getByPatientAppointmentSchema';
+import { assignAppointmentSchema } from '../utils/validations/schema/appointment/assignAppointmentSchema';
+import { getCancelCompleteMissAppointmentSchema } from '../utils/validations/schema/appointment/getCancelCompleteMissAppointmentSchema';
+import { getByProfessionalAppointmentSchema } from '../utils/validations/schema/appointment/getByProfessionalAppointmentSchema';
+import { getByPatientAppointmentSchema } from '../utils/validations/schema/appointment/getByPatientAppointmentSchema';
 
 const router = express.Router();
 //APLICAR AUTH A TODO ESTO, HAY QUE SER FINOS EN EL CANCEL, COMPLETE Y MISS

@@ -62,10 +62,10 @@ export default function AppointmentSchedule() {
 
 
   // Filtros / selección
-  const [selectedOccupationId, setSelectedOccupationId] = useState<Occupation['id']>('');
-  const [selectedProfessionalId, setSelectedProfessionalId] = useState<string>('');
-  const [selectedPatientId, setSelectedPatientId] = useState<string>('');
-  const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | number | null>(null);
+  const [selectedOccupationId, setSelectedOccupationId] = useState<Occupation['id'] | null>(null);
+  const [selectedProfessionalId, setSelectedProfessionalId] = useState<number | null>(null);
+  const [selectedPatientId, setSelectedPatientId] = useState<number | null>(null);
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState<number | null>(null);
   const [selectedDateISO, setSelectedDateISO] = useState<string>('');
   const [selectedSlot, setSelectedSlot] = useState<string>('');
 
@@ -108,9 +108,10 @@ export default function AppointmentSchedule() {
   // Al cambiar de paciente: resetear todo lo dependiente
   useEffect(() => {
     // si no hay paciente, limpiar filtros y turnos
-    setSelectedOccupationId('');
+    setSelectedOccupationId(null);
     setProfessionals([]);
-    setSelectedProfessionalId('');
+    setSelectedProfessionalId(null);
+    setSelectedAppointmentId(null);
     setSelectedDateISO('');
     setSelectedSlot('');
     setAppointments([]);
@@ -144,7 +145,8 @@ export default function AppointmentSchedule() {
 
   // filtro de profesionales según especialidad
   useEffect(() => {
-    setSelectedProfessionalId('');
+    setSelectedProfessionalId(null);
+    setSelectedAppointmentId(null);
     setSelectedDateISO('');
     setSelectedSlot('');
     setProfessionals([]);
@@ -266,7 +268,7 @@ export default function AppointmentSchedule() {
 
   const slotIdMap = useMemo(() => {
     // Mapea "HH:mm" (local) -> appointment.id del día seleccionado
-    const map = new Map<string, string | number>();
+    const map = new Map<string, number>();
     if (!selectedProfessionalId || !selectedDateISO) return map;
 
     // Recorremos los appointments del profesional en ese día (local)
@@ -297,7 +299,7 @@ export default function AppointmentSchedule() {
     return () => clearTimeout(t);
   }, [selectedProfessionalId, selectedDateISO]);
 
-  const canOpenCalendar = !loadingMeta && selectedProfessionalId !== '';
+  const canOpenCalendar = !loadingMeta && selectedProfessionalId !== null;
 
   function dayState(dayNum: number | null) {
     if (dayNum === null) return { disabled: true, available: false, iso: '' };
