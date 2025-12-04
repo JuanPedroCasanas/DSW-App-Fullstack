@@ -1,7 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
-import "./guardedPatients.css";
+
 import { LegalGuardian, Patient } from "./guardedPatientsTypes";
-import { Toast } from "@/components/ui/Feedback/Toast";
+
+import { Toast, EmptyState, Modal, Table, SummaryList, 
+  DialogActions, PrimaryButton, FormField, Card, FilterBar } from "@/components/ui";
+import { Page, SectionHeader } from "@/components/Layout";
+
 
 // ---- Utils ----
 const formatDate = (iso: string) => {
@@ -272,322 +276,291 @@ export default function GuardedPatients() {
   const hasPatients = patients.length > 0;
 
   return (
-    <section className="gp-container">
-      <h1 className="gp-title">Pacientes a cargo</h1>
-        <div className="gp-guardian-select">
-            <label htmlFor="guardian" className="sr-only">Responsable legal</label>
-              <select
-                value={selectedGuardianId ?? ""}
-                onChange={(e) => setSelectedGuardianId(Number(e.target.value))}
-              >
-                {legalGuardians.map(g => (
+
+    <Page>
+      <SectionHeader title="Pacientes a cargo" />
+
+      {/* selector de responsable legal. Esto se iria en cuanto tengamos roles */}
+      <FilterBar>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <FormField label="Responsable legal" htmlFor="guardian">
+            <select
+              id="guardian"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              value={selectedGuardianId ?? ""}
+              onChange={(e) => setSelectedGuardianId(Number(e.target.value))}
+            >
+              {[...legalGuardians]
+                .sort((a, b) => a.id - b.id)
+                .map((g) => (
                   <option key={g.id} value={g.id}>
-                    Id: {g.id}, {g.lastName} {g.firstName}
+                    {`Id: ${g.id}, ${g.lastName} ${g.firstName}`}
                   </option>
                 ))}
-              </select>
+            </select>
+          </FormField>
         </div>
+      </FilterBar>
 
-      {/* ===== Estado vacío ===== */}
+      {/* Estado vacío */}
       {!hasPatients && (
-        <div className="gp-empty-state" role="status" aria-live="polite">
-          {/* Icono simple inline */}
-          <svg className="gp-empty-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <path fill="currentColor" d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.42 0-8 2.14-8 4.78V21h16v-2.22C20 16.14 16.42 14 12 14Z"/>
-          </svg>
-          <h2>No hay pacientes a cargo</h2>
-          <p>Agregá tu primer paciente para comenzar.</p>
-          <button type="button" className="ui-btn ui-btn--primary" onClick={openAdd}>
-            Agregar paciente a cargo
-          </button>
-        </div>
+        <EmptyState
+          title="No hay pacientes a cargo"
+          description="Agregá tu primer paciente para comenzar."
+          icon={
+            <svg className="w-12 h-12 text-cyan-600" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.42 0-8 2.14-8 4.78V21h16v-2.22C20 16.14 16.42 14 12 14Z"
+              />
+            </svg>
+          }
+          action={<PrimaryButton onClick={openAdd}>Agregar paciente a cargo</PrimaryButton>}
+        />
       )}
 
-      {/* ===== Tabla ===== */}
+      {/* Tabla */}
       {hasPatients && (
         <>
-          <div className="gp-table-wrap">
-            <table className="gp-table">
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Apellido</th>
-                  <th>Fecha de nacimiento</th>
-                  <th className="gp-col-actions">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {patients.map((p) => (
-                  <tr key={p.id}>
-                    <td data-label="firstName">{p.firstName}</td>
-                    <td data-label="lastName">{p.lastName}</td>
-                    <td data-label="birthdate">{formatDate(p.birthdate.split("T")[0])}</td>
-                    <td className="gp-actions">
-                      <button
-                        type="button"
-                        className="ui-btn ui-btn--outline ui-btn--sm"
-                        onClick={() => openEdit(p)}
-                      >
-                        Editar
-                      </button>
-                      <button
-                        type="button"
-                        className="ui-btn ui-btn--danger ui-btn--sm"
-                        onClick={() => openDelete(p)}
-                      >
-                        Eliminar
-                      </button>
+          <Card>
+            <Table headers={["Nombre", "Apellido", "Fecha de nacimiento", "Acciones"]}>
+              {[...patients]
+                .sort((a, b) => a.firstName.localeCompare(b.firstName, "es", { sensitivity: "base" }))
+                .map((p) => (
+                  <tr key={p.id} className="even:bg-gray-50 hover:bg-gray-100 transition">
+                    <td className="px-4 py-3">{p.firstName}</td>
+                    <td className="px-4 py-3">{p.lastName}</td>
+                    <td className="px-4 py-3">
+                      {formatDate(p.birthdate.split("T")[0])}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-2 justify-center">
+                        <PrimaryButton variant="outline" size="sm" onClick={() => openEdit(p)}>
+                          Editar
+                        </PrimaryButton>
+                        <PrimaryButton variant="danger" size="sm" onClick={() => openDelete(p)}>
+                          Eliminar
+                        </PrimaryButton>
+                      </div>
                     </td>
                   </tr>
                 ))}
-              </tbody>
-            </table>
-          </div>
+            </Table>
+          </Card>
 
-          {/* Footer: Agregar */}
-          <div className="gp-footer">
-            <button type="button" className="ui-btn ui-btn--primary" onClick={openAdd}>
-              Agregar paciente a cargo
-            </button>
+          <div className="grid place-items-center mt-4">
+            <PrimaryButton onClick={openAdd}>Agregar paciente a cargo</PrimaryButton>
           </div>
         </>
       )}
 
-      {/* ===== MODAL: Agregar (2 pasos con dirty-check) ===== */}
+      {/* Agregar */}
       {showAdd && (
-        <div className="gp-modal-backdrop" onClick={tryCloseAdd} role="presentation">
-          <div
-            className="gp-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="gp-add-title"
-            aria-describedby="gp-add-desc"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {addStep === "form" ? (
-              <>
-                <h2 id="gp-add-title">Agregar paciente</h2>
-                <p id="gp-add-desc" className="gp-help">Completá los datos del paciente a cargo.</p>
-                <form onSubmit={handleAddContinue} noValidate>
-                  <div className="gp-field">
-                    <label htmlFor="add-firstName">Nombre</label>
-                    <input
-                      id="add-firstName"
-                      type="text"
-                      value={addForm.firstName ?? ""}
-                      onChange={(e) => setAddForm((f) => ({ ...f, firstName: e.target.value }))}
-                      aria-invalid={!!addErrors.firstName}
-                      aria-describedby={addErrors.firstName ? "add-firstName-err" : undefined}
-                    />
-                    {addErrors.firstName && <p className="gp-error" id="add-firstName-err">{addErrors.firstName}</p>}
-                  </div>
+        <Modal
+          title={addStep === "form" ? "Agregar paciente" : "Confirmar nuevo paciente"}
+          onClose={tryCloseAdd}
+        >
+          {addStep === "form" ? (
+            <form onSubmit={handleAddContinue} className="space-y-4" noValidate>
+              <FormField label="Nombre" htmlFor="add-firstName">
+                <input
+                  id="add-firstName"
+                  type="text"
+                  value={addForm.firstName ?? ""}
+                  onChange={(e) => setAddForm((f) => ({ ...f, firstName: e.target.value }))}
+                  className="border rounded-lg p-3 w-full focus:ring-2 focus:ring-cyan-500"
+                  aria-invalid={!!addErrors.firstName}
+                  aria-describedby={addErrors.firstName ? "add-firstName-err" : undefined}
+                  autoFocus
+                />
+                {addErrors.firstName && (
+                  <p id="add-firstName-err" className="text-red-600 text-sm mt-1">
+                    {addErrors.firstName}
+                  </p>
+                )}
+              </FormField>
 
-                  <div className="gp-field">
-                    <label htmlFor="add-lastName">Apellido</label>
-                    <input
-                      id="add-lastName"
-                      type="text"
-                      value={addForm.lastName ?? ""}
-                      onChange={(e) => setAddForm((f) => ({ ...f, lastName: e.target.value }))}
-                      aria-invalid={!!addErrors.lastName}
-                      aria-describedby={addErrors.lastName ? "add-lastName-err" : undefined}
-                    />
-                    {addErrors.lastName && <p className="gp-error" id="add-lastName-err">{addErrors.lastName}</p>}
-                  </div>
+              <FormField label="Apellido" htmlFor="add-lastName">
+                <input
+                  id="add-lastName"
+                  type="text"
+                  value={addForm.lastName ?? ""}
+                  onChange={(e) => setAddForm((f) => ({ ...f, lastName: e.target.value }))}
+                  className="border rounded-lg p-3 w-full focus:ring-2 focus:ring-cyan-500"
+                  aria-invalid={!!addErrors.lastName}
+                  aria-describedby={addErrors.lastName ? "add-lastName-err" : undefined}
+                />
+                {addErrors.lastName && (
+                  <p id="add-lastName-err" className="text-red-600 text-sm mt-1">
+                    {addErrors.lastName}
+                  </p>
+                )}
+              </FormField>
 
-                  <div className="gp-field">
-                    <label htmlFor="add-fecha">Fecha de nacimiento</label>
-                    <input
-                      id="add-fecha"
-                      type="date"
-                      value={addForm.birthdate ?? ""}
-                      onChange={(e) => setAddForm((f) => ({ ...f, birthdate: e.target.value }))}
-                      aria-invalid={!!addErrors.birthdate}
-                      aria-describedby={addErrors.birthdate ? "add-fecha-err" : undefined}
-                    />
-                    {addErrors.birthdate && <p className="gp-error" id="add-fecha-err">{addErrors.birthdate}</p>}
-                  </div>
+              <FormField label="Fecha de nacimiento" htmlFor="add-fecha">
+                <input
+                  id="add-fecha"
+                  type="date"
+                  value={addForm.birthdate ?? ""}
+                  onChange={(e) => setAddForm((f) => ({ ...f, birthdate: e.target.value }))}
+                  className="border rounded-lg p-3 w-full focus:ring-2 focus:ring-cyan-500"
+                  aria-invalid={!!addErrors.birthdate}
+                  aria-describedby={addErrors.birthdate ? "add-fecha-err" : undefined}
+                />
+                {addErrors.birthdate && (
+                  <p id="add-fecha-err" className="text-red-600 text-sm mt-1">
+                    {addErrors.birthdate}
+                  </p>
+                )}
+              </FormField>
 
-                  <div className="gp-modal-actions">
-                    <button type="button" className="ui-btn ui-btn--outline" onClick={tryCloseAdd}>
-                      Cancelar
-                    </button>
-                    <button type="submit" className="ui-btn ui-btn--primary">
-                      Continuar
-                    </button>
-                  </div>
-                </form>
-              </>
-            ) : (
-              <>
-                <h2 id="gp-add-title">Confirmar nuevo paciente</h2>
-                <p id="gp-add-desc">Revisá que los datos sean correctos.</p>
-                <ul className="gp-summary">
-                  <li><strong>Nombre:</strong> {addForm.firstName}</li>
-                  <li><strong>Apellido:</strong> {addForm.lastName}</li>
-                  <li><strong>Fecha de nacimiento:</strong> {formatDate(addForm.birthdate || "")}</li>
-                </ul>
-                <div className="gp-modal-actions">
-                  <button type="button" className="ui-btn ui-btn--outline" onClick={() => setAddStep("form")}>
-                    Volver
-                  </button>
-                  <button type="button" className="ui-btn ui-btn--primary" onClick={handleAddConfirm}>
-                    Confirmar
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+              <DialogActions>
+                <PrimaryButton variant="outline" onClick={tryCloseAdd}>
+                  Cancelar
+                </PrimaryButton>
+                <PrimaryButton type="submit">Continuar</PrimaryButton>
+              </DialogActions>
+            </form>
+          ) : (
+            <>
+              <SummaryList
+                items={[
+                  { label: "Nombre", value: addForm.firstName ?? "" },
+                  { label: "Apellido", value: addForm.lastName ?? "" },
+                  { label: "Fecha de nacimiento", value: formatDate(addForm.birthdate ?? "") },
+                ]}
+              />
+              <DialogActions>
+                <PrimaryButton variant="outline" onClick={() => setAddStep("form")}>
+                  Volver
+                </PrimaryButton>
+                <PrimaryButton onClick={handleAddConfirm}>Confirmar</PrimaryButton>
+              </DialogActions>
+            </>
+          )}
+        </Modal>
       )}
 
-      {/* ===== MODAL: Editar (2 pasos con dirty-check) ===== */}
+      {/* Modal: Editar */}
       {editTarget && (
-        <div className="gp-modal-backdrop" onClick={tryCloseEdit} role="presentation">
-          <div
-            className="gp-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="gp-edit-title"
-            aria-describedby="gp-edit-desc"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {editStep === "form" ? (
-              <>
-                <h2 id="gp-edit-title">Editar paciente</h2>
-                <p id="gp-edit-desc" className="gp-help">Actualizá los datos necesarios.</p>
-                <form onSubmit={handleEditContinue} noValidate>
-                  <div className="gp-field">
-                    <label htmlFor="edit-firstName">Nombre</label>
-                    <input
-                      id="edit-firstName"
-                      type="text"
-                      value={editForm.firstName ?? ""}
-                      onChange={(e) => setEditForm((f) => ({ ...f, firstName: e.target.value }))}
-                      aria-invalid={!!editErrors.firstName}
-                      aria-describedby={editErrors.firstName ? "edit-firstName-err" : undefined}
-                    />
-                    {editErrors.firstName && <p className="gp-error" id="edit-firstName-err">{editErrors.firstName}</p>}
-                  </div>
+        <Modal title={editStep === "form" ? "Editar paciente" : "Confirmar cambios"} onClose={tryCloseEdit}>
+          {editStep === "form" ? (
+            <form onSubmit={handleEditContinue} className="space-y-4" noValidate>
+              <FormField label="Nombre" htmlFor="edit-firstName">
+                <input
+                  id="edit-firstName"
+                  type="text"
+                  value={editForm.firstName ?? ""}
+                  onChange={(e) => setEditForm((f) => ({ ...f, firstName: e.target.value }))}
+                  className="border rounded-lg p-3 w-full focus:ring-2 focus:ring-cyan-500"
+                  aria-invalid={!!editErrors.firstName}
+                  aria-describedby={editErrors.firstName ? "edit-firstName-err" : undefined}
+                  autoFocus
+                />
+                {editErrors.firstName && (
+                  <p id="edit-firstName-err" className="text-red-600 text-sm mt-1">
+                    {editErrors.firstName}
+                  </p>
+                )}
+              </FormField>
 
-                  <div className="gp-field">
-                    <label htmlFor="edit-lastName">Apellido</label>
-                    <input
-                      id="edit-lastName"
-                      type="text"
-                      value={editForm.lastName ?? ""}
-                      onChange={(e) => setEditForm((f) => ({ ...f, lastName: e.target.value }))}
-                      aria-invalid={!!editErrors.lastName}
-                      aria-describedby={editErrors.lastName ? "edit-lastName-err" : undefined}
-                    />
-                    {editErrors.lastName && <p className="gp-error" id="edit-lastName-err">{editErrors.lastName}</p>}
-                  </div>
+              <FormField label="Apellido" htmlFor="edit-lastName">
+                <input
+                  id="edit-lastName"
+                  type="text"
+                  value={editForm.lastName ?? ""}
+                  onChange={(e) => setEditForm((f) => ({ ...f, lastName: e.target.value }))}
+                  className="border rounded-lg p-3 w-full focus:ring-2 focus:ring-cyan-500"
+                  aria-invalid={!!editErrors.lastName}
+                  aria-describedby={editErrors.lastName ? "edit-lastName-err" : undefined}
+                />
+                {editErrors.lastName && (
+                  <p id="edit-lastName-err" className="text-red-600 text-sm mt-1">
+                    {editErrors.lastName}
+                  </p>
+                )}
+              </FormField>
 
-                  <div className="gp-field">
-                    <label htmlFor="edit-fecha">Fecha de nacimiento</label>
-                    <input
-                      id="edit-fecha"
-                      type="date"
-                      value={editForm.birthdate ? editForm.birthdate.split("T")[0] : ""}
-                      onChange={(e) => setEditForm((f) => ({ ...f, birthdate: e.target.value }))}
-                      aria-invalid={!!editErrors.birthdate}
-                      aria-describedby={editErrors.birthdate ? "edit-fecha-err" : undefined}
-                    />
-                    {editErrors.birthdate && <p className="gp-error" id="edit-fecha-err">{editErrors.birthdate}</p>}
-                  </div>
+              <FormField label="Fecha de nacimiento" htmlFor="edit-fecha">
+                <input
+                  id="edit-fecha"
+                  type="date"
+                  value={editForm.birthdate ? editForm.birthdate.split("T")[0] : ""}
+                  onChange={(e) => setEditForm((f) => ({ ...f, birthdate: e.target.value }))}
+                  className="border rounded-lg p-3 w-full focus:ring-2 focus:ring-cyan-500"
+                  aria-invalid={!!editErrors.birthdate}
+                  aria-describedby={editErrors.birthdate ? "edit-fecha-err" : undefined}
+                />
+                {editErrors.birthdate && (
+                  <p id="edit-fecha-err" className="text-red-600 text-sm mt-1">
+                    {editErrors.birthdate}
+                  </p>
+                )}
+              </FormField>
 
-                  <div className="gp-modal-actions">
-                    <button type="button" className="ui-btn ui-btn--outline" onClick={tryCloseEdit}>
-                      Cancelar
-                    </button>
-                    <button type="submit" className="ui-btn ui-btn--primary">
-                      Continuar
-                    </button>
-                  </div>
-                </form>
-              </>
-            ) : (
-              <>
-                <h2 id="gp-edit-title">Confirmar cambios</h2>
-                <p id="gp-edit-desc">Verificá los datos editados.</p>
-                <ul className="gp-summary">
-                  <li><strong>Nombre:</strong> {editForm.firstName}</li>
-                  <li><strong>Apellido:</strong> {editForm.lastName}</li>
-                  <li><strong>Fecha de nacimiento:</strong> {formatDate(editForm.birthdate || "")}</li>
-                </ul>
-                <div className="gp-modal-actions">
-                  <button type="button" className="ui-btn ui-btn--outline" onClick={() => setEditStep("form")}>
-                    Volver
-                  </button>
-                  <button type="button" className="ui-btn ui-btn--primary" onClick={handleEditConfirm}>
-                    Confirmar
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+              <DialogActions>
+                <PrimaryButton variant="outline" onClick={tryCloseEdit}>
+                  Cancelar
+                </PrimaryButton>
+                <PrimaryButton type="submit">Continuar</PrimaryButton>
+              </DialogActions>
+            </form>
+          ) : (
+            <>
+              <SummaryList
+                items={[
+                  { label: "ID", value: String(editTarget.id) },
+                  { label: "Nombre", value: editForm.firstName ?? "" },
+                  { label: "Apellido", value: editForm.lastName ?? "" },
+                  { label: "Fecha de nacimiento", value: formatDate(editForm.birthdate ?? "") },
+                ]}
+              />
+              <DialogActions>
+                <PrimaryButton variant="outline" onClick={() => setEditStep("form")}>
+                  Volver
+                </PrimaryButton>
+                <PrimaryButton onClick={handleEditConfirm}>Confirmar</PrimaryButton>
+              </DialogActions>
+            </>
+          )}
+        </Modal>
       )}
 
-      {/* ===== MODAL: Eliminar ===== */}
+      {/* Modal: Eliminar */}
       {deleteTarget && (
-        <div className="gp-modal-backdrop" onClick={closeDelete} role="presentation">
-          <div
-            className="gp-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="gp-del-title"
-            aria-describedby="gp-del-desc"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 id="gp-del-title">Eliminar paciente</h2>
-            <p id="gp-del-desc">
-              ¿Estás seguro de eliminar a <strong>{deleteTarget.firstName} {deleteTarget.lastName}</strong>?
-            </p>
-            <div className="gp-modal-actions">
-              <button type="button" className="ui-btn ui-btn--outline" onClick={closeDelete}>
-                Cancelar
-              </button>
-              <button type="button" className="ui-btn ui-btn--danger" onClick={handleDeleteConfirm}>
-                Eliminar
-              </button>
-            </div>
-          </div>
-        </div>
+        <Modal title="Eliminar paciente" onClose={closeDelete}>
+          <p className="text-[#213547] mb-2">
+            ¿Estás seguro de eliminar a <strong>{deleteTarget.firstName} {deleteTarget.lastName}</strong>?
+          </p>
+          <DialogActions>
+            <PrimaryButton variant="outline" onClick={closeDelete}>
+              Cancelar
+            </PrimaryButton>
+            <PrimaryButton variant="danger" onClick={handleDeleteConfirm}>
+              Eliminar
+            </PrimaryButton>
+          </DialogActions>
+        </Modal>
       )}
 
-      {/* ===== MODAL: Descartar cambios (dirty-check) ===== */}
+      {/* Modal: Descartar cambios */}
       {discardCtx.open && (
-        <div className="gp-modal-backdrop" onClick={closeDiscard} role="presentation">
-          <div
-            className="gp-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="gp-discard-title"
-            aria-describedby="gp-discard-desc"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 id="gp-discard-title">Descartar cambios</h2>
-            <p id="gp-discard-desc">Tenés cambios sin guardar. ¿Cerrar de todos modos?</p>
-            <div className="gp-modal-actions">
-              <button type="button" className="ui-btn ui-btn--outline" onClick={closeDiscard}>
-                Seguir editando
-              </button>
-              <button type="button" className="ui-btn ui-btn--danger" onClick={confirmDiscard}>
-                Descartar
-              </button>
-            </div>
-          </div>
-        </div>
+        <Modal title="Descartar cambios" onClose={closeDiscard}>
+          <p className="text-[#213547] mb-2">Tenés cambios sin guardar. ¿Cerrar de todos modos?</p>
+          <DialogActions>
+            <PrimaryButton variant="outline" onClick={closeDiscard}>
+              Seguir editando
+            </PrimaryButton>
+            <PrimaryButton variant="danger" onClick={confirmDiscard}>
+              Descartar
+            </PrimaryButton>
+          </DialogActions>
+        </Modal>
       )}
-      {/* ===== TOAST ===== */}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
-    </section>
+
+      {/* Toast */}
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+    </Page>
+
   );
 }

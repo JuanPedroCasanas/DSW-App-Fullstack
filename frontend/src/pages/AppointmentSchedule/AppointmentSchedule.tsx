@@ -1,8 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import './appointmentSchedule.css';
 import { Toast } from '@/components/ui/Feedback/Toast';
 
-// ==== IMPORTS desde tus otros dos archivos (no se tocan) ====
 import {
   Occupation,
   Professional,
@@ -59,8 +57,6 @@ export default function AppointmentSchedule() {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loadingPatients, setLoadingPatients] = useState(false);
 
-
-
   // Filtros / selección
   const [selectedOccupationId, setSelectedOccupationId] = useState<Occupation['id'] | null>(null);
   const [selectedProfessionalId, setSelectedProfessionalId] = useState<number | null>(null);
@@ -79,14 +75,14 @@ export default function AppointmentSchedule() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [bookingState, setBookingState] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
 
-
+// esto se va a ir cuando pongamos roles (solo para el caso de paciente)
+// para responsable legal seria otra cosa
   // pacientes (activos primero)
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
         setLoadingPatients(true);
-        // ⚠️ Si tu backend tiene /Patient/getAllActive usalo acá.
         const res = await fetch(`http://localhost:2000/Patient/getAll`, { method: 'GET' });
         if (!res.ok) {
           const toastData = await handleResponse(res);
@@ -196,8 +192,6 @@ export default function AppointmentSchedule() {
         setError(null);
         setLoadingMonth(true);
 
-        console.log(selectedProfessionalId);
-
         const res = await fetch(`http://localhost:2000/Appointment/getAvailableAppointmentsByProfessional/${selectedProfessionalId}`, { 
           method: 'GET' 
         });
@@ -220,8 +214,6 @@ export default function AppointmentSchedule() {
           const d = new Date(Y, M - 1, D);
           return d >= start && d <= end;
         });
-
-
 
         if (!cancelled) setAppointments(inMonth);
       } 
@@ -344,12 +336,9 @@ export default function AppointmentSchedule() {
       setToast(toastData);
 
       if (!res.ok) {
-        // 409 u otro error: mantenemos el estado de error del modal
         setBookingState('error');
         return;
       }
-
-      // Éxito: refrescar turnos del mes para bloquear el slot tomado
       try {
         const resAll = await fetch(`http://localhost:2000/Appointment/getAll`, { method: 'GET' });
         if (resAll.ok) {
@@ -388,56 +377,69 @@ export default function AppointmentSchedule() {
     setBookingState('idle');
   }
 
-  const selectedOccupation = occupations.find((s) => s.id === selectedOccupationId);
-  const selectedProfessional = professionals.find((p) => p.id === selectedProfessionalId);
 
   return (
-    <>
-      <AppointmentScheduleForm
+  <>
+  <AppointmentScheduleForm
+    patients={patients}
+    loadingPatients={loadingPatients}
+    selectedPatientId={selectedPatientId}
+    onChangePatient={setSelectedPatientId}
+    occupations={occupations}
+    professionals={professionals}
+    loadingMeta={loadingMeta}
+    loadingProfessionals={loadingProfessionals}
+    monthLabel={monthLabel}
+    daysArray={daysArray}
+    dayState={dayState}
+    canOpenCalendar={canOpenCalendar}
+    loadingMonth={loadingMonth}
+    slots={slots}
+    loadingSlots={loadingSlots}
+    selectedOccupationId={selectedOccupationId}
+    selectedProfessionalId={selectedProfessionalId}
+    selectedDateISO={selectedDateISO}
+    selectedSlot={selectedSlot}
+    selectedOccupationName={occupations.find((s) => s.id === selectedOccupationId)?.name}
+    selectedProfessionalFullName={fullName(
+      professionals.find((p) => p.id === selectedProfessionalId)
+    )}
+    error={error}
+    onChangeOccupation={setSelectedOccupationId}
+    onChangeProfessional={setSelectedProfessionalId}
+    onPickDay={(iso) => {
+      setSelectedDateISO(iso);
+      setSelectedSlot('');
+      setSelectedAppointmentId(null);
+    }}
+    onPickSlot={(hhmm: string) => {
+      setSelectedSlot(hhmm);
+      setSelectedAppointmentId(slotIdMap.get(hhmm) ?? null); // <-- clave
+    }}
+    onOpenConfirm={() => setConfirmOpen(true)}
+    onCloseConfirm={() => {
+      setConfirmOpen(false);
+      setBookingState('idle');
+    }}
+    onConfirm={onConfirm}   // <-- usar la función real
+    confirmOpen={confirmOpen}
+    bookingState={bookingState}
 
-        patients={patients}
-        loadingPatients={loadingPatients}
-        selectedPatientId={selectedPatientId}
-        onChangePatient={setSelectedPatientId}
+    
 
-        occupations={occupations}
-        professionals={professionals}
-        loadingMeta={loadingMeta}
-        loadingProfessionals={loadingProfessionals}
-        monthLabel={monthLabel}
-        daysArray={daysArray}
-        dayState={dayState}
-        canOpenCalendar={canOpenCalendar}
-        loadingMonth={loadingMonth}
-        slots={slots}
-        loadingSlots={loadingSlots}
-        selectedOccupationId={selectedOccupationId}
-        selectedProfessionalId={selectedProfessionalId}
-        selectedDateISO={selectedDateISO}
-        selectedSlot={selectedSlot}
-        selectedOccupationName={selectedOccupation?.name}
-        selectedProfessionalFullName={fullName(selectedProfessional)}
-        error={error}
-        onChangeOccupation={setSelectedOccupationId}
-        onChangeProfessional={setSelectedProfessionalId}
-        onPickDay={(iso) => {
-          setSelectedDateISO(iso);
-          setSelectedSlot('');
-          setSelectedAppointmentId(null);
-        }}
-        onPickSlot={(hhmm: string) => {
-          setSelectedSlot(hhmm);
-          setSelectedAppointmentId(slotIdMap.get(hhmm) ?? null);
-        }}
-        onOpenConfirm={() => setConfirmOpen(true)}
-        onCloseConfirm={resetModal}
-        onConfirm={onConfirm}
-        confirmOpen={confirmOpen}
-        bookingState={bookingState}
+
+  />
+
+   {/* Toast */}
+    {toast && (
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast(null)}
       />
+    )}
+    
+  </>
 
-      {/* ===== TOAST ===== */}
-      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-    </>
   );
 }

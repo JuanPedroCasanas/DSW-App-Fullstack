@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import './ProfessionalHealthInsurance.css';
-import HealthInsurances from '../admin/HealthInsurances/HealthInsurances';
 import  {HealthInsurance, Professional} from "./ProfessionalHealthInsurancesTypes"
-import { Toast } from "@/components/ui/Feedback/Toast";
+
+
+import { Toast, EmptyState, Table, PrimaryButton, Card, FilterBar, FormField, Modal, DialogActions, SummaryList } from "@/components/ui";
+import { Page, SectionHeader } from "@/components/Layout";
 
 const validateHealthInsurance = (p: Partial<HealthInsurance>) => {
   const errors: Record<string, string> = {};
@@ -182,7 +183,6 @@ export default function HealthInsurancesByProfessional(){
  
 // ---------- Editar (2 pasos + dirty-check) ----------
   const [editTarget, setEditTarget] = useState<HealthInsurance | null>(null);
-  const [editStep, setEditStep] = useState<"form" | "confirm">("form");
   const [editForm, setEditForm] = useState<Partial<HealthInsurance>>({});
   const [editSnapshot, setEditSnapshot] = useState<Partial<HealthInsurance> | null>(null);
   const editErrors = useMemo(() => validateHealthInsurance(editForm), [editForm]);
@@ -245,203 +245,187 @@ export default function HealthInsurancesByProfessional(){
 
 
  return (
-  <section className="gp-container">
-     <h1 className="gp-title">Obras sociales admitidas </h1>
+    <Page>
+      <SectionHeader title="Obras sociales admitidas" />
 
-      <div className="gp-guardian-select">
-        <label htmlFor="guardian" className="sr-only">Profesionales</label>
-        <select
-          value={selectedProfessional?.id ?? ''}
-          onChange={(e) => {
-                    const professional = professionals.find((p) => p.id === Number(e.target.value));
-                    setSelectedProfessional(professional || null);
-                  }
-          }
-        >
-          {professionals.map((p) => (
-            <option key={p.id} value={p.id}>
-            Id: {p.id}, {p.firstName} {p.lastName}
-            </option>
-          ))}
-        </select>
-       </div>
-       {(selectedProfessional?.healthInsurances?.length === 0) && (
-        <div className="gp-empty-state" role="status" aria-live="polite">
-          {/* Icono simple inline */}
-          <svg className="gp-empty-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <path fill="currentColor" d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.42 0-8 2.14-8 4.78V21h16v-2.22C20 16.14 16.42 14 12 14Z"/>
-          </svg>
-          <h2>No posee obras sociales</h2>
-          <p>Agregá tu primer obra social con la que trabajes para comenzar.</p>
-          <button type="button" className="ui-btn ui-btn--primary" onClick={openAdd}>
-            Agregar obra social
-          </button>
+      {/* Selector de profesional. Esto se va a ir en cuanto tengamos roles */}
+      <FilterBar>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <FormField label="Profesional" htmlFor="guardian">
+            <select
+              id="guardian"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              value={selectedProfessional?.id ?? ""}
+              onChange={(e) => {
+                const professional = professionals.find((p) => p.id === Number(e.target.value));
+                setSelectedProfessional(professional ?? null);
+              }}
+            >
+            {[...professionals]
+              .sort((a, b) => a.id - b.id)
+              .map((p) => (
+                <option key={p.id} value={p.id}>
+                  {`Id: ${p.id}, ${p.firstName} ${p.lastName}`}
+                </option>
+              ))}
+            </select>
+          </FormField>
         </div>
+      </FilterBar>
+
+
+      {/* Estado vacío */}
+      {!selectedProfessional?.healthInsurances?.length && (
+        <EmptyState
+          title="No posee obras sociales"
+          description="Agregá tu primer obra social con la que trabajes para comenzar."
+          icon={
+            <svg className="w-12 h-12 text-cyan-600" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.42 0-8 2.14-8 4.78V21h16v-2.22C20 16.14 16.42 14 12 14Z"
+              />
+            </svg>
+          }
+          action={<PrimaryButton onClick={openAdd}>Agregar obra social</PrimaryButton>}
+        />
       )}
-         {(selectedProfessionalHealthInsurances?.length !== 0) && (
+
+      {/* Tabla */}
+      {!!selectedProfessionalHealthInsurances?.length && (
         <>
-          <div className="gp-table-wrap">
-            <table className="gp-table">
-              <thead>
-                <tr>
-                  <th>Id OS</th>
-                  <th>Nombre OS</th>
-                  <th className="gp-col-actions">Acciones</th>
+          <Card>
+            <Table headers={["Id Obra Social", "Nombre Obra Social", " "]}>
+              {selectedProfessionalHealthInsurances.map((pHI) => (
+                <tr key={pHI.id} className="even:bg-gray-50 hover:bg-gray-100 transition">
+                  <td className="px-4 py-3">{pHI.id}</td>
+                  <td className="px-4 py-3">{pHI.name}</td>
+                  <td className="px-4 py-3 text-left">
+                    <PrimaryButton variant="danger" size="sm" onClick={() => openDelete(pHI)}>
+                      Eliminar
+                    </PrimaryButton>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {selectedProfessionalHealthInsurances?.map((pHI) => (
-                  <tr key={pHI.id}>
-                    <td data-label="Id">{pHI.id}</td>
-                    <td data-label="Nombre">{pHI.name}</td>
-                    <td className="gp-actions">
-                      <button
-                        type="button"
-                        className="ui-btn ui-btn--danger ui-btn--sm"
-                        onClick={() => openDelete(pHI)}
-                      >
-                        Eliminar
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-       {/* Footer: Agregar */}
-          <div className="gp-footer">
-            <button type="button" className="ui-btn ui-btn--primary" onClick={openAdd}>
-              Agregar Obra Social
-            </button>
+              ))}
+            </Table>
+          </Card>
+
+          {/* Footer: Agregar */}
+          <div className="mt-4 flex justify-right">
+            <PrimaryButton onClick={openAdd}>Agregar obra social</PrimaryButton>
           </div>
         </>
       )}
 
-      {/* =====  Agregar ===== */}
-      {showAdd && (
-        <div className="gp-modal-backdrop" onClick={tryCloseAdd} role="presentation">
-          <div
-            className="gp-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="gp-add-title"
-            aria-describedby="gp-add-desc"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {addStep === "form" ? (
-              <>
-                <h2 id="gp-add-title">Agregar Obra social</h2>
-                <form onSubmit={handleAddContinue} noValidate>
-                  <div className="gp-field">
-                    <label htmlFor="name">Obras Sociales</label>
-                      <select
-                        value={selectedHealthInsuranceId ?? healthInsurances?.[0]?.id ?? ""}
-                        onChange={e => setSelectedHealthInsuranceId(Number(e.target.value))}
-                        disabled={!healthInsurances?.length}
-                        aria-label="healthInsurances"
-                        title="healthInsurances"
-                      >
-                      {healthInsurances.map(hI => (
-                        <option key={hI.id} value={hI.id}>
-                          {`Id ${hI.id} - ${hI.name}`}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  
-                  <div className="gp-modal-actions">
-                    <button type="button" className="ui-btn ui-btn--outline" onClick={tryCloseAdd}>
-                      Cancelar
-                    </button>
-                    <button type="submit" className="ui-btn ui-btn--primary">
-                      Continuar
-                    </button>
-                  </div>
-                </form>
-              </>
-            ) : (
-              <>
-                <h2 id="gp-add-title">Confirmar nueva obra social</h2>
-                <p id="gp-add-desc">Revisá que los datos sean correctos.</p>
-                <ul className="gp-summary">
-                  <li><strong>Id </strong>{selectedHealthInsuranceId}</li>
-                  <li><strong>Nombre </strong>{healthInsurances.find(hI => hI.id === selectedHealthInsuranceId)?.name}</li>
-                </ul>
-                <div className="gp-modal-actions">
-                  <button type="button" className="ui-btn ui-btn--outline" onClick={() => setAddStep("form")}>
-                    Volver
-                  </button>
-                  <button type="button" className="ui-btn ui-btn--primary" onClick={handleAddConfirm}>
-                    Confirmar
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+      {/* para cuando no hay OS disponibles*/}
+      {showAdd && healthInsurances.length === 0 && (
+        <Modal title="No hay obras sociales disponibles" onClose={tryCloseAdd}>
+          <p className="text-[#213547] mb-2">
+            Ya se agregaron todas las obras sociales existentes para este profesional.
+          </p>
+          <DialogActions>
+            <PrimaryButton variant="outline" onClick={tryCloseAdd}>
+              Cerrar
+            </PrimaryButton>
+          </DialogActions>
+        </Modal>
       )}
 
-      {/* ===== MODAL: Eliminar ===== */}
+      {/* agregar (si todavia quedan OS) */}
+      {showAdd && healthInsurances.length > 0 && (
+        <Modal
+          title={addStep === "form" ? "Agregar obra social" : "Confirmar nueva obra social"}
+          onClose={tryCloseAdd}
+        >
+          {addStep === "form" ? (
+            <>
+              <FormField label="Obras Sociales" htmlFor="healthInsurances">
+                <select
+                  id="healthInsurances"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  value={selectedHealthInsuranceId ?? healthInsurances?.[0]?.id ?? ""}
+                  onChange={(e) => setSelectedHealthInsuranceId(Number(e.target.value))}
+                  disabled={!healthInsurances?.length}
+                  aria-label="healthInsurances"
+                  title="healthInsurances"
+                >
+                  {healthInsurances.map((hI) => (
+                    <option key={hI.id} value={hI.id}>
+                      {`Id ${hI.id} - ${hI.name}`}
+                    </option>
+                  ))}
+                </select>
+              </FormField>
+
+              <DialogActions>
+                <PrimaryButton variant="outline" onClick={tryCloseAdd}>
+                  Cancelar
+                </PrimaryButton>
+                <PrimaryButton onClick={handleAddContinue}>Continuar</PrimaryButton>
+              </DialogActions>
+            </>
+          ) : (
+            <>
+              <p className="text-[#213547] mb-2">Revisá que los datos sean correctos.</p>
+
+              <SummaryList
+                items={[
+                  { label: "Id", value: String(selectedHealthInsuranceId ?? "") },
+                  {
+                    label: "Nombre",
+                    value: healthInsurances.find((hI) => hI.id === selectedHealthInsuranceId)?.name ?? "",
+                  },
+                ]}
+              />
+
+              <DialogActions>
+                <PrimaryButton variant="outline" onClick={() => setAddStep("form")}>
+                  Volver
+                </PrimaryButton>
+                <PrimaryButton onClick={handleAddConfirm}>Confirmar</PrimaryButton>
+              </DialogActions>
+            </>
+          )}
+        </Modal>
+      )}
+
+      {/* Eliminar */}
       {deleteTarget && (
-        <div className="gp-modal-backdrop" onClick={closeDelete} role="presentation">
-          <div
-            className="gp-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="gp-del-title"
-            aria-describedby="gp-del-desc"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 id="gp-del-title">Eliminar Obra social</h2>
-            <p id="gp-del-desc">
-              ¿Estás seguro de eliminar a <strong>{deleteTarget.name}</strong>?
-            </p>
-            <div className="gp-modal-actions">
-              <button type="button" className="ui-btn ui-btn--outline" onClick={closeDelete}>
-                Cancelar
-              </button>
-              <button type="button" className="ui-btn ui-btn--danger" onClick={handleDeleteConfirm}>
-                Eliminar
-              </button>
-            </div>
-          </div>
-        </div>
+        <Modal title="Eliminar obra social" onClose={closeDelete}>
+          <p className="text-[#213547] mb-2">
+            ¿Estás seguro de eliminar a <strong>{deleteTarget.name}</strong>?
+          </p>
+          <DialogActions>
+            <PrimaryButton variant="outline" onClick={closeDelete}>
+              Cancelar
+            </PrimaryButton>
+            <PrimaryButton variant="danger" onClick={handleDeleteConfirm}>
+              Eliminar
+            </PrimaryButton>
+          </DialogActions>
+        </Modal>
       )}
 
-      {/* ===== MODAL: Descartar cambios (dirty-check) ===== */}
+      {/* Descartar cambios */}
       {discardCtx.open && (
-        <div className="gp-modal-backdrop" onClick={closeDiscard} role="presentation">
-          <div
-            className="gp-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="gp-discard-title"
-            aria-describedby="gp-discard-desc"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 id="gp-discard-title">Descartar cambios</h2>
-            <p id="gp-discard-desc">Tenés cambios sin guardar. ¿Cerrar de todos modos?</p>
-            <div className="gp-modal-actions">
-              <button type="button" className="ui-btn ui-btn--outline" onClick={closeDiscard}>
-                Seguir editando
-              </button>
-              <button type="button" className="ui-btn ui-btn--danger" onClick={confirmDiscard}>
-                Descartar
-              </button>
-            </div>
-          </div>
-        </div>
+        <Modal title="Descartar cambios" onClose={closeDiscard}>
+          <p className="text-[#213547] mb-2">Tenés cambios sin guardar. ¿Cerrar de todos modos?</p>
+          <DialogActions>
+            <PrimaryButton variant="outline" onClick={closeDiscard}>
+              Seguir editando
+            </PrimaryButton>
+            <PrimaryButton variant="danger" onClick={confirmDiscard}>
+              Descartar
+            </PrimaryButton>
+          </DialogActions>
+        </Modal>
       )}
-      {/* ===== TOAST ===== */}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
-    </section>
+
+      {/* Toast */}
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+    </Page>
+
+
   );
 }
 

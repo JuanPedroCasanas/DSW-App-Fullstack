@@ -19,9 +19,21 @@ export { default as EmptyState } from "./Feedback/EmptyState/EmptyState";
 export { Modal } from "./Feedback/Modal/Modal";
 export { Toast } from "./Feedback/Toast/toast";
 
+// Schedule
+export { CalendarGrid } from './Schedule/CalendarGrid/CalendarGrid';
+export { ConfirmBookingModal } from './Schedule/ConfirmBookingModal/ConfirmBookingModal';
+export { SlotsCarousel } from './Schedule/SlotsCarousel/SlotsCarousel';
+export { StickyCTA } from './Schedule/StickyCTA/StickyCTA';
+
 // Forms
 export { FormField } from "./Forms/FormField/FormField";
 export { InputPassword } from "./Forms/InputPassword/InputPassword";
+
+// ModuleRent
+export { RentLegend } from './ModuleRent/RentLegend/RentLegend';
+export { StickyRentBar } from './ModuleRent/StickyRentBar/StickyRentBar';
+export { WeekGrid } from './ModuleRent/WeekGrid/WeekGrid';
+export { rentBackgrounds, rentColors } from './ModuleRent/RentPalette/RentPalette';
 
 // Misc
 export { default as SocialLink } from "./SocialLink/SocialLink";
