@@ -12,7 +12,7 @@ export default function ProfessionalPortal() {
       />
 
       <ActionGrid>
-        <NavButton to="/professional-health-insurance">Obras Sociales admitidas</NavButton>
+        <NavButton to="/professional-health-insurances">Obras Sociales admitidas</NavButton>
 
         <NavButton to="/module-rent">Alquilar módulo</NavButton>
 

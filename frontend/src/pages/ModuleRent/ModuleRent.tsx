@@ -1,7 +1,11 @@
-import React, { useEffect, useMemo, useState } from "react";
-import "./moduleRent.css";
+import React, { useEffect, useState } from "react";
+
 import { Availability, ConsultingRoom, DayKey, Professional, SlotId, SlotState } from "./moduleRentTypes";
-import { Toast } from "@/components/ui/Feedback/Toast";
+
+import { Toast,PrimaryButton, FormField, Card, FilterBar,
+  RentLegend, StickyRentBar, WeekGrid
+ } from "@/components/ui";
+import { Page, SectionHeader } from "@/components/Layout";
 
 const DAYS: DayKey[] = ["lun", "mar", "mie", "jue", "vie", "sab"];
 const DAY_LABELS: Record<DayKey, string> = {
@@ -228,91 +232,86 @@ export default function ModuleRent() {
     }
   };
 
-  const stateClass = (s:SlotState) => {
-    switch(s){
-      case "available": return "is-available";
-      case "mine": return "is-mine";
-      case "reserved": return "is-reserved";
-      default: return "is-unavailable";
-    }
-  };
 
   return (
-    <section className="moduleRent">
-      <header className="moduleRent__controls">
-        <h2>Alquiler de módulos</h2>
-        <div className="moduleRent__filters">
-          <label className="field">
-            <span className="field__label">Consultorio</span>
-            <select value={consultingRoomId ?? undefined} onChange={e=>setConsultingRoomId(Number(e.target.value))}>
-              {consultingRooms.map(c=><option key={c.id} value={c.id}>{c.description}</option>)}
-            </select>
-          </label>
-          <label className="field">
-            <span className="field__label">Profesional</span>
-            <select value={selectedProfessionalId ?? undefined} onChange={e=>setSelectedProfessionalId(Number(e.target.value))}>
-              {professionals.map(p=><option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>)}
-            </select>
-          </label>
-          <button type="button" className="btn btn--ghost" onClick={clearSelection}>Limpiar</button>
-          <div className="moduleRent__legend" aria-label="Leyenda de estados">
-            <span><i className="dot dot--available" /> Disponible</span>
-            <span><i className="dot dot--mine" /> Alquilado por vos</span>
-            <span><i className="dot dot--reserved" /> Ocupado por otro</span>
-            <span><i className="dot dot--unavailable" /> No disponible</span>
+
+    <Page>
+      <SectionHeader title="Alquiler de módulos" />
+
+      {/* filtros */}
+        <FilterBar>
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-3 items-end">
+            <FormField label="Consultorio" htmlFor="sel-room">
+              <select
+                id="sel-room"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                value={consultingRoomId ?? ""}
+                onChange={(e) => setConsultingRoomId(Number(e.target.value))}
+              >
+                {consultingRooms.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.description}
+                  </option>
+                ))}
+              </select>
+            </FormField>
+
+            <FormField label="Profesional" htmlFor="sel-pro">
+              <select
+                id="sel-pro"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                value={selectedProfessionalId ?? ""}
+                onChange={(e) => setSelectedProfessionalId(Number(e.target.value))}
+              >
+                {professionals.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.firstName} {p.lastName}
+                  </option>
+                ))}
+              </select>
+            </FormField>
+
+            <div className="flex justify-end">
+              <PrimaryButton variant="outline" onClick={clearSelection} disabled={!rangeStart}>
+                Limpiar selección
+              </PrimaryButton>
+            </div>
           </div>
-          <button   type="button" className={`btn btn--ghost ${!rangeStart ? "btn--disabled" : ""}`} onClick={clearSelection} disabled={!rangeStart}>
-              Limpiar selección
-          </button>
-        </div>
-        
-      </header>
 
-      <div className="schedule">
-        <div className="schedule__corner"/>
-        {DAYS.map(d=><div key={d} className="schedule__dayHeader">{DAY_LABELS[d]}</div>)}
-        {HOURS.map(h=>
-          <React.Fragment key={h}>
-            <div className="schedule__hourLabel">{h}</div>
-            {DAYS.map(d=>{
-              const state = availability[d][h];
-              const id:SlotId = `${d}-${h}`;
-              const selectable = isSelectable(state);
-              const isSelected = selected.has(id);
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  className={[
-                    "slot",
-                    selectable?"is-selectable":"is-disabled",
-                    stateClass(state),
-                    isSelected?"is-selected":"",
-                  ].join(" ")}
-                  onClick={()=>selectRange(id)}
-                >
-                  <span className="slot__time">{h} - {add60(h)}</span>
-                </button>
-              );
-            })}
-          </React.Fragment>
-        )}
-      </div>
+          {/* Leyenda de estados */}
+          <div className="mt-3">
+            <RentLegend />
+          </div>
+        </FilterBar>
 
-      <div className="moduleRent__footer">
-        <button type="button" className="btn btn--primary" disabled={!selected.size} onClick={onConfirm}>
-          ALQUILAR ({selected.size})
-        </button>
-      </div>
-
-      {/* ===== TOAST ===== */}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
+      {/* Grilla semanal de módulos */}
+      <Card>
+        <WeekGrid
+          days={DAYS}
+          dayLabels={DAY_LABELS}
+          hours={HOURS}
+          availability={availability}
+          selected={selected}
+          isSelectable={isSelectable}
+          onClickSlot={(id) => selectRange(id)}
+          add60={add60}
         />
+      </Card>
+
+      {/* Sticky CTA */}
+      <StickyRentBar
+        countSelected={selected.size}
+        disabled={!selected.size}
+        onConfirm={onConfirm}
+      />
+
+      {/* Toast */}
+      {toast && (
+        <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />
       )}
-    </section>
+    </Page>
+
+
+
   );
 }
