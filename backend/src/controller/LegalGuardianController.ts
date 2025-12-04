@@ -3,10 +3,10 @@ import { getORM } from '../orm/db';
 import { LegalGuardian } from '../model/entities/LegalGuardian';
 import { HealthInsurance } from '../model/entities/HealthInsurance';
 import { User } from '../model/entities/User';
-import { createUser } from '../services/UserCreationService';
+import { createUserData } from '../utils/helpers/createUserData';
 import { BaseHttpError, NotFoundError } from '../model/errors/BaseHttpError';
 import { AppointmentStatus } from '../model/enums/AppointmentStatus';
-import { safeSerialize } from '../utils/safeSerialize';
+import { safeSerialize } from '../utils/helpers/safeSerialize';
 export class LegalGuardianController {
 
     static home(req: Request, res: Response) {
@@ -26,7 +26,7 @@ export class LegalGuardianController {
             }
         
             const legalGuardian = new LegalGuardian(firstName, lastName, birthdate, telephone, healthInsurance);
-            const lgUser: User = await createUser(mail, password);
+            const lgUser: User = await createUserData(mail, password);
             legalGuardian.user = lgUser;
             lgUser.legalGuardian = legalGuardian;
                     

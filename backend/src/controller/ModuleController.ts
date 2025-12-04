@@ -9,7 +9,7 @@ import { DayOfWeek } from '../model/enums/DayOfWeek';
 import { Appointment } from '../model/entities/Appointment';
 import { AppointmentStatus } from '../model/enums/AppointmentStatus';
 import { ModuleStatus } from '../model/enums/ModuleStatus';
-import { safeSerialize } from '../utils/safeSerialize';
+import { safeSerialize } from '../utils/helpers/safeSerialize';
 
 
 export default class ModuleController  {

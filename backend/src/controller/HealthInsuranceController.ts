@@ -3,7 +3,7 @@ import { getORM } from '../orm/db';
 import { HealthInsurance } from '../model/entities/HealthInsurance';
 import { BaseHttpError, NotFoundError } from '../model/errors/BaseHttpError';
 import { Professional } from '../model/entities/Professional';
-import { safeSerialize } from '../utils/safeSerialize';
+import { safeSerialize } from '../utils/helpers/safeSerialize';
 
 export class HealthInsuranceController {
 

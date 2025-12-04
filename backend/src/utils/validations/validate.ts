@@ -8,7 +8,8 @@ export const validate =
       schema.parse({
         body: req.body,
         params: req.params,
-        query: req.query
+        query: req.query,
+        cookies: req.cookies
       });
       next();
     } catch (err) {

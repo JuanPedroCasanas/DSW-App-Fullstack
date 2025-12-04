@@ -7,7 +7,7 @@ import { LegalGuardian } from '../model/entities/LegalGuardian';
 import { HealthInsurance } from '../model/entities/HealthInsurance';
 import { AppointmentStatus } from '../model/enums/AppointmentStatus';
 import { AppointmentNotAvailableError, BaseHttpError, NotFoundError } from '../model/errors/BaseHttpError';
-import { safeSerialize } from '../utils/safeSerialize';
+import { safeSerialize } from '../utils/helpers/safeSerialize';
 
 export class AppointmentController {
 

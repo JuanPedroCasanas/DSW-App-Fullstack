@@ -2,44 +2,17 @@ import { Request, Response } from 'express';
 import { getORM } from '../orm/db';
 import { Patient } from '../model/entities/Patient';
 import { LegalGuardian } from '../model/entities/LegalGuardian';
-import { createUser } from '../services/UserCreationService';
+import { createUserData } from '../utils/helpers/createUserData';
 import { HealthInsurance } from '../model/entities/HealthInsurance';
 import { BaseHttpError, NotFoundError } from '../model/errors/BaseHttpError';
 import { AppointmentStatus } from '../model/enums/AppointmentStatus';
-import { safeSerialize } from '../utils/safeSerialize';
+import { safeSerialize } from '../utils/helpers/safeSerialize';
 
 export class PatientController {
-
-    static home(req: Request, res: Response) {
-        return res.send('Soy el controlador de pacientes!');
-    }
 
     //Para pacientes que no dependen de un responsable legal, se les crea usuario para acceder
     static async addIndependentPatient(req: Request, res: Response) {
         const { firstName, lastName, birthdate, password, telephone, mail, idHealthInsurance} = req.body;
-
-        if (!firstName) {
-            return res.status(400).json({ message: 'Se requiere nombre' });
-        }
-        if (!lastName) {
-            return res.status(400).json({ message: 'Se requiere apellido' });
-        }
-        if (!birthdate) {
-            return res.status(400).json({ message: 'Se requiere una fecha de nacimiento valida' });
-        }   
-        if (!telephone) {
-            return res.status(400).json({ message: 'Se requiere un telefono valido' });
-        }
-        if (!mail) {
-            return res.status(400).json({ message: 'Se requiere un email valido' });
-        }
-        if (!password) {
-            return res.status(400).json({ message: 'Se requiere una contraseña valida' });
-        }
-        if (!idHealthInsurance) {
-            return res.status(400).json({ message: 'Se requiere una Id de obra social valida' });
-        }
-
 
         try {            
             const em = await getORM().em.fork();
@@ -51,7 +24,7 @@ export class PatientController {
             }
 
             const patient = new Patient(firstName, lastName, birthdate, healthInsurance,  telephone);
-            const patUser = await createUser(mail, password);
+            const patUser = await createUserData(mail, password);
             patient.user = patUser;
             patUser.patient = patient;
             await em.persistAndFlush(patUser);
@@ -71,20 +44,7 @@ export class PatientController {
     //Para pacientes que dependen de un responsable legal, sin usuario ni info de contacto
     static async addDependentPatient(req: Request, res: Response) {
             const { firstName, lastName, birthdate, idLegalGuardian } = req.body;
-
-            if (!firstName) {
-                return res.status(400).json({ message: 'Se requiere nombre' });
-            }
-            if (!lastName) {
-                return res.status(400).json({ message: 'Se requiere apellido' });
-            }
-            if (!birthdate) {
-                return res.status(400).json({ message: 'Se requiere una fecha de nacimiento valida' });
-            }   
-            if (!idLegalGuardian) {
-                return res.status(400).json({ message: 'Se requiere una ID de responsable legal valida' });
-            }
-
+            
             try {            
             
                 const em = await getORM().em.fork();
@@ -120,26 +80,8 @@ export class PatientController {
         const { birthdate } = req.body;   
         const { telephone } = req.body;
         const { idHealthInsurance } = req.body;
-        try
-        {
-            if(!idPatient) {
-                return res.status(400).json({ message: 'Se requiere la ID del paciente a modificar' });
-            }
-            if(!firstName) {
-                return res.status(400).json({ message: 'Se requiere el nuevo nombre del paciente' });
-            }
-            if(!lastName) {
-                return res.status(400).json({ message: 'Se requiere el nuevo apellido del paciente' });
-            }
-            if(!birthdate) {
-                return res.status(400).json({ message: 'Se requiere la nueva fecha de nacimiento del paciente' });
-            }
-            if(!telephone) {
-                return res.status(400).json({ message: 'Se requiere el nuevo telefono del paciente' });
-            }
-            if(!idHealthInsurance) {
-                return res.status(400).json({ message: 'Se requiere la nueva OS del paciente' });
-            }
+        
+        try {
             const em = await getORM().em.fork();
             const patient = await em.findOne(Patient, {id: idPatient});
 
@@ -179,18 +121,6 @@ export class PatientController {
         const { lastName } = req.body;
         const { birthdate } = req.body;   
         try {
-            if(!idPatient) {
-                return res.status(400).json({ message: 'Se requiere la ID del paciente a modificar' });
-            }
-            if(!firstName) {
-                return res.status(400).json({ message: 'Se requiere el nuevo nombre del paciente' });
-            }
-            if(!lastName) {
-                return res.status(400).json({ message: 'Se requiere el nuevo apellido del paciente' });
-            }
-            if(!birthdate) {
-                return res.status(400).json({ message: 'Se requiere la nueva fecha de nacimiento del paciente' });
-            }
             const em = await getORM().em.fork();
             const patient = await em.findOne(Patient, {id: Number(idPatient)});
 
@@ -218,11 +148,7 @@ export class PatientController {
     }
 
     static async getPatient(req: Request, res: Response) {
-        const idPatient = Number(req.params.id);
-
-        if (!idPatient      ) {
-            return res.status(400).json({ message: 'Se requiere la ID del paciente' });
-        }
+        const idPatient = Number(req.params.idPatient);
         try {
             const em = await getORM().em.fork();
             const patient = await em.findOne(Patient, { id: idPatient });
@@ -262,14 +188,16 @@ export class PatientController {
     }
 
     static async getByLegalGuardian(req: Request, res: Response) {
-        const idLegalGuardian = Number(req.params.id);
-        let includeInactive:boolean;
+        const idLegalGuardian = Number(req.params.idLegalGuardian);
+        let includeInactive: boolean;
+
         if (!req.query || req.query.includeInactive === undefined) {
             includeInactive = true;
         } else {
             includeInactive = req.query.includeInactive === 'true'; 
             // true si el string es 'true', false si es cualquier otra cosa
         }
+
         try {
             const em = await getORM().em.fork();
             const legalGuardian = await em.findOne(LegalGuardian, { id: idLegalGuardian });
@@ -288,10 +216,8 @@ export class PatientController {
     }
 
     static async deletePatient(req: Request, res: Response) {
-        const idPatient = Number(req.params.id);
-        if (!idPatient) {
-            return res.status(400).json({ message: 'Se requiere la id del paciente' });
-        }
+        const idPatient = Number(req.params.idPatient);
+
         try {
 
             const em = await getORM().em.fork();

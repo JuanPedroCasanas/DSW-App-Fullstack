@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { User } from '../model/entities/User';
 import { BaseHttpError, InvalidEmailFormatError, NotFoundError } from '../model/errors/BaseHttpError';
-import { safeSerialize } from '../utils/safeSerialize';
+import { safeSerialize } from '../utils/helpers/safeSerialize';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
 const REFRESH_SECRET = process.env.REFRESH_SECRET || 'superRefreshSecret';
@@ -23,6 +23,7 @@ const generateRefreshToken = (id: number) => {
     const options: SignOptions = { expiresIn: REFRESH_EXPIRES as jwt.SignOptions['expiresIn'] };
     return jwt.sign(payload, REFRESH_SECRET, options);
 }
+
 export class UserController {
 
     // LOGIN
@@ -30,9 +31,7 @@ export class UserController {
         try {
             const em = (await getORM()).em.fork();
             const { mail, password } = req.body;
-            if (!mail || !password) {
-                return res.status(400).json({ error: 'Email o contraseña incorrecta' });
-            }
+
             const user = await em.findOne(User, { mail }, { populate: ['patient', 'professional', 'legalGuardian'] }); 
             if (!user) return res.status(404).json({ error: 'User no encontrado' }); //Deberia ser un NotFoundError quizas
 
@@ -58,9 +57,6 @@ export class UserController {
     static async refresh(req: Request, res: Response) {
         try {
             const refreshToken = req.cookies?.refreshToken;
-            if (!refreshToken) {
-                return res.status(401).json({ error: 'No se encontró refresh token. Por favor loguearse nuevamente' });
-            }
 
             const payload = jwt.verify(refreshToken, REFRESH_SECRET as jwt.Secret) as { idUser: number };
 
@@ -86,7 +82,7 @@ export class UserController {
         }
     }
 
-    //LOGOUR
+    //LOGOUT
     static async logout(req: Request, res: Response) {
         try {
             res.clearCookie('refreshToken', {
@@ -106,10 +102,6 @@ export class UserController {
             const { idUser } = req.body;
             const { oldPassword } = req.body;
             const { newPassword } = req.body;
-
-            if(!newPassword) {
-                return res.status(400).json({ message: 'Se requiere la nueva contraseña del usuario' });
-            }
 
             const em = (await getORM()).em.fork();
             const user = await em.findOne(User, { id: Number(idUser) });

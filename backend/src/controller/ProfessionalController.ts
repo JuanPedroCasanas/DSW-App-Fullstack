@@ -2,40 +2,17 @@ import { Request, Response } from 'express';
 import { getORM } from '../orm/db';
 import { Professional } from '../model/entities/Professional';
 import { Occupation } from '../model/entities/Occupation'; 
-import { createUser } from '../services/UserCreationService';
+import { createUserData } from '../utils/helpers/createUserData';
 import { User } from '../model/entities/User';
 import { BaseHttpError, EntityAlreadyExistsError, NotFoundError } from '../model/errors/BaseHttpError';
 import { AppointmentStatus } from '../model/enums/AppointmentStatus';
 import { ModuleStatus } from '../model/enums/ModuleStatus';
 import { HealthInsurance } from '../model/entities/HealthInsurance';
-import { safeSerialize } from '../utils/safeSerialize';
+import { safeSerialize } from '../utils/helpers/safeSerialize';
 export class ProfessionalController {
-
-    static home(req: Request, res: Response) {
-        return res.send('Soy el controlador de profesional!');
-    }
 
     static async addProfessional(req: Request, res: Response) {
         const { firstName, lastName, telephone, mail, password, idOccupation} = req.body;
-
-        if (!firstName) {
-            return res.status(400).json({ message: 'Se requiere el nombre del profesional' });
-        }
-        if (!lastName) {
-            return res.status(400).json({ message: 'Se requiere el apellido del profesional' });
-        }
-        if (!telephone) {
-            return res.status(400).json({ message: 'Se requiere el telefono del profesional' });
-        }
-        if (!mail) {
-            return res.status(400).json({ message: 'Se requiere el email del profesional' });
-        }
-        if (!password) {
-            return res.status(400).json({ message: 'Se requiere una contraseña valida' });
-        }
-        if (!idOccupation){
-            return res.status(400).json({message:'Se requiere la Id de la especialidad del profesional'});
-        }
 
         try {            
             
@@ -47,7 +24,7 @@ export class ProfessionalController {
             //Atencion a todo este segmento de código porque asi se  crean los usuarios, se persiste
             //solamente el usuario y eso persiste el profesional, ver anotacion de Cascade dentro de la clase usuario
             const professional = new Professional(firstName, lastName, telephone, occupation);
-            const profUser: User = await createUser(mail, password);
+            const profUser: User = await createUserData(mail, password);
             
             professional.user = profUser;
             profUser.professional = professional
@@ -68,20 +45,6 @@ export class ProfessionalController {
     
     static async updateProfessional(req: Request, res: Response) {
         const {idProfessional, firstName, lastName, telephone} = req.body;
-
-        if(!idProfessional)
-        {
-            return res.status(400).json({ message: 'Se requiere el id de profesional' });
-        }
-        if (!firstName) {
-            return res.status(400).json({ message: 'Se requiere el nombre del profesional' });
-        }
-        if (!lastName) {
-            return res.status(400).json({ message: 'Se requiere el apellido del profesional' });
-        }
-        if (!telephone) {
-            return res.status(400).json({ message: 'Se requiere el telefono del profesional' });
-        }
 
         try {
 
@@ -114,14 +77,6 @@ export class ProfessionalController {
     static async allowHealthInsurance(req: Request, res: Response) {
         const { idProfessional, idHealthInsurance } = req.body;
 
-
-
-        if(!idProfessional) {
-            return res.status(400).json({message:'Se requiere la Id del profesional'});
-        }
-        if(!idHealthInsurance) {
-            return res.status(400).json({message:'Se requiere la Id de la obra social a permitir'});
-        }
         try {
             const em = await getORM().em.fork();
             const professional = await em.findOne(Professional, { id : idProfessional }, {populate: ["healthInsurances"]});
@@ -156,12 +111,6 @@ export class ProfessionalController {
     static async forbidHealthInsurance(req: Request, res: Response) {
         const { idProfessional, idHealthInsurance } = req.body;
 
-        if(!idProfessional) {
-            return res.status(400).json({message:'Se requiere la Id del profesional'});
-        }
-        if(!idHealthInsurance) {
-            return res.status(400).json({message:'Se requiere la Id de la obra social a eliminar'});
-        }
         try {
             const em = await getORM().em.fork();
             const professional = await em.findOne(Professional, { id : idProfessional }, {populate: ["healthInsurances"]});
@@ -196,11 +145,8 @@ export class ProfessionalController {
     }
 
     static async getProfessional(req: Request, res: Response) {
-        const idProfessional = Number(req.params.id);
+        const idProfessional = Number(req.params.idProfessional);
 
-        if (!idProfessional) {
-            return res.status(400).json({ message: 'Se requiere la id del profesional' });
-        }
         try {
             const em = await getORM().em.fork();
             const professional = await em.findOne(Professional, { id: idProfessional });
@@ -221,12 +167,14 @@ export class ProfessionalController {
 
     static async getProfessionals(req: Request, res: Response) {
         let includeInactive:boolean;
+
         if (req.query.includeInactive === undefined) {
             includeInactive = true;
         } else {
             includeInactive = req.query.includeInactive === 'true'; 
             // true si el string es 'true', false si es cualquier otra cosa
         }
+
         try {
             const em = await getORM().em.fork();
             const whereCondition = (includeInactive) ? {} : {isActive: true};
@@ -263,12 +211,8 @@ export class ProfessionalController {
         }
     }
 
-
     static async getProfessionalsByOccupation(req: Request, res: Response) {
-        const idOccupation = Number(req.params.id);
-        if(!idOccupation) {
-            return res.status(400).json({ message: 'Se requiere el id de la especialidad para buscar profesionales' });
-        }
+        const idOccupation = Number(req.params.idOccupation);
 
         let includeInactive:boolean;
         if (req.query.includeInactive === undefined) {
@@ -302,11 +246,7 @@ export class ProfessionalController {
 }
 
     static async deleteProfessional(req: Request, res: Response) {
-        const idProfessional = Number(req.params.id);
-
-        if (!idProfessional) {
-            return res.status(400).json({ message: 'Se requiere la id del profesional' });
-        }
+        const idProfessional = Number(req.params.idProfessional);
 
         try {
 
