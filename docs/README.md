@@ -55,10 +55,18 @@ Pasos para levantar el proyecto localmente:
 ## 4. Minutas de Reunión y Avance
 Registro de las reuniones del equipo y decisiones tomadas.
 
-| Fecha      | Temas Tratados               | Asistentes |
-|------------|------------------------------|------------|
-| 01/10/2025 | Definición de arquitectura   | Juan, Ana  |
-| 15/10/2025 | Revisión de Sprint 1         | Todos      |
+| Fecha      | Temas Tratados                 | Asistentes              |
+|------------|--------------------------------|-------------------------|
+| 31/03/2025 | Definición de tipo de sistema  | Todos                   |
+| 07/04/2025 | Se presenta la idea base       | Todos                   |
+| 19/04/2025 | Comienzo con la conexion de    | Pedro
+|            |la base de datos con  el backend|  
+| 10/06/2025 | Creacion de los controladores  | Todos
+|            |Creacion de los cruds en backend|
+|            | Empezamos frontend             |
+|            | Presentamos proyecto regular   |
+| 04/12/2025 | Correcciones y migracion a Zod | 
+
 
 ## 5. Tracking de Features, Bugs e Issues
 Dado que no utilizamos herramientas externas, llevamos el seguimiento de las funcionalidades (Backlog) mediante la siguiente lista de control:
