@@ -73,32 +73,32 @@ Dado que no utilizamos herramientas externas, llevamos el seguimiento de las fun
 
 ### Estado del Proyecto
 
-| Funcionalidad / Tarea                               | Prioridad               | Estado         |
-|------------------------------------------------------------------------------------------------| 
-| **Autenticación y Roles**                           | Alta                    | ✅ Completado |
-| Registro de Usuarios (Profesional, Paciente, Tutor) | Alta                    | ✅ Completado |
-| Login/logout con validación de credenciales         | Alta                    | ✅ Completado |
-| ***Gestion de Usuarios**                            | Alta                                     |
-| Alta/Baja/Modificación de Profesional               |
-| Alta/Baja/Modificación de Paciente                  |
-| Alta/Baja/Modificación de Tutor Legal               |
-| **Gestión de Consultorios**                         | Alta                    | ✅ Completado |
-| Alta/Baja/Modificación de Consultorios              | Media                   | ✅ Completado |                                       
-| **Gestión de Turnos**                               | Alta                    | 🚧 En Progreso|
-| Solicitud de turno por parte del Paciente           | Alta                    | ✅ Completado |
-| Visualización de agenda (Profesional)               |
-| **Panel de Profesional**                            | Baja                    | ⏳ Pendiente  | 
-| Alta/Baja/Modificación Obra Sociales                | Media                   | ⏳ Pendiente  |
-| Reserva de espacios por bloques de tiempo           | Media                   | ⏳ Pendiente  |
-| **Listados**                                        |
-| Listado de turnos filtrado por: Profesional,        |
-| paciente, consultorio y/o fecha                     |
-| Listado de modulos filtrado por: Profesional,       |
-| tipo de modulo, mes y/o consultorio                 |
-| Listar Personas filtradas por Obra Social           |
-| Listado de turnos filtrado por profesional          |
-| y rango de fecha, muestra fecha y hora de turno,    |
-| estado del mismo y apellido de Persona              |
+| Funcionalidad / Tarea                               | Prioridad               | Estado      |
+|---------------------------------------------------------------------------------------------| 
+| **Autenticación y Roles**                           | Alta                    |  Completado |
+| Registro de Usuarios (Profesional, Paciente, Tutor) | Alta                    |  Completado |
+| Login/logout con validación de credenciales         | Alta                    |  Completado |
+| ***Gestion de Usuarios**                            | Alta                    |  Completado |            
+| Alta/Baja/Modificación de Profesional               | Alta                    |  Completado |
+| Alta/Baja/Modificación de Paciente                  | Alta                    |  Completado |
+| Alta/Baja/Modificación de Tutor Legal               | Alta                    |  Completado |
+| **Gestión de Consultorios**                         | Alta                    |  Completado |
+| Alta/Baja/Modificación de Consultorios              | Media                   |  Completado |                                       
+| **Gestión de Turnos**                               | Alta                    |  Completado |
+| Solicitud de turno por parte del Paciente           | Media                   |  Completado |
+| Visualización de agenda (Profesional)               | Media                   |  Completado |
+| **Panel de Profesional**                            | Media                   |  Completado | 
+| Alta/Baja/Modificación Obra Sociales                | Media                   |  Completado |
+| Reserva de espacios por bloques de tiempo           | Alta                    |  Completado |
+| **Listados**                                        | Media                   |  Completado |                
+| Listado de turnos filtrado por: Profesional,        | Media                   |  Completado |
+| paciente, consultorio y/o fecha                     |                         |             |
+| Listado de modulos filtrado por: Profesional,       | Media                   |  Completado |      
+| tipo de modulo, mes y/o consultorio                 |                         |             |
+| Listar Personas filtradas por Obra Social           | Baja                    |  Completado |
+| Listado de turnos filtrado por profesional          | Media                   |  Completado |
+| y rango de fecha, muestra fecha y hora de turno,    |                         |             |
+| estado del mismo y apellido de Persona              |                         |             |
 
 
 
