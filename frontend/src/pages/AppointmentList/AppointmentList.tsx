@@ -1,11 +1,11 @@
 import { useEffect, useState, useMemo } from 'react';
 
 import {
-  handleAppointmentControllerResponse,
-  handleHealthInsuranceControllerResponse,
-  handlePatientControllerResponse,
-  handleProfessionalControllerResponse
-} from './AppointmentListHandleResponses';
+  HandleAppointmentControllerResponse,
+  HandleHealthInsuranceControllerResponse,
+  HandlePatientControllerResponse,
+  HandleProfessionalControllerResponse
+} from '@/common/utils';
 
 import {
   Appointment,
@@ -13,7 +13,7 @@ import {
   Professional,
   Patient,
   Filters,
-} from './appointmentList.types';
+} from './appointmentList.types'; //esto se tiene que traer en realidad de '@/common/types'
 
 import { Toast, EmptyState, Table, PrimaryButton, Card, FilterBar, FormField } from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
@@ -49,7 +49,7 @@ export default function AppointmentList() {
     const res = await fetch('http://localhost:2000/Professional/getAll');
 
     if (!res.ok){
-      const toastData = await handleProfessionalControllerResponse(res);
+      const toastData = await HandleProfessionalControllerResponse(res);
       setToast(toastData);
       return;
     } 
@@ -63,7 +63,7 @@ export default function AppointmentList() {
     const res = await fetch('http://localhost:2000/Patient/getAll');
 
     if (!res.ok){
-      const toastData = await handlePatientControllerResponse(res);
+      const toastData = await HandlePatientControllerResponse(res);
       setToast(toastData);
       return;
     } 
@@ -76,7 +76,7 @@ export default function AppointmentList() {
     const res = await fetch('http://localhost:2000/HealthInsurance/getAll');
 
     if (!res.ok){
-      const toastData = await handleHealthInsuranceControllerResponse(res);
+      const toastData = await HandleHealthInsuranceControllerResponse(res);
       setToast(toastData);
       return;
     } 
@@ -91,7 +91,7 @@ export default function AppointmentList() {
     const res = await fetch('http://localhost:2000/Appointment/getScheduledAppointments');
 
     if (!res.ok){
-      const toastData = await handleAppointmentControllerResponse(res);
+      const toastData = await HandleAppointmentControllerResponse(res);
       setToast(toastData);
       return;
     } 

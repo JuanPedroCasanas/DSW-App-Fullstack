@@ -1,86 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"; // si no usás Router, ver nota más abajo
-import { HealthInsurance } from "./editProfileTypes";
-
-import { User } from "../LoginRegister/loginRegisterTypes";
-
 
 import { Toast, ActionGrid, PrimaryButton, FormField, Card, InputPassword } from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
 
+import {
+  HandleErrorResponse,
+  HandleProfessionalControllerResponse,
+  HandlePatientControllerResponse,
+  HandleLegalGuardianControllerResponse,
+  HandleUserControllerResponse
+} from '@/common/utils';
 
-
-async function handleErrorResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
-  const resJson = await res.json().catch(() => ({}));
-    if (res.status === 500 || res.status === 400) {
-      return { message: resJson.message ?? "Error interno del servidor", type: "error" };
-    } else {
-      const errorMessage = `Error: ${resJson.error} Codigo: ${resJson.code} ${resJson.message}`
-      return { message: errorMessage.trim(), type: "error" };
-    }
-}
-
-async function handleProfessionalControllerResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
-  if (res.ok) {
-    const resJson = await res.json().catch(() => ({}));
-    const successMessage = `${resJson.message} Id: ${resJson.professional?.id}, Apellido y nombre: ${resJson.professional?.lastName} ${resJson.professional?.firstName}`;
-    return { message: successMessage, type: "success" };
-  } else {
-    return handleErrorResponse(res);
-  }
-}
-
-async function handleHealthInsuranceControllerResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
-  if (res.ok) {
-    const resJson = await res.json().catch(() => ({}));
-    const successMessage = `${resJson.message} Id: ${resJson.healthInsurance?.id}, Nombre: ${resJson.healthInsurance?.name}`;
-    return { message: successMessage, type: "success" };
-  } else {
-    return handleErrorResponse(res);
-  }
-}
-
-async function handleOccupationControllerResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
-  if (res.ok) {
-    const resJson = await res.json().catch(() => ({}));
-    const successMessage = `${resJson.message} Id: ${resJson.occupation?.id}, Nombre: ${resJson.occupation?.name}`;
-    return { message: successMessage, type: "success" };
-  } else {
-    return handleErrorResponse(res);
-  }
-}
-
-async function handlePatientControllerResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
-  if (res.ok) {
-    const resJson = await res.json().catch(() => ({}));
-    const successMessage = `${resJson.message} Id: ${resJson.patient?.id}, Nombre: ${resJson.patient?.lastName} ${resJson.patient?.firstName}`;
-    return { message: successMessage, type: "success" };
-  } else {
-    return handleErrorResponse(res);
-  }
-}
-
-async function handleLegalGuardianControllerResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
-  if (res.ok) {
-    const resJson = await res.json().catch(() => ({}));
-    const successMessage = `${resJson.message} Id: ${resJson.legalGuardian?.id}, Nombre: ${resJson.legalGuardian?.lastName} ${resJson.legalGuardian?.firstName}`;
-    return { message: successMessage, type: "success" };
-  } else {
-    return handleErrorResponse(res);
-  }
-}
-
-async function handleUserControllerResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
-  if (res.ok) {
-    const resJson = await res.json().catch(() => ({}));
-    const successMessage = `${resJson.message} Id: ${resJson.user?.id}, Email: ${resJson.user?.mail}, Rol: ${resJson.user?.role}`;
-    return { message: successMessage, type: "success" };
-  } else {
-    return handleErrorResponse(res);
-  }
-}
-
-
+import { User } from "../LoginRegister/loginRegisterTypes"; // este deberia estar en el import de abajo de @/common/types
+import { HealthInsurance } from "@/common/types";
 
 
 export default function EditProfile() {
@@ -124,7 +57,7 @@ export default function EditProfile() {
         const res = await fetch("http://localhost:2000/HealthInsurance/getAll?includeInactive=false");
   
         if (!res.ok){
-          const toastData = await handleErrorResponse(res);
+          const toastData = await HandleErrorResponse(res);
           setToast(toastData);
         } else {
           const data: HealthInsurance[] = await res.json();
@@ -141,7 +74,7 @@ export default function EditProfile() {
         const res = await fetch("http://localhost:2000/User/getAll?includeInactive=false");
   
         if (!res.ok){
-          const toastData = await handleErrorResponse(res);
+          const toastData = await HandleErrorResponse(res);
           setToast(toastData);
         } else {
           const data: User[] = await res.json();
@@ -206,7 +139,7 @@ export default function EditProfile() {
       body: JSON.stringify(payload),
     });
 
-    let toastData = await handleUserControllerResponse(res);
+    let toastData = await HandleUserControllerResponse(res);
 
     if(toastData) {
       setToast(toastData);
@@ -273,15 +206,15 @@ export default function EditProfile() {
     let toastData;
 
     if(selectedUser.patient) {
-      toastData = await handlePatientControllerResponse(res);
+      toastData = await HandlePatientControllerResponse(res);
     }
 
     if(selectedUser.legalGuardian) {
-      toastData = await handleLegalGuardianControllerResponse(res);
+      toastData = await HandleLegalGuardianControllerResponse(res);
     }
 
     if(selectedUser.professional) {
-      toastData = await handleProfessionalControllerResponse(res);
+      toastData = await HandleProfessionalControllerResponse(res);
     }
     if(toastData) {
       setToast(toastData);
@@ -336,15 +269,15 @@ export default function EditProfile() {
     let toastData;
 
     if(selectedUser.patient) {
-      toastData = await handlePatientControllerResponse(res);
+      toastData = await HandlePatientControllerResponse(res);
     }
 
     if(selectedUser.legalGuardian) {
-      toastData = await handleLegalGuardianControllerResponse(res);
+      toastData = await HandleLegalGuardianControllerResponse(res);
     }
 
     if(selectedUser.professional) {
-      toastData = await handleProfessionalControllerResponse(res);
+      toastData = await HandleProfessionalControllerResponse(res);
     }
     if(toastData) {
       setToast(toastData);

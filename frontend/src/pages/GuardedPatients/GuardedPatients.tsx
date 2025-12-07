@@ -1,10 +1,15 @@
 import React, { useEffect, useMemo, useState } from "react";
 
-import { LegalGuardian, Patient } from "./guardedPatientsTypes";
-
 import { Toast, EmptyState, Modal, Table, SummaryList, 
   DialogActions, PrimaryButton, FormField, Card, FilterBar } from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
+
+import {
+  HandlePatientControllerResponse,
+  HandleLegalGuardianControllerResponse
+} from '@/common/utils';
+
+import { LegalGuardian, Patient } from "./guardedPatientsTypes"; // esto deberia venir de @/common/types
 
 
 // ---- Utils ----
@@ -23,38 +28,6 @@ const validatePatient = (p: Partial<Patient>) => {
 };
 
 const sameJSON = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
-
-
-async function handlePatientControllerResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
-  const resJson = await res.json().catch(() => ({}));
-  if (res.ok) {
-    const successMessage = `${resJson.message} Id: ${resJson.patient?.id}, Nombre: ${resJson.patient?.lastName} ${resJson.patient?.firstName}`;
-    return { message: successMessage, type: "success" };
-  } else {
-    if (res.status === 500 || res.status === 400) {
-      return { message: resJson.message ?? "Error interno del servidor", type: "error" };
-    } else {
-      const errorMessage = `Error: ${resJson.error} Codigo: ${resJson.code} ${resJson.message}`
-      return { message: errorMessage.trim(), type: "error" };
-    }
-  }
-}
-
-async function handleLegalGuardianControllerResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
-  const resJson = await res.json().catch(() => ({}));
-
-  if (res.ok) {
-    const successMessage = `${resJson.message} Id: ${resJson.legalGuardian?.id}, Nombre: ${resJson.legalGuardian?.lastName} ${resJson.legalGuardian?.firstName}`;
-    return { message: successMessage, type: "success" };
-  } else {
-    if (res.status === 500 || res.status === 400) {
-      return { message: resJson.message ?? "Error interno del servidor", type: "error" };
-    } else {
-      const errorMessage = `Error: ${resJson.error} Codigo: ${resJson.code} ${resJson.message}`
-      return { message: errorMessage.trim(), type: "error" };
-    }
-  }
-}
 
 export default function GuardedPatients() {
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -79,7 +52,7 @@ export default function GuardedPatients() {
     (async () => {
       const res = await fetch("http://localhost:2000/LegalGuardian/getAll?includeInactive=true");
       if (!res.ok){
-        const toastData = await handleLegalGuardianControllerResponse(res);
+        const toastData = await HandleLegalGuardianControllerResponse(res);
         setToast(toastData);
       } else {
         const data: LegalGuardian[] = await res.json();
@@ -98,7 +71,7 @@ export default function GuardedPatients() {
          const res = await fetch(`http://localhost:2000/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=false`);
   
         if (!res.ok){
-          const toastData = await handlePatientControllerResponse(res);
+          const toastData = await HandlePatientControllerResponse(res);
           setToast(toastData);
         } else {
           const data: Patient[] = await res.json();
@@ -153,7 +126,7 @@ export default function GuardedPatients() {
       setPatients(data); 
     }
     closeAdd()
-    const toastData = await handlePatientControllerResponse(res);
+    const toastData = await HandlePatientControllerResponse(res);
     setToast(toastData);
   };
 
@@ -218,7 +191,7 @@ export default function GuardedPatients() {
       setPatients(data); 
     }
     closeEdit();
-    const toastData = await handlePatientControllerResponse(res);
+    const toastData = await HandlePatientControllerResponse(res);
     setToast(toastData);
   };
 
@@ -244,7 +217,7 @@ export default function GuardedPatients() {
     }
     closeDelete();
     setDeleteTarget(null);
-    const toastData = await handlePatientControllerResponse(res);
+    const toastData = await HandlePatientControllerResponse(res);
     setToast(toastData);
   };
 

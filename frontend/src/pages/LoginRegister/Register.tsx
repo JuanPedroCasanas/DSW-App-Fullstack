@@ -4,48 +4,15 @@ import { HealthInsurance, Occupation } from "./loginRegisterTypes";
 import { Toast, FormField,  InputPassword, PrimaryButton, NavButton, ActionGrid } from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
 
+import {
+  HandleProfessionalControllerResponse,
+  HandlePatientControllerResponse,
+  HandleLegalGuardianControllerResponse,
+  HandleOccupationControllerResponse,
+  HandleHealthInsuranceControllerResponse,
+} from '@/common/utils';
+
 type Role = "Paciente" | "Profesional" | "Responsable Legal" | "";
-
-async function handleErrorResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
-  const resJson = await res.json().catch(() => ({}));
-    if (res.status === 500 || res.status === 400) {
-      return { message: resJson.message ?? "Error interno del servidor", type: "error" };
-    } else {
-      const errorMessage = `Error: ${resJson.error} Codigo: ${resJson.code} ${resJson.message}`
-      return { message: errorMessage.trim(), type: "error" };
-    }
-}
-
-async function handleProfessionalControllerResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
-  if (res.ok) {
-    const resJson = await res.json().catch(() => ({}));
-    const successMessage = `${resJson.message} Id: ${resJson.professional?.id}, Apellido y nombre: ${resJson.professional?.lastName} ${resJson.professional?.firstName}`;
-    return { message: successMessage, type: "success" };
-  } else {
-    return handleErrorResponse(res);
-  }
-}
-
-async function handlePatientControllerResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
-  if (res.ok) {
-    const resJson = await res.json().catch(() => ({}));
-    const successMessage = `${resJson.message} Id: ${resJson.patient?.id}, Nombre: ${resJson.patient?.lastName} ${resJson.patient?.firstName}`;
-    return { message: successMessage, type: "success" };
-  } else {
-    return handleErrorResponse(res);
-  }
-}
-
-async function handleLegalGuardianControllerResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
-  if (res.ok) {
-    const resJson = await res.json().catch(() => ({}));
-    const successMessage = `${resJson.message} Id: ${resJson.legalGuardian?.id}, Nombre: ${resJson.legalGuardian?.lastName} ${resJson.legalGuardian?.firstName}`;
-    return { message: successMessage, type: "success" };
-  } else {
-    return handleErrorResponse(res);
-  }
-}
-
 
 export default function Register() {
 
@@ -81,7 +48,7 @@ const [form, setForm] = useState<{
     const fetchOccupations = async () => {
       const res = await fetch("http://localhost:2000/Occupation/getAll");
       if (!res.ok){
-        const toastData = await handleErrorResponse(res);
+        const toastData = await HandleOccupationControllerResponse(res);
         setToast(toastData);
       } else {
         const data: Occupation[] = await res.json();
@@ -95,7 +62,7 @@ const [form, setForm] = useState<{
     const fetchHealthInsurances = async () => {
       const res = await fetch("http://localhost:2000/HealthInsurance/getAll?includeInactive=false");
       if (!res.ok){
-        const toastData = await handleErrorResponse(res);
+        const toastData = await HandleHealthInsuranceControllerResponse(res);
         setToast(toastData);
       } else {
         const data: HealthInsurance[] = await res.json();
@@ -255,11 +222,11 @@ const [form, setForm] = useState<{
       let toastData;
 
       if(form.role === "Profesional") {
-        toastData = await handleProfessionalControllerResponse(response)
+        toastData = await HandleProfessionalControllerResponse(response)
       } else if(form.role === "Paciente") {
-        toastData = await handlePatientControllerResponse(response)
+        toastData = await HandlePatientControllerResponse(response)
       } else if(form.role === "Responsable Legal") {
-        toastData = await handleLegalGuardianControllerResponse(response)
+        toastData = await HandleLegalGuardianControllerResponse(response)
       }
       if(toastData) {
         setToast(toastData);
