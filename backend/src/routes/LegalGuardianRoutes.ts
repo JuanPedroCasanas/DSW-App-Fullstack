@@ -7,7 +7,6 @@ import { getDeleteLegalGuardianSchema } from '../utils/validations/schema/legalG
 
 const router = express.Router();
 
-router.get('/', LegalGuardianController.home);
 router.post('/add', validate(addLegalGuardianSchema), LegalGuardianController.addLegalGuardian);
 router.post('/update', validate(updateLegalGuardianSchema), LegalGuardianController.updateLegalGuardian);
 router.get('/getAll', LegalGuardianController.getLegalGuardians);

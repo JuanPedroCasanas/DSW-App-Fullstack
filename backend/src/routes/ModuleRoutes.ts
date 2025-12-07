@@ -7,7 +7,6 @@ import { getCurrentMonthModulesByConsultingRoomModuleSchema } from '../utils/val
 
 const router = express.Router();
 
-router.get('/', ModuleController.home);
 router.post('/add', validate(addModuleSchema), ModuleController.addModules);
 router.get('/getAll', ModuleController.getModules);
 router.get('/get/:idModule', validate(getModuleSchema), ModuleController.getModule);

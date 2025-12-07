@@ -6,7 +6,6 @@ import { updateConsultingRoomSchema } from '../utils/validations/schema/consulti
 import { getDeleteConsultingRoomSchema } from '../utils/validations/schema/consultingRoom/getDeleteConsultingRoomSchema';
 const router = express.Router();
 
-router.get('/', ConsultingRoomController.home);
 router.post('/add', validate(addConsultingRoomSchema), ConsultingRoomController.addConsultingRoom);
 router.post('/update', validate(updateConsultingRoomSchema), ConsultingRoomController.updateConsultingRoom);
 router.get('/getAll', ConsultingRoomController.getConsultingRooms);

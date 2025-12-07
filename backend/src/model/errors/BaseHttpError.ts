@@ -18,6 +18,17 @@ export class BaseHttpError extends Error {
   }
 }
 
+export class InvalidParameterError extends BaseHttpError {
+  constructor(parameter: string) {
+    super(400, 'INVALID_PARAMETER', `El parametro '${parameter}' no es valido`);
+  }
+}
+
+export class InvalidStatusChangeError extends BaseHttpError {
+  constructor(entity: string, currentStatus: string, newStatus: string) {
+    super(400, 'INVALID_STATUS_CHANGE', `El estado de ${entity} no puede pasar de ${currentStatus} a ${newStatus}`);
+  }
+}
 export class NotFoundError extends BaseHttpError {
   constructor(resource: string) {
     super(404, 'NOT_FOUND', `El recurso '${resource}' no pudo ser encontrado o se encuentra deshabilitado`);
@@ -61,7 +72,24 @@ export class WeakPasswordError extends BaseHttpError {
   }
 }
 
-export class NotConfigured extends BaseHttpError {
+export class InvalidPasswordError extends BaseHttpError {
+  constructor(reason: string = 'La contraseña ingresada no es valida') {
+    super(401, 'INVALID_PASSWORD', reason);
+  }
+}
+
+export class ExpiredTokenError extends BaseHttpError {
+  constructor(reason: string = 'Refresh token expirado, por favor intente reingresar a su cuenta con usuario y contraseña') {
+    super(401, 'EXPIRED_TOKEN', reason);
+  }
+}
+
+export class InvalidTokenError extends BaseHttpError {
+  constructor(reason: string = 'Refresh token inválido, por favor intente reingresar a su cuenta con usuario y contraseña') {
+    super(401, 'INVALID_TOKEN', reason);
+  }
+}
+export class NotConfiguredError extends BaseHttpError {
   constructor(resource: string) {
     super(404, 'NOT_FOUND', `El recurso '${resource}' aún no posee valores configurados por un admin`);
   }

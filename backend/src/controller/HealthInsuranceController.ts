@@ -1,23 +1,18 @@
 import { Request, Response } from 'express';
-import { getORM } from '../orm/db';
-import { HealthInsurance } from '../model/entities/HealthInsurance';
-import { BaseHttpError, NotFoundError } from '../model/errors/BaseHttpError';
-import { Professional } from '../model/entities/Professional';
+import { HealthInsuranceService } from '../services/HealthInsuranceService';
+import { BaseHttpError } from '../model/errors/BaseHttpError';
 import { safeSerialize } from '../utils/helpers/safeSerialize';
 
 export class HealthInsuranceController {
-
-    static home(req: Request, res: Response) {
-        res.send('Soy el controlador de Obras Sociales!');
-    }
-
     static async addHealthInsurance(req: Request, res: Response) {
         const { name } = req.body;
         try {
-            const em = await getORM().em.fork(); 
-            const healthInsurance = new HealthInsurance(name);
-            await em.persistAndFlush(healthInsurance);
-            return res.status(201).json({ message: 'Obra social añadida: ', healthInsurance });
+            const healthInsurance = await HealthInsuranceService.addHealthInsurance(name);
+
+            return res.status(201).json({
+                message: 'Obra social añadida: ',
+                healthInsurance
+            });
         } catch (error) {
             console.error(error);
             if (error instanceof BaseHttpError) {
@@ -30,22 +25,18 @@ export class HealthInsuranceController {
     }
     
     static async updateHealthInsurance(req: Request, res: Response) {
-        
-        const {idHealthInsurance, name } = req.body;
+        const { idHealthInsurance, name } = req.body;
 
         try {
+            const healthInsurance = await HealthInsuranceService.updateHealthInsurance(
+                idHealthInsurance,
+                name
+            );
 
-            const em = await getORM().em.fork();
-
-            const healthInsurance = await em.findOne(HealthInsurance, { id: idHealthInsurance});
-
-           if (!healthInsurance) {
-                throw new NotFoundError('Obra Social');
-            }
-           
-            healthInsurance.name = name;
-            await em.flush();
-            return res.status(200).json({ message: 'Obra social actualizada: ', healthInsurance });
+            return res.status(200).json({
+                message: 'Obra social actualizada: ',
+                healthInsurance
+            });
 
         } catch (error) {
             console.error(error);
@@ -61,13 +52,9 @@ export class HealthInsuranceController {
     static async getHealthInsurance(req: Request, res: Response) {
         const idHealthInsurance = Number(req.params.idHealthInsurance);
         try {
-            const em = await getORM().em.fork();
-            const healthInsurance = await em.findOne(HealthInsurance, { id: idHealthInsurance });
-            if (!healthInsurance) {
-                throw new NotFoundError('Obra Social');
-            }
-            return res.status(200).json(healthInsurance);
+            const healthInsurance = await HealthInsuranceService.getHealthInsurance(idHealthInsurance);
 
+            return res.status(200).json(healthInsurance);
         } catch (error) {
             console.error(error);
             if (error instanceof BaseHttpError) {
@@ -81,16 +68,15 @@ export class HealthInsuranceController {
 
     static async getAllHealthInsurances(req: Request, res: Response) {
         let includeInactive:boolean;
+
         if (req.query.includeInactive === undefined) {
             includeInactive = true;
         } else {
             includeInactive = req.query.includeInactive === 'true'; 
-            // true si el string es 'true', false si es cualquier otra cosa
         }
+
         try {
-            const em = await getORM().em.fork();
-            const whereCondition = (includeInactive) ? {} : {isActive: true};
-            const healthInsurances = await em.find(HealthInsurance, whereCondition);
+            const healthInsurances = await HealthInsuranceService.getAllHealthInsurances(includeInactive);
             
             return res.status(200).json(healthInsurances);
         } catch (error) {
@@ -107,22 +93,16 @@ export class HealthInsuranceController {
             includeInactive = true;
         } else {
             includeInactive = req.query.includeInactive === 'true'; 
-            // true si el string es 'true', false si es cualquier otra cosa
         }
 
         try {
-            const em = await getORM().em.fork();
-            const professional = await em.findOne(Professional , { id: idProfessional });  
-            if(!professional) {
-                throw new NotFoundError('profesional')
-            }
-            await professional.healthInsurances.init();
+            const healthInsurances =
+                await HealthInsuranceService.getHealthInsuranceByProfessional(
+                    idProfessional,
+                    includeInactive
+                );
 
-        let healthInsurances = professional.healthInsurances.getItems();
-        if(!includeInactive) {
-            healthInsurances = healthInsurances.filter(insurance => insurance.isActive);
-        }
-        return res.status(200).json(safeSerialize(healthInsurances));
+            return res.status(200).json(safeSerialize(healthInsurances));
         } catch (error) {
             console.error(error);
             if (error instanceof BaseHttpError) {
@@ -130,24 +110,18 @@ export class HealthInsuranceController {
             } else {
                 return res.status(500).json({ message: 'Error al buscar obras sociales del profesional' });
             }
+        }
     }
-}
 
     static async deleteHealthInsurance(req: Request, res: Response) {
         const idHealthInsurance = Number(req.params.idHealthInsurance);
         try {
-            const em = await getORM().em.fork();
-            const healthInsurance = await em.findOne(HealthInsurance, { id : idHealthInsurance });
+            const healthInsurance = await HealthInsuranceService.deleteHealthInsurance(idHealthInsurance);
 
-            if (!healthInsurance) {
-                throw new NotFoundError('Obra Social');
-            }
-
-            healthInsurance.isActive = false; //No cascadeamos los resultados porque sería demasiado, en el negocio se arreglaria entre paciente y prof
-
-            await em.flush();
-
-            return res.status(200).json({ message: 'Obra social eliminada ', healthInsurance }); 
+            return res.status(200).json({
+                message: 'Obra social eliminada ',
+                healthInsurance
+            }); 
 
         } catch (error) {
             console.error(error);
@@ -159,6 +133,4 @@ export class HealthInsuranceController {
             }
         }
     }
-
 }
-

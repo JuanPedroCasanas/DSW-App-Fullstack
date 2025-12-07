@@ -8,7 +8,6 @@ import { getDeleteHealthInsuranceSchema } from '../utils/validations/schema/heal
 
 const router = express.Router();
 
-router.get('/', HealthInsuranceController.home);
 router.post('/add', validate(addHealthInsuranceSchema), HealthInsuranceController.addHealthInsurance);
 router.post('/update', validate(updateHealthInsuranceSchema), HealthInsuranceController.updateHealthInsurance);
 router.get('/getHealthInsurancesByProfessional/:idProfessional', validate(getByProfessionalHealthInsuranceSchema),HealthInsuranceController.getHealthInsuranceByProfessional);

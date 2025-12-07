@@ -1,216 +1,153 @@
 import { Request, Response } from 'express';
-import { getORM } from '../orm/db';
-import { Patient } from '../model/entities/Patient';
-import { LegalGuardian } from '../model/entities/LegalGuardian';
-import { createUserData } from '../utils/helpers/createUserData';
-import { HealthInsurance } from '../model/entities/HealthInsurance';
-import { BaseHttpError, NotFoundError } from '../model/errors/BaseHttpError';
-import { AppointmentStatus } from '../model/enums/AppointmentStatus';
+import { PatientService } from '../services/PatientService';
+import { BaseHttpError } from '../model/errors/BaseHttpError';
 import { safeSerialize } from '../utils/helpers/safeSerialize';
 
 export class PatientController {
 
-    //Para pacientes que no dependen de un responsable legal, se les crea usuario para acceder
     static async addIndependentPatient(req: Request, res: Response) {
-        const { firstName, lastName, birthdate, password, telephone, mail, idHealthInsurance} = req.body;
+        const { firstName, lastName, birthdate, password, telephone, mail, idHealthInsurance } = req.body;
 
-        try {            
-            const em = await getORM().em.fork();
+        try {
+            const patient = await PatientService.addIndependentPatient(
+                firstName,
+                lastName,
+                birthdate,
+                password,
+                telephone,
+                mail,
+                idHealthInsurance
+            );
 
-            const healthInsurance: HealthInsurance | undefined = await em.findOne(HealthInsurance, { id: idHealthInsurance}) ?? undefined;
-           
-            if(!healthInsurance) {
-                throw new NotFoundError("Obra social");
-            }
-
-            const patient = new Patient(firstName, lastName, birthdate, healthInsurance,  telephone);
-            const patUser = await createUserData(mail, password);
-            patient.user = patUser;
-            patUser.patient = patient;
-            await em.persistAndFlush(patUser);
-
-            return res.status(201).json({ message: 'Se agrego correctamente el paciente', patient: safeSerialize(patient) });
+            return res.status(201).json({
+                message: 'Se agrego correctamente el paciente',
+                patient: safeSerialize(patient)
+            });
         } catch (error) {
             console.error(error);
             if (error instanceof BaseHttpError) {
                 return res.status(error.status).json(error.toJSON());
             }
-            else {
-                return res.status(500).json({ message: 'Error al agregar el paciente' });
-            }
+            return res.status(500).json({ message: 'Error al agregar el paciente' });
         }
     }
 
-    //Para pacientes que dependen de un responsable legal, sin usuario ni info de contacto
     static async addDependentPatient(req: Request, res: Response) {
-            const { firstName, lastName, birthdate, idLegalGuardian } = req.body;
-            
-            try {            
-            
-                const em = await getORM().em.fork();
+        const { firstName, lastName, birthdate, idLegalGuardian } = req.body;
 
-                let legalGuardian = await em.findOne(LegalGuardian, { id: idLegalGuardian });
-                if(!legalGuardian) {
-                    throw new NotFoundError("Responsable legal");
-                }
-
-                const patient = new Patient(firstName, lastName, birthdate, legalGuardian.healthInsurance, undefined, legalGuardian);
-
-                //Si no se aclara contraseña, entonces este metodo fue llamado para añadir a un paciente dependiente de un resp legal, que no requiere usuario
-                await em.persistAndFlush(patient);
-                
-
-                return res.status(201).json({ message: 'Se añadió correctamente al paciente', patient: safeSerialize(patient)});
-            } catch (error) {
-                console.error(error);
-                if (error instanceof BaseHttpError) {
-                    return res.status(error.status).json(error.toJSON());
-                }
-                else {
-                    return res.status(500).json({ message: 'Error al agregar al paciente' });
-                }
-            }
-        }
-
-    
-    static async updateIndependentPatient(req: Request, res: Response) {
-        const { idPatient } = req.body;
-        const { firstName } = req.body;
-        const { lastName } = req.body;
-        const { birthdate } = req.body;   
-        const { telephone } = req.body;
-        const { idHealthInsurance } = req.body;
-        
         try {
-            const em = await getORM().em.fork();
-            const patient = await em.findOne(Patient, {id: idPatient});
+            const patient = await PatientService.addDependentPatient(
+                firstName,
+                lastName,
+                birthdate,
+                idLegalGuardian
+            );
 
-            if(!patient|| !patient?.isActive) {
-                throw new NotFoundError("Paciente")
+            return res.status(201).json({
+                message: 'Se añadió correctamente al paciente',
+                patient: safeSerialize(patient)
+            });
+        } catch (error) {
+            console.error(error);
+            if (error instanceof BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
             }
-
-            const healthInsurance = await em.findOne(HealthInsurance, {id: idHealthInsurance });
-            if(!healthInsurance|| !healthInsurance?.isActive) {
-                throw new NotFoundError("Obra social")
-            }
-
-            patient.firstName = firstName;
-            patient.lastName = lastName;
-            patient.birthdate = birthdate;
-            patient.telephone = telephone;
-            patient.healthInsurance = healthInsurance;
-
-            await em.flush();
-
-            return res.status(201).json({ message: 'Los datos del paciente fueron actualizados', patient: safeSerialize(patient) });
+            return res.status(500).json({ message: 'Error al agregar al paciente' });
         }
-        catch (error){
-                console.error(error);
-                if (error instanceof BaseHttpError) {
-                    return res.status(error.status).json(error.toJSON());
-                }
-                else {
-                    return res.status(500).json({ message: 'Error al modificar el paciente' });
-                }
+    }
+
+    static async updateIndependentPatient(req: Request, res: Response) {
+        const { idPatient, firstName, lastName, birthdate, telephone, idHealthInsurance } = req.body;
+
+        try {
+            const patient = await PatientService.updateIndependentPatient(
+                idPatient,
+                firstName,
+                lastName,
+                birthdate,
+                telephone,
+                idHealthInsurance
+            );
+
+            return res.status(201).json({
+                message: 'Los datos del paciente fueron actualizados',
+                patient: safeSerialize(patient)
+            });
+        } catch (error) {
+            console.error(error);
+            if (error instanceof BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            return res.status(500).json({ message: 'Error al modificar el paciente' });
         }
     }
 
     static async updateDependentPatient(req: Request, res: Response) {
-        const { idPatient } = req.body;
-        const { firstName } = req.body;
-        const { lastName } = req.body;
-        const { birthdate } = req.body;   
+        const { idPatient, firstName, lastName, birthdate } = req.body;
+
         try {
-            const em = await getORM().em.fork();
-            const patient = await em.findOne(Patient, {id: Number(idPatient)});
+            const patient = await PatientService.updateDependentPatient(
+                idPatient,
+                firstName,
+                lastName,
+                birthdate
+            );
 
-            if(!patient|| !patient?.isActive) {
-                throw new NotFoundError("Paciente")
+            return res.status(201).json({
+                message: 'Los datos del paciente fueron actualizados',
+                patient: safeSerialize(patient)
+            });
+        } catch (error) {
+            console.error(error);
+            if (error instanceof BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
             }
-
-            patient.firstName = firstName;
-            patient.lastName = lastName;
-            patient.birthdate = birthdate;
-
-            await em.flush();
-
-            return res.status(201).json({ message: 'Los datos del paciente fueron actualizados', patient: safeSerialize(patient) });
-        }
-        catch (error){
-                console.error(error);
-                if (error instanceof BaseHttpError) {
-                    return res.status(error.status).json(error.toJSON());
-                }
-                else {
-                    return res.status(500).json({ message: 'Error al modificar el paciente' });
-                }
+            return res.status(500).json({ message: 'Error al modificar el paciente' });
         }
     }
 
     static async getPatient(req: Request, res: Response) {
         const idPatient = Number(req.params.idPatient);
+
         try {
-            const em = await getORM().em.fork();
-            const patient = await em.findOne(Patient, { id: idPatient });
-            if (!patient|| !patient?.isActive) {
-                throw new NotFoundError("Paciente")
-            }
+            const patient = await PatientService.getPatient(idPatient);
             return res.status(200).json(safeSerialize(patient));
         } catch (error) {
             console.error(error);
             if (error instanceof BaseHttpError) {
                 return res.status(error.status).json(error.toJSON());
             }
-            else {
-                return res.status(500).json({ message: 'Error al buscar el paciente' });
-            }
+            return res.status(500).json({ message: 'Error al buscar el paciente' });
         }
     }
 
     static async getPatients(req: Request, res: Response) {
-        let includeInactive:boolean;
-        if (req.query.includeInactive === undefined) {
-            includeInactive = true;
-        } else {
-            includeInactive = req.query.includeInactive === 'true'; 
-            // true si el string es 'true', false si es cualquier otra cosa
-        }
-        try {
-            const em = await getORM().em.fork();
-            const whereCondition = (includeInactive) ? {} : {isActive: true};
-            const patients = await em.find(Patient, whereCondition);
-            return res.status(200).json(safeSerialize(patients));
+        const includeInactive =
+            req.query.includeInactive === undefined
+                ? true
+                : req.query.includeInactive === 'true';
 
+        try {
+            const patients = await PatientService.getPatients(includeInactive);
+            return res.status(200).json(safeSerialize(patients));
         } catch (error) {
-            console.log(error);
+            console.error(error);
             return res.status(500).json({ message: 'Error al buscar los pacientes' });
         }
     }
 
     static async getByLegalGuardian(req: Request, res: Response) {
         const idLegalGuardian = Number(req.params.idLegalGuardian);
-        let includeInactive: boolean;
-
-        if (!req.query || req.query.includeInactive === undefined) {
-            includeInactive = true;
-        } else {
-            includeInactive = req.query.includeInactive === 'true'; 
-            // true si el string es 'true', false si es cualquier otra cosa
-        }
+        const includeInactive =
+            req.query?.includeInactive === undefined
+                ? true
+                : req.query.includeInactive === 'true';
 
         try {
-            const em = await getORM().em.fork();
-            const legalGuardian = await em.findOne(LegalGuardian, { id: idLegalGuardian });
-            if(!legalGuardian || !legalGuardian.isActive) {
-                throw new NotFoundError('Responsable Legal');
-            }
-
-            const whereCondition = (includeInactive) ? { legalGuardian: legalGuardian } : { legalGuardian: legalGuardian, isActive: true };
-            const patients = await em.find(Patient, whereCondition);
+            const patients = await PatientService.getByLegalGuardian(idLegalGuardian, includeInactive);
             return res.status(200).json(safeSerialize(patients));
-
         } catch (error) {
-            console.log(error);
+            console.error(error);
             return res.status(500).json({ message: 'Error al buscar los pacientes por responsable legal' });
         }
     }
@@ -219,38 +156,18 @@ export class PatientController {
         const idPatient = Number(req.params.idPatient);
 
         try {
+            const patient = await PatientService.deletePatient(idPatient);
 
-            const em = await getORM().em.fork();
-            const patient = await em.findOne(Patient, { id : idPatient });
-
-            if (!patient || !patient?.isActive) {
-                throw new NotFoundError("Paciente")
-            }
-
-            patient.isActive = false;
-            
-            if (patient.user) {
-                patient.user.isActive = false;
-            }
-
-            await patient.appointments.init();
-
-            for (const appointment of patient.appointments) {
-                appointment.status = AppointmentStatus.Canceled;
-            }
-
-            await em.flush();
-            return res.status(200).json({ message: 'Paciente dado de baja correctamente: ', patient: safeSerialize(patient) });
+            return res.status(200).json({
+                message: 'Paciente dado de baja correctamente: ',
+                patient: safeSerialize(patient)
+            });
         } catch (error) {
             console.error(error);
             if (error instanceof BaseHttpError) {
                 return res.status(error.status).json(error.toJSON());
             }
-            else {
-                return res.status(500).json({ message: 'Error al buscar el paciente' });
-            }
+            return res.status(500).json({ message: 'Error al buscar el paciente' });
         }
     }
-
-
 }
