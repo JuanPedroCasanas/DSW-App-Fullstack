@@ -2,9 +2,6 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Toast } from '@/components/ui/Feedback/Toast';
 
 import {
-  Occupation,
-  Professional,
-  Appointment,
   getMonthMeta,
   toISO,
   isPast,
@@ -12,14 +9,14 @@ import {
   deriveFreeSlotsForDay,
   fullName,
   getLocalDateISOFromStart,
-  Patient,
-} from './appointmentSchedule.types';
+} from './appointmentSchedule.helpers';
 
 import { HandleAppointmentControllerResponse, 
   HandleOccupationControllerResponse, 
   HandleProfessionalControllerResponse } from '@/common/utils';
 
 import { AppointmentScheduleForm } from './AppointmentScheduleForm';
+import { Appointment, Occupation, Patient, Professional } from '@/common/types';
 
 //Genera un toast para las respuestas del backend
  // HandleAppointmentControllerResponse.ts
@@ -65,7 +62,7 @@ export default function AppointmentSchedule() {
   const [loadingPatients, setLoadingPatients] = useState(false);
 
   // Filtros / selección
-  const [selectedOccupationId, setSelectedOccupationId] = useState<Occupation['id'] | null>(null);
+  const [selectedOccupationId, setSelectedOccupationId] = useState<Occupation['id'] | undefined>(undefined);
   const [selectedProfessionalId, setSelectedProfessionalId] = useState<number | null>(null);
   const [selectedPatientId, setSelectedPatientId] = useState<number | null>(null);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState<number | null>(null);
@@ -112,7 +109,7 @@ export default function AppointmentSchedule() {
   // Al cambiar de paciente: resetear todo lo dependiente
   useEffect(() => {
     // si no hay paciente, limpiar filtros y turnos
-    setSelectedOccupationId(null);
+    setSelectedOccupationId(undefined);
     setProfessionals([]);
     setSelectedProfessionalId(null);
     setSelectedAppointmentId(null);
@@ -278,13 +275,13 @@ export default function AppointmentSchedule() {
       if (a.status !== 'available') continue;
 
       // Convertir startTime UTC -> hora local HH:mm (igual a deriveFreeSlotsForDay)
-      const d = new Date(a.startTime);
+      const d = new Date(a.startTime ?? '');
       const hh = String(d.getHours()).padStart(2, '0');
       const mm = String(d.getMinutes()).padStart(2, '0');
       const hhmm = `${hh}:${mm}`;
 
       // Guardamos el id (si hay duplicados de hora por cualquier motivo, el último pisa al anterior)
-      map.set(hhmm, a.id);
+      map.set(hhmm, a.id ?? 0);
     }
     return map;
   }, [appointments, selectedProfessionalId, selectedDateISO]);
@@ -359,7 +356,7 @@ export default function AppointmentSchedule() {
           const normalizeDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
           const inMonth = all.filter((a) => {
-            const dLocal = new Date(a.startTime);
+            const dLocal = new Date(a.startTime ?? '');
             const day    = normalizeDay(dLocal);
             return day >= start && day <= end;
           });

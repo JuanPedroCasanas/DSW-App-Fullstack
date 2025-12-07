@@ -6,12 +6,12 @@ import { FormField, Card, FilterBar,
  } from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
 
-import { Patient, Professional } from "./appointmentSchedule.types";
-import { fullName } from "./appointmentSchedule.types";
+import { fullName } from "./appointmentSchedule.helpers";
+import { Occupation, Patient, Professional } from "@/common/types";
 
 type Props = {
   patients: Patient[];
-  occupations: { id: number; name: string }[];
+  occupations: Occupation[];
   professionals: Professional[];
   loadingMeta: boolean;
   loadingProfessionals: boolean;
@@ -26,7 +26,7 @@ type Props = {
   slots: string[];
   loadingSlots: boolean;
 
-  selectedOccupationId: number | null;
+  selectedOccupationId: number | undefined;
   selectedProfessionalId: number | null;
   selectedPatientId: number | null;
   selectedDateISO: string;

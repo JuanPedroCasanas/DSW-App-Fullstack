@@ -1,6 +1,6 @@
 export type Occupation = {
-  id: string;
-  name: string;
+  id?: number;
+  name?: string;
 };
 
 

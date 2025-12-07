@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { Module, Professional } from './moduleList.types';
 
 import { Toast, EmptyState, Table, PrimaryButton, Card, FilterBar, FormField } from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
@@ -9,7 +8,7 @@ import { HandleConsultingRoomControllerResponse,
   HandleProfessionalControllerResponse
 } from '@/common/utils';
 
-import type { ConsultingRoom } from '@/common/types';
+import type { ConsultingRoom, Module, Professional } from '@/common/types';
 
 
 // todos los meses -> para pasarlo a una descripcion (en vez de numero)
@@ -286,7 +285,7 @@ export default function ModuleList() {
             .sort((a, b) => Number(a.id) - Number(b.id)) // opcional: orden por ID
             .map((m) => (
               <tr key={m.id} className="even:bg-gray-50 hover:bg-gray-100 transition">
-                <td className="px-4 py-3">{`${m.professional.firstName} ${m.professional.lastName}`}</td>
+                <td className="px-4 py-3">{`${m.professional?.firstName} ${m.professional?.lastName}`}</td>
                 <td className="px-4 py-3">{m.moduleType?.name}</td>
                 <td className="px-4 py-3">{monthLabel(String(Number(m.validMonth)))}</td>
                 <td className="px-4 py-3">{resolveRoomDescription(m)}</td>

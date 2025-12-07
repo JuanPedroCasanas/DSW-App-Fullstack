@@ -1,18 +1,27 @@
 import React, { useEffect, useState } from "react";
 
-import { Availability, ConsultingRoom, DayKey, Professional, SlotId, SlotState } from "./moduleRentTypes";
-
 import { Toast,PrimaryButton, FormField, Card, FilterBar,
   RentLegend, StickyRentBar, WeekGrid
  } from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
 
-import { HandleModuleControllerResponse } from "@/common/utils";
+import { HandleModuleControllerResponse, HandleConsultingRoomControllerResponse, HandleProfessionalControllerResponse } from "@/common/utils";
+import { ConsultingRoom, Professional } from "@/common/types";
+
+
+type DayKey = "lun" | "mar" | "mie" | "jue" | "vie" | "sab";
+type SlotState = "available" | "mine" | "reserved" | "unavailable";
+type SlotId = `${DayKey}-${string}`;
+type Availability = Record<DayKey, Record<string, SlotState>>;
+
+
 
 const DAYS: DayKey[] = ["lun", "mar", "mie", "jue", "vie", "sab"];
+
 const DAY_LABELS: Record<DayKey, string> = {
   lun: "Lunes", mar: "Martes", mie: "Miércoles", jue: "Jueves", vie: "Viernes", sab: "Sábado",
 };
+
 const HOURS = [
   "08:00","09:00","10:00","11:00","12:00",
   "13:00","14:00","15:00","16:00","17:00",
@@ -45,24 +54,29 @@ const buildBaseAvailability = (): Availability => {
 };
 
 export default function ModuleRent() {
-  const [consultingRoomId, setConsultingRoomId] = useState<number | null>(null);
+  const [consultingRoomId, setConsultingRoomId] = useState<number | undefined>(undefined);
   const [availability, setAvailability] = useState<Availability>(buildBaseAvailability);
   const [selected, setSelected] = useState<Set<SlotId>>(new Set());
   const [rangeStart, setRangeStart] = useState<SlotId | null>(null);
   const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [consultingRooms, setConsultingRooms] = useState<ConsultingRoom[]>([]);
-  const [selectedProfessionalId, setSelectedProfessionalId] = useState<number | null>(null);
+  const [selectedProfessionalId, setSelectedProfessionalId] = useState<number | undefined>(undefined);
   
   
   // === cargar consultorios ===
   useEffect(() => {
     const fetchConsultingRooms = async () => {
-      try {
-        const res = await fetch("http://localhost:2000/ConsultingRoom/getAll?includeInactive=false");
-        const data: ConsultingRoom[] = await res.json();
-        setConsultingRooms(data);
-        if (data.length) setConsultingRoomId(data[0].id);
-      } catch(err) { console.error(err); }
+      const res = await fetch("http://localhost:2000/ConsultingRoom/getAll?includeInactive=false");
+
+      if(!res.ok) {
+        const toastData = await HandleConsultingRoomControllerResponse(res);
+        setToast(toastData);
+        return;
+      }
+
+      const data: ConsultingRoom[] = await res.json();
+      setConsultingRooms(data);
+      if (data.length) setConsultingRoomId(data[0].id);
     };
     fetchConsultingRooms();
   }, []);
@@ -72,6 +86,13 @@ export default function ModuleRent() {
     const fetchProfessionals = async () => {
       try {
         const res = await fetch("http://localhost:2000/Professional/getAll?includeInactive=false");
+
+        if(!res.ok) {
+          const toastData = await HandleProfessionalControllerResponse(res);
+          setToast(toastData);
+          return;
+        }
+
         const data: Professional[] = await res.json();
         setProfessionals(data);
         if (data.length) setSelectedProfessionalId(data[0].id);
@@ -99,6 +120,14 @@ export default function ModuleRent() {
     if (consultingRoomId == null || selectedProfessionalId == null) return;
       try {
         const res = await fetch(`http://localhost:2000/Module/getCurrentMonthModulesByConsultingRoom/${consultingRoomId}`);
+
+        if(!res.ok) {
+          const toastData = await HandleModuleControllerResponse(res);
+          setToast(toastData);
+          return;
+        }
+
+
         const resJson = await res.json();
         const next = buildBaseAvailability();
 

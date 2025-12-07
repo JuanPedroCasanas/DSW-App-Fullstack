@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import  {HealthInsurance, Professional} from "./ProfessionalHealthInsurancesTypes"
 
 
 import { Toast, EmptyState, Table, PrimaryButton, Card, FilterBar, FormField, Modal, DialogActions, SummaryList } from "@/components/ui";
@@ -10,6 +9,8 @@ import {
   HandleHealthInsuranceControllerResponse,
 
 } from '@/common/utils';
+
+import { HealthInsurance, Professional } from '@/common/types';
 
 const validateHealthInsurance = (p: Partial<HealthInsurance>) => {
   const errors: Record<string, string> = {};
@@ -23,7 +24,7 @@ const sameJSON = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringif
 export default function HealthInsurancesByProfessional(){
   const [selectedProfessionalHealthInsurances, setSelectedProfessionalHealthInsurances] = useState<HealthInsurance[] | null>([]);
   const [healthInsurances, setHealthInsurances] = useState<HealthInsurance[]>([]);
-  const [selectedHealthInsuranceId, setSelectedHealthInsuranceId]=useState <number | null>(null);
+  const [selectedHealthInsuranceId, setSelectedHealthInsuranceId]=useState <number | undefined>(undefined);
   const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [selectedProfessional, setSelectedProfessional]=useState <Professional | null>(null);
 
@@ -76,7 +77,7 @@ export default function HealthInsurancesByProfessional(){
           const data: HealthInsurance[] = await res.json();
           //Filtrar por las cuales NO estan en el arreglo de OSs admitidas por el profesional cosa de solo dejarle agregar nuevas.
           const filteredHealthInsurances = data.filter(
-            hI => !selectedProfessional.healthInsurances.some(
+            hI => !selectedProfessional.healthInsurances?.some(
               profHealthInsurance => profHealthInsurance.id === hI.id 
             )
           );
@@ -90,7 +91,7 @@ export default function HealthInsurancesByProfessional(){
   if (healthInsurances.length > 0) {
     setSelectedHealthInsuranceId(healthInsurances[0].id);
   } else {
-    setSelectedHealthInsuranceId(null);
+    setSelectedHealthInsuranceId(undefined);
   }
 }, [healthInsurances]);
 
@@ -143,7 +144,7 @@ export default function HealthInsurancesByProfessional(){
       if (selectedProfessional) {
         const updated = data.find(p => p.id === selectedProfessional.id);
         if(updated) {
-          setSelectedProfessionalHealthInsurances([...updated.healthInsurances]);
+          setSelectedProfessionalHealthInsurances([...(updated.healthInsurances ?? [])]);
         } else {
           setSelectedProfessionalHealthInsurances([]);
         }
@@ -235,7 +236,7 @@ export default function HealthInsurancesByProfessional(){
               }}
             >
             {[...professionals]
-              .sort((a, b) => a.id - b.id)
+              .sort((a, b) => (a.id ?? 0) - (b.id ?? 0))
               .map((p) => (
                 <option key={p.id} value={p.id}>
                   {`Id: ${p.id}, ${p.firstName} ${p.lastName}`}
@@ -334,7 +335,7 @@ export default function HealthInsurancesByProfessional(){
                 <PrimaryButton variant="outline" onClick={tryCloseAdd}>
                   Cancelar
                 </PrimaryButton>
-                <PrimaryButton onClick={handleAddContinue}>Continuar</PrimaryButton>
+                <PrimaryButton onClick={() => handleAddContinue}>Continuar</PrimaryButton>
               </DialogActions>
             </>
           ) : (

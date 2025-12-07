@@ -343,7 +343,7 @@ export default function ConsultingRooms() {
           <>
             <SummaryList
               items={[
-                { label: "ID", value: editTarget.id },
+                { label: "ID", value: String(editTarget.id) },
                 { label: "Descripción", value: editForm.description ?? "" },
               ]}
             />

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Professional } from "./professionalTypes";
+import { Professional } from "@/common/types";
 
 import { Toast, EmptyState, Modal, Table, DialogActions, PrimaryButton, Card } from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
@@ -116,7 +116,7 @@ export default function Professionals() {
                 <td className="px-4 py-3">{p.id}</td>
                 <td className="px-4 py-3">{p.firstName}</td>
                 <td className="px-4 py-3">{p.lastName}</td>
-                <td className="px-4 py-3">{`${p.occupation.name} (${p.occupation.id})`}</td>
+                <td className="px-4 py-3">{`${p.occupation?.name} (${p.occupation?.id})`}</td>
                 <td className="px-4 py-3">{p.telephone ?? "—"}</td>
                 <td className="px-4 py-3">
                   {p.isActive ? (

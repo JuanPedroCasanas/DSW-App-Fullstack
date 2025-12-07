@@ -1,4 +1,4 @@
 export type ModuleType = {
-    id: string;
-    name: string;
+    id?: number;
+    name?: string;
 }

@@ -2,33 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 
-// import eyeIcon from "./eyeicon.png"; // de alguna manera asi no funciona, pero bueno!
+// import eyeIcon from "./eyeicon.png"; //Buscar una forma de que esto ande
 
 import { Toast, FormField,  InputPassword } from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
-
-
-type User = {
-  mail: string;
-  password: string;
-  isActive:boolean;
-};
-
-async function handleResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
-  const resJson = await res.json().catch(() => ({}));
-
-  if (res.ok) {
-    const successMessage = `${resJson.message} Id: ${resJson.user?.mail}, Nombre: ${resJson.user?.password}`;
-    return { message: successMessage, type: "success" };
-  } else {
-    if (res.status === 500 || res.status === 400) {
-      return { message: resJson.message ?? "Error interno del servidor", type: "error" };
-    } else {
-      const errorMessage = `Error: ${resJson.error} Codigo: ${resJson.code} ${resJson.message}`
-      return { message: errorMessage.trim(), type: "error" };
-    }
-  }
-}
 
 export default function Login() {
   const [datos, setDatos] = useState({
@@ -39,7 +16,7 @@ export default function Login() {
   const navigate = useNavigate();
   const [remember, setRemember] = useState(false);
   const [showPwd, setShowPwd] = useState(false);
-  const eyeIconUrl = new URL("./eyeicon.png", import.meta.url).href; // tengo que hacer esta huevada para que me vea el ojito! podes creer!
+  const eyeIconUrl = new URL("./eyeicon.png", import.meta.url).href; //Pasar a componente
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
 useEffect(() => {
@@ -119,10 +96,10 @@ return (
       </div>
 
       {/* Email */}
-      <FormField label="Correo electrónico" htmlFor="mmail">
+      <FormField label="Correo electrónico" htmlFor="mail">
         <div className="flex items-center gap-2 w-full border border-[#b5b6b7] rounded-[10px] bg-white px-4 py-[14px]">
           <input
-            id="mmail"
+            id="mail"
             name="mail"
             type="email"
             className="flex-1 w-full border-0 outline-0 bg-transparent text-[16px] leading-[22px] text-black placeholder:text-[#7d7d7d]"

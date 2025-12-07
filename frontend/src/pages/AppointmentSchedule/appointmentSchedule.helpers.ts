@@ -1,42 +1,8 @@
-export type Occupation = {
-  id: number; 
-  name: string 
-};
 
-export type Professional = { 
-  id: number;
-  firstName: string; 
-  lastName: string 
-};
-
-export type Patient = {
-  id: number;
-  firstName: string;
-  lastName: string;
-  isActive: boolean;
-};
-
-export type AppointmentStatus =
-  | 'available'
-  | 'scheduled'
-  | 'completed'
-  | 'missed'
-  | 'canceled'
-  | 'expired';
-
-export type Appointment = {
-  id: number;
-  startTime: string;     // ISO con 'Z' (UTC), ej: "2025-10-06T16:00:00.000Z"
-  endTime: string;       // ISO con 'Z'
-  status: AppointmentStatus;
-  module: number | null;
-  professional: number | string; // backend usa number
-  patient: number | null;
-  legalGuardian: number | null;
-  healthInsurance: number | null;
-};
 
 // ===== Helpers utilitarios =====
+
+import { Appointment, Patient, Professional } from "@/common/types";
 
 export function pad(n: number): string {
   return n.toString().padStart(2, '0');
@@ -87,13 +53,13 @@ export function toLocalDateFromISO(iso: string): Date {
 
 /** Devuelve "YYYY-MM-DD" local, según la fecha local de startTime. */
 export function getLocalDateISOFromStart(a: Appointment): string {
-  const d = toLocalDateFromISO(a.startTime);
+  const d = toLocalDateFromISO(a.startTime ?? '');
   return toISO(d);
 }
 
 /** Devuelve "HH:mm" local, según la hora local de startTime. */
 export function getLocalHHmmFromStart(a: Appointment): string {
-  const d = toLocalDateFromISO(a.startTime);
+  const d = toLocalDateFromISO(a.startTime ?? '');
   return pad(d.getHours()) + ':' + pad(d.getMinutes());
 }
 

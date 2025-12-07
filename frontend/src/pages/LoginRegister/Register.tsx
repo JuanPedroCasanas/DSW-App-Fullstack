@@ -1,5 +1,4 @@
 import { useMemo, useState, useEffect } from "react";
-import { HealthInsurance, Occupation } from "./loginRegisterTypes";
 
 import { Toast, FormField,  InputPassword, PrimaryButton, NavButton, ActionGrid } from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
@@ -11,6 +10,7 @@ import {
   HandleOccupationControllerResponse,
   HandleHealthInsuranceControllerResponse,
 } from '@/common/utils';
+import { HealthInsurance, Occupation } from "@/common/types";
 
 type Role = "Paciente" | "Profesional" | "Responsable Legal" | "";
 
@@ -39,8 +39,8 @@ const [form, setForm] = useState<{
 
   const [occupations, setOccupations] = useState<Occupation[]>([]);
   const [healthInsurances, setHealthInsurances] = useState<HealthInsurance[]>([]);;
-  const [selectedOccupationId, setSelectedOccupationId]  = useState<number | null>(null);
-  const [selectedHealthInsuranceId, setSelectedHealthInsuranceId]  = useState<number | null>(null);
+  const [selectedOccupationId, setSelectedOccupationId]  = useState<number | undefined>(undefined);
+  const [selectedHealthInsuranceId, setSelectedHealthInsuranceId]  = useState<number | undefined>(undefined);
 
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
@@ -53,8 +53,8 @@ const [form, setForm] = useState<{
       } else {
         const data: Occupation[] = await res.json();
         setOccupations(data);
-        if (selectedOccupationId === null) {
-          setSelectedOccupationId(data[0]?.id ?? null);
+        if (selectedOccupationId === undefined) {
+          setSelectedOccupationId(data[0]?.id ?? undefined);
         }
       }
     }
@@ -67,8 +67,8 @@ const [form, setForm] = useState<{
       } else {
         const data: HealthInsurance[] = await res.json();
         setHealthInsurances(data);
-        if (selectedHealthInsuranceId === null) {
-          setSelectedHealthInsuranceId(data[0]?.id ?? null);
+        if (selectedHealthInsuranceId === undefined) {
+          setSelectedHealthInsuranceId(data[0]?.id ?? undefined);
         }
       }
     }

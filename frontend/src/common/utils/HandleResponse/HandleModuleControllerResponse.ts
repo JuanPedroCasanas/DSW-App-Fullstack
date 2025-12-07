@@ -10,6 +10,6 @@ export async function HandleModuleControllerResponse(res: Response): Promise<{ m
         Consultorio: ${resJson.modules[0].consultingRoom.description}`;
       return { message: successMessage, type: "success" };
     } else {
-      return HandleErrorResponse(res);
+      return await HandleErrorResponse(res);
     }
   }

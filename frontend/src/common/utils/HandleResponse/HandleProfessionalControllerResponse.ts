@@ -6,6 +6,6 @@ export async function HandleProfessionalControllerResponse(res: Response): Promi
     const successMessage = `${resJson.message} Id: ${resJson.professional?.id}, Nombre: ${resJson.professional?.lastName} ${resJson.professional?.firstName}`;
     return { message: successMessage, type: "success" };
   } else {
-    return HandleErrorResponse(res);
+    return await HandleErrorResponse(res);
   }
 }

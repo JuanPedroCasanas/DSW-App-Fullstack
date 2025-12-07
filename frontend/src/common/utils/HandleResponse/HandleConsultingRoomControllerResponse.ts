@@ -6,6 +6,6 @@ export async function HandleConsultingRoomControllerResponse(res: Response): Pro
     const successMessage = `${resJson.message} Id: ${resJson.consultingRoom?.id}, Nombre: ${resJson.consultingRoom?.description}`;
     return { message: successMessage, type: "success" };
   } else {
-    return HandleErrorResponse(res);
+    return await HandleErrorResponse(res);
   }
 }

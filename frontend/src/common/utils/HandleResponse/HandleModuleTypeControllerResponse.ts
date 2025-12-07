@@ -6,6 +6,6 @@ export async function HandleModuleTypeControllerResponse(res: Response): Promise
     const successMessage = `${resJson.message} Id: ${resJson.moduleType?.id}, Nombre: ${resJson.moduleType?.name}`;
     return { message: successMessage, type: "success" };
   } else {
-    return HandleErrorResponse(res);
+    return await HandleErrorResponse(res);
   }
 }

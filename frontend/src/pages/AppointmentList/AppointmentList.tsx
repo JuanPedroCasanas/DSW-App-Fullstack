@@ -7,27 +7,27 @@ import {
   HandleProfessionalControllerResponse
 } from '@/common/utils';
 
-import {
-  Appointment,
-  HealthInsurance,
-  Professional,
-  Patient,
-  Filters,
-} from './appointmentList.types'; //esto se tiene que traer en realidad de '@/common/types'
-
 import { Toast, EmptyState, Table, PrimaryButton, Card, FilterBar, FormField } from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
+import {HealthInsurance, Patient, PopulatedAppointment, Professional } from '@/common/types';
 
+
+type Filters = {
+  patientId?: number;
+  professionalId?: number;
+  healthInsuranceId?: number;
+  date: string;
+};
 
 export default function AppointmentList() {
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [appointments, setAppointments] = useState<PopulatedAppointment[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [healthInsurances, setHealthInsurances] = useState<HealthInsurance[]>([]);
   const [filters, setFilters] = useState<Filters>({
-    patientId: '',
-    professionalId: '',
-    healthInsurance: '',
+    patientId: undefined,
+    professionalId: undefined,
+    healthInsuranceId: undefined,
     date: '',
   });
   const [loadingAppointments, setLoadingAppointments] = useState(false);
@@ -36,13 +36,21 @@ export default function AppointmentList() {
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   const handleFilterChange = (field: keyof Filters, value: string) => {
-    setFilters(prev => ({ ...prev, [field]: value }));
+    setFilters(prev => ({
+      ...prev,
+      [field]:
+        field === 'date'
+          ? value
+          : value === ''
+          ? undefined
+          : Number(value),
+    }));
   };
 
-  const fullName = (p: { firstName: string; lastName: string }) =>
+  const fullName = (p: Professional) =>
     `${p.firstName} ${p.lastName}`.trim();
 
-  const professionalName = (a: Appointment) =>
+  const professionalName = (a: PopulatedAppointment) =>
     `${a.professional?.firstName ?? ''} ${a.professional?.lastName ?? ''}`.trim();
 
   const getProfessionals = async (): Promise<Professional[] | undefined>  => {
@@ -87,7 +95,7 @@ export default function AppointmentList() {
     return Array.isArray(data) ? data.filter(h => h?.id != null) : [];
   };
 
-  const getScheduledAppointments = async (): Promise<Appointment[] | undefined> => {
+  const getScheduledAppointments = async (): Promise<PopulatedAppointment[] | undefined> => {
     const res = await fetch('http://localhost:2000/Appointment/getScheduledAppointments');
 
     if (!res.ok){
@@ -119,7 +127,7 @@ export default function AppointmentList() {
         setHealthInsurances(ins);
 
       } catch (error) {
-        console.error('Error loading filter data:', error);
+        setToast({message: 'Error al cargar los filtros', type: "error"});
       }
     };
 
@@ -149,15 +157,15 @@ export default function AppointmentList() {
 
   const filteredAppointments = useMemo(() => {
     return appointments.filter(a => {
-      const matchPatient = !filters.patientId || String(a.patient.id) === filters.patientId;
+      const matchPatient = !filters.patientId || a.patient?.id === filters.patientId;
 
       const matchProfessional =
-        !filters.professionalId || String(a.professional?.id) === filters.professionalId;
+        !filters.professionalId || a.professional?.id === filters.professionalId;
 
       const matchInsurance =
-        !filters.healthInsurance || String(a.healthInsurance.id) === filters.healthInsurance;
+        !filters.healthInsuranceId || a.healthInsurance?.id === filters.healthInsuranceId;
 
-      const matchDate = !filters.date || a.startTime.split("T")[0] === filters.date;
+      const matchDate = !filters.date || a.startTime?.split("T")[0] === filters.date;
 
       return matchPatient && matchProfessional && matchInsurance && matchDate;
     });
@@ -175,7 +183,7 @@ export default function AppointmentList() {
           <FormField label="Profesional" htmlFor="filter-professional">
             <select
               id="filter-professional"
-              value={filters.professionalId}
+              value={filters.professionalId ?? ''}
               onChange={(e) => handleFilterChange('professionalId', e.target.value)}
               className="border rounded-lg p-3 w-full focus:ring-2 focus:ring-cyan-500"
             >
@@ -194,7 +202,7 @@ export default function AppointmentList() {
           <FormField label="Paciente" htmlFor="filter-patient">
             <select
               id="filter-patient"
-              value={filters.patientId}
+              value={filters.patientId ?? ''}
               onChange={(e) => handleFilterChange('patientId', e.target.value)}
               className="border rounded-lg p-3 w-full focus:ring-2 focus:ring-cyan-500"
             >
@@ -213,13 +221,13 @@ export default function AppointmentList() {
           <FormField label="Obra social" htmlFor="filter-insurance">
             <select
               id="filter-insurance"
-              value={filters.healthInsurance}
-              onChange={(e) => handleFilterChange('healthInsurance', e.target.value)}
+              value={filters.healthInsuranceId ?? ''}
+              onChange={(e) => handleFilterChange('healthInsuranceId', e.target.value)}
               className="border rounded-lg p-3 w-full focus:ring-2 focus:ring-cyan-500"
             >
               <option value="">Todas</option>
               {healthInsurances
-                .sort((a, b) => a.name.localeCompare(b.name, 'es'))
+                .sort((a, b) => (a.name ?? '').localeCompare(b.name ?? '', 'es'))
                 .map((i) => (
                   <option key={`ins-${i.id}`} value={String(i.id)}>
                     {i.name}
@@ -246,9 +254,9 @@ export default function AppointmentList() {
                 className="border-cyan-600 text-cyan-600 hover:bg-gray-50"
                 onClick={() =>
                   setFilters({
-                    patientId: '',
-                    professionalId: '',
-                    healthInsurance: '',
+                    patientId: undefined,
+                    professionalId: undefined,
+                    healthInsuranceId: undefined,
                     date: '',
                   })
                 }
@@ -290,9 +298,9 @@ export default function AppointmentList() {
             size="sm"
             onClick={() =>
               setFilters({
-                patientId: '',
-                professionalId: '',
-                healthInsurance: '',
+                patientId: undefined,
+                professionalId: undefined,
+                healthInsuranceId: undefined,
                 date: '',
               })
             }
@@ -314,15 +322,15 @@ export default function AppointmentList() {
           ]}
         >
           {filteredAppointments
-            .sort((a, b) => a.startTime.localeCompare(b.startTime)) // orden por fecha/hora asc
+            .sort((a, b) => (a.startTime ?? '').localeCompare(b.startTime ?? '')) // orden por fecha/hora asc
             .map((a) => (
               <tr key={a.id} className="even:bg-gray-50 hover:bg-gray-100 transition">
-                <td className="px-4 py-3">{a.patient.firstName}</td>
-                <td className="px-4 py-3">{a.patient.lastName}</td>
-                <td className="px-4 py-3">{a.healthInsurance.name}</td>
+                <td className="px-4 py-3">{a.patient?.firstName}</td>
+                <td className="px-4 py-3">{a.patient?.lastName}</td>
+                <td className="px-4 py-3">{a.healthInsurance?.name}</td>
                 <td className="px-4 py-3">{professionalName(a)}</td>
-                <td className="px-4 py-3">{a.startTime.split('T')[0]}</td>
-                <td className="px-4 py-3">{a.startTime.split('T')[1]}</td>
+                <td className="px-4 py-3">{a.startTime?.split('T')[0]}</td>
+                <td className="px-4 py-3">{a.startTime?.split('T')[1]}</td>
               </tr>
             ))}
         </Table>

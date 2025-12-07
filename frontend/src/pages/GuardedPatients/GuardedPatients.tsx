@@ -8,8 +8,8 @@ import {
   HandlePatientControllerResponse,
   HandleLegalGuardianControllerResponse
 } from '@/common/utils';
+import { LegalGuardian, Patient } from "@/common/types";
 
-import { LegalGuardian, Patient } from "./guardedPatientsTypes"; // esto deberia venir de @/common/types
 
 
 // ---- Utils ----
@@ -264,7 +264,7 @@ export default function GuardedPatients() {
               onChange={(e) => setSelectedGuardianId(Number(e.target.value))}
             >
               {[...legalGuardians]
-                .sort((a, b) => a.id - b.id)
+                .sort((a, b) => (a.id ?? 0) - (b.id ?? 0))
                 .map((g) => (
                   <option key={g.id} value={g.id}>
                     {`Id: ${g.id}, ${g.lastName} ${g.firstName}`}
@@ -298,13 +298,13 @@ export default function GuardedPatients() {
           <Card>
             <Table headers={["Nombre", "Apellido", "Fecha de nacimiento", "Acciones"]}>
               {[...patients]
-                .sort((a, b) => a.firstName.localeCompare(b.firstName, "es", { sensitivity: "base" }))
+                .sort((a, b) => (a.firstName ?? '').localeCompare(b.firstName ?? '', "es", { sensitivity: "base" }))
                 .map((p) => (
                   <tr key={p.id} className="even:bg-gray-50 hover:bg-gray-100 transition">
                     <td className="px-4 py-3">{p.firstName}</td>
                     <td className="px-4 py-3">{p.lastName}</td>
                     <td className="px-4 py-3">
-                      {formatDate(p.birthdate.split("T")[0])}
+                      {formatDate(p.birthdate ?? ''.split("T")[0])}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-2 justify-center">

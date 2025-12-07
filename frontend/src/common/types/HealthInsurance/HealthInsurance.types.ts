@@ -1,5 +1,5 @@
 export type HealthInsurance = {
-  id: string;
-  name: string;
-  isActive: boolean;
+  id?: number;
+  name?: string;
+  isActive?: boolean;
 };

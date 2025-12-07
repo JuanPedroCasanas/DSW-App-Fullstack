@@ -1,5 +1,5 @@
 export type ConsultingRoom = {
-    id: string;
-    description: string,
+    id?: number;
+    description?: string,
     isActive?: boolean
 }

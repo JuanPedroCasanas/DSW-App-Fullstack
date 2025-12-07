@@ -8,15 +8,15 @@ export enum UserRole {
 }
 
 export type User = {
-  id: number;
+  id?: number;
 
-  mail: string;
+  mail?: string;
 
-  password: string; // uyyyy sabes el 1 que nos clava joel si ve esto... 
+  password?: string;  
 
-  isActive: boolean;
+  isActive?: boolean;
 
-  role: UserRole; // este probablemente desaparezca en cuanto tengamos roles
+  role?: UserRole; // este probablemente desaparezca en cuanto tengamos roles
 
   professional?: Professional;
 

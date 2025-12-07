@@ -6,6 +6,6 @@ export async function HandleUserControllerResponse(res: Response): Promise<{ mes
     const successMessage = `${resJson.message} Id: ${resJson.user?.id}, Email: ${resJson.user?.mail}, Rol: ${resJson.user?.role}`;
     return { message: successMessage, type: "success" };
   } else {
-    return HandleErrorResponse(res);
+    return await HandleErrorResponse(res);
   }
 }
