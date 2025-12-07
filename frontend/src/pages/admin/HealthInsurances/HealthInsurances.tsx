@@ -1,27 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 
-import { HealthInsurance } from "./healthInsurancesTypes";
+import { HealthInsurance } from "@/common/types";
 
 import { Toast, EmptyState, Modal, Table, SummaryList, ActionGrid, PrimaryButton, FormField, Card } from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
 
-//Genera un toast para las respuestas del backend
-async function handleResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
-  const resJson = await res.json().catch(() => ({}));
-
-  if (res.ok) {
-    const successMessage = `${resJson.message} Id: ${resJson.healthInsurance?.id}, Nombre: ${resJson.healthInsurance?.name}`;
-    return { message: successMessage, type: "success" };
-  } else {
-    if (res.status === 500 || res.status === 400) {
-      return { message: resJson.message ?? "Error interno del servidor", type: "error" };
-    } else {
-      const errorMessage = `Error: ${resJson.error} Codigo: ${resJson.code} ${resJson.message}`
-      return { message: errorMessage.trim(), type: "error" };
-    }
-  }
-}
-
+import { HandleHealthInsuranceControllerResponse  } from "@/common/utils";
 
 /* ---- Utils  ---- */
 //const uid = () => Math.random().toString(36).slice(2, 10);
@@ -48,7 +32,7 @@ export default function HealthInsurances() {
       const res = await fetch("http://localhost:2000/HealthInsurance/getAll");
 
       if (!res.ok){
-        const toastData = await handleResponse(res);
+        const toastData = await HandleHealthInsuranceControllerResponse(res);
         setToast(toastData);
       } else {
         const data: HealthInsurance[] = await res.json();
@@ -95,7 +79,7 @@ export default function HealthInsurances() {
           body: JSON.stringify({ name: (addForm.name ?? "").trim() }),
         });
 
-        const toastData = await handleResponse(res);
+        const toastData = await HandleHealthInsuranceControllerResponse(res);
         setToast(toastData);
       
         // Recargar
@@ -158,7 +142,7 @@ export default function HealthInsurances() {
         prev.map((h) => (h.id === editTarget.id ? { ...h, name: payload.name } : h))
       ); 
 
-      const toastData = await handleResponse(res);
+      const toastData = await HandleHealthInsuranceControllerResponse(res);
       setToast(toastData);
 
       closeEdit();
@@ -185,7 +169,7 @@ export default function HealthInsurances() {
         const data: HealthInsurance[] = await resGet.json();
         setItems(data);
 
-        const toastData = await handleResponse(res);
+        const toastData = await HandleHealthInsuranceControllerResponse(res);
         setToast(toastData);
 
       setDeleteTarget(null);

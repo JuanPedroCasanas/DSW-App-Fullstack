@@ -3,32 +3,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Toast, EmptyState, Modal, Table, SummaryList, ActionGrid, PrimaryButton, FormField, Card } from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
 
-
-/** Modelo simple: viene del backend
- * Esto hay que migrarlo a un model types!
- */
-type ConsultingRoom = {
-  id: string;
-  description: string;
-  isActive: boolean;
-};
-
-//Genera un toast para las respuestas del backend
-async function handleResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
-  const resJson = await res.json().catch(() => ({}));
-
-  if (res.ok) {
-    const successMessage = `${resJson.message} Id: ${resJson.consultingRoom?.id}, Nombre: ${resJson.consultingRoom?.description}`;
-    return { message: successMessage, type: "success" };
-  } else {
-    if (res.status === 500 || res.status === 400) {
-      return { message: resJson.message ?? "Error interno del servidor", type: "error" };
-    } else {
-      const errorMessage = `Error: ${resJson.error} Codigo: ${resJson.code} ${resJson.message}`
-      return { message: errorMessage.trim(), type: "error" };
-    }
-  }
-}
+import { HandleConsultingRoomControllerResponse } from "@/common/utils";
+import { ConsultingRoom } from "@/common/types";
 
 /* ---- Utils ---- */
 //const uid = () => Math.random().toString(36).slice(2, 10);
@@ -54,7 +30,7 @@ export default function ConsultingRooms() {
        const res = await fetch("http://localhost:2000/ConsultingRoom/getAll");
 
       if (!res.ok){
-        const toastData = await handleResponse(res);
+        const toastData = await HandleConsultingRoomControllerResponse(res);
         setToast(toastData);
       } else {
         const data: ConsultingRoom[] = await res.json();
@@ -108,7 +84,7 @@ export default function ConsultingRooms() {
           body: JSON.stringify(nuevo),
         });
 
-        const toastData = await handleResponse(res);
+        const toastData = await HandleConsultingRoomControllerResponse(res);
         setToast(toastData);
       
         // Recargar
@@ -176,7 +152,7 @@ export default function ConsultingRooms() {
         prev.map((c) => (c.id === editTarget.id ? { ...c, description: payload.description } : c))
       ); 
 
-      const toastData = await handleResponse(res);
+      const toastData = await HandleConsultingRoomControllerResponse(res);
       setToast(toastData);
 
       closeEdit();
@@ -204,7 +180,7 @@ export default function ConsultingRooms() {
         const data: ConsultingRoom[] = await resGet.json();
         setRooms(data);
 
-        const toastData = await handleResponse(res);
+        const toastData = await HandleConsultingRoomControllerResponse(res);
         setToast(toastData);
 
       setDeleteTarget(null);

@@ -14,10 +14,17 @@ import {
   getLocalDateISOFromStart,
   Patient,
 } from './appointmentSchedule.types';
+
+import { HandleAppointmentControllerResponse, 
+  HandleOccupationControllerResponse, 
+  HandleProfessionalControllerResponse } from '@/common/utils';
+
 import { AppointmentScheduleForm } from './AppointmentScheduleForm';
 
 //Genera un toast para las respuestas del backend
-async function handleResponse(res: Response): Promise<{ message: string; type: 'success' | 'error' }> {
+ // HandleAppointmentControllerResponse.ts
+ // NO LO VOY A BORRAR HASTA VERIFICAR QUE FUNCIONA EL IMPORT !!!!
+/*async function handleResponse(res: Response): Promise<{ message: string; type: 'success' | 'error' }> {
   const resJson = await res.json().catch(() => ({}));
 
   if (res.ok) {
@@ -37,7 +44,7 @@ async function handleResponse(res: Response): Promise<{ message: string; type: '
       return { message: errorMessage.trim(), type: 'error' };
     }
   }
-}
+}  */
 
 export default function AppointmentSchedule() {
   // para el manejo de errores
@@ -85,7 +92,8 @@ export default function AppointmentSchedule() {
         setLoadingPatients(true);
         const res = await fetch(`http://localhost:2000/Patient/getAll`, { method: 'GET' });
         if (!res.ok) {
-          const toastData = await handleResponse(res);
+          // deberia ser HandlePatientControllerResponse pero se va a ir esto en cuanto tengamos roles
+          const toastData = await HandleAppointmentControllerResponse(res);
           if (!cancelled) setToast(toastData);
           return;
         }
@@ -122,7 +130,7 @@ export default function AppointmentSchedule() {
         setLoadingMeta(true);
         const res = await fetch(`http://localhost:2000/Occupation/getAll`, { method: 'GET' });
         if (!res.ok) {
-          const toastData = await handleResponse(res);
+          const toastData = await HandleOccupationControllerResponse(res);
           if (!cancelled) setToast(toastData);
           return;
         }
@@ -158,7 +166,7 @@ export default function AppointmentSchedule() {
           { method: 'GET' },
         );
         if (!res.ok) {
-          const toastData = await handleResponse(res);
+          const toastData = await HandleProfessionalControllerResponse(res);
           if (!cancelled) setToast(toastData);
           return;
         }
@@ -197,7 +205,7 @@ export default function AppointmentSchedule() {
         });
 
         if (!res.ok) {
-          const toastData = await handleResponse(res);
+          const toastData = await HandleAppointmentControllerResponse(res);
           if (!cancelled) setToast(toastData);
           return;
         }
@@ -332,7 +340,7 @@ export default function AppointmentSchedule() {
       });
 
       // Mostrar toast SIEMPRE con el resultado
-      const toastData = await handleResponse(res);
+      const toastData = await HandleAppointmentControllerResponse(res);
       setToast(toastData);
 
       if (!res.ok) {
@@ -358,7 +366,7 @@ export default function AppointmentSchedule() {
 
           setAppointments(inMonth);
         } else {
-          const td = await handleResponse(resAll);
+          const td = await HandleAppointmentControllerResponse(resAll);
           setToast(td);
         }
       } catch {

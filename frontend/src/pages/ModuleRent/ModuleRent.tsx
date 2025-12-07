@@ -7,6 +7,8 @@ import { Toast,PrimaryButton, FormField, Card, FilterBar,
  } from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
 
+import { HandleModuleControllerResponse } from "@/common/utils";
+
 const DAYS: DayKey[] = ["lun", "mar", "mie", "jue", "vie", "sab"];
 const DAY_LABELS: Record<DayKey, string> = {
   lun: "Lunes", mar: "Martes", mie: "Miércoles", jue: "Jueves", vie: "Viernes", sab: "Sábado",
@@ -162,26 +164,6 @@ export default function ModuleRent() {
 
   const isSelectable = (s:SlotState) => s==="available";
 
-  async function handleResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
-    const resJson = await res.json().catch(() => ({}));
-
-    if (res.ok) {
-      const successMessage = `${resJson.message} Hora inicio modulos: ${resJson.modules[0].startTime}, 
-        Hora Fin modulos: ${resJson.modules[resJson.modules.length - 1].endTime}, 
-        Profesional: ${resJson.modules[0].professional.lastName} ${resJson.modules[0].professional.firstName},
-        Consultorio: ${resJson.modules[0].consultingRoom.description}`;
-      return { message: successMessage, type: "success" };
-    } else {
-      if (res.status === 500 || res.status === 400) {
-        return { message: resJson.message ?? "Error interno del servidor", type: "error" };
-      } else {
-        const errorMessage = `Error: ${resJson.error} Codigo: ${resJson.code} ${resJson.message}`
-      
-        return { message: errorMessage.trim(), type: "error" };
-      }
-    }
-  }
-
   const onConfirm = async () => {
     if(!selected.size) return;
 
@@ -212,7 +194,7 @@ export default function ModuleRent() {
         body: JSON.stringify(payload)
       });
       
-      const toastData = await handleResponse(res);
+      const toastData = await HandleModuleControllerResponse(res);
       
       setToast(toastData);
       

@@ -5,6 +5,12 @@ import  {HealthInsurance, Professional} from "./ProfessionalHealthInsurancesType
 import { Toast, EmptyState, Table, PrimaryButton, Card, FilterBar, FormField, Modal, DialogActions, SummaryList } from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
 
+import {
+  HandleProfessionalControllerResponse,
+  HandleHealthInsuranceControllerResponse,
+
+} from '@/common/utils';
+
 const validateHealthInsurance = (p: Partial<HealthInsurance>) => {
   const errors: Record<string, string> = {};
   if (!p.name?.trim()) errors.nombre = "Nombre obligatorio.";
@@ -13,39 +19,6 @@ const validateHealthInsurance = (p: Partial<HealthInsurance>) => {
 
 const sameJSON = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
- // export default function HealthInsuranceProfessional() {
-
-async function handleProfessionalControllerResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
-  const resJson = await res.json().catch(() => ({}));
-
-  if (res.ok) {
-    const successMessage = `${resJson.message} Id: ${resJson.professional?.id}, Nombre: ${resJson.professional?.firstName}${resJson.professional?.lastName} `;
-    return { message: successMessage, type: "success" };
-  } else {
-    if (res.status === 500 || res.status === 400) {
-      return { message: resJson.message ?? "Error interno del servidor", type: "error" };
-    } else {
-      const errorMessage = `Error: ${resJson.error} Codigo: ${resJson.code} ${resJson.message}`
-      return { message: errorMessage.trim(), type: "error" };
-    }
-  }
-}
-
-async function handleHealthInsuranceControllerResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
-  const resJson = await res.json().catch(() => ({}));
-
-  if (res.ok) {
-    const successMessage = `${resJson.message} Id: ${resJson.healthInsurance?.id}, Nombre: ${resJson.healthInsurance.name} `;
-    return { message: successMessage, type: "success" };
-  } else {
-    if (res.status === 500 || res.status === 400) {
-      return { message: resJson.message ?? "Error interno del servidor", type: "error" };
-    } else {
-      const errorMessage = `Error: ${resJson.error} Codigo: ${resJson.code} ${resJson.message}`
-      return { message: errorMessage.trim(), type: "error" };
-    }
-  }
-}
 
 export default function HealthInsurancesByProfessional(){
   const [selectedProfessionalHealthInsurances, setSelectedProfessionalHealthInsurances] = useState<HealthInsurance[] | null>([]);
@@ -72,7 +45,7 @@ export default function HealthInsurancesByProfessional(){
     (async () => {
       const res = await fetch ("http://localhost:2000/Professional/getAllWithHealthInsurances?includeInactive=false");
     if (!res.ok){
-      const toastData = await handleProfessionalControllerResponse(res);
+      const toastData = await HandleProfessionalControllerResponse(res);
       setToast(toastData);
     }else{
       const data: Professional[]=await res.json();
@@ -97,7 +70,7 @@ export default function HealthInsurancesByProfessional(){
       (async () => {
         const res = await fetch (`http://localhost:2000/HealthInsurance/getAll?includeInactive=false`);
         if (!res.ok){
-          const toastData = await handleHealthInsuranceControllerResponse(res);
+          const toastData = await HandleHealthInsuranceControllerResponse(res);
           setToast(toastData);
         } else {
           const data: HealthInsurance[] = await res.json();
@@ -177,7 +150,7 @@ export default function HealthInsurancesByProfessional(){
       }
     }
     closeAdd()
-    const toastData = await handleProfessionalControllerResponse(res);
+    const toastData = await HandleProfessionalControllerResponse(res);
     setToast(toastData);
   };
  
@@ -217,7 +190,7 @@ export default function HealthInsurancesByProfessional(){
     }
       closeDelete();
       setDeleteTarget(null);
-      const toastData= await handleProfessionalControllerResponse(res);
+      const toastData= await HandleProfessionalControllerResponse(res);
       setToast(toastData);
   };
   

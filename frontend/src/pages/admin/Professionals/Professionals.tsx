@@ -4,22 +4,7 @@ import { Professional } from "./professionalTypes";
 import { Toast, EmptyState, Modal, Table, DialogActions, PrimaryButton, Card } from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
 
-//Genera un toast para las respuestas del backend
-async function handleResponse(res: Response): Promise<{ message: string; type: "success" | "error" }> {
-  const resJson = await res.json().catch(() => ({}));
-
-  if (res.ok) {
-    const successMessage = `${resJson.message} Id: ${resJson.professional?.id}, Apellido y nombre: ${resJson.professional?.lastName} ${resJson.professional?.firstName}`;
-    return { message: successMessage, type: "success" };
-  } else {
-    if (res.status === 500 || res.status === 400) {
-      return { message: resJson.message ?? "Error interno del servidor", type: "error" };
-    } else {
-      const errorMessage = `Error: ${resJson.error} Codigo: ${resJson.code} ${resJson.message}`
-      return { message: errorMessage.trim(), type: "error" };
-    }
-  }
-}
+import { HandleProfessionalControllerResponse } from "@/common/utils";
 
 
 /* ---- Utils ---- */
@@ -38,7 +23,7 @@ export default function Professionals() {
        const res = await fetch("http://localhost:2000/Professional/getAll");
 
       if (!res.ok){
-        const toastData = await handleResponse(res);
+        const toastData = await HandleProfessionalControllerResponse(res);
         setToast(toastData);
       } else {
         const data: Professional[] = await res.json();
@@ -68,7 +53,7 @@ export default function Professionals() {
         const data: Professional[] = await resGet.json();
         setList(data); 
 
-        const toastData = await handleResponse(res);
+        const toastData = await HandleProfessionalControllerResponse(res);
         setToast(toastData);
 
       setDeleteTarget(null);
