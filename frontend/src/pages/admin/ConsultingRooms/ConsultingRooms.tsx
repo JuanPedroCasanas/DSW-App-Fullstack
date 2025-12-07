@@ -241,33 +241,36 @@ export default function ConsultingRooms() {
       <>
       <Card>
         <Table headers={["ID", "Descripción", "Activo", "Acciones"]}>
-          {rooms.map((r) => (
-            <tr key={r.id} className="even:bg-gray-50 hover:bg-gray-100 transition">
-              <td className="px-4 py-3">{r.id}</td>
-              <td className="px-4 py-3">{r.description}</td>
-              <td className="px-4 py-3">{r.isActive ? "Sí" : "No"}</td>
-              <td className="px-4 py-3">
-                <div className="flex gap-2">
-                  <PrimaryButton
-                    variant="outline"
-                    size="sm"
-                    className="text-gray-700 border-gray-300 hover:bg-gray-50"
-                    onClick={() => openEdit(r)}
-                  >
-                    Editar
-                  </PrimaryButton>
-                  <PrimaryButton
-                    variant="danger"
-                    size="sm"
-                    className="bg-red-600 text-white hover:bg-red-700"
-                    onClick={() => openDelete(r)}
-                  >
-                    Eliminar
-                  </PrimaryButton>
-                </div>
-              </td>
-            </tr>
-          ))}
+          {rooms
+            .slice() // no muta rooms original
+            .sort((a, b) => (a.id ?? Number.MAX_SAFE_INTEGER) - (b.id ?? Number.MAX_SAFE_INTEGER))
+            .map((r) => (
+              <tr key={r.id} className="even:bg-gray-50 hover:bg-gray-100 transition">
+                <td className="px-4 py-3">{r.id}</td>
+                <td className="px-4 py-3">{r.description}</td>
+                <td className="px-4 py-3">{r.isActive ? "Sí" : "No"}</td>
+                <td className="px-4 py-3">
+                  <div className="flex gap-2">
+                    <PrimaryButton
+                      variant="outline"
+                      size="sm"
+                      className="text-gray-700 border-gray-300 hover:bg-gray-50"
+                      onClick={() => openEdit(r)}
+                    >
+                      Editar
+                    </PrimaryButton>
+                    <PrimaryButton
+                      variant="danger"
+                      size="sm"
+                      className="bg-red-600 text-white hover:bg-red-700"
+                      onClick={() => openDelete(r)}
+                    >
+                      Eliminar
+                    </PrimaryButton>
+                  </div>
+                </td>
+              </tr>
+            ))}
         </Table>
       </Card>
 

@@ -304,7 +304,7 @@ export default function GuardedPatients() {
                     <td className="px-4 py-3">{p.firstName}</td>
                     <td className="px-4 py-3">{p.lastName}</td>
                     <td className="px-4 py-3">
-                      {formatDate(p.birthdate ?? ''.split("T")[0])}
+                      {(p.birthdate ?? '').split('T')[0] || ''}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-2 justify-center">

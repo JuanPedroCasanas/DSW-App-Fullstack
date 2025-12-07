@@ -114,8 +114,8 @@ export default function HealthInsurancesByProfessional(){
     }
   };
 
-  const handleAddContinue = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleAddContinue = () => {
+    console.log("hola que llega?");
     setAddStep("confirm");
   };
 
@@ -335,7 +335,7 @@ export default function HealthInsurancesByProfessional(){
                 <PrimaryButton variant="outline" onClick={tryCloseAdd}>
                   Cancelar
                 </PrimaryButton>
-                <PrimaryButton onClick={() => handleAddContinue}>Continuar</PrimaryButton>
+                <PrimaryButton onClick={handleAddContinue}>Continuar</PrimaryButton>
               </DialogActions>
             </>
           ) : (
