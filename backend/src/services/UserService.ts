@@ -63,6 +63,7 @@ export class UserService {
         try {
             payload = jwt.verify(refreshToken, REFRESH_SECRET) as { idUser: number };
         } catch (error: any) {
+            console.error("Salio mal");
             
             if (error.name === 'TokenExpiredError') {
                 throw new ExpiredTokenError();

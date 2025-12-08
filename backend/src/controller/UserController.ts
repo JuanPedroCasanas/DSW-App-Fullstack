@@ -24,7 +24,7 @@ export class UserController {
             res.cookie('refreshToken', result.refreshToken, {
                 httpOnly: true,
                 secure: false,
-                sameSite: 'strict',
+                sameSite: 'lax',
                 maxAge: REFRESH_MAX_AGE
             });
 
@@ -63,7 +63,7 @@ export class UserController {
             res.clearCookie('refreshToken', {
                 httpOnly: true,
                 secure: false, //Para usar HTTP en vez e HTTPS, no es buena práctica pero no nos parece algo estricto en este TP
-                sameSite: 'strict',
+                sameSite: 'lax',
             });
 
             console.error(error);
@@ -80,7 +80,7 @@ export class UserController {
             res.clearCookie('refreshToken', {
                 httpOnly: true,
                 secure: false, //Para usar HTTP en vez e HTTPS, no es buena práctica pero no nos parece algo estricto en este TP
-                sameSite: 'strict',
+                sameSite: 'lax',
             });
 
             return res.status(200).json({ message: 'Logout exitoso' });

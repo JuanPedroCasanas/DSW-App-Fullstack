@@ -8,7 +8,7 @@ export default function About() {
         
         {/* Columna izquierda: imagen */}
         <img
-          src={`${import.meta.env.BASE_URL}NarrativasBanner.PNG`}
+          src={`${import.meta.env.VITE_API_BASE_URL}NarrativasBanner.PNG`}
           alt="Banner Narrativas"
           className="w-full aspect-square object-cover rounded-xl bg-white shadow-md"
         />

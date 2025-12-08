@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { authFetch } from "./AuthFetch";
 import { setAccessToken } from "./TokenStorage";
 import { API_BASE } from '@/lib/api';
 
@@ -17,12 +16,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     (async () => {
       try {
-        const res = await authFetch(`${API_BASE}/user/refresh`);
-
-        if (!res.ok) throw new Error();
+        const res = await fetch(`${API_BASE}/user/refresh`, {
+          method: "POST",
+          credentials: "include",
+        });
+        
+        if (!res.ok) {
+          throw new Error();
+        } 
 
         const data = await res.json();
-
         setAccessToken(data.accessToken);
         setUser(data.user);
       } catch {
