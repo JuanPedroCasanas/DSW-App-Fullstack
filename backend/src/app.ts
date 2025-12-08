@@ -46,13 +46,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 
 app.use(cors({
-    origin: 'http://localhost:3000', // <--- MUY IMPORTANTE! Usa el puerto de Vite.
+    origin: `${process.env.FRONTEND_URL}:${process.env.FRONTEND_PORT}`, // <--- MUY IMPORTANTE! Usa el puerto de Vite.
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
     credentials: true, // permite enviar credenciales en cookies, se usara para regularidad
     allowedHeaders: ['Content-Type', 'Authorization'], // Encabezados permitidos
 }));
 
-const port = process.env.PORT || 2000; //puse para que el puerto del back sea 2000 aunque no se que tan bien este
+const port = process.env.BACKEND_PORT || 2000; //puse para que el puerto del back sea 2000 aunque no se que tan bien este
 
 app.use((req: Request, res: Response, next: NextFunction) => {
     RequestContext.create(getORM().em, next);

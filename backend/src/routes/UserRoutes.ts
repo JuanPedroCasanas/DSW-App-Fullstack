@@ -47,8 +47,8 @@ router.get('/get/:id', UserController.getOne);
 
 router.post('/updatePassword', validate(updatePasswordSchema), UserController.updatePassword);
 
-router.post('/refresh', validate(refreshTokenSchema), UserController.refresh);
-router.delete('/logout', UserController.logout);
+router.get('/refresh', validate(refreshTokenSchema), UserController.refresh);
+router.get('/logout', UserController.logout);
 
 /* Protected asi quedarian al final, ademas de checkear roles
 router.get('/users', auth, (req, res) => UserController.getAll(req, res));

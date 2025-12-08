@@ -65,10 +65,8 @@ useEffect(() => {
     }
 
     const data = await res.json();
-    console.log(data);
     setAccessToken(data.accessToken);
     setUser(data.user);
-    console.log(getAccessToken);
 
     
     const name = data.name;

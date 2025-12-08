@@ -25,7 +25,7 @@ export async function authFetch(
   }
 
   const refreshRes = await fetch(`${API_BASE}/User/refresh`, {
-    method: 'POST',
+    method: 'GET',
     credentials: 'include'
   });
 
@@ -33,6 +33,8 @@ export async function authFetch(
     clearAccessToken(); //Limpio los tokens viejos
     return res; //Para que lo muestre el toast
   }
+
+  console.log(refreshRes);
 
   const { accessToken } = await refreshRes.json();
   setAccessToken(accessToken);

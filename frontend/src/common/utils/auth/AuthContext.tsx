@@ -17,7 +17,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     (async () => {
       try {
         const res = await fetch(`${API_BASE}/User/refresh`, {
-          method: "POST",
+          method: "GET",
           credentials: "include",
         });
         

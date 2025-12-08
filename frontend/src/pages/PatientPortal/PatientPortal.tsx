@@ -1,5 +1,6 @@
 import { ActionGrid, NavButton} from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
+import { useAuth } from "@/common/utils/auth/AuthContext";
 
 
 export default function PatientPortal() {

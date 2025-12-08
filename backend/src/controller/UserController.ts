@@ -24,7 +24,7 @@ export class UserController {
             res.cookie('refreshToken', result.refreshToken, {
                 httpOnly: true,
                 secure: false,
-                sameSite: 'lax',
+                sameSite: 'none',
                 maxAge: REFRESH_MAX_AGE
             });
 
@@ -44,12 +44,14 @@ export class UserController {
 
     static async refresh(req: Request, res: Response) {
         try {
-            const refreshToken = req.cookies?.refreshToken;
+                     const refreshToken = req.cookies?.refreshToken;
+
 
             const result = await UserService.refresh(refreshToken);
 
             if (!result) {
                 //Safeguard por las dudas, no debería entrar nunca en este bloque
+                console.error("NO HAY TOKEN");
                 throw new InvalidTokenError();
             }
 
@@ -59,14 +61,13 @@ export class UserController {
             });
 
         } catch (error) {
+            console.error("Error en refresh:", error);
             //Limpio token vencido/corrupto
             res.clearCookie('refreshToken', {
                 httpOnly: true,
                 secure: false, //Para usar HTTP en vez e HTTPS, no es buena práctica pero no nos parece algo estricto en este TP
-                sameSite: 'lax',
+                sameSite: 'none',
             });
-
-            console.error(error);
             if (error instanceof BaseHttpError) {
                 return res.status(error.status).json(error.toJSON());
             }
@@ -80,11 +81,12 @@ export class UserController {
             res.clearCookie('refreshToken', {
                 httpOnly: true,
                 secure: false, //Para usar HTTP en vez e HTTPS, no es buena práctica pero no nos parece algo estricto en este TP
-                sameSite: 'lax',
+                sameSite: 'none',
             });
 
             return res.status(200).json({ message: 'Logout exitoso' });
         } catch (err: any) {
+            
             console.error(err);
             return res.status(500).json({ message: "Error al intentar hacer un logout" });
         }
