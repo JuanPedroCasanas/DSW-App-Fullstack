@@ -11,6 +11,7 @@ import {
   HandleHealthInsuranceControllerResponse,
 } from '@/common/utils';
 import { HealthInsurance, Occupation } from "@/common/types";
+import { API_BASE } from '@/lib/api';
 
 type Role = "Paciente" | "Profesional" | "Responsable Legal" | "";
 
@@ -46,7 +47,7 @@ const [form, setForm] = useState<{
 
   useEffect(() => {
     const fetchOccupations = async () => {
-      const res = await fetch("http://localhost:2000/Occupation/getAll");
+      const res = await fetch(`${API_BASE}/Occupation/getAll`);
       if (!res.ok){
         const toastData = await HandleOccupationControllerResponse(res);
         setToast(toastData);
@@ -60,7 +61,7 @@ const [form, setForm] = useState<{
     }
 
     const fetchHealthInsurances = async () => {
-      const res = await fetch("http://localhost:2000/HealthInsurance/getAll?includeInactive=false");
+      const res = await fetch(`${API_BASE}/HealthInsurance/getAll?includeInactive=false`);
       if (!res.ok){
         const toastData = await HandleHealthInsuranceControllerResponse(res);
         setToast(toastData);
@@ -169,7 +170,7 @@ const [form, setForm] = useState<{
             setIsLoading(false);
             return;
         }
-        endpoint = 'http://localhost:2000/Patient/addIndPatient';
+        endpoint = `${API_BASE}/Patient/addIndPatient`;
         dataToSend = {...dataToSend, idHealthInsurance: selectedHealthInsuranceId }; 
     }
 
@@ -180,7 +181,7 @@ const [form, setForm] = useState<{
             setIsLoading(false);
             return;
         }
-        endpoint = 'http://localhost:2000/Professional/add'; 
+        endpoint = `${API_BASE}/Professional/add`; 
         dataToSend = {...dataToSend, idOccupation: selectedOccupationId };
     }
     
@@ -197,7 +198,7 @@ const [form, setForm] = useState<{
         dataToSend = {...dataToSend, idHealthInsurance: selectedHealthInsuranceId }; 
 
         // Definir los dos endpoints
-        endpoint = 'http://localhost:2000/LegalGuardian/add'; // 1ra petición
+        endpoint = `${API_BASE}/LegalGuardian/add`; // 1ra petición
 
     } else {
         setMessage("Rol no válido.");

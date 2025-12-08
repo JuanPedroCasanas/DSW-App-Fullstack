@@ -1,4 +1,5 @@
 import { clearAccessToken, getAccessToken, setAccessToken } from "./TokenStorage"
+import { API_BASE } from '@/lib/api';
 
 export async function authFetch(
   input: RequestInfo,
@@ -23,7 +24,7 @@ export async function authFetch(
     return res
   }
 
-  const refreshRes = await fetch('https://localhost:2000/auth/refresh', {
+  const refreshRes = await fetch(`${API_BASE}/user/refresh`, {
     method: 'POST',
     credentials: 'include'
   });

@@ -18,31 +18,7 @@ import { HandleAppointmentControllerResponse,
 import { AppointmentScheduleForm } from './AppointmentScheduleForm';
 import { Appointment, Occupation, Patient, Professional } from '@/common/types';
 import { authFetch } from '@/common/utils/auth/AuthFetch';
-
-//Genera un toast para las respuestas del backend
- // HandleAppointmentControllerResponse.ts
- // NO LO VOY A BORRAR HASTA VERIFICAR QUE FUNCIONA EL IMPORT !!!!
-/*async function handleResponse(res: Response): Promise<{ message: string; type: 'success' | 'error' }> {
-  const resJson = await res.json().catch(() => ({}));
-
-  if (res.ok) {
-    const successMessage =
-      `${resJson.message ?? 'Operación exitosa'}` +
-      (resJson.consultingRoom
-        ? ` Id: ${resJson.consultingRoom?.id}, Nombre: ${resJson.consultingRoom?.description}`
-        : resJson.appointment
-        ? ` Turno: ${resJson.appointment?.id ?? ''}`
-        : '');
-    return { message: successMessage.trim(), type: 'success' };
-  } else {
-    if (res.status === 500 || res.status === 400) {
-      return { message: resJson.message ?? 'Error interno del servidor', type: 'error' };
-    } else {
-      const errorMessage = `Error: ${resJson.error ?? ''} Codigo: ${resJson.code ?? ''} ${resJson.message ?? ''}`;
-      return { message: errorMessage.trim(), type: 'error' };
-    }
-  }
-}  */
+import { API_BASE } from '@/lib/api';
 
 export default function AppointmentSchedule() {
   // para el manejo de errores
@@ -88,7 +64,7 @@ export default function AppointmentSchedule() {
     (async () => {
       try {
         setLoadingPatients(true);
-        const res = await authFetch(`http://localhost:2000/Patient/getAll`, { method: 'GET' });
+        const res = await authFetch(`${API_BASE}/Patient/getAll`, { method: 'GET' });
         if (!res.ok) {
           // deberia ser HandlePatientControllerResponse pero se va a ir esto en cuanto tengamos roles
           const toastData = await HandleAppointmentControllerResponse(res);
@@ -126,7 +102,7 @@ export default function AppointmentSchedule() {
     (async () => {
       try {
         setLoadingMeta(true);
-        const res = await authFetch(`http://localhost:2000/Occupation/getAll`, { method: 'GET' });
+        const res = await authFetch(`${API_BASE}/Occupation/getAll`, { method: 'GET' });
         if (!res.ok) {
           const toastData = await HandleOccupationControllerResponse(res);
           if (!cancelled) setToast(toastData);
@@ -160,7 +136,7 @@ export default function AppointmentSchedule() {
       try {
         setLoadingProfessionals(true);
         const res = await authFetch(
-          `http://localhost:2000/Professional/getProfessionalsByOccupation/${encodeURIComponent(String(selectedOccupationId))}?includeInactive=false`,
+          `${API_BASE}/Professional/getProfessionalsByOccupation/${encodeURIComponent(String(selectedOccupationId))}?includeInactive=false`,
           { method: 'GET' },
         );
         if (!res.ok) {
@@ -198,7 +174,7 @@ export default function AppointmentSchedule() {
         setError(null);
         setLoadingMonth(true);
 
-        const res = await authFetch(`http://localhost:2000/Appointment/getAvailableAppointmentsByProfessional/${selectedProfessionalId}`, { 
+        const res = await authFetch(`${API_BASE}/Appointment/getAvailableAppointmentsByProfessional/${selectedProfessionalId}`, { 
           method: 'GET' 
         });
 
@@ -331,7 +307,7 @@ export default function AppointmentSchedule() {
         return;
       }
 
-      const res = await authFetch(`http://localhost:2000/Appointment/assign`, {
+      const res = await authFetch(`${API_BASE}/Appointment/assign`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -346,7 +322,7 @@ export default function AppointmentSchedule() {
         return;
       }
       try {
-        const resAll = await authFetch(`http://localhost:2000/Appointment/getAll`, { method: 'GET' });
+        const resAll = await authFetch(`${API_BASE}/Appointment/getAll`, { method: 'GET' });
         if (resAll.ok) {
           const all: Appointment[] = await resAll.json();
 

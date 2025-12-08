@@ -7,6 +7,8 @@ import { HandleConsultingRoomControllerResponse } from "@/common/utils";
 import { ConsultingRoom } from "@/common/types";
 import { authFetch } from "@/common/utils/auth/AuthFetch";
 
+import { API_BASE } from '@/lib/api';
+
 /* ---- Utils ---- */
 //const uid = () => Math.random().toString(36).slice(2, 10);
 const sameJSON = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
@@ -27,8 +29,7 @@ export default function ConsultingRooms() {
   // para ver todos los consultorios
    useEffect(() => {
    (async () => {
- 
-       const res = await authFetch("http://localhost:2000/ConsultingRoom/getAll");
+       const res = await authFetch(`${API_BASE}/ConsultingRoom/getAll`);
 
       if (!res.ok){
         const toastData = await HandleConsultingRoomControllerResponse(res);
@@ -79,7 +80,7 @@ export default function ConsultingRooms() {
           description: (addForm.description ?? "").trim(),
         };
 
-        const res = await authFetch("http://localhost:2000/ConsultingRoom/add", {
+        const res = await authFetch(`${API_BASE}/ConsultingRoom/add`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(nuevo),
@@ -89,7 +90,7 @@ export default function ConsultingRooms() {
         setToast(toastData);
       
         // Recargar
-        const resGet = await authFetch("http://localhost:2000/ConsultingRoom/getAll");
+        const resGet = await authFetch(`${API_BASE}/ConsultingRoom/getAll`);
         const data: ConsultingRoom[] = await resGet.json();
         setRooms(data);
 
@@ -142,7 +143,7 @@ export default function ConsultingRooms() {
         isActive: editTarget.isActive,
       };
 
-      const res = await authFetch("http://localhost:2000/ConsultingRoom/update", {
+      const res = await authFetch(`${API_BASE}/ConsultingRoom/update`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -171,13 +172,13 @@ export default function ConsultingRooms() {
     (async () => {
         // http://localhost:2000/ConsultingRoom/delete/${deleteTarget.idConsultingRoom}`
         const res = await authFetch(
-          `http://localhost:2000/ConsultingRoom/delete/${deleteTarget.id}`, 
+          `${API_BASE}/ConsultingRoom/delete/${deleteTarget.id}`, 
           {
             method: "DELETE",
         });
 
       // Recargar
-        const resGet = await authFetch("http://localhost:2000/ConsultingRoom/getAll");
+        const resGet = await authFetch(`${API_BASE}/ConsultingRoom/getAll`);
         const data: ConsultingRoom[] = await resGet.json();
         setRooms(data);
 

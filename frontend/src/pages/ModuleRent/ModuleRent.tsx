@@ -8,6 +8,7 @@ import { Page, SectionHeader } from "@/components/Layout";
 import { HandleModuleControllerResponse, HandleConsultingRoomControllerResponse, HandleProfessionalControllerResponse } from "@/common/utils";
 import { ConsultingRoom, Professional } from "@/common/types";
 import { authFetch } from "@/common/utils/auth/AuthFetch";
+import { API_BASE } from '@/lib/api';
 
 
 type DayKey = "lun" | "mar" | "mie" | "jue" | "vie" | "sab";
@@ -67,7 +68,7 @@ export default function ModuleRent() {
   // === cargar consultorios ===
   useEffect(() => {
     const fetchConsultingRooms = async () => {
-      const res = await authFetch("http://localhost:2000/ConsultingRoom/getAll?includeInactive=false");
+      const res = await authFetch(`${API_BASE}/ConsultingRoom/getAll?includeInactive=false`);
 
       if(!res.ok) {
         const toastData = await HandleConsultingRoomControllerResponse(res);
@@ -86,7 +87,7 @@ export default function ModuleRent() {
   useEffect(() => {
     const fetchProfessionals = async () => {
       try {
-        const res = await authFetch("http://localhost:2000/Professional/getAll?includeInactive=false");
+        const res = await authFetch(`${API_BASE}/Professional/getAll?includeInactive=false`);
 
         if(!res.ok) {
           const toastData = await HandleProfessionalControllerResponse(res);
@@ -120,7 +121,7 @@ export default function ModuleRent() {
   const fetchModules = async () => {
     if (consultingRoomId == null || selectedProfessionalId == null) return;
       try {
-        const res = await authFetch(`http://localhost:2000/Module/getCurrentMonthModulesByConsultingRoom/${consultingRoomId}`);
+        const res = await authFetch(`${API_BASE}/Module/getCurrentMonthModulesByConsultingRoom/${consultingRoomId}`);
 
         if(!res.ok) {
           const toastData = await HandleModuleControllerResponse(res);
@@ -218,7 +219,7 @@ export default function ModuleRent() {
     };
 
     try {
-      const res = await authFetch("http://localhost:2000/Module/add",{
+      const res = await authFetch(`${API_BASE}/Module/add`,{
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body: JSON.stringify(payload)

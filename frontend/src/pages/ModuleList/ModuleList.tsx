@@ -10,6 +10,7 @@ import { HandleConsultingRoomControllerResponse,
 
 import type { ConsultingRoom, Module, Professional } from '@/common/types';
 import { authFetch } from '@/common/utils/auth/AuthFetch';
+import { API_BASE } from '@/lib/api';
 
 
 // todos los meses -> para pasarlo a una descripcion (en vez de numero)
@@ -63,7 +64,7 @@ export default function ModuleList() {
   };
 
   const getModules = async (): Promise<Module[] | undefined> => {
-    const res = await authFetch('http://localhost:2000/Module/getAll');
+    const res = await authFetch(`${API_BASE}/Module/getAll`);
     if (!res.ok) {
       const toastData = await HandleModuleControllerResponse(res);
       setToast(toastData);
@@ -74,7 +75,7 @@ export default function ModuleList() {
   };
 
   const getProfessionals = async (): Promise<Professional[] | undefined> => {
-    const res = await authFetch('http://localhost:2000/Professional/getAll');
+    const res = await authFetch(`${API_BASE}/Professional/getAll`);
     if (!res.ok) {
       const toastData = await HandleProfessionalControllerResponse(res);
       setToast(toastData);
@@ -85,7 +86,7 @@ export default function ModuleList() {
   };
 
   const getConsultingRooms = async (): Promise<ConsultingRoom[] | undefined> => {
-    const res = await authFetch('http://localhost:2000/ConsultingRoom/getAll');
+    const res = await authFetch(`${API_BASE}/ConsultingRoom/getAll`);
     if (!res.ok) {
       const toastData = await HandleConsultingRoomControllerResponse(res);
       setToast(toastData);
@@ -95,25 +96,12 @@ export default function ModuleList() {
     return Array.isArray(data) ? (data as ConsultingRoom[]).filter((c) => c?.id != null) : [];
   };
 
-    // ESTE NO ANDA ME DI CUENTA QUE NO TIENE CONTROLADOR NI RUTAS...
-  /*const getModuleTypes = async (): Promise<ModuleType[] | undefined> => {
-    const res = await authFetch('http://localhost:2000/ModuleType/getAll');
-    if (!res.ok) {
-      const toastData = await handleModuleTypeControllerResponse(res);
-      setToast(toastData);
-      return;
-    }
-    const data: ModuleType[] = await res.json();
-    return Array.isArray(data) ? (data as ModuleType[]).filter((t) => t?.id != null) : [];
-  }; */
-
   const loadData = async () => {
     setLoading(true);
     try {
       const mods = await getModules(); 
       const crooms = await getConsultingRooms();
       const profs = await getProfessionals();
-      //const mtypes = await getModuleTypes();
 
       if (!mods || !crooms || !profs){
         return;
@@ -122,8 +110,6 @@ export default function ModuleList() {
       if (mods) setModules(mods);
       if (crooms) setConsultingRooms(crooms);
       if (profs) setProfessionals(profs);
-
-      //if (mtypes) setModuleTypes(mtypes);
       
     } catch (err) {
       console.error('Error loading data:', err);

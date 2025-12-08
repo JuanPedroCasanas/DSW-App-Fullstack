@@ -10,7 +10,7 @@ import {
 } from '@/common/utils';
 import { LegalGuardian, Patient } from "@/common/types";
 import { authFetch } from "@/common/utils/auth/AuthFetch";
-
+import { API_BASE } from '@/lib/api';
 
 
 // ---- Utils ----
@@ -51,7 +51,7 @@ export default function GuardedPatients() {
   //Carga desplegable
   useEffect(() => {
     (async () => {
-      const res = await authFetch("http://localhost:2000/LegalGuardian/getAll?includeInactive=true");
+      const res = await authFetch(`${API_BASE}/LegalGuardian/getAll?includeInactive=true`);
       if (!res.ok){
         const toastData = await HandleLegalGuardianControllerResponse(res);
         setToast(toastData);
@@ -69,7 +69,7 @@ export default function GuardedPatients() {
   useEffect(() => {
      if (!selectedGuardianId) return;
      (async () => {
-         const res = await authFetch(`http://localhost:2000/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=false`);
+         const res = await authFetch(`${API_BASE}/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=false`);
   
         if (!res.ok){
           const toastData = await HandlePatientControllerResponse(res);
@@ -115,14 +115,14 @@ export default function GuardedPatients() {
       idLegalGuardian: selectedGuardianId,
     };
 
-    const res = await authFetch("http://localhost:2000/Patient/addDepPatient", {
+    const res = await authFetch(`${API_BASE}/Patient/addDepPatient`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
     if(res.ok) {
-      const resGet = await authFetch(`http://localhost:2000/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=true`);
+      const resGet = await authFetch(`${API_BASE}/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=true`);
       const data: Patient[] = await resGet.json();
       setPatients(data); 
     }
@@ -180,14 +180,14 @@ export default function GuardedPatients() {
     };
 
 
-    const res = await authFetch("http://localhost:2000/Patient/updateDepPatient", {
+    const res = await authFetch(`${API_BASE}/Patient/updateDepPatient`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
     if (res.ok) {
-      const resGet = await authFetch(`http://localhost:2000/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=true`);
+      const resGet = await authFetch(`${API_BASE}/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=true`);
       const data: Patient[] = await resGet.json();
       setPatients(data); 
     }
@@ -204,14 +204,14 @@ export default function GuardedPatients() {
     if (!deleteTarget) return; 
 
     const res = await authFetch(
-              `http://localhost:2000/Patient/delete/${deleteTarget.id}`, 
+              `${API_BASE}/Patient/delete/${deleteTarget.id}`, 
               {
                 method: "DELETE",
             });
 
     // Recargar
     if(res.ok) {
-      const resGet = await authFetch(`http://localhost:2000/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=true`);
+      const resGet = await authFetch(`${API_BASE}/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=true`);
       const data: Patient[] = await resGet.json();
       setPatients(data); 
       

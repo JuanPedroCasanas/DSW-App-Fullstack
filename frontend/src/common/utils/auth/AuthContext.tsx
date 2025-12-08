@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { authFetch } from "./AuthFetch";
 import { setAccessToken } from "./TokenStorage";
+import { API_BASE } from '@/lib/api';
 
 type AuthContextType = {
   user: any | null;
@@ -16,7 +17,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     (async () => {
       try {
-        const res = await authFetch("https://localhost:2000/user/refresh");
+        const res = await authFetch(`${API_BASE}/user/refresh`);
 
         if (!res.ok) throw new Error();
 

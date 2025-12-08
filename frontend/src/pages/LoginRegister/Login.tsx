@@ -10,13 +10,15 @@ import { setAccessToken } from "@/common/utils/auth/TokenStorage";
 import { HandleErrorResponse } from "@/common/utils";
 import { useAuth } from "@/common/utils/auth/AuthContext";
 
+import { API_BASE } from '@/lib/api';
+
 export default function Login() {
   const [datos, setDatos] = useState({
     mail: "",
     password: "",
     isActive: true,
   });
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
   const [remember, setRemember] = useState(false);
   const [showPwd, setShowPwd] = useState(false);
   const eyeIconUrl = new URL("./eyeicon.png", import.meta.url).href; //Pasar a componente
@@ -48,7 +50,7 @@ useEffect(() => {
         return}; 
     try {
 
-    const res = await fetch("http://localhost:2000/User/login", {
+    const res = await fetch(`${API_BASE}/User/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(datos),

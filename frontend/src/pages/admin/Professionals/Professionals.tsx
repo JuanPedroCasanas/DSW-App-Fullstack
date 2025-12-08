@@ -7,6 +7,8 @@ import { Page, SectionHeader } from "@/components/Layout";
 import { HandleProfessionalControllerResponse } from "@/common/utils";
 import { authFetch } from "@/common/utils/auth/AuthFetch";
 
+import { API_BASE } from '@/lib/api';
+
 
 /* ---- Utils ---- */
 
@@ -21,7 +23,7 @@ export default function Professionals() {
    useEffect(() => {
    (async () => {
  
-       const res = await authFetch("http://localhost:2000/Professional/getAll");
+       const res = await authFetch(`${API_BASE}/Professional/getAll`);
 
       if (!res.ok){
         const toastData = await HandleProfessionalControllerResponse(res);
@@ -44,13 +46,13 @@ export default function Professionals() {
     if (!deleteTarget) return;
     (async () => {
         const res = await authFetch(
-          `http://localhost:2000/Professional/delete/${deleteTarget.id}`, 
+          `${API_BASE}/Professional/delete/${deleteTarget.id}`, 
           {
             method: "DELETE",
         });
 
       // Recargar
-        const resGet = await authFetch("http://localhost:2000/Professional/getAll");
+        const resGet = await authFetch(`${API_BASE}/Professional/getAll`);
         const data: Professional[] = await resGet.json();
         setList(data); 
 

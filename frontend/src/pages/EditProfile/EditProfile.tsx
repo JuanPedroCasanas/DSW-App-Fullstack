@@ -14,6 +14,7 @@ import {
 
 import { HealthInsurance, User } from "@/common/types";
 import { authFetch } from "@/common/utils/auth/AuthFetch";
+import { API_BASE } from '@/lib/api';
 
 
 export default function EditProfile() {
@@ -54,7 +55,7 @@ export default function EditProfile() {
   useEffect(() => {
     (async () => {
   
-        const res = await authFetch("http://localhost:2000/HealthInsurance/getAll?includeInactive=false");
+        const res = await authFetch(`${API_BASE}/HealthInsurance/getAll?includeInactive=false`);
   
         if (!res.ok){
           const toastData = await HandleErrorResponse(res);
@@ -71,7 +72,7 @@ export default function EditProfile() {
   //Popular Usuarios (En AD Se sacaran estos datos del user logueado)
   useEffect(() => {
     (async () => {
-        const res = await authFetch("http://localhost:2000/User/getAll?includeInactive=false");
+        const res = await authFetch(`${API_BASE}/User/getAll?includeInactive=false`);
   
         if (!res.ok){
           const toastData = await HandleErrorResponse(res);
@@ -133,7 +134,7 @@ export default function EditProfile() {
           newPassword: confirmPwd,
     }
 
-    const res = await authFetch(`http://localhost:2000/User/updatePassword`, {
+    const res = await authFetch(`${API_BASE}/User/updatePassword`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -197,7 +198,7 @@ export default function EditProfile() {
     if(!route) {
       return
     }
-    const res = await authFetch(`http://localhost:2000${route}`, {
+    const res = await authFetch(`${API_BASE}${route}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -262,7 +263,7 @@ export default function EditProfile() {
     if(!route) {
       return
     }
-    const res = await authFetch(`http://localhost:2000${route}/${id}`, {
+    const res = await authFetch(`${API_BASE}${route}/${id}`, {
       method: "DELETE"
     });
 

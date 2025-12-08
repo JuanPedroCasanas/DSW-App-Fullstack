@@ -12,6 +12,8 @@ import { Page, SectionHeader } from "@/components/Layout";
 import {HealthInsurance, Patient, PopulatedAppointment, Professional } from '@/common/types';
 import { authFetch } from '@/common/utils/auth/AuthFetch';
 
+import { API_BASE } from '@/lib/api';
+
 
 type Filters = {
   patientId?: number;
@@ -55,7 +57,7 @@ export default function AppointmentList() {
     `${a.professional?.firstName ?? ''} ${a.professional?.lastName ?? ''}`.trim();
 
   const getProfessionals = async (): Promise<Professional[] | undefined>  => {
-    const res = await authFetch('http://localhost:2000/Professional/getAll');
+    const res = await authFetch(`${API_BASE}/Professional/getAll`);
 
     if (!res.ok){
       const toastData = await HandleProfessionalControllerResponse(res);
@@ -69,7 +71,7 @@ export default function AppointmentList() {
   };
 
   const getPatients = async (): Promise<Patient[] | undefined> => {
-    const res = await authFetch('http://localhost:2000/Patient/getAll');
+    const res = await authFetch(`${API_BASE}/Patient/getAll`);
 
     if (!res.ok){
       const toastData = await HandlePatientControllerResponse(res);
@@ -82,7 +84,7 @@ export default function AppointmentList() {
   };
 
   const getHealthInsurances = async (): Promise<HealthInsurance[] | undefined> => {
-    const res = await authFetch('http://localhost:2000/HealthInsurance/getAll');
+    const res = await authFetch(`${API_BASE}/HealthInsurance/getAll`);
 
     if (!res.ok){
       const toastData = await HandleHealthInsuranceControllerResponse(res);
@@ -97,7 +99,7 @@ export default function AppointmentList() {
   };
 
   const getScheduledAppointments = async (): Promise<PopulatedAppointment[] | undefined> => {
-    const res = await authFetch('http://localhost:2000/Appointment/getScheduledAppointments');
+    const res = await authFetch(`${API_BASE}/Appointment/getScheduledAppointments`);
 
     if (!res.ok){
       const toastData = await HandleAppointmentControllerResponse(res);

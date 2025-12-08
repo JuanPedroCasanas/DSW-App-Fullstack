@@ -7,6 +7,8 @@ import type { Occupation } from '@/common/types';
 import { HandleOccupationControllerResponse } from '@/common/utils/';
 import { authFetch } from "@/common/utils/auth/AuthFetch";
 
+import { API_BASE } from '@/lib/api';
+
 
 /* ---- Utils ---- */
 const sameJSON = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
@@ -28,7 +30,7 @@ export default function Occupations() {
    useEffect(() => {
    (async () => {
  
-       const res = await authFetch("http://localhost:2000/Occupation/getAll");
+       const res = await authFetch(`${API_BASE}/Occupation/getAll`);
 
       // if (!res.ok) throw new Error("Error al cargar obras sociales"); deberia ir al error del backend
       if (!res.ok){
@@ -70,7 +72,7 @@ export default function Occupations() {
 
   const handleAddConfirm = () => {
   (async () => {
-    const res = await authFetch("http://localhost:2000/Occupation/add", {
+    const res = await authFetch(`${API_BASE}/Occupation/add`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: (addForm.name ?? "").trim() }),
@@ -80,7 +82,7 @@ export default function Occupations() {
     setToast(toastData);
   
     // Recargar
-    const resGet = await authFetch("http://localhost:2000/Occupation/getAll");
+    const resGet = await authFetch(`${API_BASE}/Occupation/getAll`);
     const data: Occupation[] = await resGet.json();
     setItems(data);
 
@@ -129,7 +131,7 @@ export default function Occupations() {
           name: (editForm.name ?? "").trim() 
         };
 
-      const res = await authFetch("http://localhost:2000/Occupation/update", {
+      const res = await authFetch(`${API_BASE}/Occupation/update`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -158,13 +160,13 @@ export default function Occupations() {
     (async () => {
         
         const res = await authFetch(
-          `http://localhost:2000/Occupation/delete/${deleteTarget.id}`, 
+          `${API_BASE}/Occupation/delete/${deleteTarget.id}`, 
           {
             method: "DELETE",
         });
 
       // Recargar
-        const resGet = await authFetch("http://localhost:2000/Occupation/getAll");
+        const resGet = await authFetch(`${API_BASE}/Occupation/getAll`);
         const data: Occupation[] = await resGet.json();
         setItems(data);
 
