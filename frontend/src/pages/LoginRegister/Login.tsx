@@ -6,6 +6,9 @@ import { NavLink } from "react-router-dom";
 
 import { Toast, FormField,  InputPassword } from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
+import { setAccessToken } from "@/common/utils/auth/TokenStorage";
+import { HandleErrorResponse } from "@/common/utils";
+import { useAuth } from "@/common/utils/auth/AuthContext";
 
 export default function Login() {
   const [datos, setDatos] = useState({
@@ -18,6 +21,7 @@ export default function Login() {
   const [showPwd, setShowPwd] = useState(false);
   const eyeIconUrl = new URL("./eyeicon.png", import.meta.url).href; //Pasar a componente
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const { setUser } = useAuth();
 
 useEffect(() => {
     const toastData = (navigate as any).location?.state?.toastMessage;
@@ -43,17 +47,23 @@ useEffect(() => {
         setToast(toastData); 
         return}; 
     try {
+
     const res = await fetch("http://localhost:2000/User/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(datos),
     });
 
-    const data = await res.json();
     if (!res.ok) {
-      const toastData = { message: data.message || "Mail o contraseña incorrecto", type: "error" as const };
+      const toastData = await HandleErrorResponse(res); //Use este, crear un handleResponse de user
       setToast(toastData);
-      return;}
+      return;
+    }
+
+    const data = await res.json();
+
+    setAccessToken(data.accessToken);
+    setUser(data.user);
     
     const name = data.name;
     console.log('Nombre usado para el toast:', name);

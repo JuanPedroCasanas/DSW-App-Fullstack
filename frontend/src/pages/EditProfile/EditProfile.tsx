@@ -12,8 +12,8 @@ import {
   HandleUserControllerResponse
 } from '@/common/utils';
 
-import { User } from "../LoginRegister/loginRegisterTypes"; // este deberia estar en el import de abajo de @/common/types
-import { HealthInsurance } from "@/common/types";
+import { HealthInsurance, User } from "@/common/types";
+import { authFetch } from "@/common/utils/auth/AuthFetch";
 
 
 export default function EditProfile() {
@@ -33,16 +33,16 @@ export default function EditProfile() {
   const [showNewConfirmPassword, setShowNewConfirmPassword] = useState(false);
 
   // ----- Estado: perfil -----
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [birthdate, setBirthdate] = useState("");
-  const [telephone, setTelephone] = useState("");
+  const [firstName, setFirstName] = useState<string | undefined>("");
+  const [lastName, setLastName] = useState<string | undefined>("");
+  const [birthdate, setBirthdate] = useState<string | undefined>("");
+  const [telephone, setTelephone] = useState<string | undefined>("");
 
   //Especialidad
   const [occupationName, setOccupationName] = useState("");
   //OS
   const [healthInsurances, setHealthInsurances] = useState<HealthInsurance[]>([]);
-  const [selectedHealthInsuranceId, setSelectedHealthInsuranceId] = useState<number | null>(null);
+  const [selectedHealthInsuranceId, setSelectedHealthInsuranceId] = useState<number | undefined>(undefined);
 
   //Toast
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
@@ -54,7 +54,7 @@ export default function EditProfile() {
   useEffect(() => {
     (async () => {
   
-        const res = await fetch("http://localhost:2000/HealthInsurance/getAll?includeInactive=false");
+        const res = await authFetch("http://localhost:2000/HealthInsurance/getAll?includeInactive=false");
   
         if (!res.ok){
           const toastData = await HandleErrorResponse(res);
@@ -71,7 +71,7 @@ export default function EditProfile() {
   //Popular Usuarios (En AD Se sacaran estos datos del user logueado)
   useEffect(() => {
     (async () => {
-        const res = await fetch("http://localhost:2000/User/getAll?includeInactive=false");
+        const res = await authFetch("http://localhost:2000/User/getAll?includeInactive=false");
   
         if (!res.ok){
           const toastData = await HandleErrorResponse(res);
@@ -90,7 +90,7 @@ export default function EditProfile() {
       setFirstName("");
       setLastName("");
       setTelephone("");
-      setSelectedHealthInsuranceId(null);
+      setSelectedHealthInsuranceId(undefined);
       return;
     }
 
@@ -105,7 +105,7 @@ export default function EditProfile() {
       setFirstName(selectedUser.legalGuardian.firstName);
       setLastName(selectedUser.legalGuardian.lastName);
       setTelephone(selectedUser.legalGuardian.telephone);
-      setBirthdate(selectedUser.legalGuardian.birthdate.split("T")[0] || "");
+      setBirthdate(selectedUser.legalGuardian.birthdate?.split("T")[0] || "");
       setSelectedHealthInsuranceId(selectedUser.legalGuardian.healthInsurance);
     } else if (selectedUser.professional) {
       setFirstName(selectedUser.professional.firstName);
@@ -113,7 +113,7 @@ export default function EditProfile() {
       setTelephone(selectedUser.professional.telephone || "");
       setOccupationName(selectedUser.professional.occupation?.name || "");
       // Para profesionales no aplicaría healthInsurance
-      setSelectedHealthInsuranceId(null);
+      setSelectedHealthInsuranceId(undefined);
     }
   }, [selectedUser]);
 
@@ -133,7 +133,7 @@ export default function EditProfile() {
           newPassword: confirmPwd,
     }
 
-    const res = await fetch(`http://localhost:2000/User/updatePassword`, {
+    const res = await authFetch(`http://localhost:2000/User/updatePassword`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -164,7 +164,7 @@ export default function EditProfile() {
           firstName: (firstName ?? "").trim(),
           lastName: (lastName ?? "").trim(),
           telephone: (telephone ?? "").trim(),
-          idHealthInsurance: null as number | null,
+          idHealthInsurance: undefined as number | undefined,
           birthdate: "",
           idProfessional: undefined as number | undefined,
           idPatient: undefined as number | undefined,
@@ -197,7 +197,7 @@ export default function EditProfile() {
     if(!route) {
       return
     }
-    const res = await fetch(`http://localhost:2000${route}`, {
+    const res = await authFetch(`http://localhost:2000${route}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -262,7 +262,7 @@ export default function EditProfile() {
     if(!route) {
       return
     }
-    const res = await fetch(`http://localhost:2000${route}/${id}`, {
+    const res = await authFetch(`http://localhost:2000${route}/${id}`, {
       method: "DELETE"
     });
 

@@ -1,10 +1,12 @@
 import { Request, Response } from 'express';
 import { UserService } from '../services/UserService';
-import { BaseHttpError, ExpiredTokenError, InvalidPasswordError, InvalidTokenError } from '../model/errors/BaseHttpError';
-import { safeSerialize } from '../utils/helpers/safeSerialize';
+import { BaseHttpError, InvalidPasswordError, InvalidTokenError } from '../utils/errors/BaseHttpError';
+
+const REFRESH_MAX_AGE = 7 * 24 * 60 * 60 * 1000; //Es la edad maxima de la COOKIE, no el refresh token en si
 
 export class UserController {
 
+    //No hace falta safeSerialize porque trabajo con un DTO
     static async login(req: Request, res: Response) {
         try {
             const { mail, password } = req.body;
@@ -23,11 +25,11 @@ export class UserController {
                 httpOnly: true,
                 secure: false,
                 sameSite: 'strict',
-                maxAge: 7 * 24 * 60 * 60 * 1000,
+                maxAge: REFRESH_MAX_AGE
             });
 
-            return res.json({
-                user: safeSerialize(result.user),
+            return res.status(200).json({
+                user: result.userDto,
                 accessToken: result.accessToken,
             });
 
@@ -51,12 +53,19 @@ export class UserController {
                 throw new InvalidTokenError();
             }
 
-            return res.json({
-                user: safeSerialize(result.user),
+            return res.status(200).json({
+                user: result.userDto,
                 accessToken: result.accessToken,
             });
 
         } catch (error) {
+            //Limpio token vencido/corrupto
+            res.clearCookie('refreshToken', {
+                httpOnly: true,
+                secure: false, //Para usar HTTP en vez e HTTPS, no es buena práctica pero no nos parece algo estricto en este TP
+                sameSite: 'strict',
+            });
+
             console.error(error);
             if (error instanceof BaseHttpError) {
                 return res.status(error.status).json(error.toJSON());
@@ -66,16 +75,18 @@ export class UserController {
     }
 
     static async logout(req: Request, res: Response) {
+        
         try {
             res.clearCookie('refreshToken', {
                 httpOnly: true,
-                secure: false,
+                secure: false, //Para usar HTTP en vez e HTTPS, no es buena práctica pero no nos parece algo estricto en este TP
                 sameSite: 'strict',
             });
 
-            return res.json({ message: 'Logout exitoso' });
+            return res.status(200).json({ message: 'Logout exitoso' });
         } catch (err: any) {
-            return res.status(500).json({ error: err.message });
+            console.error(err);
+            return res.status(500).json({ message: "Error al intentar hacer un logout" });
         }
     }
 
@@ -93,9 +104,9 @@ export class UserController {
                 throw new InvalidPasswordError("La contraseña actual ingresada no es valida")
             }
 
-            return res.json({
+            return res.status(200).json({
                 message: 'Contraseña cambiada exitosamente para: ',
-                user: safeSerialize(result),
+                user: result,
             });
 
         } catch (error) {
@@ -115,7 +126,7 @@ export class UserController {
 
         try {
             const users = await UserService.getAll(includeInactive);
-            return res.status(200).json(safeSerialize(users));
+            return res.status(200).json(users);
         } catch {
             return res.status(500).json({ message: 'Error buscar usuarios' });
         }
@@ -130,7 +141,7 @@ export class UserController {
 
         try {
             const user = await UserService.getOne(idUser);
-            return res.status(200).json(safeSerialize(user));
+            return res.status(200).json(user);
         } catch (error) {
             console.error(error);
             if (error instanceof BaseHttpError) {

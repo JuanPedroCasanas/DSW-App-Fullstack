@@ -2,14 +2,14 @@ import { getORM } from '../orm/db';
 import { Appointment } from '../model/entities/Appointment';
 import { Patient } from '../model/entities/Patient';
 import { Professional } from '../model/entities/Professional';
-import { AppointmentStatus } from '../model/enums/AppointmentStatus';
+import { AppointmentStatus } from '../utils/enums/AppointmentStatus';
 import {
     AppointmentNotAvailableError,
     BaseHttpError,
     InvalidParameterError,
     InvalidStatusChangeError,
     NotFoundError
-} from '../model/errors/BaseHttpError';
+} from '../utils/errors/BaseHttpError';
 
 export class AppointmentService {
 

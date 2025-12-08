@@ -3,8 +3,8 @@ import { LegalGuardian } from '../model/entities/LegalGuardian';
 import { HealthInsurance } from '../model/entities/HealthInsurance';
 import { User } from '../model/entities/User';
 import { createUserData } from '../utils/helpers/createUserData';
-import { BaseHttpError, NotFoundError } from '../model/errors/BaseHttpError';
-import { AppointmentStatus } from '../model/enums/AppointmentStatus';
+import { BaseHttpError, NotFoundError } from '../utils/errors/BaseHttpError';
+import { AppointmentStatus } from '../utils/enums/AppointmentStatus';
 
 export class LegalGuardianService {
 

@@ -3,8 +3,8 @@ import { Patient } from '../model/entities/Patient';
 import { LegalGuardian } from '../model/entities/LegalGuardian';
 import { HealthInsurance } from '../model/entities/HealthInsurance';
 import { createUserData } from '../utils/helpers/createUserData';
-import { NotFoundError } from '../model/errors/BaseHttpError';
-import { AppointmentStatus } from '../model/enums/AppointmentStatus';
+import { NotFoundError } from '../utils/errors/BaseHttpError';
+import { AppointmentStatus } from '../utils/enums/AppointmentStatus';
 
 export class PatientService {
 

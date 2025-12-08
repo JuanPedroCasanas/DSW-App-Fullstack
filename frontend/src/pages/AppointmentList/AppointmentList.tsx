@@ -10,6 +10,7 @@ import {
 import { Toast, EmptyState, Table, PrimaryButton, Card, FilterBar, FormField } from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
 import {HealthInsurance, Patient, PopulatedAppointment, Professional } from '@/common/types';
+import { authFetch } from '@/common/utils/auth/AuthFetch';
 
 
 type Filters = {
@@ -54,7 +55,7 @@ export default function AppointmentList() {
     `${a.professional?.firstName ?? ''} ${a.professional?.lastName ?? ''}`.trim();
 
   const getProfessionals = async (): Promise<Professional[] | undefined>  => {
-    const res = await fetch('http://localhost:2000/Professional/getAll');
+    const res = await authFetch('http://localhost:2000/Professional/getAll');
 
     if (!res.ok){
       const toastData = await HandleProfessionalControllerResponse(res);
@@ -68,7 +69,7 @@ export default function AppointmentList() {
   };
 
   const getPatients = async (): Promise<Patient[] | undefined> => {
-    const res = await fetch('http://localhost:2000/Patient/getAll');
+    const res = await authFetch('http://localhost:2000/Patient/getAll');
 
     if (!res.ok){
       const toastData = await HandlePatientControllerResponse(res);
@@ -81,7 +82,7 @@ export default function AppointmentList() {
   };
 
   const getHealthInsurances = async (): Promise<HealthInsurance[] | undefined> => {
-    const res = await fetch('http://localhost:2000/HealthInsurance/getAll');
+    const res = await authFetch('http://localhost:2000/HealthInsurance/getAll');
 
     if (!res.ok){
       const toastData = await HandleHealthInsuranceControllerResponse(res);
@@ -96,7 +97,7 @@ export default function AppointmentList() {
   };
 
   const getScheduledAppointments = async (): Promise<PopulatedAppointment[] | undefined> => {
-    const res = await fetch('http://localhost:2000/Appointment/getScheduledAppointments');
+    const res = await authFetch('http://localhost:2000/Appointment/getScheduledAppointments');
 
     if (!res.ok){
       const toastData = await HandleAppointmentControllerResponse(res);

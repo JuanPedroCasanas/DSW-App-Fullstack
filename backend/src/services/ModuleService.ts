@@ -4,10 +4,10 @@ import { Professional } from '../model/entities/Professional';
 import { ConsultingRoom } from '../model/entities/ConsultingRoom';
 import { ModuleType } from '../model/entities/ModuleType';
 import { Appointment } from '../model/entities/Appointment';
-import { AppointmentStatus } from '../model/enums/AppointmentStatus';
-import { ModuleStatus } from '../model/enums/ModuleStatus';
-import { DayOfWeek } from '../model/enums/DayOfWeek';
-import { BaseHttpError, ModuleScheduleConflictError, NotConfiguredError, NotFoundError } from '../model/errors/BaseHttpError';
+import { AppointmentStatus } from '../utils/enums/AppointmentStatus';
+import { ModuleStatus } from '../utils/enums/ModuleStatus';
+import { DayOfWeek } from '../utils/enums/DayOfWeek';
+import { BaseHttpError, ModuleScheduleConflictError, NotConfiguredError, NotFoundError } from '../utils/errors/BaseHttpError';
 
 export default class ModuleService {
 

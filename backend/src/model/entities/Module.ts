@@ -2,8 +2,8 @@ import { Entity, PrimaryKey, Property, ManyToOne, Enum, OneToMany, Collection} f
 import { Professional } from './Professional';
 import { ConsultingRoom } from './ConsultingRoom';
 import { ModuleType } from './ModuleType';
-import { DayOfWeek } from '../enums/DayOfWeek';
-import { ModuleStatus } from '../enums/ModuleStatus';
+import { DayOfWeek } from '../../utils/enums/DayOfWeek';
+import { ModuleStatus } from '../../utils/enums/ModuleStatus';
 import { Appointment } from './Appointment';
 
 @Entity()

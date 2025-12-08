@@ -3,7 +3,7 @@ import { OneToOne } from '@mikro-orm/core';
 import { LegalGuardian } from './LegalGuardian';
 import { Patient } from './Patient';
 import { Professional } from './Professional';
-import { UserRole } from '../enums/UserRole';
+import { UserRole } from '../../utils/enums/UserRole';
 
 @Entity()
 export class User {

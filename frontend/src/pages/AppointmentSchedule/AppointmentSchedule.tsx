@@ -17,6 +17,7 @@ import { HandleAppointmentControllerResponse,
 
 import { AppointmentScheduleForm } from './AppointmentScheduleForm';
 import { Appointment, Occupation, Patient, Professional } from '@/common/types';
+import { authFetch } from '@/common/utils/auth/AuthFetch';
 
 //Genera un toast para las respuestas del backend
  // HandleAppointmentControllerResponse.ts
@@ -87,7 +88,7 @@ export default function AppointmentSchedule() {
     (async () => {
       try {
         setLoadingPatients(true);
-        const res = await fetch(`http://localhost:2000/Patient/getAll`, { method: 'GET' });
+        const res = await authFetch(`http://localhost:2000/Patient/getAll`, { method: 'GET' });
         if (!res.ok) {
           // deberia ser HandlePatientControllerResponse pero se va a ir esto en cuanto tengamos roles
           const toastData = await HandleAppointmentControllerResponse(res);
@@ -125,7 +126,7 @@ export default function AppointmentSchedule() {
     (async () => {
       try {
         setLoadingMeta(true);
-        const res = await fetch(`http://localhost:2000/Occupation/getAll`, { method: 'GET' });
+        const res = await authFetch(`http://localhost:2000/Occupation/getAll`, { method: 'GET' });
         if (!res.ok) {
           const toastData = await HandleOccupationControllerResponse(res);
           if (!cancelled) setToast(toastData);
@@ -158,7 +159,7 @@ export default function AppointmentSchedule() {
     (async () => {
       try {
         setLoadingProfessionals(true);
-        const res = await fetch(
+        const res = await authFetch(
           `http://localhost:2000/Professional/getProfessionalsByOccupation/${encodeURIComponent(String(selectedOccupationId))}?includeInactive=false`,
           { method: 'GET' },
         );
@@ -197,7 +198,7 @@ export default function AppointmentSchedule() {
         setError(null);
         setLoadingMonth(true);
 
-        const res = await fetch(`http://localhost:2000/Appointment/getAvailableAppointmentsByProfessional/${selectedProfessionalId}`, { 
+        const res = await authFetch(`http://localhost:2000/Appointment/getAvailableAppointmentsByProfessional/${selectedProfessionalId}`, { 
           method: 'GET' 
         });
 
@@ -330,7 +331,7 @@ export default function AppointmentSchedule() {
         return;
       }
 
-      const res = await fetch(`http://localhost:2000/Appointment/assign`, {
+      const res = await authFetch(`http://localhost:2000/Appointment/assign`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -345,7 +346,7 @@ export default function AppointmentSchedule() {
         return;
       }
       try {
-        const resAll = await fetch(`http://localhost:2000/Appointment/getAll`, { method: 'GET' });
+        const resAll = await authFetch(`http://localhost:2000/Appointment/getAll`, { method: 'GET' });
         if (resAll.ok) {
           const all: Appointment[] = await resAll.json();
 

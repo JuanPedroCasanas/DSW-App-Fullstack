@@ -9,6 +9,7 @@ import { HandleConsultingRoomControllerResponse,
 } from '@/common/utils';
 
 import type { ConsultingRoom, Module, Professional } from '@/common/types';
+import { authFetch } from '@/common/utils/auth/AuthFetch';
 
 
 // todos los meses -> para pasarlo a una descripcion (en vez de numero)
@@ -62,7 +63,7 @@ export default function ModuleList() {
   };
 
   const getModules = async (): Promise<Module[] | undefined> => {
-    const res = await fetch('http://localhost:2000/Module/getAll');
+    const res = await authFetch('http://localhost:2000/Module/getAll');
     if (!res.ok) {
       const toastData = await HandleModuleControllerResponse(res);
       setToast(toastData);
@@ -73,7 +74,7 @@ export default function ModuleList() {
   };
 
   const getProfessionals = async (): Promise<Professional[] | undefined> => {
-    const res = await fetch('http://localhost:2000/Professional/getAll');
+    const res = await authFetch('http://localhost:2000/Professional/getAll');
     if (!res.ok) {
       const toastData = await HandleProfessionalControllerResponse(res);
       setToast(toastData);
@@ -84,7 +85,7 @@ export default function ModuleList() {
   };
 
   const getConsultingRooms = async (): Promise<ConsultingRoom[] | undefined> => {
-    const res = await fetch('http://localhost:2000/ConsultingRoom/getAll');
+    const res = await authFetch('http://localhost:2000/ConsultingRoom/getAll');
     if (!res.ok) {
       const toastData = await HandleConsultingRoomControllerResponse(res);
       setToast(toastData);
@@ -96,7 +97,7 @@ export default function ModuleList() {
 
     // ESTE NO ANDA ME DI CUENTA QUE NO TIENE CONTROLADOR NI RUTAS...
   /*const getModuleTypes = async (): Promise<ModuleType[] | undefined> => {
-    const res = await fetch('http://localhost:2000/ModuleType/getAll');
+    const res = await authFetch('http://localhost:2000/ModuleType/getAll');
     if (!res.ok) {
       const toastData = await handleModuleTypeControllerResponse(res);
       setToast(toastData);

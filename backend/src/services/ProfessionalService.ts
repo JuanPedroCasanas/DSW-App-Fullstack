@@ -4,9 +4,9 @@ import { Occupation } from '../model/entities/Occupation';
 import { HealthInsurance } from '../model/entities/HealthInsurance';
 import { createUserData } from '../utils/helpers/createUserData';
 import { User } from '../model/entities/User';
-import { EntityAlreadyExistsError, NotFoundError } from '../model/errors/BaseHttpError';
-import { AppointmentStatus } from '../model/enums/AppointmentStatus';
-import { ModuleStatus } from '../model/enums/ModuleStatus';
+import { EntityAlreadyExistsError, NotFoundError } from '../utils/errors/BaseHttpError';
+import { AppointmentStatus } from '../utils/enums/AppointmentStatus';
+import { ModuleStatus } from '../utils/enums/ModuleStatus';
 
 export class ProfessionalService {
 

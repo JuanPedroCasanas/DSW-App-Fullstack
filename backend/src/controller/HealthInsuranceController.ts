@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { HealthInsuranceService } from '../services/HealthInsuranceService';
-import { BaseHttpError } from '../model/errors/BaseHttpError';
+import { BaseHttpError } from '../utils/errors/BaseHttpError';
 import { safeSerialize } from '../utils/helpers/safeSerialize';
 
 export class HealthInsuranceController {

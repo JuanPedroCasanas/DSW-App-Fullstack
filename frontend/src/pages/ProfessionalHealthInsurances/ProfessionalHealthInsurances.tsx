@@ -11,6 +11,7 @@ import {
 } from '@/common/utils';
 
 import { HealthInsurance, Professional } from '@/common/types';
+import { authFetch } from '@/common/utils/auth/AuthFetch';
 
 const validateHealthInsurance = (p: Partial<HealthInsurance>) => {
   const errors: Record<string, string> = {};
@@ -131,14 +132,14 @@ export default function HealthInsurancesByProfessional(){
       idHealthInsurance: selectedHealthInsuranceId,
     }
     
-    const res = await fetch('http://localhost:2000/Professional/allowHealthInsurance', {
+    const res = await authFetch('http://localhost:2000/Professional/allowHealthInsurance', {
      method: 'POST', 
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify( payload ),
       });
     
     if(res.ok) {
-      const resGet = await fetch(`http://localhost:2000/Professional/getAllWithHealthInsurances?includeInactive=false`);
+      const resGet = await authFetch(`http://localhost:2000/Professional/getAllWithHealthInsurances?includeInactive=false`);
       const data: Professional[] = await resGet.json();
       setProfessionals(data); 
       if (selectedProfessional) {
@@ -175,13 +176,13 @@ export default function HealthInsurancesByProfessional(){
       idHealthInsurance: deleteTarget.id,
     }
 
-    const res = await fetch(`http://localhost:2000/Professional/forbidHealthInsurance`,
+    const res = await authFetch(`http://localhost:2000/Professional/forbidHealthInsurance`,
       {method: "POST",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify( payload ),
   });
   if (res.ok) {
-      const resGet = await fetch(`http://localhost:2000/Professional/getAllWithHealthInsurances?includeInactive=false`);
+      const resGet = await authFetch(`http://localhost:2000/Professional/getAllWithHealthInsurances?includeInactive=false`);
       const data: Professional[] = await resGet.json();
       setProfessionals(data); 
       if (selectedProfessional) {

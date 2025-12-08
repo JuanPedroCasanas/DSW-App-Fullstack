@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { LegalGuardianService } from '../services/LegalGuardianService';
-import { BaseHttpError } from '../model/errors/BaseHttpError';
+import { BaseHttpError } from '../utils/errors/BaseHttpError';
 import { safeSerialize } from '../utils/helpers/safeSerialize';
 
 export class LegalGuardianController {

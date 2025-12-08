@@ -3,7 +3,7 @@ import { Professional } from './Professional';
 import { Patient } from './Patient';
 import { HealthInsurance } from './HealthInsurance';
 import { LegalGuardian } from './LegalGuardian';
-import { AppointmentStatus } from '../enums/AppointmentStatus';
+import { AppointmentStatus } from '../../utils/enums/AppointmentStatus';
 import { Module } from './Module';
 
 @Entity()

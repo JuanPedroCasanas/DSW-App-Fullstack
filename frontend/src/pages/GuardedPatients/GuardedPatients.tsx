@@ -9,6 +9,7 @@ import {
   HandleLegalGuardianControllerResponse
 } from '@/common/utils';
 import { LegalGuardian, Patient } from "@/common/types";
+import { authFetch } from "@/common/utils/auth/AuthFetch";
 
 
 
@@ -50,7 +51,7 @@ export default function GuardedPatients() {
   //Carga desplegable
   useEffect(() => {
     (async () => {
-      const res = await fetch("http://localhost:2000/LegalGuardian/getAll?includeInactive=true");
+      const res = await authFetch("http://localhost:2000/LegalGuardian/getAll?includeInactive=true");
       if (!res.ok){
         const toastData = await HandleLegalGuardianControllerResponse(res);
         setToast(toastData);
@@ -68,7 +69,7 @@ export default function GuardedPatients() {
   useEffect(() => {
      if (!selectedGuardianId) return;
      (async () => {
-         const res = await fetch(`http://localhost:2000/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=false`);
+         const res = await authFetch(`http://localhost:2000/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=false`);
   
         if (!res.ok){
           const toastData = await HandlePatientControllerResponse(res);
@@ -114,14 +115,14 @@ export default function GuardedPatients() {
       idLegalGuardian: selectedGuardianId,
     };
 
-    const res = await fetch("http://localhost:2000/Patient/addDepPatient", {
+    const res = await authFetch("http://localhost:2000/Patient/addDepPatient", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
     if(res.ok) {
-      const resGet = await fetch(`http://localhost:2000/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=true`);
+      const resGet = await authFetch(`http://localhost:2000/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=true`);
       const data: Patient[] = await resGet.json();
       setPatients(data); 
     }
@@ -179,14 +180,14 @@ export default function GuardedPatients() {
     };
 
 
-    const res = await fetch("http://localhost:2000/Patient/updateDepPatient", {
+    const res = await authFetch("http://localhost:2000/Patient/updateDepPatient", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
     if (res.ok) {
-      const resGet = await fetch(`http://localhost:2000/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=true`);
+      const resGet = await authFetch(`http://localhost:2000/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=true`);
       const data: Patient[] = await resGet.json();
       setPatients(data); 
     }
@@ -202,7 +203,7 @@ export default function GuardedPatients() {
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return; 
 
-    const res = await fetch(
+    const res = await authFetch(
               `http://localhost:2000/Patient/delete/${deleteTarget.id}`, 
               {
                 method: "DELETE",
@@ -210,7 +211,7 @@ export default function GuardedPatients() {
 
     // Recargar
     if(res.ok) {
-      const resGet = await fetch(`http://localhost:2000/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=true`);
+      const resGet = await authFetch(`http://localhost:2000/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=true`);
       const data: Patient[] = await resGet.json();
       setPatients(data); 
       

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { OccupationService } from '../services/OccupationService';
-import { BaseHttpError } from '../model/errors/BaseHttpError';
+import { BaseHttpError } from '../utils/errors/BaseHttpError';
 
 export class OccupationController {
 

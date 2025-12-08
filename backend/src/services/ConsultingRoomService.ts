@@ -1,10 +1,10 @@
 import { getORM } from '../orm/db';
 import { ConsultingRoom } from '../model/entities/ConsultingRoom';
-import { BaseHttpError, NotFoundError } from '../model/errors/BaseHttpError';
+import { BaseHttpError, NotFoundError } from '../utils/errors/BaseHttpError';
 import { Module } from '../model/entities/Module';
-import { ModuleStatus } from '../model/enums/ModuleStatus';
+import { ModuleStatus } from '../utils/enums/ModuleStatus';
 import { Appointment } from '../model/entities/Appointment';
-import { AppointmentStatus } from '../model/enums/AppointmentStatus';
+import { AppointmentStatus } from '../utils/enums/AppointmentStatus';
 
 export class ConsultingRoomService {
 

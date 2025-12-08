@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { PatientService } from '../services/PatientService';
-import { BaseHttpError } from '../model/errors/BaseHttpError';
+import { BaseHttpError } from '../utils/errors/BaseHttpError';
 import { safeSerialize } from '../utils/helpers/safeSerialize';
 
 export class PatientController {

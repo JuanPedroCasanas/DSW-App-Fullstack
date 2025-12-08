@@ -6,6 +6,7 @@ import { Toast, EmptyState, Modal, Table, SummaryList, ActionGrid, PrimaryButton
 import { Page, SectionHeader } from "@/components/Layout";
 
 import { HandleHealthInsuranceControllerResponse  } from "@/common/utils";
+import { authFetch } from "@/common/utils/auth/AuthFetch";
 
 /* ---- Utils  ---- */
 //const uid = () => Math.random().toString(36).slice(2, 10);
@@ -29,7 +30,7 @@ export default function HealthInsurances() {
   useEffect(() => {
   (async () => {
 
-      const res = await fetch("http://localhost:2000/HealthInsurance/getAll");
+      const res = await authFetch("http://localhost:2000/HealthInsurance/getAll");
 
       if (!res.ok){
         const toastData = await HandleHealthInsuranceControllerResponse(res);
@@ -73,7 +74,7 @@ export default function HealthInsurances() {
   const handleAddConfirm = () => {
     (async () => {
         console.log("addForm.name=", addForm.name);
-        const res = await fetch("http://localhost:2000/HealthInsurance/add", {
+        const res = await authFetch("http://localhost:2000/HealthInsurance/add", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name: (addForm.name ?? "").trim() }),
@@ -83,7 +84,7 @@ export default function HealthInsurances() {
         setToast(toastData);
       
         // Recargar
-        const resGet = await fetch("http://localhost:2000/HealthInsurance/getAll");
+        const resGet = await authFetch("http://localhost:2000/HealthInsurance/getAll");
         const data: HealthInsurance[] = await resGet.json();
         setItems(data);
 
@@ -131,7 +132,7 @@ export default function HealthInsurances() {
           idHealthInsurance: editTarget.id, 
           name: (editForm.name ?? "").trim() };
 
-      const res = await fetch("http://localhost:2000/HealthInsurance/update", {
+      const res = await authFetch("http://localhost:2000/HealthInsurance/update", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -158,14 +159,14 @@ export default function HealthInsurances() {
     if (!deleteTarget) return;
     (async () => {
         // http://localhost:2000/ConsultingRoom/delete/${deleteTarget.idConsultingRoom}`
-        const res = await fetch(
+        const res = await authFetch(
           `http://localhost:2000/HealthInsurance/delete/${deleteTarget.id}`, 
           {
             method: "DELETE",
         });
 
       // Recargar
-        const resGet = await fetch("http://localhost:2000/HealthInsurance/getAll");
+        const resGet = await authFetch("http://localhost:2000/HealthInsurance/getAll");
         const data: HealthInsurance[] = await resGet.json();
         setItems(data);
 

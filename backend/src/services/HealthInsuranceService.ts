@@ -1,6 +1,6 @@
 import { getORM } from '../orm/db';
 import { HealthInsurance } from '../model/entities/HealthInsurance';
-import { BaseHttpError, NotFoundError } from '../model/errors/BaseHttpError';
+import { BaseHttpError, NotFoundError } from '../utils/errors/BaseHttpError';
 import { Professional } from '../model/entities/Professional';
 
 export class HealthInsuranceService {
