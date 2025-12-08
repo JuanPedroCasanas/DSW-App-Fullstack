@@ -4,8 +4,8 @@ import { validate } from '../utils/validations/validate';
 import { assignAppointmentSchema } from '../utils/validations/schema/appointment/assignAppointmentSchema';
 import { getCancelAppointmentSchema } from '../utils/validations/schema/appointment/getCancelAppointmentSchema';
 import { getByProfessionalAppointmentSchema } from '../utils/validations/schema/appointment/getByProfessionalAppointmentSchema';
-import { getByPatientAppointmentSchema } from '../utils/validations/schema/appointment/getByPatientAppointmentSchema';
 import { updateStatusAppointmentSchema } from '../utils/validations/schema/appointment/updateStatusAppointmentSchema';
+import { getByPatientAppointmentSchema } from '../utils/validations/schema/appointment/getByPatientAppointmentSchema';
 
 const router = express.Router();
 //APLICAR AUTH A TODO ESTO, HAY QUE SER FINOS EN EL CANCEL, COMPLETE Y MISS
