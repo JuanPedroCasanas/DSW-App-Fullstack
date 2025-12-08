@@ -78,7 +78,7 @@ app.use('/HealthInsurance', HealthInsuranceRoutes);
 app.use((_, res) => {
     return res.status(404).send({ message: 'Resource not found' })
 });
-
+/*
 async function start() {
   await initORM();
   
@@ -98,3 +98,9 @@ start().catch((err) => {
 
   console.error('Failed to start app:', err);
 });
+*/
+
+export default async function handler(req: any, res: any) {
+  await initORM();   // inicializamos ORM si aún no lo está
+  app(req, res);     // delega request a Express
+}
