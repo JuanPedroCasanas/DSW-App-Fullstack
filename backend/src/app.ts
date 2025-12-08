@@ -101,6 +101,11 @@ start().catch((err) => {
 */
 
 export default async function handler(req: any, res: any) {
-  await initORM();   // inicializamos ORM si aún no lo está
-  app(req, res);     // delega request a Express
+  try {
+    await initORM(); // asegura conexión activa
+    app(req, res);
+  } catch (err) {
+    console.error('Error en handler:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 }
