@@ -11,16 +11,19 @@ export const initORM = async () => {
       baseDir: path.resolve(__dirname, '..'),
       entities: ['./model/entities'],
       entitiesTs: ['./model/entities'],
-      dbName: 'postgres',
+     // dbName: 'postgres',
       clientUrl: process.env.DATABASE_URL,
-      debug: true,
-      pool: {
+      debug: false,
+      allowGlobalContext: true,
+     driverOptions: {
+       pool: {
         min: 0,
-        max: 1,
+        max: 6,
         idleTimeoutMillis: 30000,
         acquireTimeoutMillis: 10000,
         reapIntervalMillis: 1000
       },
+    },
       schemaGenerator: { ignoreSchema: ['auth', 'storage', 'realtime', 'vault'] }
     });
   } else {
