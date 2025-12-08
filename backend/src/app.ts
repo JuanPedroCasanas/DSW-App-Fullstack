@@ -80,14 +80,19 @@ app.use((_, res) => {
 });
 
 
-app.get('/health', async (_req, res) => {
+app.get('/health', async (_req: Request, res: Response) => {
   const orm = await initORM();
   const em = orm.em.fork();           // EntityManager aislado por request
   await em.getConnection().execute('select 1');
   res.json({ ok: true });
 });
 
-export default (req, res) => app(req, res); // NO app.listen
+import type { IncomingMessage, ServerResponse } from 'http';
+export default function handler(req: IncomingMessage, res: ServerResponse) {
+  // Express acepta objetos de Node HTTP, así que esto compila y funciona
+  return app(req as any, res as any);
+}
+
 
 /*
 async function start() {
