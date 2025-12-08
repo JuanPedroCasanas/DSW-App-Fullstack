@@ -1,17 +1,18 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import "./index.css";
 import { AuthProvider } from "./common/utils/auth/AuthContext";
 
 
+import { HashRouter } from "react-router-dom";
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <BrowserRouter>
+    <HashRouter>
       <AuthProvider>
         <App />
-      </AuthProvider> 
-    </BrowserRouter>
+      </AuthProvider>
+    </HashRouter>
   </React.StrictMode>
 );
