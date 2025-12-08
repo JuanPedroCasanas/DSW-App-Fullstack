@@ -72,6 +72,8 @@ app.use('/LegalGuardian', LegalGuardianRoutes);
 app.use('/HealthInsurance', HealthInsuranceRoutes);
 
 
+export default app;
+/*
 app.use((_, res) => {
     return res.status(404).send({ message: 'Resource not found' })
 });
@@ -95,3 +97,4 @@ start().catch((err) => {
 
   console.error('Failed to start app:', err);
 });
+*/
