@@ -55,26 +55,10 @@ app.use(cors({
 }));
 
 const port = process.env.PORT || 2000; //puse para que el puerto del back sea 2000 aunque no se que tan bien este
+console.log(port);
 
 app.use((req: Request, res: Response, next: NextFunction) => {
     RequestContext.create(getORM().em, next);
-});
-
-let ormInitialized = false;
-
-app.use(async (req: Request, res: Response, next: NextFunction) => {
-  if (!ormInitialized) {
-    try {
-      await initORM();
-      ormInitialized = true;
-    } catch (err) {
-      console.error('Error inicializando ORM:', err);
-      return res.status(500).json({ message: 'Error initializing ORM' });
-    }
-  }
-
-  // Ahora sí podemos crear el RequestContext
-  RequestContext.create(getORM().em, next);
 });
 
 
@@ -90,8 +74,7 @@ app.use('/LegalGuardian', LegalGuardianRoutes);
 app.use('/HealthInsurance', HealthInsuranceRoutes);
 
 
-export default app;
-/*
+
 app.use((_, res) => {
     return res.status(404).send({ message: 'Resource not found' })
 });
@@ -115,4 +98,3 @@ start().catch((err) => {
 
   console.error('Failed to start app:', err);
 });
-*/
