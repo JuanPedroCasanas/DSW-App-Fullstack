@@ -45,7 +45,7 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 
-const frontend_url = process.env.FRONTEND_PORT ? `${process.env.FRONTEND_URL}:${process.env.FRONTEND_PORT}` : process.env.FRONTEND_URL;
+const frontend_url = process.env.FRONTEND_URL;
 
 app.use(cors({
     origin: frontend_url, // <--- MUY IMPORTANTE! Usa el puerto de Vite.
@@ -54,7 +54,7 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization'], // Encabezados permitidos
 }));
 
-const port = process.env.BACKEND_PORT || 2000; //puse para que el puerto del back sea 2000 aunque no se que tan bien este
+const port = process.env.PORT || 2000; //puse para que el puerto del back sea 2000 aunque no se que tan bien este
 
 app.use((req: Request, res: Response, next: NextFunction) => {
     RequestContext.create(getORM().em, next);
