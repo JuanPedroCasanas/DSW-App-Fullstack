@@ -160,7 +160,6 @@ export default function HealthInsurances() {
   const handleDeleteConfirm = () => {
     if (!deleteTarget) return;
     (async () => {
-        // http://localhost:2000/ConsultingRoom/delete/${deleteTarget.idConsultingRoom}`
         const res = await authFetch(
           `${API_BASE}/HealthInsurance/delete/${deleteTarget.id}`, 
           {

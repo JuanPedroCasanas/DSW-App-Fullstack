@@ -170,7 +170,6 @@ export default function ConsultingRooms() {
   const handleDeleteConfirm = () => {
     if (!deleteTarget) return;
     (async () => {
-        // http://localhost:2000/ConsultingRoom/delete/${deleteTarget.idConsultingRoom}`
         const res = await authFetch(
           `${API_BASE}/ConsultingRoom/delete/${deleteTarget.id}`, 
           {
