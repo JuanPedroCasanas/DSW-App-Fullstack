@@ -60,6 +60,24 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     RequestContext.create(getORM().em, next);
 });
 
+let ormInitialized = false;
+
+app.use(async (req: Request, res: Response, next: NextFunction) => {
+  if (!ormInitialized) {
+    try {
+      await initORM();
+      ormInitialized = true;
+    } catch (err) {
+      console.error('Error inicializando ORM:', err);
+      return res.status(500).json({ message: 'Error initializing ORM' });
+    }
+  }
+
+  // Ahora sí podemos crear el RequestContext
+  RequestContext.create(getORM().em, next);
+});
+
+
 //USO RUTAS
 app.use('/Occupation', occupationRoutes);
 app.use('/Appointment', AppointmentRoutes);
