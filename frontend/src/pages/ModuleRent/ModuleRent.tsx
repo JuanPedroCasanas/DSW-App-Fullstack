@@ -10,12 +10,10 @@ import { ConsultingRoom, Professional } from "@/common/types";
 import { authFetch } from "@/common/utils/auth/AuthFetch";
 import { API_BASE } from '@/lib/api';
 
-
-type DayKey = "lun" | "mar" | "mie" | "jue" | "vie" | "sab";
-type SlotState = "available" | "mine" | "reserved" | "unavailable";
-type SlotId = `${DayKey}-${string}`;
-type Availability = Record<DayKey, Record<string, SlotState>>;
-
+export type DayKey = "lun" | "mar" | "mie" | "jue" | "vie" | "sab";
+export type SlotState = "available" | "mine" | "reserved" | "unavailable";
+export type SlotId = `${DayKey}-${string}`;
+export type Availability = Record<DayKey, Record<string, SlotState>>;
 
 
 const DAYS: DayKey[] = ["lun", "mar", "mie", "jue", "vie", "sab"];

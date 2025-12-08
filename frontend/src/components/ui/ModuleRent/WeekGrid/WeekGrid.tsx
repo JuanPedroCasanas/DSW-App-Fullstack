@@ -1,5 +1,5 @@
 import React from "react";
-import type { DayKey, SlotId, SlotState, Availability } from "@/pages/ModuleRent/moduleRentTypes";
+import type { DayKey, SlotId, SlotState, Availability } from "@/pages/ModuleRent/ModuleRent";
 import { rentColors, rentBackgrounds } from "@/components/ui";
 
 type Props = {
