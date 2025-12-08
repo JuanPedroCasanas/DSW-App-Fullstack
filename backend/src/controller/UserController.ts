@@ -23,7 +23,7 @@ export class UserController {
 
             res.cookie('refreshToken', result.refreshToken, {
                 httpOnly: true,
-                secure: false,
+                secure: true,
                 sameSite: 'none',
                 maxAge: REFRESH_MAX_AGE
             });
@@ -65,7 +65,7 @@ export class UserController {
             //Limpio token vencido/corrupto
             res.clearCookie('refreshToken', {
                 httpOnly: true,
-                secure: false, //Para usar HTTP en vez e HTTPS, no es buena práctica pero no nos parece algo estricto en este TP
+                secure: true, //Para usar HTTP en vez e HTTPS, no es buena práctica pero no nos parece algo estricto en este TP
                 sameSite: 'none',
             });
             if (error instanceof BaseHttpError) {
@@ -80,7 +80,7 @@ export class UserController {
         try {
             res.clearCookie('refreshToken', {
                 httpOnly: true,
-                secure: false, //Para usar HTTP en vez e HTTPS, no es buena práctica pero no nos parece algo estricto en este TP
+                secure: true, //Para usar HTTP en vez e HTTPS, no es buena práctica pero no nos parece algo estricto en este TP
                 sameSite: 'none',
             });
 

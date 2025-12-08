@@ -45,8 +45,10 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 
+const frontend_url = process.env.FRONTEND_PORT ? `${process.env.FRONTEND_URL}:${process.env.FRONTEND_PORT}` : process.env.FRONTEND_URL;
+
 app.use(cors({
-    origin: `${process.env.FRONTEND_URL}:${process.env.FRONTEND_PORT}`, // <--- MUY IMPORTANTE! Usa el puerto de Vite.
+    origin: frontend_url, // <--- MUY IMPORTANTE! Usa el puerto de Vite.
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
     credentials: true, // permite enviar credenciales en cookies, se usara para regularidad
     allowedHeaders: ['Content-Type', 'Authorization'], // Encabezados permitidos
