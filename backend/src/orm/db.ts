@@ -25,3 +25,14 @@ export const getORM = () => {
   if (!global.__ORM__) throw new Error('ORM not initialized!');
   return global.__ORM__;
 };
+
+
+
+export const syncSchema = async () => {
+    const generator = getORM().getSchemaGenerator();
+    
+    await generator.dropSchema()
+    await generator.createSchema()
+    
+    await generator.updateSchema()
+}
