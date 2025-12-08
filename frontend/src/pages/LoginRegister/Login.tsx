@@ -6,9 +6,9 @@ import { NavLink } from "react-router-dom";
 
 import { Toast, FormField,  InputPassword } from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
-import { setAccessToken } from "@/common/utils/auth/TokenStorage";
+import { getAccessToken, setAccessToken } from "@/common/utils/auth/TokenStorage";
 import { HandleErrorResponse } from "@/common/utils";
-import { useAuth } from "@/common/utils/auth/AuthContext";
+import { AuthProvider, useAuth } from "@/common/utils/auth/AuthContext";
 
 import { API_BASE } from '@/lib/api';
 
@@ -21,7 +21,9 @@ export default function Login() {
   const navigate = useNavigate(); 
   const [remember, setRemember] = useState(false);
   const [showPwd, setShowPwd] = useState(false);
+
   const eyeIconUrl = new URL("./eyeicon.png", import.meta.url).href; //Pasar a componente
+
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const { setUser } = useAuth();
 
@@ -63,19 +65,21 @@ useEffect(() => {
     }
 
     const data = await res.json();
+    console.log(data);
     setAccessToken(data.accessToken);
     setUser(data.user);
+    console.log(getAccessToken);
+
     
     const name = data.name;
-    console.log('Nombre usado para el toast:', name);
     const toastData = { 
-        message: "¡Bienvenido ${name}!",
+        message: `¡Bienvenido ${name}!`,
         type: "success" as const
     };
    
-    navigate("/", { state: { toastMessage: toastData } });
+    // descomentar cuando arreglemos los console.log
+    //navigate("/", { state: { toastMessage: toastData } });
     
-  
     } catch (error) {
     alert("Error de conexión con el servidor");
     console.error(error);
@@ -91,6 +95,7 @@ return (
     <form
         className="mt-8 w-full max-w-[420px] bg-white text-[#111] rounded-xl p-6 grid gap-6"
       noValidate
+      onSubmit={handleSubmit}
     >
       {/* Encabezado */}
       <div className="text-center">
@@ -164,15 +169,16 @@ return (
           </NavLink>
         </div>
       </div>
-
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
     </form>
+    
+  {toast && (
+    <Toast
+      message={toast.message}
+      type={toast.type}
+      onClose={() => setToast(null)}
+    />
+  )}
+
   </main>
 </Page>
 

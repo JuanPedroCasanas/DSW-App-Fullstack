@@ -24,7 +24,7 @@ export async function authFetch(
     return res
   }
 
-  const refreshRes = await fetch(`${API_BASE}/user/refresh`, {
+  const refreshRes = await fetch(`${API_BASE}/User/refresh`, {
     method: 'POST',
     credentials: 'include'
   });

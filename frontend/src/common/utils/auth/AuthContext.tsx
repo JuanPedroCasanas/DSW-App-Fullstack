@@ -16,7 +16,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch(`${API_BASE}/user/refresh`, {
+        const res = await fetch(`${API_BASE}/User/refresh`, {
           method: "POST",
           credentials: "include",
         });
@@ -42,6 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     </AuthContext.Provider>
   );
 }
+
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
