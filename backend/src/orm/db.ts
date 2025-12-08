@@ -11,22 +11,17 @@ export const initORM = async () => {
       baseDir: path.resolve(__dirname, '..'),
       entities: ['./model/entities'],
       entitiesTs: ['./model/entities'],
-
       dbName: 'postgres',
-
       clientUrl: process.env.DATABASE_URL,
-
-      debug: false, //esto era true
-      allowGlobalContext: true, //esto no estaba
-
+      debug: true,
       pool: {
         min: 0,
-        max: 5, //pongo 5, estaba 1
+        max: 1,
         idleTimeoutMillis: 30000,
         acquireTimeoutMillis: 10000,
         reapIntervalMillis: 1000
       },
-      //schemaGenerator: { ignoreSchema: ['auth', 'storage', 'realtime', 'vault'] }
+      schemaGenerator: { ignoreSchema: ['auth', 'storage', 'realtime', 'vault'] }
     });
   } else {
     const conn = global.__ORM__.em.getConnection();

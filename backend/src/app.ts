@@ -78,17 +78,6 @@ app.use('/HealthInsurance', HealthInsuranceRoutes);
 app.use((_, res) => {
     return res.status(404).send({ message: 'Resource not found' })
 });
-
-
-app.get('/health', async (_req, res) => {
-  const orm = await initORM();
-  const em = orm.em.fork();           // EntityManager aislado por request
-  await em.getConnection().execute('select 1');
-  res.json({ ok: true });
-});
-
-export default (req, res) => app(req, res);
-
 /*
 async function start() {
   await initORM();
@@ -109,6 +98,7 @@ start().catch((err) => {
 
   console.error('Failed to start app:', err);
 });
+*/
 
 export default async function handler(req: any, res: any) {
   try {
@@ -118,4 +108,4 @@ export default async function handler(req: any, res: any) {
     console.error('Error en handler:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
-} */
+}
