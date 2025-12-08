@@ -14,17 +14,22 @@ export const initORM = async () => {
       dbName: 'postgres',
       clientUrl: process.env.DATABASE_URL,
       debug: true,
-      pool: { min: 0, max: 1, idleTimeoutMillis: 0 }, // 0 = no cierra por idle
-      schemaGenerator: { ignoreSchema: ['auth', 'storage', 'realtime', 'vault'] },
+      pool: {
+        min: 0,
+        max: 1,
+        idleTimeoutMillis: 30000,
+        acquireTimeoutMillis: 10000,
+        reapIntervalMillis: 1000
+      },
+      schemaGenerator: { ignoreSchema: ['auth', 'storage', 'realtime', 'vault'] }
     });
   } else {
-    // Verifica que la conexión siga viva
     const conn = global.__ORM__.em.getConnection();
     try {
-      await conn.execute('SELECT 1');
+      await conn.execute('SELECT 1'); // verifica si la conexión sigue viva
     } catch {
-      console.log('[ORM] Conexión cerrada por Supabase, reconectando...');
-      await global.__ORM__.connect(); // reconecta
+      console.log('[ORM] Conexión cerrada, reconectando...');
+      await global.__ORM__.connect();
     }
   }
 
