@@ -2,6 +2,10 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { setAccessToken } from "./TokenStorage";
 import { API_BASE } from '@/lib/api';
 
+// crea un contexto de autenticación
+// llama a /User/refresh (con cookies) para obtener 
+// un access token nuevo y datos del usuario, y los guarda en el contexto y en TokenStorage.
+
 type AuthContextType = {
   user: any | null;
   setUser: (u: any | null) => void;

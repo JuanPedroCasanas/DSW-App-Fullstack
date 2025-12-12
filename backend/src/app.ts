@@ -47,12 +47,17 @@ app.use(passport.initialize());
 
 const frontend_url = process.env.FRONTEND_URL;
 
-app.use(cors({
-    origin: frontend_url, // <--- MUY IMPORTANTE! Usa el puerto de Vite.
+// probar con * con origin si llega a dar inconvenientes
+// * -> que se pueda consumir de cualquier lado
+// no hay que dejarlo para rendir !!
+/*app.use(cors({
+    origin: "*", // <--- MUY IMPORTANTE! Usa el puerto de Vite.
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
     credentials: true, // permite enviar credenciales en cookies, se usara para regularidad
     allowedHeaders: ['Content-Type', 'Authorization'], // Encabezados permitidos
-}));
+}));*/
+
+app.use(cors());
 
 const port = process.env.PORT || 2000; //puse para que el puerto del back sea 2000 aunque no se que tan bien este
 console.log(port);
@@ -61,7 +66,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     RequestContext.create(getORM().em, next);
 });
 
-
+// todas las url son en minuscula (a cambiar para el futuro)
 //USO RUTAS
 app.use('/Occupation', occupationRoutes);
 app.use('/Appointment', AppointmentRoutes);
@@ -78,7 +83,7 @@ app.use('/HealthInsurance', HealthInsuranceRoutes);
 app.use((_, res) => {
     return res.status(404).send({ message: 'Resource not found' })
 });
-/*
+
 async function start() {
   await initORM();
   
@@ -98,8 +103,8 @@ start().catch((err) => {
 
   console.error('Failed to start app:', err);
 });
-*/
 
+/*
 export default async function handler(req: any, res: any) {
   try {
     await initORM(); // asegura conexión activa
@@ -108,4 +113,4 @@ export default async function handler(req: any, res: any) {
     console.error('Error en handler:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
-}
+}*/

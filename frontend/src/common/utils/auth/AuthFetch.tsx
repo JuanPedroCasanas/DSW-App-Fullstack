@@ -1,6 +1,13 @@
 import { clearAccessToken, getAccessToken, setAccessToken } from "./TokenStorage"
 import { API_BASE } from '@/lib/api';
 
+// esto (me parece)deberia ser .ts ya que no renderiza html (no tiene return)
+
+// agarra el fetch y lo envuelve con el access token en el
+// header Authorization
+// Si la respuesta es 401, hace un refresh 
+// (pide nuevo access token a /User/refresh) y reintenta la request original.
+
 export async function authFetch(
   input: RequestInfo,
   init: RequestInit = {}
