@@ -50,14 +50,12 @@ const frontend_url = process.env.FRONTEND_URL;
 // probar con * con origin si llega a dar inconvenientes
 // * -> que se pueda consumir de cualquier lado
 // no hay que dejarlo para rendir !!
-/*app.use(cors({
-    origin: "*", // <--- MUY IMPORTANTE! Usa el puerto de Vite.
+app.use(cors({
+    origin: "http://localhost:3000", // <--- MUY IMPORTANTE! Usa el puerto de Vite.
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
     credentials: true, // permite enviar credenciales en cookies, se usara para regularidad
     allowedHeaders: ['Content-Type', 'Authorization'], // Encabezados permitidos
-}));*/
-
-app.use(cors());
+}));
 
 const port = process.env.PORT || 2000; //puse para que el puerto del back sea 2000 aunque no se que tan bien este
 console.log(port);
