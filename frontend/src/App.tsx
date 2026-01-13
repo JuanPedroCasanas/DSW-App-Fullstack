@@ -22,10 +22,12 @@ import Occupations from "./pages/admin/Occupations/Occupations";
 import Professionals from "./pages/admin/Professionals/Professionals";
 
 import ProfessionalHealthInsurances from "./pages/ProfessionalHealthInsurances/ProfessionalHealthInsurances";
+import AuthWatcher from "./common/utils/auth/AuthWatcher";
 
 export default function App() {
   return (
     <>
+      <AuthWatcher />
       <Navbar />
       <main style={{ maxWidth: 1100, margin: "0 auto", padding: "1rem" }} className="pt-[64px] md:pt-[90px]">
         <Routes>

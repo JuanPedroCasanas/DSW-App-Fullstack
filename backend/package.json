@@ -20,7 +20,7 @@
   "homepage": "https://github.com/JuanPedroCasanas/DSW-App-Fullstack#readme",
   "dependencies": {
     "@mikro-orm/core": "6.2.9",
-    "@mikro-orm/postgresql": "^6.2.9",
+    "@mikro-orm/postgresql": "6.2.9",
     "axios": "^1.11.0",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
