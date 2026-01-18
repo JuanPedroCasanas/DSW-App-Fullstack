@@ -11,14 +11,6 @@ export class UserController {
 
             const result = await UserService.login(mail, password);
 
-            if (result === null) {
-                return res.status(404).json({ error: 'User no encontrado' });
-            }
-
-            if (result === false) {
-                throw new InvalidPasswordError();
-            }
-
             return res.status(200).json({
                 user: result.userDto,
                 accessToken: result.accessToken,
@@ -29,7 +21,7 @@ export class UserController {
             if (error instanceof BaseHttpError) {
                 return res.status(error.status).json(error.toJSON());
             }
-            return res.status(500).json({ message: 'Error al actualizar el usuario' });
+            return res.status(500).json({ message: 'Error al realizar login' });
         }
     }
 

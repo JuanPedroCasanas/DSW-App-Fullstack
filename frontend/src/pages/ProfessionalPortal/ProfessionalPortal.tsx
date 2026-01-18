@@ -1,6 +1,6 @@
 import { ActionGrid, NavButton} from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
-
+import { getAccessToken } from "@/common/utils/auth/TokenStorage";
 
 export default function ProfessionalPortal() {
 

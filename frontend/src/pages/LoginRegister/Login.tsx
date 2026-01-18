@@ -6,7 +6,7 @@ import { NavLink } from "react-router-dom";
 
 import { Toast, FormField,  InputPassword } from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
-import { getAccessToken, setAccessToken } from "@/common/utils/auth/TokenStorage";
+import { setAccessToken } from "@/common/utils/auth/TokenStorage";
 import { HandleErrorResponse } from "@/common/utils";
 import { AuthProvider, useAuth } from "@/common/utils/auth/AuthContext";
 
@@ -68,15 +68,17 @@ useEffect(() => {
     setAccessToken(data.accessToken);
     setUser(data.user);
 
+    //Revisar esto en caso rol administrador
     
-    const name = data.name;
+    const fullName = data.user[data.user.role]?.firstName + ' ' + data.user[data.user.role]?.lastName;
     const toastData = { 
-        message: `¡Bienvenido ${name}!`,
+        message: `¡Bienvenido ${fullName}!`,
         type: "success" as const
     };
    
     // descomentar cuando arreglemos los console.log
-    //navigate("/", { state: { toastMessage: toastData } });
+    navigate("/", { state: { toastMessage: toastData } });
+
     
     } catch (error) {
     alert("Error de conexión con el servidor");

@@ -2,7 +2,7 @@ import { getORM } from '../orm/db';
 import bcrypt from 'bcrypt';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { User } from '../model/entities/User';
-import { NotFoundError } from '../utils/errors/BaseHttpError';
+import { InvalidPasswordError, NotFoundError } from '../utils/errors/BaseHttpError';
 import { toUserResponseDTO } from '../utils/dto/user/userResponseDto';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
@@ -27,12 +27,12 @@ export class UserService {
         );
 
         if (!user) {
-            return null;
+            throw new NotFoundError("usuario");
         }
 
         const valid = await bcrypt.compare(password, user.password);
         if (!valid) {
-            return false;
+            throw new InvalidPasswordError();
         }
 
         const userDto = toUserResponseDTO(user);
