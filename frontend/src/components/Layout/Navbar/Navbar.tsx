@@ -1,8 +1,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import ActionGrid from "@/components/ui/Actions/ActionGrid/ActionGrid";
 import NavButton from "@/components/ui/Actions/NavButton/NavButton";
+import { useAuth } from "@/common/utils/auth/AuthContext";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -10,6 +10,26 @@ export default function Navbar() {
   const menuRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
 
+  // traducción de los roles q vienen del backend:
+  const ROLE_LABEL: Record<string, string> = {
+    admin: "Admin",
+    professional: "Profesional",
+    legalGuardian: "Responsable legal",
+    patient: "Paciente",
+  };
+
+  const { user } = useAuth(); 
+
+  // habria que ver qué pasa con admin! 
+  const isLoggedIn = !!user;
+  const roleText = user?.role ? (ROLE_LABEL[user.role] ?? user.role) : "";
+
+  const profile = user?.[user?.role ?? ""];
+  const displayName = profile ? `${profile.firstName} ${profile.lastName}` : "";
+
+
+
+  
   // Sombra al hacer scroll
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 4);
@@ -51,7 +71,6 @@ export default function Navbar() {
         scrolled ? "shadow-md" : "",
         "pl-[max(16px,env(safe-area-inset-left))] pr-[max(16px,env(safe-area-inset-right))]",
       ].join(" ")}
-      // Altura como variable (matching tu CSS): 64px mobile, 90px md+
       style={{ ["--nav-h" as any]: "64px" }} // en algun momento deberia ver como sacar ese rojo del ANY
     >
       {/* Wrapper interno */}
@@ -72,7 +91,7 @@ export default function Navbar() {
           <span className="leading-none">Narrativas</span>
         </NavLink>
 
-        {/* Toggle (hamburguesa) - visible en mobile */}
+        {/* Toggle */}
         <button
           type="button"
           aria-label={open ? "Cerrar menú" : "Abrir menú"}
@@ -86,7 +105,7 @@ export default function Navbar() {
             "transition-colors active:scale-[0.99]",
           ].join(" ")}
         >
-          {/* Barras que se transforman en “X” */}
+          {/* Barras que se transforman en X */}
           <span
             className={[
               "h-[2px] w-5 bg-current rounded-sm transition-transform duration-200",
@@ -107,7 +126,7 @@ export default function Navbar() {
           />
         </button>
 
-        {/* Menú desktop (visible ≥ md) */}
+        {/* Menú desktop */}
         <div className="hidden md:flex items-center gap-1 ml-4">
           <NavLink to="/" className={linkClass}>
             Portales
@@ -116,19 +135,27 @@ export default function Navbar() {
             Sobre nosotros
           </NavLink>
         </div>
+        
+        <div className="flex-1" />
 
-        {/* CTA a la derecha en desktop */}
-        <div className="hidden md:inline-flex ml-auto">
-          <div className="flex items-center gap-2">
-            <NavLink to="/login" className="text-cyan-700 hover:underline font-semibold">
-              Usuario: Pepe
-            </NavLink>
-            <NavButton to="/login" variant="solid">
-              Iniciar Sesión
+        {/* derecha de la navbar */}
+        <div className="hidden md:flex items-center gap-2">
+          {isLoggedIn ? (
+            <NavButton
+              to="/edit-profile"
+            >
+              {roleText && `${roleText}: `}{displayName || "Mi perfil"}
             </NavButton>
-          </div>
+          ) : (
+            <>
+              <NavButton to="/register" > Registrarse </NavButton>
+
+              <NavButton to="/login" variant="ghost"> Iniciar sesión </NavButton>
+            </>
+          )}
         </div>
-      </div>
+
+    </div>
 
       {/* Menú móvil (tarjeta bajo la barra) */}
       <div
@@ -156,15 +183,33 @@ export default function Navbar() {
         </ul>
 
         {/* CTA en mobile: usa tus componentes */}
-        <div className="mt-2">
-          <ActionGrid>
-            <NavButton to="/registrarse" variant="solid">
-              Registrarse
-            </NavButton>
-            <NavButton to="/login" variant="ghost">
-              Iniciar sesión
-            </NavButton>
-          </ActionGrid>
+        <div className="md:hidden grid grid-cols-2 gap-2">
+          {isLoggedIn ? (
+            <NavLink
+              to="/edit-profile"
+              className="col-span-2 w-full px-3 py-2 rounded-lg bg-cyan-600 text-white text-center hover:bg-cyan-700 transition-colors"
+              onClick={() => setOpen(false)}
+            >
+              {roleText && `${roleText}: `}{displayName || "Mi perfil"}
+            </NavLink>
+          ) : (
+            <>
+              <NavLink
+                to="/register"
+                className="w-full px-3 py-2 rounded-lg bg-cyan-600 text-white text-center hover:bg-cyan-700 transition-colors"
+                onClick={() => setOpen(false)}
+              >
+                Registrarse
+              </NavLink>
+              <NavLink
+                to="/login"
+                className="w-full px-3 py-2 rounded-lg bg-gray-100 text-gray-900 text-center hover:bg-gray-200 border border-black/10 transition-colors"
+                onClick={() => setOpen(false)}
+              >
+                Iniciar sesión
+              </NavLink>
+            </>
+          )}
         </div>
       </div>
     </nav>

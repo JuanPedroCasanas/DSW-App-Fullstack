@@ -4,6 +4,7 @@ import { getAccessToken } from "@/common/utils/auth/TokenStorage";
 
 export default function ProfessionalPortal() {
 
+
   return (
     <Page>
       <SectionHeader

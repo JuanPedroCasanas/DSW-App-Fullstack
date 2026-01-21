@@ -27,6 +27,12 @@ export async function authFetch(
     emitAuth401();
   }
 
+  /* para cuando esten los roles
+  if (red.status === 403) {
+    emitAuth403();
+  }
+  */
+
   //Para que lo muestre el toast
   return res;
 

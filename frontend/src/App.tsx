@@ -23,6 +23,7 @@ import Professionals from "./pages/admin/Professionals/Professionals";
 
 import ProfessionalHealthInsurances from "./pages/ProfessionalHealthInsurances/ProfessionalHealthInsurances";
 import AuthWatcher from "./common/utils/auth/AuthWatcher";
+import ProtectedRoute from "./common/utils/auth/ProtectedRoute";
 
 export default function App() {
   return (
@@ -31,37 +32,79 @@ export default function App() {
       <Navbar />
       <main style={{ maxWidth: 1100, margin: "0 auto", padding: "1rem" }} className="pt-[64px] md:pt-[90px]">
         <Routes>
+
+        {/* ACCESO PUBLICO: */}
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
-          
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          
+        {/* USUARIOS LOGUEADOS: */}
+        <Route element={<ProtectedRoute />}>
 
-          {/* Lo ideal sería restringir estas rutas, lo dejo para el futuro */}
-          <Route path="/module-rent" element={<ModuleRent />} />
-          <Route path="/appointment-schedule" element={<AppointmentSchedule />} />
+          <Route path="/edit-profile" element=
+            {<EditProfile />} />
 
-          <Route path="/edit-profile" element={<EditProfile />} />
+        </Route>
 
-          <Route path="/professional-portal" element={<ProfessionalPortal />} />
-          <Route path="/professional-health-insurances" element={<ProfessionalHealthInsurances />} />
+        {/* PROFESIONAL */}
+        <Route element={<ProtectedRoute roles={["professional"]} />}>
 
+          <Route path="/professional-portal" element=
+            {<ProfessionalPortal />} />
 
-          <Route path="/legal-guardian-portal" element={<LegalGuardianPortal />} />
-          <Route path="/guarded-patients" element={<GuardedPatients />} />
+          <Route path="/professional-health-insurances" element=
+            {<ProfessionalHealthInsurances />} />
 
-          <Route path="/patient-portal" element={<PatientPortal />} />
+          <Route path="/module-rent" element=
+            {<ModuleRent />} />
+        
+          <Route path="/appointment-list" element=
+            {<AppointmentList/>} />
 
-        {/* RUTAS PARA EL ADMIN*/}
-          <Route path="/debug-console" element={<DebugConsole />} />
-          <Route path="/admin/consulting-rooms" element={<ConsultingRooms />} />
-          <Route path="/admin/health-insurances" element={<HealthInsurances />} />
-          <Route path="/admin/occupations" element={<Occupations />} />
-          <Route path="/admin/professionals" element={<Professionals />} />
+        </Route>
+          
+        {/* RESPONSABLE LEGAL */}
+        <Route element={<ProtectedRoute roles={["legalGuardian"]} />}>
+          <Route path="/legal-guardian-portal" element=
+            {<LegalGuardianPortal />} />
 
-          {/* informes */}
-          <Route path="/module-list" element={<ModuleList />} />
-          <Route path="/appointment-list" element={<AppointmentList/>} />
+          <Route path="/guarded-patients" element=
+            {<GuardedPatients />} />
+
+        </Route>
+        
+        {/* PACIENTE */}
+        <Route element={<ProtectedRoute roles={["patient"]} />}>
+          <Route path="/patient-portal" element=
+            {<PatientPortal />} />
+        </Route>
+
+        {/* PACIENTE Y RESPONSABLE LEGAL */}
+        <Route element={<ProtectedRoute roles={["patient", "legalGuardian"]} />}>
+          <Route path="/appointment-schedule" element=
+            {<AppointmentSchedule />} />
+        </Route>
+
+        {/* ADMIN */}
+        <Route element={<ProtectedRoute  />}>
+        {/* descomentar esto cuando haya un usuario con rol admin en la bd
+        <Route element={<ProtectedRoute roles={["admin"]} />}>*/}
+
+          <Route path="/debug-console" element={
+            <DebugConsole />} />
+          <Route path="/admin/consulting-rooms" element=
+            {<ConsultingRooms />} />
+          <Route path="/admin/health-insurances" element= 
+            {<HealthInsurances />} />
+          <Route path="/admin/occupations" element=
+            {<Occupations />} />
+          <Route path="/admin/professionals" element=
+            {<Professionals />} />
+          <Route path="/module-list" element=
+            {<ModuleList />} />
+
+        </Route>
 
           {/* fin de las rutas que deberian estar restringidas */}
 

@@ -67,10 +67,12 @@ useEffect(() => {
     const data = await res.json();
     setAccessToken(data.accessToken);
     setUser(data.user);
+    console.log(data);
 
     //Revisar esto en caso rol administrador
     
     const fullName = data.user[data.user.role]?.firstName + ' ' + data.user[data.user.role]?.lastName;
+    
     const toastData = { 
         message: `¡Bienvenido ${fullName}!`,
         type: "success" as const

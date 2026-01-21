@@ -17,9 +17,19 @@ export default function AuthWatcher() {
       navigate("/login");
     }
 
+    /* 
+    PARA CUANDO LOS ROLES DEL BACKEND ESTEN 100% FUNCIONALES!
+    function onForbidden() {
+      navigate("/home");
+    }
+
+    windows.addEventListener(AUTH_403_EVENT, onForbidden);
+    */
+
     window.addEventListener(AUTH_401_EVENT, onUnauthorized);
     return () => {
       window.removeEventListener(AUTH_401_EVENT, onUnauthorized);
+      // windows.EventListener(AUTH_403_EVENT, onForbidden);
     };
   }, [navigate, setUser]);
 

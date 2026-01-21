@@ -1,8 +1,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-// crea un contexto de autenticación
-// llama a /User/refresh (con cookies) para obtener 
-// un access token nuevo y datos del usuario, y los guarda en el contexto y en TokenStorage.
+//Guarda los datos del usuario (user)
+//Permite actualizarlo (setUser)
+//Expone esos datos con un Context
+// solo maneja estado global y no lógica de autorización
 
 type AuthContextType = {
   user: any | null;
@@ -11,6 +12,7 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+// provee la info, no hace control de roles
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<any | null>(null);
 
