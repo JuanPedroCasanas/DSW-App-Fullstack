@@ -5,6 +5,7 @@ export enum UserRole {
   Patient = "patient",
   LegalGuardian = "legalGuardian",
   Professional = "professional",
+  Admin = "admin"
 }
 
 export type User = {

@@ -1,27 +1,11 @@
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Layout/Navbar/Navbar";
+import { UserRole } from "./common/types";
 
-import Home from "./pages/Home/Home";
-import About from "./pages/About/About";
-import Login from "./pages/LoginRegister/Login";
-import Register from "./pages/LoginRegister/Register";
-import ModuleRent from "./pages/ModuleRent/ModuleRent";
-import AppointmentSchedule from "./pages/AppointmentSchedule/AppointmentSchedule";
-import EditProfile from "./pages/EditProfile/EditProfile";
-import ProfessionalPortal from "./pages/ProfessionalPortal/ProfessionalPortal";
-import LegalGuardianPortal from "./pages/LegalGuardianPortal/LegalGuardianPortal";
-import PatientPortal from "./pages/PatientPortal/PatientPortal";
-import GuardedPatients from "./pages/GuardedPatients/GuardedPatients";
-import ModuleList from "./pages/ModuleList/ModuleList";
-import AppointmentList from "./pages/AppointmentList/AppointmentList";
-import DebugConsole from "./pages/DebugConsole/DebugConsole"; 
-import ConsultingRooms from "./pages/admin/ConsultingRooms/ConsultingRooms";
+import { About, Home, Login, Register, ModuleRent, AppointmentSchedule, EditProfile, ProfessionalPortal, LegalGuardianPortal, PatientPortal, GuardedPatients, ModuleList, AppointmentList, DebugConsole, ConsultingRooms, HealthInsurances, Occupations,
+Professionals, ProfessionalHealthInsurances
+} from "./pages";
 
-import HealthInsurances from "./pages/admin/HealthInsurances/HealthInsurances";
-import Occupations from "./pages/admin/Occupations/Occupations";
-import Professionals from "./pages/admin/Professionals/Professionals";
-
-import ProfessionalHealthInsurances from "./pages/ProfessionalHealthInsurances/ProfessionalHealthInsurances";
 import AuthWatcher from "./common/utils/auth/AuthWatcher";
 import ProtectedRoute from "./common/utils/auth/ProtectedRoute";
 
@@ -48,7 +32,7 @@ export default function App() {
         </Route>
 
         {/* PROFESIONAL */}
-        <Route element={<ProtectedRoute roles={["professional"]} />}>
+        <Route element={<ProtectedRoute roles={[UserRole.Professional, UserRole.Admin]} />}>
 
           <Route path="/professional-portal" element=
             {<ProfessionalPortal />} />
@@ -65,7 +49,7 @@ export default function App() {
         </Route>
           
         {/* RESPONSABLE LEGAL */}
-        <Route element={<ProtectedRoute roles={["legalGuardian"]} />}>
+        <Route element={<ProtectedRoute roles={[UserRole.LegalGuardian, UserRole.Admin]} />}>
           <Route path="/legal-guardian-portal" element=
             {<LegalGuardianPortal />} />
 
@@ -75,13 +59,13 @@ export default function App() {
         </Route>
         
         {/* PACIENTE */}
-        <Route element={<ProtectedRoute roles={["patient"]} />}>
+        <Route element={<ProtectedRoute roles={[UserRole.Patient]} />}>
           <Route path="/patient-portal" element=
             {<PatientPortal />} />
         </Route>
 
         {/* PACIENTE Y RESPONSABLE LEGAL */}
-        <Route element={<ProtectedRoute roles={["patient", "legalGuardian"]} />}>
+        <Route element={<ProtectedRoute roles={[UserRole.LegalGuardian, UserRole.Patient, UserRole.Admin]} />}>
           <Route path="/appointment-schedule" element=
             {<AppointmentSchedule />} />
         </Route>

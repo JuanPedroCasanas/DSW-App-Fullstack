@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
-
+import React, { useState, useEffect } from 'react';
 
 import { Toast, EmptyState, Table, PrimaryButton, Card, FilterBar, FormField, Modal, DialogActions, SummaryList } from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
@@ -7,23 +6,22 @@ import { Page, SectionHeader } from "@/components/Layout";
 import {
   HandleProfessionalControllerResponse,
   HandleHealthInsuranceControllerResponse,
-
 } from '@/common/utils';
 
-import { HealthInsurance, Professional } from '@/common/types';
+import { HealthInsurance, Professional, UserRole } from '@/common/types';
 import { authFetch } from '@/common/utils/auth/AuthFetch';
+import { useAuth } from "@/common/utils/auth/AuthContext";
 import { API_BASE } from '@/lib/api';
-
-const validateHealthInsurance = (p: Partial<HealthInsurance>) => {
-  const errors: Record<string, string> = {};
-  if (!p.name?.trim()) errors.nombre = "Nombre obligatorio.";
-  return errors;
-};
 
 const sameJSON = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
+export default function ProfessionalHealthInsurances(){
+  const { user } = useAuth();
+  const isAdmin = user?.role === UserRole.Admin;
+  const isProfessional = user?.role === UserRole.Professional;
 
-export default function HealthInsurancesByProfessional(){
+  const myProfessionalId = (user as any)?.idProfessional ?? (user as any)?.id;
+
   const [selectedProfessionalHealthInsurances, setSelectedProfessionalHealthInsurances] = useState<HealthInsurance[] | null>([]);
   const [healthInsurances, setHealthInsurances] = useState<HealthInsurance[]>([]);
   const [selectedHealthInsuranceId, setSelectedHealthInsuranceId]=useState <number | undefined>(undefined);
@@ -43,60 +41,81 @@ export default function HealthInsurancesByProfessional(){
 
   const [addSnapshot, setAddSnapshot] = useState<Partial<HealthInsurance> | null>(null);
   
-  //Fetch profesionales + sus obras sociales
+  
   useEffect(() => {
     (async () => {
-      const res = await fetch (`${API_BASE}/Professional/getAllWithHealthInsurances?includeInactive=false`);
-    if (!res.ok){
-      const toastData = await HandleProfessionalControllerResponse(res);
-      setToast(toastData);
-    }else{
-      const data: Professional[]=await res.json();
-      setProfessionals(data);
-      if(selectedProfessional===null){
-        setSelectedProfessional(data[0]);
+      // rol admin
+      if (isAdmin) {
+        const res = await authFetch(`${API_BASE}/Professional/getAllWithHealthInsurances?includeInactive=false`);
+        if (!res.ok) {
+          const toastData = await HandleProfessionalControllerResponse(res);
+          setToast(toastData);
+          return;
+        }
+        const data: Professional[] = await res.json();
+        setProfessionals(data);
+       
+        setSelectedProfessional((prev) => prev ?? data[0] ?? null);
+        return;
       }
-    }
-  })()
-    },[]);
 
-  //Setear obras sociales del profesional
+      // rol profesional
+      if (isProfessional) {
+        // trae todos y dsp filtra por id de profesional
+        // deberia ver de crearle el metodo en el controlador
+
+        const res = await authFetch(`${API_BASE}/Professional/getAllWithHealthInsurances?includeInactive=false`);
+        if (!res.ok) {
+          const toastData = await HandleProfessionalControllerResponse(res);
+          setToast(toastData);
+          return;
+        }
+        const data: Professional[] = await res.json();
+        const me = data.find((p) => p.id === myProfessionalId) ?? null;
+        setProfessionals(me ? [me] : []);
+        setSelectedProfessional(me);
+      }
+    })();
+  }, [isAdmin, isProfessional, myProfessionalId]);
+
+
   useEffect(() => {
-    if(selectedProfessional)
-    setSelectedProfessionalHealthInsurances(selectedProfessional?.healthInsurances ?? []);
+    if (selectedProfessional) {
+      setSelectedProfessionalHealthInsurances(selectedProfessional.healthInsurances ?? []);
+    } else {
+      setSelectedProfessionalHealthInsurances([]);
+    }
   }, [selectedProfessional]);
 
-
-  //Fetch obras sociales
+  // 3) Traer catálogo de obras sociales y filtrar las que aún NO están asociadas al profesional
   useEffect(() => {
-      if(!selectedProfessional) return;
-      (async () => {
-        const res = await fetch (`${API_BASE}/HealthInsurance/getAll?includeInactive=false`);
-        if (!res.ok){
-          const toastData = await HandleHealthInsuranceControllerResponse(res);
-          setToast(toastData);
-        } else {
-          const data: HealthInsurance[] = await res.json();
-          //Filtrar por las cuales NO estan en el arreglo de OSs admitidas por el profesional cosa de solo dejarle agregar nuevas.
-          const filteredHealthInsurances = data.filter(
-            hI => !selectedProfessional.healthInsurances?.some(
-              profHealthInsurance => profHealthInsurance.id === hI.id 
-            )
-          );
-          setHealthInsurances(filteredHealthInsurances);
-        }
-      })()
-    },[selectedProfessional]);   
-  
-  //Setear primer valor
-  useEffect(() => {
-  if (healthInsurances.length > 0) {
-    setSelectedHealthInsuranceId(healthInsurances[0].id);
-  } else {
-    setSelectedHealthInsuranceId(undefined);
-  }
-}, [healthInsurances]);
+    if (!selectedProfessional) return;
+    (async () => {
+      const res = await authFetch(`${API_BASE}/HealthInsurance/getAll?includeInactive=false`);
+      if (!res.ok) {
+        const toastData = await HandleHealthInsuranceControllerResponse(res);
+        setToast(toastData);
+      } else {
+        const data: HealthInsurance[] = await res.json();
+        const filteredHealthInsurances = data.filter(
+          (hI) => !selectedProfessional.healthInsurances?.some((profHI) => profHI.id === hI.id)
+        );
+        setHealthInsurances(filteredHealthInsurances);
+      }
+    })();
+  }, [selectedProfessional]);
 
+  // 4) Setear primer opción del select (cuando hay OS disponibles)
+  useEffect(() => {
+    if (healthInsurances.length > 0) {
+      setSelectedHealthInsuranceId(healthInsurances[0].id);
+    } else {
+      setSelectedHealthInsuranceId(undefined);
+    }
+  }, [healthInsurances]);
+
+
+// carga de OS
   const openAdd = () => {
     const initial = { name:''};
     setAddForm(initial);
@@ -117,7 +136,6 @@ export default function HealthInsurancesByProfessional(){
   };
 
   const handleAddContinue = () => {
-    console.log("hola que llega?");
     setAddStep("confirm");
   };
 
@@ -126,7 +144,6 @@ export default function HealthInsurancesByProfessional(){
     if(!selectedHealthInsuranceId || !selectedProfessional) {
       return;
     }
-
 
     const payload = {
       idProfessional: selectedProfessional.id,
@@ -142,29 +159,19 @@ export default function HealthInsurancesByProfessional(){
     if(res.ok) {
       const resGet = await authFetch(`${API_BASE}/Professional/getAllWithHealthInsurances?includeInactive=false`);
       const data: Professional[] = await resGet.json();
-      setProfessionals(data); 
-      if (selectedProfessional) {
-        const updated = data.find(p => p.id === selectedProfessional.id);
-        if(updated) {
-          setSelectedProfessionalHealthInsurances([...(updated.healthInsurances ?? [])]);
-        } else {
-          setSelectedProfessionalHealthInsurances([]);
-        }
-      }
+      setProfessionals(isAdmin ? data : data.filter((p) => p.id === selectedProfessional.id)); 
+
+      const updated = data.find((p) => p.id === selectedProfessional.id);
+            setSelectedProfessional(updated ?? null);
+            setSelectedProfessionalHealthInsurances(updated?.healthInsurances ?? []);
+
     }
     closeAdd()
     const toastData = await HandleProfessionalControllerResponse(res);
     setToast(toastData);
   };
- 
-// ---------- Editar (2 pasos + dirty-check) ----------
-  const [editTarget, setEditTarget] = useState<HealthInsurance | null>(null);
-  const [editForm, setEditForm] = useState<Partial<HealthInsurance>>({});
-  const [editSnapshot, setEditSnapshot] = useState<Partial<HealthInsurance> | null>(null);
-  const editErrors = useMemo(() => validateHealthInsurance(editForm), [editForm]);
-  
 
-  // ---------- Eliminar (confirmación simple) ----------
+  // Eliminar
   const [deleteTarget, setDeleteTarget] = useState<HealthInsurance | null>(null);
   const openDelete = (o: HealthInsurance) => setDeleteTarget(o);
   const closeDelete = () => setDeleteTarget(null);
@@ -197,17 +204,17 @@ export default function HealthInsurancesByProfessional(){
       setToast(toastData);
   };
   
- // ---------- Modal genérico: DESCARTAR cambios ----------
-  const [discardCtx, setDiscardCtx] = useState<{ open: boolean; context?: "add" | "edit" }>({
-    open: false,
-  });
-  const closeDiscard = () => setDiscardCtx({ open: false });
-  const confirmDiscard = () => {
-    if (discardCtx.context === "add") closeAdd();
-    setDiscardCtx({ open: false });
-  };
+ // DESCARTAR cambios
+    const [discardCtx, setDiscardCtx] = useState<{ open: boolean; context?: "add" | "edit" }>({
+      open: false,
+    });
+    const closeDiscard = () => setDiscardCtx({ open: false });
+    const confirmDiscard = () => {
+      if (discardCtx.context === "add") closeAdd();
+      setDiscardCtx({ open: false });
+    };
 
-  // ---------- ESC para cerrar (respeta dirty-check) ----------
+  // uso del esc
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
@@ -217,37 +224,40 @@ export default function HealthInsurancesByProfessional(){
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [showAdd, editTarget, deleteTarget, discardCtx.open, addForm, editForm, addSnapshot, editSnapshot]);
+  }, [showAdd, deleteTarget, discardCtx.open, addForm,addSnapshot]);
 
 
  return (
     <Page>
       <SectionHeader title="Obras sociales admitidas" />
 
-      {/* Selector de profesional. Esto se va a ir en cuanto tengamos roles */}
-      <FilterBar>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <FormField label="Profesional" htmlFor="guardian">
-            <select
-              id="guardian"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
-              value={selectedProfessional?.id ?? ""}
-              onChange={(e) => {
-                const professional = professionals.find((p) => p.id === Number(e.target.value));
-                setSelectedProfessional(professional ?? null);
-              }}
-            >
-            {[...professionals]
-              .sort((a, b) => (a.id ?? 0) - (b.id ?? 0))
-              .map((p) => (
-                <option key={p.id} value={p.id}>
-                  {`Id: ${p.id}, ${p.firstName} ${p.lastName}`}
-                </option>
-              ))}
-            </select>
-          </FormField>
-        </div>
-      </FilterBar>
+      {/* Selector de profesional para admin. Y para profesional: simplemente NADA!! :D */}
+      {isAdmin && (
+        <FilterBar>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <FormField label="Profesional" htmlFor="guardian">
+              <select
+                id="guardian"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                value={selectedProfessional?.id ?? ""}
+                onChange={(e) => {
+                  const professional = professionals.find((p) => p.id === Number(e.target.value));
+                  setSelectedProfessional(professional ?? null);
+                }}
+              >
+                {[...professionals]
+                  .sort((a, b) => (a.id ?? 0) - (b.id ?? 0))
+                  .map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {`Id: ${p.id}, ${p.firstName} ${p.lastName}`}
+                    </option>
+                  ))}
+              </select>
+            </FormField>
+          </div>
+        </FilterBar>
+      )}
+
 
 
       {/* Estado vacío */}

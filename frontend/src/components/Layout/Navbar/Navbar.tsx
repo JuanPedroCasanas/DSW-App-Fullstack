@@ -1,7 +1,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import NavButton from "@/components/ui/Actions/NavButton/NavButton";
+import { NavButton, LogoutButton } from "@/components/ui";
 import { useAuth } from "@/common/utils/auth/AuthContext";
 
 export default function Navbar() {
@@ -141,11 +141,13 @@ export default function Navbar() {
         {/* derecha de la navbar */}
         <div className="hidden md:flex items-center gap-2">
           {isLoggedIn ? (
-            <NavButton
-              to="/edit-profile"
-            >
+            <>
+            <NavButton to="/edit-profile">
               {roleText && `${roleText}: `}{displayName || "Mi perfil"}
             </NavButton>
+
+            <LogoutButton />
+            </>
           ) : (
             <>
               <NavButton to="/register" > Registrarse </NavButton>

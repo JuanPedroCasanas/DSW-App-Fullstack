@@ -7,6 +7,7 @@ export { default as ActionGrid } from "./Actions/ActionGrid/ActionGrid";
 export { default as NavButton } from "./Actions/NavButton/NavButton";
 export { default as PrimaryButton } from "./Actions/PrimaryButton/PrimaryButton";
 export { default as DialogActions } from "./Actions/DialogActions/DialogActions";
+export { default as LogoutButton } from "./Actions/LogoutButton/LogoutButton";
 
 // Data Display
 export { Card } from "./DataDisplay/Card/Card";

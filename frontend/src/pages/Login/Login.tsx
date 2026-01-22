@@ -8,7 +8,7 @@ import { Toast, FormField,  InputPassword } from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
 import { setAccessToken } from "@/common/utils/auth/TokenStorage";
 import { HandleErrorResponse } from "@/common/utils";
-import { AuthProvider, useAuth } from "@/common/utils/auth/AuthContext";
+import { useAuth } from "@/common/utils/auth/AuthContext";
 
 import { API_BASE } from '@/lib/api';
 
