@@ -8,9 +8,10 @@ import {
   HandlePatientControllerResponse,
   HandleLegalGuardianControllerResponse
 } from '@/common/utils';
-import { LegalGuardian, Patient } from "@/common/types";
+import { LegalGuardian, Patient, UserRole } from "@/common/types";
 import { authFetch } from "@/common/utils/auth/AuthFetch";
 import { API_BASE } from '@/lib/api';
+import { useAuth } from "@/common/utils/auth/AuthContext";
 
 
 // ---- Utils ----
@@ -31,11 +32,19 @@ const validatePatient = (p: Partial<Patient>) => {
 const sameJSON = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
 export default function GuardedPatients() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === UserRole.Admin;
+  const isLegalGuardian = user?.role === UserRole.LegalGuardian;
+
+  // no se si es legal este tipo de búsqueda. Pero los fetchs en este caso funcionan directamtente con el id de legalGuardian, y no con el id de usuario.
+  const myLegalGuardianId = (user as any)?.idLegalGuardian ?? (user as any)?.legalGuardian.id;
+
+
   const [patients, setPatients] = useState<Patient[]>([]);
   const [legalGuardians, setLegalGuardians] = useState<LegalGuardian[]>([]);
   const [selectedGuardianId, setSelectedGuardianId] = useState<number | null>(null);
 
-  // ---------- Agregar (2 pasos + dirty-check) ----------
+  // ---------- Agregar ----------
   const [showAdd, setShowAdd] = useState(false);
   const [addStep, setAddStep] = useState<"form" | "confirm">("form");
   const [addForm, setAddForm] = useState<Partial<Patient>>({
@@ -43,32 +52,45 @@ export default function GuardedPatients() {
     lastName: "",
     birthdate: "",
   }); 
+
   /*Pantallita de error o exito al terminar una accion*/
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [addSnapshot, setAddSnapshot] = useState<Partial<Patient> | null>(null);
   const addErrors = useMemo(() => validatePatient(addForm), [addForm]);
 
-  //Carga desplegable
-  useEffect(() => {
-    (async () => {
-      const res = await authFetch(`${API_BASE}/LegalGuardian/getAll?includeInactive=true`);
-      if (!res.ok){
-        const toastData = await HandleLegalGuardianControllerResponse(res);
-        setToast(toastData);
-      } else {
-        const data: LegalGuardian[] = await res.json();
-        setLegalGuardians(data);
-        if (selectedGuardianId === null) {
-          setSelectedGuardianId(data[0]?.id ?? null);
-        }
-      }
-    })()
-  }, []);
+// Carga de responsables legales (según rol)
+useEffect(() => {
+  (async () => {
+    const res = await authFetch(`${API_BASE}/LegalGuardian/getAll?includeInactive=false`);
+    if (!res.ok) {
+      const toastData = await HandleLegalGuardianControllerResponse(res);
+      setToast(toastData);
+      return;
+    }
+    const data: LegalGuardian[] = await res.json();
+
+    if (isAdmin) {
+      setLegalGuardians(data);
+      setSelectedGuardianId(prev => (prev ?? data[0]?.id ?? null));
+      return;
+    }
+
+    if (isLegalGuardian) {
+      setLegalGuardians([]); // no necesita selector
+      setSelectedGuardianId(myLegalGuardianId);
+
+      return;
+    }
+
+  })();
+}, [isAdmin, isLegalGuardian, myLegalGuardianId]);
+
 
   //Carga de lista de pacientes
   useEffect(() => {
      if (!selectedGuardianId) return;
      (async () => {
+
          const res = await authFetch(`${API_BASE}/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=false`);
   
         if (!res.ok){
@@ -91,16 +113,18 @@ export default function GuardedPatients() {
     setAddStep("form");
     setShowAdd(true);
   };
-  const closeAdd = () => setShowAdd(false);
+  const closeAdd = React.useCallback(() => {
+    setShowAdd(false);
+   }, []);
 
-  const tryCloseAdd = () => {
+  const tryCloseAdd = React.useCallback(() => {
     const dirty = !sameJSON(addForm, addSnapshot);
     if (dirty) {
       setDiscardCtx({ open: true, context: "add" });
     } else {
       closeAdd();
     }
-  };
+  }, [addForm, addSnapshot, closeAdd]);
 
   const handleAddContinue = (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,7 +146,7 @@ export default function GuardedPatients() {
     });
 
     if(res.ok) {
-      const resGet = await authFetch(`${API_BASE}/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=true`);
+      const resGet = await authFetch(`${API_BASE}/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=false`);
       const data: Patient[] = await resGet.json();
       setPatients(data); 
     }
@@ -131,7 +155,7 @@ export default function GuardedPatients() {
     setToast(toastData);
   };
 
-  // ---------- Editar (2 pasos + dirty-check) ----------
+  // ---------- Editar ----------
   const [editTarget, setEditTarget] = useState<Patient | null>(null);
   const [editStep, setEditStep] = useState<"form" | "confirm">("form");
   const [editForm, setEditForm] = useState<Partial<Patient>>({});
@@ -149,20 +173,20 @@ export default function GuardedPatients() {
     setEditSnapshot(initial);
     setEditStep("form");
   };
-  const closeEdit = () => {
+  const closeEdit = React.useCallback(() => {
     setEditTarget(null);
     setEditForm({});
     setEditSnapshot(null);
-  };
+  }, []);
 
-  const tryCloseEdit = () => {
+  const tryCloseEdit = React.useCallback(() => {
     const dirty = !sameJSON(editForm, editSnapshot);
     if (dirty) {
       setDiscardCtx({ open: true, context: "edit" });
     } else {
       closeEdit();
     }
-  };
+  }, [editForm, editSnapshot, closeEdit]);
 
   const handleEditContinue = (e: React.FormEvent) => {
     e.preventDefault();
@@ -187,7 +211,7 @@ export default function GuardedPatients() {
     });
 
     if (res.ok) {
-      const resGet = await authFetch(`${API_BASE}/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=true`);
+      const resGet = await authFetch(`${API_BASE}/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=false`);
       const data: Patient[] = await resGet.json();
       setPatients(data); 
     }
@@ -196,7 +220,7 @@ export default function GuardedPatients() {
     setToast(toastData);
   };
 
-  // ---------- Eliminar (confirmación simple) ----------
+  // ---------- Eliminar  ----------
   const [deleteTarget, setDeleteTarget] = useState<Patient | null>(null);
   const openDelete = (p: Patient) => setDeleteTarget(p);
   const closeDelete = () => setDeleteTarget(null);
@@ -211,7 +235,7 @@ export default function GuardedPatients() {
 
     // Recargar
     if(res.ok) {
-      const resGet = await authFetch(`${API_BASE}/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=true`);
+      const resGet = await authFetch(`${API_BASE}/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=false`);
       const data: Patient[] = await resGet.json();
       setPatients(data); 
       
@@ -233,7 +257,7 @@ export default function GuardedPatients() {
     setDiscardCtx({ open: false });
   };
 
-  // ---------- ESC para cerrar (respeta dirty-check) ----------
+  // ---------- ESC para cerrar  ----------
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
@@ -244,37 +268,41 @@ export default function GuardedPatients() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [showAdd, editTarget, deleteTarget, discardCtx.open, addForm, editForm, addSnapshot, editSnapshot]);
+  }, [showAdd, editTarget, deleteTarget, discardCtx.open, addForm, editForm, addSnapshot, editSnapshot, tryCloseAdd, tryCloseEdit]);
 
   // ---------- Derivados para render ----------
   const hasPatients = patients.length > 0;
+
 
   return (
 
     <Page>
       <SectionHeader title="Pacientes a cargo" />
 
-      {/* selector de responsable legal. Esto se iria en cuanto tengamos roles */}
-      <FilterBar>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <FormField label="Responsable legal" htmlFor="guardian">
-            <select
-              id="guardian"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
-              value={selectedGuardianId ?? ""}
-              onChange={(e) => setSelectedGuardianId(Number(e.target.value))}
-            >
-              {[...legalGuardians]
-                .sort((a, b) => (a.id ?? 0) - (b.id ?? 0))
-                .map((g) => (
-                  <option key={g.id} value={g.id}>
-                    {`Id: ${g.id}, ${g.lastName} ${g.firstName}`}
-                  </option>
-                ))}
-            </select>
-          </FormField>
-        </div>
-      </FilterBar>
+      {/* Selector de responsable legal only for the admin! */}
+      {isAdmin && (
+        <FilterBar>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <FormField label="Responsable legal" htmlFor="guardian">
+              <select
+                id="guardian"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                value={selectedGuardianId ?? ""}
+                onChange={(e) => setSelectedGuardianId(Number(e.target.value))}
+              >
+                {[...legalGuardians]
+                  .sort((a, b) => (a.id ?? 0) - (b.id ?? 0))
+                  .map((g) => (
+                    <option key={g.id} value={g.id}>
+                      {`Id: ${g.id}, ${g.lastName} ${g.firstName}`}
+                    </option>
+                  ))}
+              </select>
+            </FormField>
+          </div>
+        </FilterBar>
+      )}
+
 
       {/* Estado vacío */}
       {!hasPatients && (

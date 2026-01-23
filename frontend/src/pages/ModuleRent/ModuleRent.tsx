@@ -6,15 +6,15 @@ import { Toast,PrimaryButton, FormField, Card, FilterBar,
 import { Page, SectionHeader } from "@/components/Layout";
 
 import { HandleModuleControllerResponse, HandleConsultingRoomControllerResponse, HandleProfessionalControllerResponse } from "@/common/utils";
-import { ConsultingRoom, Professional } from "@/common/types";
+import { ConsultingRoom, Professional, UserRole } from "@/common/types";
 import { authFetch } from "@/common/utils/auth/AuthFetch";
 import { API_BASE } from '@/lib/api';
+import { useAuth } from "@/common/utils/auth/AuthContext";
 
 export type DayKey = "lun" | "mar" | "mie" | "jue" | "vie" | "sab";
 export type SlotState = "available" | "mine" | "reserved" | "unavailable";
 export type SlotId = `${DayKey}-${string}`;
 export type Availability = Record<DayKey, Record<string, SlotState>>;
-
 
 const DAYS: DayKey[] = ["lun", "mar", "mie", "jue", "vie", "sab"];
 
@@ -54,6 +54,13 @@ const buildBaseAvailability = (): Availability => {
 };
 
 export default function ModuleRent() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === UserRole.Admin;
+  const isProfessional = user?.role === UserRole.Professional;
+
+  const myProfessionalId = (user as any)?.idProfessional ?? (user as any)?.id;
+
+
   const [consultingRoomId, setConsultingRoomId] = useState<number | undefined>(undefined);
   const [availability, setAvailability] = useState<Availability>(buildBaseAvailability);
   const [selected, setSelected] = useState<Set<SlotId>>(new Set());
@@ -61,6 +68,8 @@ export default function ModuleRent() {
   const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [consultingRooms, setConsultingRooms] = useState<ConsultingRoom[]>([]);
   const [selectedProfessionalId, setSelectedProfessionalId] = useState<number | undefined>(undefined);
+
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   
   
   // === cargar consultorios ===
@@ -81,42 +90,45 @@ export default function ModuleRent() {
     fetchConsultingRooms();
   }, []);
 
-  // === cargar profesionales ===
+// === cargar profesionales ===
   useEffect(() => {
     const fetchProfessionals = async () => {
-      try {
-        const res = await authFetch(`${API_BASE}/Professional/getAll?includeInactive=false`);
+      const res = await authFetch(`${API_BASE}/Professional/getAll?includeInactive=false`);
+      if (!res.ok) {
+        const toastData = await HandleProfessionalControllerResponse(res);
+        setToast(toastData);
+        return;
+      }
+      const data: Professional[] = await res.json();
 
-        if(!res.ok) {
-          const toastData = await HandleProfessionalControllerResponse(res);
-          setToast(toastData);
-          return;
-        }
-
-        const data: Professional[] = await res.json();
+      if (isAdmin) {
         setProfessionals(data);
-        if (data.length) setSelectedProfessionalId(data[0].id);
-      } catch(err) { console.error(err); }
+        setSelectedProfessionalId(prev => prev ?? data[0]?.id);
+        return;
+      }
+
+      if (isProfessional) {
+        const me = data.find(p => p.id === myProfessionalId) ?? null;
+        setProfessionals(me ? [me] : []);
+        setSelectedProfessionalId(me?.id);
+        return;
+      }
+
     };
     fetchProfessionals();
-  }, []);
-
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
-
-
-  // === cargar módulos ===
-  useEffect(() => {
-    fetchModules();
-  }, [consultingRoomId, selectedProfessionalId]);
+  }, [isAdmin, isProfessional, myProfessionalId]);
 
   
   // === Limpiar rangos al cambiar de dia/consultorio o clickear por tercera vez
   useEffect(() => {
     clearSelection();
     setRangeStart(null);
-}, [consultingRoomId]);
+}, [consultingRoomId, selectedProfessionalId]);
 
-  const fetchModules = async () => {
+// lo paso a useCallback ya que:
+// Si un useEffect llama a una función definida en el componente → useCallback.
+// y porque: Si una función está en un dependency array → debe ser estable.
+  const fetchModules = React.useCallback(async () => {
     if (consultingRoomId == null || selectedProfessionalId == null) return;
       try {
         const res = await authFetch(`${API_BASE}/Module/getCurrentMonthModulesByConsultingRoom/${consultingRoomId}`);
@@ -126,7 +138,6 @@ export default function ModuleRent() {
           setToast(toastData);
           return;
         }
-
 
         const resJson = await res.json();
         const next = buildBaseAvailability();
@@ -150,7 +161,14 @@ export default function ModuleRent() {
 
         setAvailability(next);
       } catch(err){ console.error(err); }
-    };
+    }, [consultingRoomId, selectedProfessionalId]);
+
+// === cargar módulos ===
+  useEffect(() => {
+    fetchModules();
+  }, [fetchModules]);
+
+
   // === selección rango a reservar===
   const selectRange = (clickedId: SlotId) => {
     const [clickedDay, clickedHour] = clickedId.split("-") as [DayKey, string];
@@ -267,20 +285,24 @@ export default function ModuleRent() {
               </select>
             </FormField>
 
-            <FormField label="Profesional" htmlFor="sel-pro">
-              <select
-                id="sel-pro"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                value={selectedProfessionalId ?? ""}
-                onChange={(e) => setSelectedProfessionalId(Number(e.target.value))}
-              >
-                {professionals.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.firstName} {p.lastName}
-                  </option>
-                ))}
-              </select>
-            </FormField>
+
+            {isAdmin && (
+              <FormField label="Profesional" htmlFor="sel-pro">
+                <select
+                  id="sel-pro"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  value={selectedProfessionalId ?? ""}
+                  onChange={(e) => setSelectedProfessionalId(Number(e.target.value))}
+                >
+                  {professionals.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.firstName} {p.lastName}
+                    </option>
+                  ))}
+                </select>
+              </FormField>
+            )}
+
 
             <div className="flex justify-end">
               <PrimaryButton variant="outline" onClick={clearSelection} disabled={!rangeStart}>

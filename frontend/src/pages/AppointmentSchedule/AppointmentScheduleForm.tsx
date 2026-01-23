@@ -25,6 +25,8 @@ type Props = {
 
   slots: string[];
   loadingSlots: boolean;
+  
+  showPatientSelect: boolean;
 
   selectedOccupationId: number | undefined;
   selectedProfessionalId: number | null;
@@ -68,6 +70,8 @@ export const AppointmentScheduleForm: React.FC<Props> = (props) => {
     slots,
     loadingSlots,
 
+    showPatientSelect,
+
     selectedOccupationId,
     selectedProfessionalId,
     selectedPatientId,
@@ -101,26 +105,28 @@ export const AppointmentScheduleForm: React.FC<Props> = (props) => {
       {/* Filtros */}
         <FilterBar>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            
             {/* Paciente */}
-            <FormField label="Paciente" htmlFor="sel-patient">
-              <select
-                id="sel-patient"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                value={selectedPatientId ?? ""}
-                onChange={(e) => onChangePatient(Number(e.target.value))}
-                disabled={loadingPatients}
-              >
-                <option value="">
-                  Seleccioná un paciente activo
-                </option>
-                {patients.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.firstName} {p.lastName}
-                  </option>
-                ))}
-              </select>
-              {loadingPatients && <p className="text-xs text-gray-600 mt-1">Cargando pacientes…</p>}
-            </FormField>
+            {showPatientSelect && (
+              <FormField label="Paciente" htmlFor="sel-patient">
+                <select
+                  id="sel-patient"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  value={selectedPatientId ?? ""}
+                  onChange={(e) => onChangePatient(Number(e.target.value))}
+                  disabled={loadingPatients}
+                >
+                  <option value="">Seleccioná un paciente a cargo</option>
+                  {patients.map(p => (
+                    <option key={p.id} value={p.id}>
+                      {p.firstName} {p.lastName}
+                    </option>
+                  ))}
+                </select>
+              </FormField>
+            )}
+
+
 
             {/* Especialidad */}
             <FormField label="Especialidad" htmlFor="sel-occ">

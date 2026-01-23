@@ -11,28 +11,40 @@ import { Toast, EmptyState, Table, PrimaryButton, Card, FilterBar, FormField } f
 import { Page, SectionHeader } from "@/components/Layout";
 import {HealthInsurance, Patient, PopulatedAppointment, Professional } from '@/common/types';
 import { authFetch } from '@/common/utils/auth/AuthFetch';
+import { useAuth } from "@/common/utils/auth/AuthContext";
+import { UserRole } from '@/common/types';
 
 import { API_BASE } from '@/lib/api';
 
 
 type Filters = {
   patientId?: number;
-  professionalId?: number;
   healthInsuranceId?: number;
   date: string;
 };
 
 export default function AppointmentList() {
+
+  const { user } = useAuth();
+  const isAdmin = user?.role === UserRole.Admin;
+  const isProfessional = user?.role === UserRole.Professional;
+
+  const myProfessionalId = (user as any)?.idProfessional ?? (user as any)?.id;
+
   const [appointments, setAppointments] = useState<PopulatedAppointment[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [healthInsurances, setHealthInsurances] = useState<HealthInsurance[]>([]);
+  
+  const [selectedProfessional, setSelectedProfessional] =
+    useState<Professional | null>(null);
+
   const [filters, setFilters] = useState<Filters>({
     patientId: undefined,
-    professionalId: undefined,
     healthInsuranceId: undefined,
     date: '',
   });
+
   const [loadingAppointments, setLoadingAppointments] = useState(false);
 
   /*Pantallita de error o exito al terminar una accion*/
@@ -117,17 +129,27 @@ export default function AppointmentList() {
      // carga los filtros -> profesional, paciente y OS
     const loadFilters = async () => {
       try {
-        const profs = await getProfessionals();
-        const pats = await getPatients();
-        const ins = await getHealthInsurances();
+          const pats = await getPatients();
+          const ins = await getHealthInsurances();
+          const profs = await getProfessionals();
 
-        if (!profs || !pats || !ins){
-          return;
-        }
+          if (!pats || !ins || !profs) return;
 
-        setProfessionals(profs);
-        setPatients(pats);
-        setHealthInsurances(ins);
+          setPatients(pats);
+          setHealthInsurances(ins);
+
+          // rol admin
+          if (isAdmin) {
+            setProfessionals(profs);
+            setSelectedProfessional(prev => prev ?? profs[0] ?? null);
+          }
+
+          // rol profesional
+          if (isProfessional) {
+            const me = profs.find(p => p.id === myProfessionalId) ?? null;
+            setProfessionals(me ? [me] : []);
+            setSelectedProfessional(me);
+          }
 
       } catch (error) {
         setToast({message: 'Error al cargar los filtros', type: "error"});
@@ -156,14 +178,14 @@ export default function AppointmentList() {
     loadFilters();
     loadAppointments();
 
-  }, []);
+  }, [isAdmin, isProfessional, myProfessionalId]);
 
   const filteredAppointments = useMemo(() => {
     return appointments.filter(a => {
       const matchPatient = !filters.patientId || a.patient?.id === filters.patientId;
 
       const matchProfessional =
-        !filters.professionalId || a.professional?.id === filters.professionalId;
+        !selectedProfessional || a.professional?.id === selectedProfessional.id;
 
       const matchInsurance =
         !filters.healthInsuranceId || a.healthInsurance?.id === filters.healthInsuranceId;
@@ -172,7 +194,7 @@ export default function AppointmentList() {
 
       return matchPatient && matchProfessional && matchInsurance && matchDate;
     });
-  }, [appointments, filters]);
+  }, [appointments, filters, selectedProfessional]);
 
 
   return (
@@ -183,23 +205,29 @@ export default function AppointmentList() {
     {/* Filtros */}
       <FilterBar>
           {/* Profesional */}
-          <FormField label="Profesional" htmlFor="filter-professional">
-            <select
-              id="filter-professional"
-              value={filters.professionalId ?? ''}
-              onChange={(e) => handleFilterChange('professionalId', e.target.value)}
-              className="border rounded-lg p-3 w-full focus:ring-2 focus:ring-cyan-500"
-            >
-              <option value="">Todos</option>
-              {professionals
-                .sort((a, b) => fullName(a).localeCompare(fullName(b), 'es'))
-                .map((pr) => (
-                  <option key={`prof-${pr.id}`} value={String(pr.id)}>
-                    {fullName(pr)}
-                  </option>
-                ))}
-            </select>
-          </FormField>
+          {isAdmin && (
+            <FormField label="Profesional" htmlFor="filter-professional">
+              <select
+                id="filter-professional"
+                value={selectedProfessional?.id ?? ''}
+                onChange={(e) => {
+                  const prof = professionals.find(
+                    p => p.id === Number(e.target.value)
+                  );
+                  setSelectedProfessional(prof ?? null);
+                }}
+                className="border rounded-lg p-3 w-full"
+              >
+                {professionals
+                  .sort((a, b) => fullName(a).localeCompare(fullName(b), 'es'))
+                  .map(p => (
+                    <option key={p.id} value={p.id}>
+                      {fullName(p)}
+                    </option>
+                  ))}
+              </select>
+            </FormField>
+          )}
 
           {/* Paciente */}
           <FormField label="Paciente" htmlFor="filter-patient">
@@ -258,7 +286,6 @@ export default function AppointmentList() {
                 onClick={() =>
                   setFilters({
                     patientId: undefined,
-                    professionalId: undefined,
                     healthInsuranceId: undefined,
                     date: '',
                   })
@@ -302,7 +329,6 @@ export default function AppointmentList() {
             onClick={() =>
               setFilters({
                 patientId: undefined,
-                professionalId: undefined,
                 healthInsuranceId: undefined,
                 date: '',
               })

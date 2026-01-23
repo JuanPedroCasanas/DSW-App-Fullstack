@@ -16,11 +16,27 @@ import { HandleAppointmentControllerResponse,
   HandleProfessionalControllerResponse } from '@/common/utils';
 
 import { AppointmentScheduleForm } from './AppointmentScheduleForm';
-import { Appointment, Occupation, Patient, Professional } from '@/common/types';
+import { Appointment, Occupation, Patient, Professional, UserRole } from '@/common/types';
 import { authFetch } from '@/common/utils/auth/AuthFetch';
 import { API_BASE } from '@/lib/api';
+import { useAuth } from '@/common/utils/auth/AuthContext';
 
 export default function AppointmentSchedule() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === UserRole.Admin;
+  const isPatient = user?.role === UserRole.Patient;
+  const isLegalGuardian = user?.role === UserRole.LegalGuardian;
+
+  const myPatientId = (user as any)?.idPatient ?? 
+    (user as any)?.id ??
+    (user as any)?.patient?.id ??
+    (isPatient ? (user as any)?.id : null);
+
+  const myLegalGuardianId =  (user as any)?.idLegalGuardian ??
+     (user as any)?.legalGuardian?.id ??
+     (isLegalGuardian ? (user as any)?.id : null);
+
+
   // para el manejo de errores
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
@@ -56,32 +72,63 @@ export default function AppointmentSchedule() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [bookingState, setBookingState] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
 
-// esto se va a ir cuando pongamos roles (solo para el caso de paciente)
-// para responsable legal seria otra cosa
-  // pacientes (activos primero)
+
+// === carga según rol ===
   useEffect(() => {
     let cancelled = false;
+
     (async () => {
       try {
         setLoadingPatients(true);
-        const res = await authFetch(`${API_BASE}/Patient/getAll`, { method: 'GET' });
-        if (!res.ok) {
-          // deberia ser HandlePatientControllerResponse pero se va a ir esto en cuanto tengamos roles
-          const toastData = await HandleAppointmentControllerResponse(res);
-          if (!cancelled) setToast(toastData);
+
+        // rol paciente
+        if (isPatient) {
+          if (!cancelled) {
+            setPatients([]);
+            setSelectedPatientId(myPatientId);
+          }
           return;
         }
-        const all: Patient[] = await res.json();
-        const actives = all.filter(p => p.isActive);
-        if (!cancelled) setPatients(actives);
+
+        // rol responsable legal
+        if (isLegalGuardian) {
+          const res = await authFetch(
+            `${API_BASE}/Patient/getByLegalGuardian/${myLegalGuardianId}?includeInactive=false`
+          );
+          if (!res.ok) return;
+
+          const data: Patient[] = await res.json();
+          if (!cancelled) {
+            setPatients(data);
+            setSelectedPatientId(null); // debe elegir
+          }
+          return;
+        }
+
+        // rol admin
+        if (isAdmin) {
+          const res = await authFetch(`${API_BASE}/Patient/getAll`);
+          if (!res.ok) return;
+
+          const all: Patient[] = await res.json();
+          const actives = all.filter(p => p.isActive);
+          if (!cancelled) {
+            setPatients(actives);
+            setSelectedPatientId(null);
+          }
+        }
       } catch {
-        if (!cancelled) setToast({ message: 'No se pudieron cargar los pacientes.', type: 'error' });
+        if (!cancelled) {
+          setToast({ message: "No se pudieron cargar los pacientes.", type: "error" });
+        }
       } finally {
         if (!cancelled) setLoadingPatients(false);
       }
     })();
+
     return () => { cancelled = true; };
-  }, []);
+  }, [isAdmin, isPatient, isLegalGuardian, user, myLegalGuardianId, myPatientId]);
+
 
   // Al cambiar de paciente: resetear todo lo dependiente
   useEffect(() => {
@@ -298,8 +345,14 @@ export default function AppointmentSchedule() {
     };
 
     try {
-
-      // FALTA... el id de paciente para asignar...
+      
+      if (!selectedPatientId) {
+        setToast({
+          message: "Seleccioná un paciente antes de confirmar el turno.",
+          type: "error",
+        });
+        return;
+      }
       
       if (!selectedAppointmentId) {
         setToast({ message: 'Elegí un horario válido antes de confirmar.', type: 'error' });
@@ -378,6 +431,7 @@ export default function AppointmentSchedule() {
     loadingMonth={loadingMonth}
     slots={slots}
     loadingSlots={loadingSlots}
+    showPatientSelect={!isPatient}
     selectedOccupationId={selectedOccupationId}
     selectedProfessionalId={selectedProfessionalId}
     selectedDateISO={selectedDateISO}
