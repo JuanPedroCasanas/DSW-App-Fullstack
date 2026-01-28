@@ -11,13 +11,17 @@ export const createUserData = async (mail: string, password: string) => {
         throw new InvalidEmailFormatError(mail)
     }
 
+    const normalizedMail = mail.toLowerCase().trim();
+
     const em = await getORM().em.fork();
-    const existingUser = await em.findOne(User, { mail: mail, isActive: true })
+    
+
+    const existingUser = await em.findOne(User, { mail: normalizedMail, isActive: true })
     
     if(existingUser) {
-        throw new EmailAlreadyExistsError(mail);
+        throw new EmailAlreadyExistsError(normalizedMail);
     }
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-    const user = new User(mail, hashedPassword);
+    const user = new User(normalizedMail, hashedPassword);
     return user;
 }

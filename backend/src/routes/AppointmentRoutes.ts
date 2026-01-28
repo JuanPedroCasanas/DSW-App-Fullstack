@@ -6,26 +6,69 @@ import { getCancelAppointmentSchema } from '../utils/validations/schema/appointm
 import { getByProfessionalAppointmentSchema } from '../utils/validations/schema/appointment/getByProfessionalAppointmentSchema';
 import { updateStatusAppointmentSchema } from '../utils/validations/schema/appointment/updateStatusAppointmentSchema';
 import { getByPatientAppointmentSchema } from '../utils/validations/schema/appointment/getByPatientAppointmentSchema';
+import { authRoles } from '../utils/auth/roles';
+import { authJwt } from '../utils/auth/jwt';
+import { UserRole } from '../utils/enums/UserRole';
 
 const router = express.Router();
-//APLICAR AUTH A TODO ESTO, HAY QUE SER FINOS EN EL CANCEL, COMPLETE Y MISS
-router.post('/assign', validate(assignAppointmentSchema), AppointmentController.assignAppointment);
+
+router.post(
+  '/assign',
+  validate(assignAppointmentSchema),
+  authJwt,
+  authRoles([UserRole.Patient, UserRole.LegalGuardian, UserRole.Admin]),
+  AppointmentController.assignAppointment
+);
 
 
+router.get(
+  '/getAll',
+  authJwt,
+  AppointmentController.getAppointments
+);
 
-router.get('/getAll', AppointmentController.getAppointments);
-router.get('/get/:idAppointment', validate(getCancelAppointmentSchema), AppointmentController.getAppointment);
+router.get(
+  '/get/:idAppointment',
+  validate(getCancelAppointmentSchema),
+  authJwt,  
+  AppointmentController.getAppointment
+);
 
-router.get('/getAvailableAppointmentsByProfessional/:idProfessional', validate(getByProfessionalAppointmentSchema),AppointmentController.getAvailableAppointmentsByProfessional);
-router.get('/getScheduledAppointments', AppointmentController.getScheduledAppointments);
+router.get(
+  '/getAvailableAppointmentsByProfessional/:idProfessional',
+  validate(getByProfessionalAppointmentSchema),
+  authJwt,  
+  AppointmentController.getAvailableAppointmentsByProfessional
+);
+
+router.get(
+  '/getScheduledAppointments',
+  authJwt,
+  AppointmentController.getScheduledAppointments
+);
 
 // funciona: /getAppointmentByStatus?status=scheduled y todos los otros estados que tiene turno
 // lo dejo acá separado del getALl por las dudas
-router.get('/getAppointmentsByStatus', AppointmentController.getAppointmentsByStatus);
+router.get(
+  '/getAppointmentsByStatus',
+  authJwt,
+  AppointmentController.getAppointmentsByStatus
+);
 
 // funciona: /updateStatus?status=completed/missed/cancelled y todos los otros estados que tiene turno
-router.post('/updateStatus', validate(updateStatusAppointmentSchema), AppointmentController.updateAppointmentStatus);
+router.post(
+  '/updateStatus',
+  validate(updateStatusAppointmentSchema),
+  authJwt,  
+  AppointmentController.updateAppointmentStatus
+);
 
-router.get('/getAppointmentsByPatient/:idPatient', validate(getByPatientAppointmentSchema), AppointmentController.getAppointmentsByPatient);
+
+router.get(
+  '/getAppointmentsByPatient/:idPatient',
+  validate(getByPatientAppointmentSchema),
+  authJwt,  
+  AppointmentController.getAppointmentsByPatient
+);
 
 export default router;

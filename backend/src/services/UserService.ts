@@ -20,9 +20,11 @@ export class UserService {
     static async login(mail: string, password: string) {
         const em = (await getORM()).em.fork();
 
+        const normalizedMail = mail.toLowerCase().trim();
+
         const user = await em.findOne(
             User,
-            { mail: mail, isActive: true }, //Solo un usuario existe con un mail y estado activo a la vez.
+            { mail: normalizedMail, isActive: true }, //Solo un usuario existe con un mail y estado activo a la vez.
             { populate: ['patient', 'professional', 'legalGuardian'] }
         );
 

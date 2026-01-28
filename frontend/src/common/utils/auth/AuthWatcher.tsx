@@ -1,6 +1,6 @@
 import { useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { AUTH_401_EVENT } from "./AuthEvents";
+import { AUTH_401_EVENT, AUTH_403_EVENT } from "./AuthEvents";
 import { useLogout } from "./UseLogout";
 
 //Redirige al usuario al login al detectar un evento global emitido por AuthEvents de tipo 401 token expirado
@@ -20,10 +20,11 @@ export default function AuthWatcher() {
 
   useEffect(() => {
     window.addEventListener(AUTH_401_EVENT, onUnauthorized);
-   // window.addEventListener(AUTH_403_EVENT, onForbidden);
+    window.addEventListener(AUTH_403_EVENT, onForbidden);
+    
     return () => {
       window.removeEventListener(AUTH_401_EVENT, onUnauthorized);
-     // window.removeEventListener(AUTH_403_EVENT, onForbidden);
+      window.removeEventListener(AUTH_403_EVENT, onForbidden);
     };
   }, [onUnauthorized, onForbidden]);
 

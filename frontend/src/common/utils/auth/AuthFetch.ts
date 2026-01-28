@@ -1,4 +1,4 @@
-import { emitAuth401 } from "./AuthEvents";
+import { emitAuth401, emitAuth403 } from "./AuthEvents";
 import { getAccessToken } from "./TokenStorage"
 
 // agarra el fetch y lo envuelve con el access token en el
@@ -27,11 +27,9 @@ export async function authFetch(
     emitAuth401();
   }
 
-  /* para cuando esten los roles
-  if (red.status === 403) {
+  if (res.status === 403) {
     emitAuth403();
   }
-  */
 
   //Para que lo muestre el toast
   return res;
