@@ -13,4 +13,4 @@
 
     ## Documentacion Completa:
 
-    Puedes encontrar la documentación completa del proyecto, incluyendo minutas, tracking y guías de instalación [haciendo clic aquí](./docs/README.md).
+    Puedes encontrar la documentación completa del proyecto, incluyendo minutas, tracking y guías de instalación [haciendo clic aquí](.\docs\README.md).
