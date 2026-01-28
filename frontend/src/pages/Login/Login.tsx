@@ -2,15 +2,15 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 
-// import eyeIcon from "./eyeicon.png"; //Buscar una forma de que esto ande
-
 import { Toast, FormField,  InputPassword } from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
 import { setAccessToken } from "@/common/utils/auth/TokenStorage";
 import { HandleErrorResponse } from "@/common/utils";
 import { useAuth } from "@/common/utils/auth/AuthContext";
 
+
 import { API_BASE } from '@/lib/api';
+import { redirectByRole } from "@/common/utils/auth/RoleRedirect";
 
 export default function Login() {
   const [datos, setDatos] = useState({
@@ -21,8 +21,6 @@ export default function Login() {
   const navigate = useNavigate(); 
   const [remember, setRemember] = useState(false);
   const [showPwd, setShowPwd] = useState(false);
-
-  const eyeIconUrl = new URL("./eyeicon.png", import.meta.url).href; //Pasar a componente
 
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const { setUser } = useAuth();
@@ -79,7 +77,10 @@ useEffect(() => {
     };
    
     // descomentar cuando arreglemos los console.log
-    navigate("/", { state: { toastMessage: toastData } });
+    const redirectTo = redirectByRole(data.user.role);
+    navigate(redirectTo, { replace: true, state: { toastMessage: toastData} });
+
+   // navigate("/", { state: { toastMessage: toastData } });
 
     
     } catch (error) {
@@ -139,7 +140,6 @@ return (
           onChange={handleInputChange}
           showPwd={showPwd}
           toggleShowPwd={() => setShowPwd(v => !v)}
-          eyeIconUrl={eyeIconUrl}
         />
       </FormField>
 

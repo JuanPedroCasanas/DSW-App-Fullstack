@@ -107,15 +107,6 @@ const [form, setForm] = useState<{
   const [isError, setIsError] = useState(false);    // Para marcar si el mensaje es un error
   const [isLoading, setIsLoading] = useState(false); // Para deshabilitar el botón durante la petición
 
-  // Mismo truco del ojito que en Login.tsx
-  const eyeIconUrl = useMemo(() => {
-    try {
-      return new URL("./eyeicon.png", import.meta.url).href;
-    } catch {
-      return "";
-    }
-  }, []);
-
   const todayISO = useMemo(() => new Date().toISOString().split("T")[0], []);
 
   function handleChange(
@@ -309,7 +300,6 @@ const [form, setForm] = useState<{
                 onChange={handleChange}
                 showPwd={showPwd}
                 toggleShowPwd={() => setShowPwd(v => !v)}
-                eyeIconUrl={eyeIconUrl}
                 />
             </FormField>
 
@@ -322,7 +312,6 @@ const [form, setForm] = useState<{
                 onChange={handleChange}
                 showPwd={showConfirmPwd}
                 toggleShowPwd={() => setShowConfirmPwd(v => !v)}
-                eyeIconUrl={eyeIconUrl}
                 />
                 {form.confirmPassword && form.password !== form.confirmPassword && (
                 <small className="text-red-600 mt-1 block">

@@ -71,9 +71,7 @@ export default function App() {
         </Route>
 
         {/* ADMIN */}
-        <Route element={<ProtectedRoute  />}>
-        {/* descomentar esto cuando haya un usuario con rol admin en la bd
-        <Route element={<ProtectedRoute roles={["admin"]} />}>*/}
+        <Route element={<ProtectedRoute roles={["admin"]}  />}>
 
           <Route path="/debug-console" element={
             <DebugConsole />} />

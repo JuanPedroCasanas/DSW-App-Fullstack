@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"; // si no usás Router, ver nota más abajo
 
-import { Toast, ActionGrid, PrimaryButton, FormField, Card, InputPassword } from "@/components/ui";
+import { Toast, ActionGrid, PrimaryButton, FormField, Card, InputPassword, Modal } from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
 
 import {
@@ -12,12 +12,17 @@ import {
   HandleUserControllerResponse
 } from '@/common/utils';
 
-import { HealthInsurance, User } from "@/common/types";
+import { HealthInsurance, User, UserRole } from "@/common/types";
 import { authFetch } from "@/common/utils/auth/AuthFetch";
 import { API_BASE } from '@/lib/api';
+import { useAuth } from "@/common/utils/auth/AuthContext";
+import { useLogout } from "@/common/utils/auth/UseLogout";
 
 
 export default function EditProfile() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === UserRole.Admin;
+  const logout = useLogout();
 
   // ----- Usuario seleccionado -----
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -69,8 +74,9 @@ export default function EditProfile() {
     })();
   }, []);
 
-  //Popular Usuarios (En AD Se sacaran estos datos del user logueado)
+  //Popular Usuarios: sólo para admin
   useEffect(() => {
+    if (!isAdmin) return;
     (async () => {
         const res = await authFetch(`${API_BASE}/User/getAll?includeInactive=false`);
   
@@ -118,8 +124,15 @@ export default function EditProfile() {
     }
   }, [selectedUser]);
 
+  useEffect(() => {
+    if (!isAdmin && user){
+      setSelectedUser(user as user);
+    }
 
-  // ----- Envíos simulados -----
+  }, [isAdmin, user]);
+
+
+  // ----- Envíos -----
   const handleSubmitAuth = async (currentPwd: string, newPwd: string, confirmPwd: string) => {
     if (newPwd !== confirmPwd) {
       setToast({ message: "Las contraseñas no coinciden", type: "error" });
@@ -283,6 +296,20 @@ export default function EditProfile() {
     if(toastData) {
       setToast(toastData);
     }
+
+  // esto es para cuando el usuario elimina su propio perfil
+  // le cierra la sesión
+  // pero verifico primero que se haya auto-eliminado para no cerrarle la sesión al admin!
+    const deletedUserId = selectedUser.id;
+    const loggedUserId = (user as any)?.id;
+    const isSelfDelete = deletedUserId != null && loggedUserId != null && deletedUserId === loggedUserId;
+
+    if (isSelfDelete && res.ok) {
+      setTimeout(() =>{
+        logout(); 
+      }, 600);
+    };
+
   };
 
   // Cerrar modal con ESC
@@ -310,27 +337,30 @@ export default function EditProfile() {
 
     <Page>
         <main className="grid min-h-screen">
-            <section className="max-w-3xl mx-auto p-4 sm:p-6">
-            <SectionHeader title="Seleccionar usuario" />
-            <FormField label="Usuario" htmlFor="user">
+          <section className="max-w-3xl mx-auto p-4 sm:p-6">
+            <SectionHeader title={isAdmin ? "Seleccionar usuario" : "Editar mi perfil"} />
+            {isAdmin && (
+              <FormField label="Usuario" htmlFor="user">
                 <select
-                id="user"
+                  id="user"
                 className="border rounded-lg p-3 w-full text-gray-700 focus:ring-2 focus:ring-cyan-500"
-                value={selectedUser?.id ?? ""}
-                onChange={(e) => {
+                  value={selectedUser?.id ?? ""}
+                  onChange={(e) => {
                     const user = users.find((u) => u.id === Number(e.target.value));
                     setSelectedUser(user ?? null);
-                }}
+                  }}
                 >
-                <option value="">Seleccionar…</option>
-                {users.map((user) => (
+                  <option value="">Seleccionar…</option>
+                  {users.map((user) => (
                     <option key={user.id} value={user.id}>
-                    {user.id} - {user.mail} — {user.role}
+                      {user.id} - {user.mail} — {user.role}
                     </option>
-                ))}
+                  ))}
                 </select>
-            </FormField>
-            </section>
+              </FormField>
+            )}
+          </section>
+
 
             {selectedUser && (
             <section className="space-y-6">
@@ -449,17 +479,37 @@ export default function EditProfile() {
                 </form>
 
                 {/* === Footer acciones === */}
+                <div className="flex justify-end gap-3 mt-6">
+                  <PrimaryButton onClick={handleCancel} size="sm">
+                    Cancelar
+                  </PrimaryButton>
+                  <PrimaryButton onClick={openConfirmDelete} size="sm" variant="danger">
+                    Borrar perfil
+                  </PrimaryButton>
+                </div>
 
-                    <div className="flex justify-end gap-3 mt-6">
-                        <PrimaryButton onClick={handleCancel} size="sm">
-                            Cancelar
-                        </PrimaryButton>
-                        <PrimaryButton onClick={openConfirmDelete} size="sm" variant="danger">
-                            Borrar perfil
-                        </PrimaryButton>
-                    </div>
             </section>
             )}
+
+            {/* eliminar perfil */}
+                {showConfirmDelete && (
+                <Modal title="Borrar perfil" onClose={closeConfirmDelete}>
+                  <p className="text-gray-700 mb-6">
+                    ¿Estás segura/o que querés borrar este perfil?
+                    <br />
+                    Esta acción no se puede deshacer.
+                  </p>
+
+                  <div className="flex justify-end gap-3">
+                    <PrimaryButton onClick={closeConfirmDelete} size="sm" variant="outline">
+                      Cancelar
+                    </PrimaryButton>
+                    <PrimaryButton onClick={handleConfirmDelete} size="sm" variant="danger">
+                      Confirmar borrado
+                    </PrimaryButton>
+                  </div>
+                </Modal>
+              )}
 
             {/* === Modal cambiar contraseña === */}
             
@@ -490,7 +540,6 @@ export default function EditProfile() {
                         onChange={(e) => setCurrentPassword(e.target.value)}
                         showPwd={showCurrentPassword}
                         toggleShowPwd={() => setShowCurrentPassword(!showCurrentPassword)}
-                        eyeIconUrl="/icons/eyeicon.png"
                     />
                     <InputPassword
                         label="Nueva contraseña"
@@ -500,7 +549,6 @@ export default function EditProfile() {
                         onChange={(e) => setNewPassword(e.target.value)}
                         showPwd={showNewPassword}
                         toggleShowPwd={() => setShowNewPassword(!showNewPassword)}
-                        eyeIconUrl="/icons/eyeicon.png"
                     />
                     <InputPassword
                         label="Repetir nueva contraseña"
@@ -510,7 +558,6 @@ export default function EditProfile() {
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         showPwd={showNewConfirmPassword}
                         toggleShowPwd={() => setShowNewConfirmPassword(!showNewConfirmPassword)}
-                        eyeIconUrl="/icons/eyeicon.png"
                     />
                 </div>
 

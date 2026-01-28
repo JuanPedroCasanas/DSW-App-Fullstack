@@ -1,9 +1,10 @@
-import { ActionGrid, NavButton} from "@/components/ui";
+import { ActionGrid, NavButton, Toast} from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
-import { getAccessToken } from "@/common/utils/auth/TokenStorage";
+import { useLocation } from "react-router-dom";
 
 export default function ProfessionalPortal() {
-
+  const location = useLocation();
+  const toastMessage = location.state?.toastMessage;
 
   return (
     <Page>
@@ -21,6 +22,14 @@ export default function ProfessionalPortal() {
 
         <NavButton to="/appointment-list">Listado de turnos</NavButton>
       </ActionGrid>
+
+  {toastMessage && (
+    <Toast
+      message={toastMessage.message}
+      type={toastMessage.type}
+      onClose={() => {}}
+    />
+  )}
 
     </Page>
   );

@@ -1,8 +1,11 @@
-import { ActionGrid, NavButton} from "@/components/ui";
+import { ActionGrid, NavButton, Toast} from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
+import { useLocation } from "react-router-dom";
 
 
 export default function LegalGuardianPortal() {
+  const location = useLocation();
+  const toastMessage = location.state?.toastMessage;
 
   return (
     <Page>
@@ -20,6 +23,14 @@ export default function LegalGuardianPortal() {
         <NavButton to="/edit-profile">Editar perfil</NavButton>
 
       </ActionGrid>
+
+    {toastMessage && (
+      <Toast
+        message={toastMessage.message}
+        type={toastMessage.type}
+        onClose={() => {}}
+      />
+    )}
 
     </Page>
   );

@@ -1,9 +1,11 @@
-import { ActionGrid, NavButton} from "@/components/ui";
+import { ActionGrid, NavButton, Toast} from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
-import { useAuth } from "@/common/utils/auth/AuthContext";
+import { useLocation } from "react-router-dom";
 
 
 export default function PatientPortal() {
+  const location = useLocation();
+  const toastMessage = location.state?.toastMessage;
 
   return (
     <Page>
@@ -19,6 +21,14 @@ export default function PatientPortal() {
         <NavButton to="/edit-profile">Editar perfil</NavButton>
 
       </ActionGrid>
+
+    {toastMessage && (
+      <Toast
+        message={toastMessage.message}
+        type={toastMessage.type}
+        onClose={() => {}}
+      />
+    )}
 
     </Page>
   );

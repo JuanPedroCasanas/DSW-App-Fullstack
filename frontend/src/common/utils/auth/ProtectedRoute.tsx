@@ -12,7 +12,17 @@ export default function ProtectedRoute({ roles }:
 
   // para los roles:
   if (roles && !roles.includes(user.role)) {
-    return <Navigate to="/about" replace />;
+
+    const roleRedirectMap: Record<string, string> = {
+      admin: "/debug-console",
+      professional: "/professional-portal",
+      patient: "/patient-portal",
+      legalGuardian: "/legal-guardian-portal",
+    };
+
+    const redirectTo = roleRedirectMap[user.role] ?? "/about";
+
+    return <Navigate to={ redirectTo } replace />;
   }
 
   // para anidar las rutas en App.tsx
