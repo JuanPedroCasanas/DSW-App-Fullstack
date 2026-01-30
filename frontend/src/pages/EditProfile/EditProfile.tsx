@@ -60,7 +60,7 @@ export default function EditProfile() {
   useEffect(() => {
     (async () => {
   
-        const res = await authFetch(`${API_BASE}/HealthInsurance/getAll?includeInactive=false`);
+        const res = await authFetch(`${API_BASE}/healthInsurance/getAll?includeInactive=false`);
   
         if (!res.ok){
           const toastData = await HandleErrorResponse(res);
@@ -78,7 +78,7 @@ export default function EditProfile() {
   useEffect(() => {
     if (!isAdmin) return;
     (async () => {
-        const res = await authFetch(`${API_BASE}/User/getAll?includeInactive=false`);
+        const res = await authFetch(`${API_BASE}/user/getAll?includeInactive=false`);
   
         if (!res.ok){
           const toastData = await HandleErrorResponse(res);
@@ -147,7 +147,7 @@ export default function EditProfile() {
           newPassword: confirmPwd,
     }
 
-    const res = await authFetch(`${API_BASE}/User/updatePassword`, {
+    const res = await authFetch(`${API_BASE}/user/updatePassword`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -193,19 +193,19 @@ export default function EditProfile() {
       payload.birthdate = (birthdate ?? "").trim();
       payload.idPatient = selectedUser.patient.id;
       payload.idHealthInsurance = selectedHealthInsuranceId;
-      route = "/Patient/updateIndPatient";
+      route = "/patient/updateIndPatient";
     }
 
     if(selectedUser.legalGuardian) {
       payload.birthdate = (birthdate ?? "").trim();
       payload.idLegalGuardian = selectedUser.legalGuardian.id;
       payload.idHealthInsurance = selectedHealthInsuranceId;
-      route = "/LegalGuardian/update";
+      route = "/legalGuardian/update";
     }
 
     if(selectedUser.professional) {
       payload.idProfessional = selectedUser.professional.id;
-      route = "/Professional/update";
+      route = "/professional/update";
     }
 
     if(!route) {
@@ -260,17 +260,17 @@ export default function EditProfile() {
     
     if(selectedUser.patient) {
       id = selectedUser.patient.id;
-      route = "/Patient/delete";
+      route = "/patient/delete";
     }
 
     if(selectedUser.legalGuardian) {
       id = selectedUser.legalGuardian.id;
-      route = "/LegalGuardian/delete";
+      route = "/legalGuardian/delete";
     }
 
     if(selectedUser.professional) {
       id = selectedUser.professional.id;
-      route = "/Professional/delete";
+      route = "/professional/delete";
     }
 
     if(!route) {

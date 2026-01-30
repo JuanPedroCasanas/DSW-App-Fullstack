@@ -46,7 +46,7 @@ export default function ProfessionalHealthInsurances(){
     (async () => {
       // rol admin
       if (isAdmin) {
-        const res = await authFetch(`${API_BASE}/Professional/getAllWithHealthInsurances?includeInactive=false`);
+        const res = await authFetch(`${API_BASE}/professional/getAllWithHealthInsurances?includeInactive=false`);
         if (!res.ok) {
           const toastData = await HandleProfessionalControllerResponse(res);
           setToast(toastData);
@@ -64,7 +64,7 @@ export default function ProfessionalHealthInsurances(){
         // trae todos y dsp filtra por id de profesional
         // deberia ver de crearle el metodo en el controlador
 
-        const res = await authFetch(`${API_BASE}/Professional/getAllWithHealthInsurances?includeInactive=false`);
+        const res = await authFetch(`${API_BASE}/professional/getAllWithHealthInsurances?includeInactive=false`);
         if (!res.ok) {
           const toastData = await HandleProfessionalControllerResponse(res);
           setToast(toastData);
@@ -91,7 +91,7 @@ export default function ProfessionalHealthInsurances(){
   useEffect(() => {
     if (!selectedProfessional) return;
     (async () => {
-      const res = await authFetch(`${API_BASE}/HealthInsurance/getAll?includeInactive=false`);
+      const res = await authFetch(`${API_BASE}/healthInsurance/getAll?includeInactive=false`);
       if (!res.ok) {
         const toastData = await HandleHealthInsuranceControllerResponse(res);
         setToast(toastData);
@@ -150,14 +150,14 @@ export default function ProfessionalHealthInsurances(){
       idHealthInsurance: selectedHealthInsuranceId,
     }
     
-    const res = await authFetch(`${API_BASE}/Professional/allowHealthInsurance`, {
+    const res = await authFetch(`${API_BASE}/professional/allowHealthInsurance`, {
      method: 'POST', 
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify( payload ),
       });
     
     if(res.ok) {
-      const resGet = await authFetch(`${API_BASE}/Professional/getAllWithHealthInsurances?includeInactive=false`);
+      const resGet = await authFetch(`${API_BASE}/professional/getAllWithHealthInsurances?includeInactive=false`);
       const data: Professional[] = await resGet.json();
       setProfessionals(isAdmin ? data : data.filter((p) => p.id === selectedProfessional.id)); 
 
@@ -184,13 +184,13 @@ export default function ProfessionalHealthInsurances(){
       idHealthInsurance: deleteTarget.id,
     }
 
-    const res = await authFetch(`${API_BASE}/Professional/forbidHealthInsurance`,
+    const res = await authFetch(`${API_BASE}/professional/forbidHealthInsurance`,
       {method: "POST",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify( payload ),
   });
   if (res.ok) {
-      const resGet = await authFetch(`${API_BASE}/Professional/getAllWithHealthInsurances?includeInactive=false`);
+      const resGet = await authFetch(`${API_BASE}/professional/getAllWithHealthInsurances?includeInactive=false`);
       const data: Professional[] = await resGet.json();
       setProfessionals(data); 
       if (selectedProfessional) {

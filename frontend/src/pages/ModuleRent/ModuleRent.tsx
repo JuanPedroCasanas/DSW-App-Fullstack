@@ -75,7 +75,7 @@ export default function ModuleRent() {
   // === cargar consultorios ===
   useEffect(() => {
     const fetchConsultingRooms = async () => {
-      const res = await authFetch(`${API_BASE}/ConsultingRoom/getAll?includeInactive=false`);
+      const res = await authFetch(`${API_BASE}/consultingRoom/getAll?includeInactive=false`);
 
       if(!res.ok) {
         const toastData = await HandleConsultingRoomControllerResponse(res);
@@ -93,7 +93,7 @@ export default function ModuleRent() {
 // === cargar profesionales ===
   useEffect(() => {
     const fetchProfessionals = async () => {
-      const res = await authFetch(`${API_BASE}/Professional/getAll?includeInactive=false`);
+      const res = await authFetch(`${API_BASE}/professional/getAll?includeInactive=false`);
       if (!res.ok) {
         const toastData = await HandleProfessionalControllerResponse(res);
         setToast(toastData);
@@ -131,7 +131,7 @@ export default function ModuleRent() {
   const fetchModules = React.useCallback(async () => {
     if (consultingRoomId == null || selectedProfessionalId == null) return;
       try {
-        const res = await authFetch(`${API_BASE}/Module/getCurrentMonthModulesByConsultingRoom/${consultingRoomId}`);
+        const res = await authFetch(`${API_BASE}/module/getCurrentMonthModulesByConsultingRoom/${consultingRoomId}`);
 
         if(!res.ok) {
           const toastData = await HandleModuleControllerResponse(res);
@@ -235,7 +235,7 @@ export default function ModuleRent() {
     };
 
     try {
-      const res = await authFetch(`${API_BASE}/Module/add`,{
+      const res = await authFetch(`${API_BASE}/module/add`,{
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body: JSON.stringify(payload)

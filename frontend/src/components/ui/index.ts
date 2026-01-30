@@ -14,6 +14,8 @@ export { Card } from "./DataDisplay/Card/Card";
 export { default as SummaryList } from "./DataDisplay/SummaryList/SummaryList";
 export { default as Table } from "./DataDisplay/Table/Table";
 export { FilterBar } from "./DataDisplay/FilterBar/FilterBar";
+// PatientAppointmentCard
+export { default as PatientAppointmentsCard } from "./DataDisplay/PatientAppointmentsCard/PatientAppointmentsCard";
 
 // Feedback
 export { default as EmptyState } from "./Feedback/EmptyState/EmptyState";
@@ -38,3 +40,5 @@ export { rentBackgrounds, rentColors } from './ModuleRent/RentPalette/RentPalett
 
 // Misc
 export { default as SocialLink } from "./SocialLink/SocialLink";
+
+

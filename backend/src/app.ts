@@ -64,17 +64,17 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     RequestContext.create(getORM().em, next);
 });
 
-// todas las url son en minuscula (a cambiar para el futuro)
+
 //USO RUTAS
-app.use('/Occupation', occupationRoutes);
-app.use('/Appointment', AppointmentRoutes);
-app.use('/ConsultingRoom', ConsultingRoomRoutes);
-app.use('/Module', ModuleRoutes);
-app.use('/Patient', PatientRoutes);
-app.use('/User', UserRoutes);
-app.use('/Professional', ProfessionalRoutes);
-app.use('/LegalGuardian', LegalGuardianRoutes);
-app.use('/HealthInsurance', HealthInsuranceRoutes);
+app.use('/occupation', occupationRoutes);
+app.use('/appointment', AppointmentRoutes);
+app.use('/consultingRoom', ConsultingRoomRoutes);
+app.use('/module', ModuleRoutes);
+app.use('/patient', PatientRoutes);
+app.use('/user', UserRoutes);
+app.use('/professional', ProfessionalRoutes);
+app.use('/legalGuardian', LegalGuardianRoutes);
+app.use('/healthInsurance', HealthInsuranceRoutes);
 
 
 

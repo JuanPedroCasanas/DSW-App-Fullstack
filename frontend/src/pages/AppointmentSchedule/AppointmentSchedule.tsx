@@ -93,7 +93,7 @@ export default function AppointmentSchedule() {
         // rol responsable legal
         if (isLegalGuardian) {
           const res = await authFetch(
-            `${API_BASE}/Patient/getByLegalGuardian/${myLegalGuardianId}?includeInactive=false`
+            `${API_BASE}/patient/getByLegalGuardian/${myLegalGuardianId}?includeInactive=false`
           );
           if (!res.ok) return;
 
@@ -107,7 +107,7 @@ export default function AppointmentSchedule() {
 
         // rol admin
         if (isAdmin) {
-          const res = await authFetch(`${API_BASE}/Patient/getAll`);
+          const res = await authFetch(`${API_BASE}/patient/getAll`);
           if (!res.ok) return;
 
           const all: Patient[] = await res.json();
@@ -149,7 +149,7 @@ export default function AppointmentSchedule() {
     (async () => {
       try {
         setLoadingMeta(true);
-        const res = await authFetch(`${API_BASE}/Occupation/getAll`, { method: 'GET' });
+        const res = await authFetch(`${API_BASE}/occupation/getAll`, { method: 'GET' });
         if (!res.ok) {
           const toastData = await HandleOccupationControllerResponse(res);
           if (!cancelled) setToast(toastData);
@@ -183,7 +183,7 @@ export default function AppointmentSchedule() {
       try {
         setLoadingProfessionals(true);
         const res = await authFetch(
-          `${API_BASE}/Professional/getProfessionalsByOccupation/${encodeURIComponent(String(selectedOccupationId))}?includeInactive=false`,
+          `${API_BASE}/professional/getProfessionalsByOccupation/${encodeURIComponent(String(selectedOccupationId))}?includeInactive=false`,
           { method: 'GET' },
         );
         if (!res.ok) {
@@ -221,7 +221,7 @@ export default function AppointmentSchedule() {
         setError(null);
         setLoadingMonth(true);
 
-        const res = await authFetch(`${API_BASE}/Appointment/getAvailableAppointmentsByProfessional/${selectedProfessionalId}`, { 
+        const res = await authFetch(`${API_BASE}/appointment/getAvailableAppointmentsByProfessional/${selectedProfessionalId}`, { 
           method: 'GET' 
         });
 
@@ -360,7 +360,7 @@ export default function AppointmentSchedule() {
         return;
       }
 
-      const res = await authFetch(`${API_BASE}/Appointment/assign`, {
+      const res = await authFetch(`${API_BASE}/appointment/assign`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -375,7 +375,7 @@ export default function AppointmentSchedule() {
         return;
       }
       try {
-        const resAll = await authFetch(`${API_BASE}/Appointment/getAll`, { method: 'GET' });
+        const resAll = await authFetch(`${API_BASE}/appointment/getAll`, { method: 'GET' });
         if (resAll.ok) {
           const all: Appointment[] = await resAll.json();
 

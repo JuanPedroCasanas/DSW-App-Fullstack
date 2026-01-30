@@ -50,7 +50,7 @@ useEffect(() => {
         return}; 
     try {
 
-    const res = await fetch(`${API_BASE}/User/login`, {
+    const res = await fetch(`${API_BASE}/user/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(datos),

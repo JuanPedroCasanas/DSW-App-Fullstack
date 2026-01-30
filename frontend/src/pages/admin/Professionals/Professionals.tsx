@@ -23,7 +23,7 @@ export default function Professionals() {
    useEffect(() => {
    (async () => {
  
-       const res = await authFetch(`${API_BASE}/Professional/getAll`);
+       const res = await authFetch(`${API_BASE}/professional/getAll`);
 
       if (!res.ok){
         const toastData = await HandleProfessionalControllerResponse(res);
@@ -46,13 +46,13 @@ export default function Professionals() {
     if (!deleteTarget) return;
     (async () => {
         const res = await authFetch(
-          `${API_BASE}/Professional/delete/${deleteTarget.id}`, 
+          `${API_BASE}/professional/delete/${deleteTarget.id}`, 
           {
             method: "DELETE",
         });
 
       // Recargar
-        const resGet = await authFetch(`${API_BASE}/Professional/getAll`);
+        const resGet = await authFetch(`${API_BASE}/professional/getAll`);
         const data: Professional[] = await resGet.json();
         setList(data); 
 

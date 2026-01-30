@@ -64,7 +64,7 @@ export default function ModuleList() {
   };
 
   const getModules = async (): Promise<Module[] | undefined> => {
-    const res = await authFetch(`${API_BASE}/Module/getAll`);
+    const res = await authFetch(`${API_BASE}/module/getAll`);
     if (!res.ok) {
       const toastData = await HandleModuleControllerResponse(res);
       setToast(toastData);
@@ -75,7 +75,7 @@ export default function ModuleList() {
   };
 
   const getProfessionals = async (): Promise<Professional[] | undefined> => {
-    const res = await authFetch(`${API_BASE}/Professional/getAll`);
+    const res = await authFetch(`${API_BASE}/professional/getAll`);
     if (!res.ok) {
       const toastData = await HandleProfessionalControllerResponse(res);
       setToast(toastData);
@@ -86,7 +86,7 @@ export default function ModuleList() {
   };
 
   const getConsultingRooms = async (): Promise<ConsultingRoom[] | undefined> => {
-    const res = await authFetch(`${API_BASE}/ConsultingRoom/getAll`);
+    const res = await authFetch(`${API_BASE}/consultingRoom/getAll`);
     if (!res.ok) {
       const toastData = await HandleConsultingRoomControllerResponse(res);
       setToast(toastData);

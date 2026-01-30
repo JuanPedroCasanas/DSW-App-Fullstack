@@ -47,7 +47,7 @@ const [form, setForm] = useState<{
 
   useEffect(() => {
     const fetchOccupations = async () => {
-      const res = await fetch(`${API_BASE}/Occupation/getAll`);
+      const res = await fetch(`${API_BASE}/occupation/getAll`);
       if (!res.ok){
         const toastData = await HandleOccupationControllerResponse(res);
         setToast(toastData);
@@ -61,7 +61,7 @@ const [form, setForm] = useState<{
     }
 
     const fetchHealthInsurances = async () => {
-      const res = await fetch(`${API_BASE}/HealthInsurance/getAll?includeInactive=false`);
+      const res = await fetch(`${API_BASE}/healthInsurance/getAll?includeInactive=false`);
       if (!res.ok){
         const toastData = await HandleHealthInsuranceControllerResponse(res);
         setToast(toastData);
@@ -161,7 +161,7 @@ const [form, setForm] = useState<{
             setIsLoading(false);
             return;
         }
-        endpoint = `${API_BASE}/Patient/addIndPatient`;
+        endpoint = `${API_BASE}/patient/addIndPatient`;
         dataToSend = {...dataToSend, idHealthInsurance: selectedHealthInsuranceId }; 
     }
 
@@ -172,7 +172,7 @@ const [form, setForm] = useState<{
             setIsLoading(false);
             return;
         }
-        endpoint = `${API_BASE}/Professional/add`; 
+        endpoint = `${API_BASE}/professional/add`; 
         dataToSend = {...dataToSend, idOccupation: selectedOccupationId };
     }
     
@@ -189,7 +189,7 @@ const [form, setForm] = useState<{
         dataToSend = {...dataToSend, idHealthInsurance: selectedHealthInsuranceId }; 
 
         // Definir los dos endpoints
-        endpoint = `${API_BASE}/LegalGuardian/add`; // 1ra petición
+        endpoint = `${API_BASE}/legalGuardian/add`; // 1ra petición
 
     } else {
         setMessage("Rol no válido.");

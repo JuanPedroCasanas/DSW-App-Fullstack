@@ -30,7 +30,7 @@ export default function Occupations() {
    useEffect(() => {
    (async () => {
  
-       const res = await authFetch(`${API_BASE}/Occupation/getAll`);
+       const res = await authFetch(`${API_BASE}/occupation/getAll`);
 
       // if (!res.ok) throw new Error("Error al cargar obras sociales"); deberia ir al error del backend
       if (!res.ok){
@@ -72,7 +72,7 @@ export default function Occupations() {
 
   const handleAddConfirm = () => {
   (async () => {
-    const res = await authFetch(`${API_BASE}/Occupation/add`, {
+    const res = await authFetch(`${API_BASE}/occupation/add`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: (addForm.name ?? "").trim() }),
@@ -82,7 +82,7 @@ export default function Occupations() {
     setToast(toastData);
   
     // Recargar
-    const resGet = await authFetch(`${API_BASE}/Occupation/getAll`);
+    const resGet = await authFetch(`${API_BASE}/occupation/getAll`);
     const data: Occupation[] = await resGet.json();
     setItems(data);
 
@@ -131,7 +131,7 @@ export default function Occupations() {
           name: (editForm.name ?? "").trim() 
         };
 
-      const res = await authFetch(`${API_BASE}/Occupation/update`, {
+      const res = await authFetch(`${API_BASE}/occupation/update`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -160,13 +160,13 @@ export default function Occupations() {
     (async () => {
         
         const res = await authFetch(
-          `${API_BASE}/Occupation/delete/${deleteTarget.id}`, 
+          `${API_BASE}/occupation/delete/${deleteTarget.id}`, 
           {
             method: "DELETE",
         });
 
       // Recargar
-        const resGet = await authFetch(`${API_BASE}/Occupation/getAll`);
+        const resGet = await authFetch(`${API_BASE}/occupation/getAll`);
         const data: Occupation[] = await resGet.json();
         setItems(data);
 

@@ -9,7 +9,7 @@ import {
 
 import { Toast, EmptyState, Table, PrimaryButton, Card, FilterBar, FormField } from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
-import {HealthInsurance, Patient, PopulatedAppointment, Professional } from '@/common/types';
+import { HealthInsurance, Patient, PopulatedAppointment, Professional, AppointmentStatus } from '@/common/types';
 import { authFetch } from '@/common/utils/auth/AuthFetch';
 import { useAuth } from "@/common/utils/auth/AuthContext";
 import { UserRole } from '@/common/types';
@@ -22,6 +22,15 @@ type Filters = {
   healthInsuranceId?: number;
   date: string;
 };
+
+// traduzco los estados para mostrarlos al usuario
+const STATUS_LABEL_ES: Record<AppointmentStatus, string> = {
+  scheduled: 'Reservado',
+  completed: 'Completado',
+  missed: 'No se presentó',
+  canceled: 'Cancelado',
+};
+
 
 export default function AppointmentList() {
 
@@ -44,6 +53,8 @@ export default function AppointmentList() {
     healthInsuranceId: undefined,
     date: '',
   });
+
+  const [updatingId, setUpdatingId] = useState<number | null>(null);
 
   const [loadingAppointments, setLoadingAppointments] = useState(false);
 
@@ -69,7 +80,7 @@ export default function AppointmentList() {
     `${a.professional?.firstName ?? ''} ${a.professional?.lastName ?? ''}`.trim();
 
   const getProfessionals = async (): Promise<Professional[] | undefined>  => {
-    const res = await authFetch(`${API_BASE}/Professional/getAll`);
+    const res = await authFetch(`${API_BASE}/professional/getAll`);
 
     if (!res.ok){
       const toastData = await HandleProfessionalControllerResponse(res);
@@ -83,7 +94,7 @@ export default function AppointmentList() {
   };
 
   const getPatients = async (): Promise<Patient[] | undefined> => {
-    const res = await authFetch(`${API_BASE}/Patient/getAll`);
+    const res = await authFetch(`${API_BASE}/patient/getAll`);
 
     if (!res.ok){
       const toastData = await HandlePatientControllerResponse(res);
@@ -96,7 +107,7 @@ export default function AppointmentList() {
   };
 
   const getHealthInsurances = async (): Promise<HealthInsurance[] | undefined> => {
-    const res = await authFetch(`${API_BASE}/HealthInsurance/getAll`);
+    const res = await authFetch(`${API_BASE}/healthInsurance/getAll`);
 
     if (!res.ok){
       const toastData = await HandleHealthInsuranceControllerResponse(res);
@@ -111,7 +122,7 @@ export default function AppointmentList() {
   };
 
   const getScheduledAppointments = async (): Promise<PopulatedAppointment[] | undefined> => {
-    const res = await authFetch(`${API_BASE}/Appointment/getScheduledAppointments`);
+    const res = await authFetch(`${API_BASE}/appointment/getScheduledAppointments`);
 
     if (!res.ok){
       const toastData = await HandleAppointmentControllerResponse(res);
@@ -124,6 +135,40 @@ export default function AppointmentList() {
     return Array.isArray(data) ? data : [];
   };
 
+type AllowedUpdateStatus = Extract<AppointmentStatus, 'completed' | 'missed'>;
+
+  const updateAppointmentStatus = async (idAppointment: number, status: AllowedUpdateStatus) => {
+  setUpdatingId(idAppointment);
+
+  try {
+    const res = await authFetch(`${API_BASE}/appointment/updateStatus`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idAppointment, status }),
+    });
+
+    if (!res.ok) {
+      const toastData = await HandleAppointmentControllerResponse(res);
+      setToast(toastData);
+      return;
+    }
+
+    const data = await res.json();
+
+    setToast({ message: data?.message ?? "Estado actualizado", type: "success" });
+
+    // dejo visible igualmente el turno, mostrando el nuevo estado
+    setAppointments(prev =>
+      prev.map(a => (a.id === idAppointment ? { ...a, status } as any : a))
+     );
+
+  } catch (error) {
+    console.error(error);
+    setToast({ message: "Error al actualizar el estado del turno", type: "error" });
+  } finally {
+    setUpdatingId(null);
+  }
+};
  
   useEffect(() => {
      // carga los filtros -> profesional, paciente y OS
@@ -348,6 +393,8 @@ export default function AppointmentList() {
             'Profesional',
             'Fecha',
             'Hora',
+            'Estado',
+            'Acciones',
           ]}
         >
           {filteredAppointments
@@ -360,6 +407,39 @@ export default function AppointmentList() {
                 <td className="px-4 py-3">{professionalName(a)}</td>
                 <td className="px-4 py-3">{a.startTime?.split('T')[0]}</td>
                 <td className="px-4 py-3">{a.startTime?.split('T')[1]}</td>
+
+                {/*  Estado  */}
+                <td className="px-4 py-3">
+                  <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-gray-100 text-gray-700">
+                    {STATUS_LABEL_ES[(a.status ?? 'scheduled') as AppointmentStatus]}
+                  </span>
+                </td>
+
+                {/* Acciones (missed - completed) */}
+                <td className="px-4 py-3">
+                  <div className="flex gap-2 flex-wrap">
+                    {/* completado */}
+                    <PrimaryButton
+                      size="sm"
+                      variant="solid"
+                      disabled={updatingId === a.id}
+                      onClick={() => updateAppointmentStatus(a.id!, 'completed')}
+                      className="bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-500"
+                    >
+                      {updatingId === a.id ? "Actualizando..." : "Marcar como completado"}
+                    </PrimaryButton>
+
+                    {/* missed */}
+                    <PrimaryButton
+                      size="sm"
+                      variant="danger"
+                      disabled={updatingId === a.id}
+                      onClick={() => updateAppointmentStatus(a.id!, 'missed')}
+                    >
+                      {updatingId === a.id ? "Actualizando..." : "No se presentó"}
+                    </PrimaryButton>
+                  </div>
+                </td>
               </tr>
             ))}
         </Table>

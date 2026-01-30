@@ -61,7 +61,7 @@ export default function GuardedPatients() {
 // Carga de responsables legales (según rol)
 useEffect(() => {
   (async () => {
-    const res = await authFetch(`${API_BASE}/LegalGuardian/getAll?includeInactive=false`);
+    const res = await authFetch(`${API_BASE}/legalGuardian/getAll?includeInactive=false`);
     if (!res.ok) {
       const toastData = await HandleLegalGuardianControllerResponse(res);
       setToast(toastData);
@@ -91,7 +91,7 @@ useEffect(() => {
      if (!selectedGuardianId) return;
      (async () => {
 
-         const res = await authFetch(`${API_BASE}/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=false`);
+         const res = await authFetch(`${API_BASE}/patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=false`);
   
         if (!res.ok){
           const toastData = await HandlePatientControllerResponse(res);
@@ -139,14 +139,14 @@ useEffect(() => {
       idLegalGuardian: selectedGuardianId,
     };
 
-    const res = await authFetch(`${API_BASE}/Patient/addDepPatient`, {
+    const res = await authFetch(`${API_BASE}/patient/addDepPatient`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
     if(res.ok) {
-      const resGet = await authFetch(`${API_BASE}/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=false`);
+      const resGet = await authFetch(`${API_BASE}/patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=false`);
       const data: Patient[] = await resGet.json();
       setPatients(data); 
     }
@@ -204,14 +204,14 @@ useEffect(() => {
     };
 
 
-    const res = await authFetch(`${API_BASE}/Patient/updateDepPatient`, {
+    const res = await authFetch(`${API_BASE}/patient/updateDepPatient`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
     if (res.ok) {
-      const resGet = await authFetch(`${API_BASE}/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=false`);
+      const resGet = await authFetch(`${API_BASE}/patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=false`);
       const data: Patient[] = await resGet.json();
       setPatients(data); 
     }
@@ -228,14 +228,14 @@ useEffect(() => {
     if (!deleteTarget) return; 
 
     const res = await authFetch(
-              `${API_BASE}/Patient/delete/${deleteTarget.id}`, 
+              `${API_BASE}/patient/delete/${deleteTarget.id}`, 
               {
                 method: "DELETE",
             });
 
     // Recargar
     if(res.ok) {
-      const resGet = await authFetch(`${API_BASE}/Patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=false`);
+      const resGet = await authFetch(`${API_BASE}/patient/getByLegalGuardian/${selectedGuardianId}?includeInactive=false`);
       const data: Patient[] = await resGet.json();
       setPatients(data); 
       
