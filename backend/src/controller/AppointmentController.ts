@@ -105,6 +105,24 @@ export class AppointmentController {
         }
     }
 
+
+    static async getAppointmentsByLegalGuardian(req: Request, res: Response) {
+        const idLegalGuardian = Number(req.params.idLegalGuardian);
+        try {
+            const appointments = await AppointmentService.getAppointmentsByLegalGuardian(idLegalGuardian);
+
+            return res.status(200).json(appointments);
+        } catch (error) {
+            console.error(error);
+            if (error instanceof BaseHttpError) {
+                return res.status(error.status).json(error.toJSON());
+            }
+            else {
+                return res.status(500).json({ message: 'Error al buscar turnos por responsable legal' });
+            }
+        }
+    }
+
     static async getAvailableAppointmentsByProfessional(req: Request, res: Response) {
         const idProfessional = Number(req.params.idProfessional);
 

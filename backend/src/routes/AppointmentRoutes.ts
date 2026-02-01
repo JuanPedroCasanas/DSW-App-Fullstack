@@ -9,6 +9,7 @@ import { getByPatientAppointmentSchema } from '../utils/validations/schema/appoi
 import { authRoles } from '../utils/auth/roles';
 import { authJwt } from '../utils/auth/jwt';
 import { UserRole } from '../utils/enums/UserRole';
+import { getByLegalGuardianAppointmentSchema } from '../utils/validations/schema/appointment/getByLegalGuardianAppointmentSchema';
 
 const router = express.Router();
 
@@ -70,5 +71,14 @@ router.get(
   authJwt,  
   AppointmentController.getAppointmentsByPatient
 );
+
+
+router.get(
+  '/getAppointmentsByLegalGuardian/:idLegalGuardian',
+  validate(getByLegalGuardianAppointmentSchema),
+  authJwt,
+  AppointmentController.getAppointmentsByLegalGuardian
+);
+
 
 export default router;

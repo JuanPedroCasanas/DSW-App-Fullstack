@@ -10,6 +10,9 @@ import {
     InvalidStatusChangeError,
     NotFoundError
 } from '../utils/errors/BaseHttpError';
+import { populate } from 'dotenv';
+import { toDetailedAppointmentDTO } from '../utils/dto/appointment/detailedAppointmentDto';
+import { LegalGuardian } from '../model/entities/LegalGuardian';
 
 export class AppointmentService {
 
@@ -99,8 +102,18 @@ export class AppointmentService {
         if(!patient) {
             throw new NotFoundError('Paciente');
         }
-        const appointments = await em.find(Appointment, { patient :  patient });
-        return appointments;
+        const appointments = await em.find(Appointment, { patient :  patient }, { populate: ['patient', 'module.consultingRoom', 'professional', 'professional.occupation', 'legalGuardian', 'healthInsurance'] });
+        return appointments.map(toDetailedAppointmentDTO);
+    }
+
+    static async getAppointmentsByLegalGuardian(idLegalGuardian: number) {
+        const em = await getORM().em.fork();
+        const legalGuardian = await em.findOne(LegalGuardian, { id: idLegalGuardian });
+        if(!legalGuardian) {
+            throw new NotFoundError('Paciente');
+        }
+        const appointments = await em.find(Appointment, { legalGuardian :  legalGuardian }, { populate: ['patient', 'module.consultingRoom', 'professional', 'professional.occupation', 'legalGuardian', 'healthInsurance'] });
+        return appointments.map(toDetailedAppointmentDTO);
     }
 
     static async getAvailableAppointmentsByProfessional(idProfessional: number) {
