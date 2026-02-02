@@ -20,7 +20,7 @@ export default function ProtectedRoute({ roles }:
       legalGuardian: "/legal-guardian-portal",
     };
 
-    const redirectTo = roleRedirectMap[user.role] ?? "/about";
+    const redirectTo = roleRedirectMap[user.role] ?? "/";
 
     return <Navigate to={ redirectTo } replace />;
   }

@@ -1,3 +1,4 @@
+import { User } from "@/common/types";
 import { createContext, useContext, useState } from "react";
 
 //Guarda los datos del usuario (user)
@@ -6,15 +7,15 @@ import { createContext, useContext, useState } from "react";
 // solo maneja estado global y no lógica de autorización
 
 type AuthContextType = {
-  user: any | null;
-  setUser: (u: any | null) => void;
+  user: User | null;
+  setUser: (u: User | null) => void;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 // provee la info, no hace control de roles
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<any | null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   return (
     <AuthContext.Provider value={{ user, setUser }}>

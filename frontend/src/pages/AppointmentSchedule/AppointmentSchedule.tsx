@@ -27,14 +27,10 @@ export default function AppointmentSchedule() {
   const isPatient = user?.role === UserRole.Patient;
   const isLegalGuardian = user?.role === UserRole.LegalGuardian;
 
-  const myPatientId = (user as any)?.idPatient ?? 
-    (user as any)?.id ??
-    (user as any)?.patient?.id ??
-    (isPatient ? (user as any)?.id : null);
+  const myPatientId = user?.patient?.id ?? user?.id ?? null;
 
-  const myLegalGuardianId =  (user as any)?.idLegalGuardian ??
-     (user as any)?.legalGuardian?.id ??
-     (isLegalGuardian ? (user as any)?.id : null);
+  const myLegalGuardianId =  user?.legalGuardian?.id  ??
+     (isLegalGuardian ? user?.id : null);
 
 
   // para el manejo de errores
@@ -406,12 +402,6 @@ export default function AppointmentSchedule() {
       setBookingState('error');
     }
   }
-
-  function resetModal() {
-    setConfirmOpen(false);
-    setBookingState('idle');
-  }
-
 
   return (
   <>

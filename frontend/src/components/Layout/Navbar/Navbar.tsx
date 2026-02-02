@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { NavButton, LogoutButton } from "@/components/ui";
 import { useAuth } from "@/common/utils/auth/AuthContext";
+import { UserRole } from "@/common/types";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -24,10 +25,17 @@ export default function Navbar() {
   const isLoggedIn = !!user;
   const roleText = user?.role ? (ROLE_LABEL[user.role] ?? user.role) : "";
 
-  const profile = user?.[user?.role ?? ""];
+  // const profile = user?.[user?.role ?? ""];
+  
+  let profile = null;
+
+  if (user?.role === UserRole.Patient) profile = user.patient;
+  else if (user?.role === UserRole.Professional) profile = user.professional;
+  else if (user?.role === UserRole.LegalGuardian) profile = user.legalGuardian;
+ // else if (user?.role === UserRole.Admin) profile = user; 
+
+
   const displayName = profile ? `${profile.firstName} ${profile.lastName}` : "";
-
-
 
   
   // Sombra al hacer scroll
@@ -129,10 +137,7 @@ export default function Navbar() {
         {/* Menú desktop */}
         <div className="hidden md:flex items-center gap-1 ml-4">
           <NavLink to="/" className={linkClass}>
-            Portales
-          </NavLink>
-          <NavLink to="/about" className={linkClass}>
-            Sobre nosotros
+            Inicio
           </NavLink>
         </div>
         

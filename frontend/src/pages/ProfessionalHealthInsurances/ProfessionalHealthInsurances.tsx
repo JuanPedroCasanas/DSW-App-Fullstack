@@ -20,7 +20,7 @@ export default function ProfessionalHealthInsurances(){
   const isAdmin = user?.role === UserRole.Admin;
   const isProfessional = user?.role === UserRole.Professional;
 
-  const myProfessionalId = (user as any)?.idProfessional ?? (user as any)?.id;
+  const myProfessionalId = user?.professional?.id ?? user?.id;
 
   const [selectedProfessionalHealthInsurances, setSelectedProfessionalHealthInsurances] = useState<HealthInsurance[] | null>([]);
   const [healthInsurances, setHealthInsurances] = useState<HealthInsurance[]>([]);

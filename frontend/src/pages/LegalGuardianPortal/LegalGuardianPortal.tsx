@@ -1,4 +1,4 @@
-import { ActionGrid, NavButton, Toast} from "@/components/ui";
+import { ActionGrid, LegalGuardianAppointmentsCard, NavButton, Toast} from "@/components/ui";
 import { Page, SectionHeader } from "@/components/Layout";
 import { useLocation } from "react-router-dom";
 
@@ -23,6 +23,10 @@ export default function LegalGuardianPortal() {
         <NavButton to="/edit-profile">Editar perfil</NavButton>
 
       </ActionGrid>
+
+    <div className="mt-6">
+      <LegalGuardianAppointmentsCard />
+    </div>
 
     {toastMessage && (
       <Toast

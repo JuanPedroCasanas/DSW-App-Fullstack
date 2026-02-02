@@ -126,7 +126,7 @@ export default function EditProfile() {
 
   useEffect(() => {
     if (!isAdmin && user){
-      setSelectedUser(user as user);
+      setSelectedUser(user as User);
     }
 
   }, [isAdmin, user]);
@@ -301,7 +301,7 @@ export default function EditProfile() {
   // le cierra la sesión
   // pero verifico primero que se haya auto-eliminado para no cerrarle la sesión al admin!
     const deletedUserId = selectedUser.id;
-    const loggedUserId = (user as any)?.id;
+    const loggedUserId = user?.id;
     const isSelfDelete = deletedUserId != null && loggedUserId != null && deletedUserId === loggedUserId;
 
     if (isSelfDelete && res.ok) {

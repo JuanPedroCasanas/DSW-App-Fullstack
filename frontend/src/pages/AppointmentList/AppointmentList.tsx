@@ -25,10 +25,12 @@ type Filters = {
 
 // traduzco los estados para mostrarlos al usuario
 const STATUS_LABEL_ES: Record<AppointmentStatus, string> = {
+  available: "Disponible",
   scheduled: 'Reservado',
   completed: 'Completado',
   missed: 'No se presentó',
   canceled: 'Cancelado',
+  expired: "Expirado",
 };
 
 
@@ -38,7 +40,7 @@ export default function AppointmentList() {
   const isAdmin = user?.role === UserRole.Admin;
   const isProfessional = user?.role === UserRole.Professional;
 
-  const myProfessionalId = (user as any)?.idProfessional ?? (user as any)?.id;
+  const myProfessionalId = user?.professional?.id ?? user?.id;
 
   const [appointments, setAppointments] = useState<PopulatedAppointment[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);

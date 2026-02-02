@@ -58,7 +58,7 @@ export default function ModuleRent() {
   const isAdmin = user?.role === UserRole.Admin;
   const isProfessional = user?.role === UserRole.Professional;
 
-  const myProfessionalId = (user as any)?.idProfessional ?? (user as any)?.id;
+  const myProfessionalId = user?.professional?.id ?? user?.id;
 
 
   const [consultingRoomId, setConsultingRoomId] = useState<number | undefined>(undefined);

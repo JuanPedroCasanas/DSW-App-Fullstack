@@ -4,7 +4,7 @@ import { API_BASE } from '@/lib/api';
 import { authFetch } from '@/common/utils/auth/AuthFetch';
 import { HandleAppointmentControllerResponse } from '@/common/utils';
 import { useAuth } from '@/common/utils/auth/AuthContext';
-import type { PopulatedAppointment, AppointmentStatus, Professional, Module } from '@/common/types';
+import type { PopulatedAppointment, AppointmentStatus, Professional, User } from '@/common/types';
 
 // estados traducidos (para la vista)
 const STATUS_LABEL_ES: Record<AppointmentStatus, string> = {
@@ -39,7 +39,9 @@ const fullName = (p?: Professional) =>
 
 export default function PatientAppointmentsCard() {
   const { user } = useAuth();
-  const myPatientId = (user as any)?.idPatient ?? (user as any)?.id;
+
+  console.log(user);
+  const myPatientId = user?.patient?.id ?? user?.id;
 
   const [appointments, setAppointments] = useState<PopulatedAppointment[]>([]);
   const [loading, setLoading] = useState(false);

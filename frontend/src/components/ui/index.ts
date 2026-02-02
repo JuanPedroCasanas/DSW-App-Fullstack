@@ -16,6 +16,7 @@ export { default as Table } from "./DataDisplay/Table/Table";
 export { FilterBar } from "./DataDisplay/FilterBar/FilterBar";
 // PatientAppointmentCard
 export { default as PatientAppointmentsCard } from "./DataDisplay/PatientAppointmentsCard/PatientAppointmentsCard";
+export { default as LegalGuardianAppointmentsCard } from "./DataDisplay/LegalGuardianAppointmentsCard/LegalGuardianAppointmentsCard";
 
 // Feedback
 export { default as EmptyState } from "./Feedback/EmptyState/EmptyState";

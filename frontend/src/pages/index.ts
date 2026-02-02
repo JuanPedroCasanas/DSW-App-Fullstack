@@ -1,6 +1,3 @@
-// About
-export { default as About } from "./About/About";
-
 // Admin
 export { default as ConsultingRooms } from "./admin/ConsultingRooms/ConsultingRooms";
 export { default as HealthInsurances } from "./admin/HealthInsurances/HealthInsurances";

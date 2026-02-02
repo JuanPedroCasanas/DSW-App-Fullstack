@@ -2,24 +2,29 @@ import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Layout/Navbar/Navbar";
 import { UserRole } from "./common/types";
 
-import { About, Home, Login, Register, ModuleRent, AppointmentSchedule, EditProfile, ProfessionalPortal, LegalGuardianPortal, PatientPortal, GuardedPatients, ModuleList, AppointmentList, DebugConsole, ConsultingRooms, HealthInsurances, Occupations,
+import { Home, Login, Register, ModuleRent, AppointmentSchedule, EditProfile, ProfessionalPortal, LegalGuardianPortal, PatientPortal, GuardedPatients, ModuleList, AppointmentList, DebugConsole, ConsultingRooms, HealthInsurances, Occupations,
 Professionals, ProfessionalHealthInsurances
 } from "./pages";
 
 import AuthWatcher from "./common/utils/auth/AuthWatcher";
 import ProtectedRoute from "./common/utils/auth/ProtectedRoute";
+import Footer from "./components/Layout/Footer/Footer";
 
 export default function App() {
   return (
-    <>
+     <div className="min-h-dvh flex flex-col">
+
       <AuthWatcher />
       <Navbar />
-      <main style={{ maxWidth: 1100, margin: "0 auto", padding: "1rem" }} className="pt-[64px] md:pt-[90px]">
+
+      <main className="flex-1 pt-[64px] md:pt-[90px]">
+        <div className="mx-auto max-w-[1100px] px-4 py-4">
+
+
         <Routes>
 
         {/* ACCESO PUBLICO: */}
           <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           
@@ -32,10 +37,14 @@ export default function App() {
         </Route>
 
         {/* PROFESIONAL */}
-        <Route element={<ProtectedRoute roles={[UserRole.Professional, UserRole.Admin]} />}>
+        <Route element={<ProtectedRoute roles={[UserRole.Professional]} />}>
 
           <Route path="/professional-portal" element=
             {<ProfessionalPortal />} />
+
+        </Route>
+
+        <Route element={<ProtectedRoute roles={[UserRole.Professional, UserRole.Admin]} />}>
 
           <Route path="/professional-health-insurances" element=
             {<ProfessionalHealthInsurances />} />
@@ -49,9 +58,14 @@ export default function App() {
         </Route>
           
         {/* RESPONSABLE LEGAL */}
-        <Route element={<ProtectedRoute roles={[UserRole.LegalGuardian, UserRole.Admin]} />}>
+        <Route element={<ProtectedRoute roles={[UserRole.LegalGuardian]} />}>
+
           <Route path="/legal-guardian-portal" element=
             {<LegalGuardianPortal />} />
+
+        </Route>
+
+        <Route element={<ProtectedRoute roles={[UserRole.LegalGuardian, UserRole.Admin]} />}>
 
           <Route path="/guarded-patients" element=
             {<GuardedPatients />} />
@@ -71,7 +85,7 @@ export default function App() {
         </Route>
 
         {/* ADMIN */}
-        <Route element={<ProtectedRoute roles={["admin"]}  />}>
+        <Route element={<ProtectedRoute roles={[UserRole.Admin]}  />}>
 
           <Route path="/debug-console" element={
             <DebugConsole />} />
@@ -88,11 +102,17 @@ export default function App() {
 
         </Route>
 
-          {/* fin de las rutas que deberian estar restringidas */}
+          {/* fin de las rutas restringidas */}
 
           <Route path="*" element={<h1>Página no encontrada</h1>} />
+
         </Routes>
+
+         </div>
       </main>
-    </>
+
+      <Footer / >
+
+    </div>
   );
 }

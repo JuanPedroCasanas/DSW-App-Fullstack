@@ -19,7 +19,6 @@ export default function Login() {
     isActive: true,
   });
   const navigate = useNavigate(); 
-  const [remember, setRemember] = useState(false);
   const [showPwd, setShowPwd] = useState(false);
 
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
@@ -150,24 +149,6 @@ return (
           Iniciar sesión
         </button>
 
-        <div className="flex items-center justify-between">
-          <label className="inline-flex items-center gap-2">
-            <input
-              className="w-[18px] h-[18px]"
-              type="checkbox"
-              checked={remember}
-              onChange={(e) => setRemember(e.target.checked)}
-            />
-            <span className="text-[16px] font-normal text-black">Recordarme</span>
-          </label>
-
-          <NavLink
-            to="/forgot-password"
-            className="text-[16px] font-medium text-cyan-600 whitespace-nowrap no-underline"
-          >
-            ¿Olvidaste tu contraseña?
-          </NavLink>
-        </div>
       </div>
     </form>
     

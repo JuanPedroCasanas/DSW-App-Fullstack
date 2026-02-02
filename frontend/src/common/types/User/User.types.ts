@@ -17,7 +17,7 @@ export type User = {
 
   isActive?: boolean;
 
-  role?: UserRole; // este probablemente desaparezca en cuanto tengamos roles
+  role?: UserRole;
 
   professional?: Professional;
 

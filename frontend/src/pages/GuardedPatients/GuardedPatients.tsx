@@ -37,7 +37,7 @@ export default function GuardedPatients() {
   const isLegalGuardian = user?.role === UserRole.LegalGuardian;
 
   // no se si es legal este tipo de búsqueda. Pero los fetchs en este caso funcionan directamtente con el id de legalGuardian, y no con el id de usuario.
-  const myLegalGuardianId = (user as any)?.idLegalGuardian ?? (user as any)?.legalGuardian.id;
+  const myLegalGuardianId =user?.legalGuardian?.id ??  user?.id ;
 
 
   const [patients, setPatients] = useState<Patient[]>([]);
