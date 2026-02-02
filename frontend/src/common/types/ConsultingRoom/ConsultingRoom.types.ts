@@ -1,5 +1,10 @@
 export type ConsultingRoom = {
-    id?: number;
+    id?: number,
     description?: string,
     isActive?: boolean
+}
+
+export type simpleConsultingRoom = {
+    id?: number,
+    description?: string
 }

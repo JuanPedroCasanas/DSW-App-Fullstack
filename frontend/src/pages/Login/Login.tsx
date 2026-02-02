@@ -65,7 +65,6 @@ useEffect(() => {
     const data = await res.json();
     setAccessToken(data.accessToken);
     setUser(data.user);
-    console.log(data);
 
     //Revisar esto en caso rol administrador
     
@@ -76,7 +75,6 @@ useEffect(() => {
         type: "success" as const
     };
    
-    // descomentar cuando arreglemos los console.log
     const redirectTo = redirectByRole(data.user.role);
     navigate(redirectTo, { replace: true, state: { toastMessage: toastData} });
 

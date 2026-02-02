@@ -37,20 +37,6 @@ const formatLongDateTimeES = (iso: string) => {
 const fullName = (p?: Professional) =>
   `${p?.firstName ?? ''} ${p?.lastName ?? ''}`.trim();
 
-// A MEJORAR!!!!!!!!!!!!!!!!!!!
-// “Especialidad del profesional”
-// 1) si el turno trae module -> usamos module.name
-// 2) si el profesional trae specialty o specialty.name -> usamos eso
-const getSpecialty = (a: PopulatedAppointment) => {
-  const byModule = (a.module as Module | undefined)?.name;
-  const byProfessional =
-    (a.professional as any)?.occupation?.name ??
-    (a.professional as any)?.occupation ??
-    undefined;
-  return byModule ?? byProfessional ?? '—';
-};
-
-
 export default function PatientAppointmentsCard() {
   const { user } = useAuth();
   const myPatientId = (user as any)?.idPatient ?? (user as any)?.id;
@@ -144,10 +130,11 @@ export default function PatientAppointmentsCard() {
           <div className="min-w-0">
             <p className="text-sm text-gray-900">
               <span className="font-medium">{fullName(a.professional)}</span>
-              {getSpecialty(a) ? <span className="text-gray-500"> • {getSpecialty(a)}</span> : null}
+              {a.professional?.occupation?.name ? <span className="text-gray-500"> • {a.professional?.occupation?.name}</span> : null}
             </p>
             <p className="text-sm text-gray-700">{a.startTime ? formatLongDateTimeES(a.startTime) : ''}</p>
             <p className="text-[12px] text-gray-500">ID turno: {a.id}</p>
+            <p className="text-[12px] text-gray-500">{a.consultingRoom?.description}</p>
           </div>
 
           <div className="shrink-0 flex flex-col items-end gap-2">
@@ -191,10 +178,11 @@ export default function PatientAppointmentsCard() {
           <div className="min-w-0">
             <p className="text-sm text-gray-900">
               <span className="font-medium">{fullName(a.professional)}</span>
-              {getSpecialty(a) ? <span className="text-gray-500"> • {getSpecialty(a)}</span> : null}
+              {a.professional?.occupation?.name ? <span className="text-gray-500"> • {a.professional?.occupation?.name}</span> : null}
             </p>
             <p className="text-sm text-gray-700">{a.startTime ? formatLongDateTimeES(a.startTime) : ''}</p>
             <p className="text-[12px] text-gray-500">ID turno: {a.id}</p>
+            <p className="text-[12px] text-gray-500">{a.consultingRoom?.description}</p>
           </div>
 
           <span className="shrink-0 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-gray-100 text-gray-700">

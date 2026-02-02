@@ -1,3 +1,4 @@
+import { simpleConsultingRoom } from "../ConsultingRoom/ConsultingRoom.types";
 import { HealthInsurance } from "../HealthInsurance/HealthInsurance.types";
 import { LegalGuardian } from "../LegalGuardian/LegalGuardian.types";
 import { Module } from "../Module/Module.types";
@@ -34,4 +35,5 @@ export type PopulatedAppointment = {
   patient?: Patient;
   legalGuardian?: LegalGuardian;
   healthInsurance?: HealthInsurance;
+  consultingRoom?: simpleConsultingRoom;
 };

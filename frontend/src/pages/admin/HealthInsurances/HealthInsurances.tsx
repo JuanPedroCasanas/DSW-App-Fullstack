@@ -75,7 +75,6 @@ export default function HealthInsurances() {
 
   const handleAddConfirm = () => {
     (async () => {
-        console.log("addForm.name=", addForm.name);
         const res = await authFetch(`${API_BASE}/healthInsurance/add`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
