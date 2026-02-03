@@ -43,7 +43,9 @@ Lista de los PRs más importantes o enlace al listado de PRs cerrados en el repo
 
 ### Pasos
 Pasos para levantar el proyecto localmente:
-    1. Clonar el repositorio  "gh repo clone JuanPedroCasanas/DSW-App-Fullstack"
+   1. **Clonar el repositorio:**
+   ```bash
+   git clone [https://github.com/JuanPedroCasanas/DSW-App-Fullstack.git](https://github.com/JuanPedroCasanas/DSW-App-Fullstack.git)
     2. Cambiar a la rama de entrega regularidad utilizando el comando 'git checkout entrega-reg'
     3. Dentro de la carpeta "/backend":
         3.a Generar un archivo .env.
@@ -98,7 +100,7 @@ Dado que no utilizamos herramientas externas, llevamos el seguimiento de las fun
 
 
 ### 6. Documentación de la API
-Endpoints principales (puedes usar Swagger o describirlos aquí).
+Endpoints principales.
 ###  Autenticación y Usuarios
 | Método | Endpoint | Descripción |
 | :--- | :--- | :--- |
