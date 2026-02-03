@@ -12,7 +12,7 @@ import { BaseHttpError, ModuleScheduleConflictError, NotConfiguredError, NotFoun
 export default class ModuleService {
 
     // HELPERS
-    private static calculateHours(startTime: string, endTime: string): number {
+    static calculateHours(startTime: string, endTime: string): number {
         let [startHours, startMinutes] = startTime.split(":").map(Number);
         let [endHours, endMinutes] = endTime.split(":").map(Number);
 
@@ -29,7 +29,7 @@ export default class ModuleService {
         return totalHours;
     }
 
-    private static getDatesForDayOfWeek(dayNumber: DayOfWeek, month: number, year: number): Date[] {
+    static getDatesForDayOfWeek(dayNumber: DayOfWeek, month: number, year: number): Date[] {
         const dates: Date[] = [];
         const date = new Date(year, month - 1, 1);
 
