@@ -100,34 +100,7 @@ Dado que no utilizamos herramientas externas, llevamos el seguimiento de las fun
 
 
 ### 6. Documentación de la API
-Endpoints principales.
-###  Autenticación y Usuarios
-| Método | Endpoint | Descripción |
-| :--- | :--- | :--- |
-| `POST` | `/api/login` | Inicia sesión y devuelve el token/usuario. |
-| `GET`  | `/api/users/:id` | Obtiene los datos del perfil de un usuario. |
-
-### Gestion de usuarios (en este caso, profesional)
-| Método | Endpoint | Descripción |
-| :---   | :---     | :---        |
-| `POST` | `/add`   | Alta profesional. |
-| `DELETE`| `/delete/:id` | Baja profesional
-| `GET` | `/update` | Modificacion profesional |
-
-
-###  Consultorios
-| Método | Endpoint | Descripción |
-| :--- | :--- | :--- |
-| `GET` | `/api/consultorios` | Obtiene la lista de todos los consultorios disponibles. |
-| `GET` | `/get/:idConsultingRoom ` | Obtiene el detalle de un consultorio específico. |
-| `POST` | `/add` | Crea un nuevo consultorio (Solo Admin/Profesional). |
-
-###  Turnos
-| Método | Endpoint | Descripción |
-| :--- | :--- | :--- |
-| `GET` | `/api/turnos` | Lista los turnos reservados. |
-| `POST` | `/api/turnos` | Reserva un nuevo turno. |
-| `DELETE`| `/api/turnos/:id` | Cancela un turno existente. |
+Endpoints principales hechos con Swagger.
 
 ### 7. Evidencia de Tests Automáticos
 Capturas de pantalla o logs de los tests pasando.

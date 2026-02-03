@@ -14,6 +14,10 @@ import passport from 'passport';
 //CORS
 import cors from 'cors'
 
+//IMPORT SWAGGER UI
+import swaggerUi from 'swagger-ui-express';
+import swaggerJsdoc from 'swagger-jsdoc';
+
 //IMPORT RUTAS
 import occupationRoutes from './routes/OccupationRoutes';
 import AppointmentRoutes from './routes/AppointmentRoutes';
@@ -40,6 +44,26 @@ Date.prototype.toJSON = function() {
 };
 
 const app = express();
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'API de mi Proyecto',
+      version: '1.0.0',
+      description: 'Aquí está la lista de todo lo que hace mi servidor',
+    },
+    servers: [
+      {
+        url: 'http://localhost:2000', 
+      },
+    ],
+  },
+ 
+  apis: ['./src/routes/*.ts'], 
+};
+
+const swaggerDocs = swaggerJsdoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
