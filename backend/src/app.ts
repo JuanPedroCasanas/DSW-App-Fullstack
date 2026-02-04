@@ -29,7 +29,7 @@ import LegalGuardianRoutes from './routes/LegalGuardianRoutes';
 import UserRoutes from './routes/UserRoutes'
 import HealthInsuranceRoutes from './routes/HealthInsuranceRoutes';
 import cookieParser from 'cookie-parser';
-
+import path from 'path';
 // para evitar conversion de fechas UTC
 Date.prototype.toJSON = function() {
    const year = this.getFullYear(); 
@@ -58,7 +58,6 @@ const swaggerOptions = {
       },
     ],
   },
- 
   apis: ['./src/routes/*.ts'], 
 };
 
