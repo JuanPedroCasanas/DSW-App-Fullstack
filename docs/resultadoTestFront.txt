@@ -1,0 +1,127 @@
+
+> frontend@0.0.0 test
+> jest
+
+PASS src/components/ui/DataDisplay/Card/Card.test.tsx
+PASS src/components/ui/Forms/FormField/FormField.test.tsx
+PASS src/components/ui/SocialLink/SocialLink.test.tsx
+PASS src/pages/Home/Home.test.tsx
+PASS src/pages/Login/Login.test.tsx
+---------------------------------------------------------|---------|----------|---------|---------|------------------------------
+File                                                     | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s            
+---------------------------------------------------------|---------|----------|---------|---------|------------------------------
+All files                                                |   42.61 |    52.68 |      25 |   42.61 |                              
+ common/types                                            |   70.58 |       25 |       0 |   70.58 |                              
+  index.ts                                               |   70.58 |       25 |       0 |   70.58 | 4,7,13,16,19,22,25,28,31,34  
+ common/types/Appointment                                |     100 |      100 |     100 |     100 |                              
+  Appointment.types.ts                                   |     100 |      100 |     100 |     100 |                              
+ common/types/ConsultingRoom                             |     100 |      100 |     100 |     100 |                              
+  ConsultingRoom.types.ts                                |     100 |      100 |     100 |     100 |                              
+ common/types/HealthInsurance                            |     100 |      100 |     100 |     100 |                              
+  HealthInsurance.types.ts                               |     100 |      100 |     100 |     100 |                              
+ common/types/LegalGuardian                              |     100 |      100 |     100 |     100 |                              
+  LegalGuardian.types.ts                                 |     100 |      100 |     100 |     100 |                              
+ common/types/Module                                     |     100 |      100 |     100 |     100 |                              
+  Module.types.ts                                        |     100 |      100 |     100 |     100 |                              
+ common/types/ModuleType                                 |     100 |      100 |     100 |     100 |                              
+  ModuleType.types.ts                                    |     100 |      100 |     100 |     100 |                              
+ common/types/Occupation                                 |     100 |      100 |     100 |     100 |                              
+  Occupation.types.ts                                    |     100 |      100 |     100 |     100 |                              
+ common/types/Patient                                    |     100 |      100 |     100 |     100 |                              
+  Patient.types.ts                                       |     100 |      100 |     100 |     100 |                              
+ common/types/Professional                               |     100 |      100 |     100 |     100 |                              
+  Professional.types.ts                                  |     100 |      100 |     100 |     100 |                              
+ common/types/User                                       |     100 |      100 |     100 |     100 |                              
+  User.types.ts                                          |     100 |      100 |     100 |     100 |                              
+ common/utils                                            |   71.42 |    26.66 |    9.09 |   71.42 |                              
+  index.ts                                               |   71.42 |    26.66 |    9.09 |   71.42 | 8,11,14,17,20,23,26,29,32,35 
+ common/utils/HandleResponse                             |   28.57 |       50 |    9.09 |   28.57 |                              
+  HandleAppointmentControllerResponse.ts                 |   16.66 |      100 |       0 |   16.66 | 4-18                         
+  HandleConsultingRoomControllerResponse.ts              |   27.27 |      100 |       0 |   27.27 | 4-11                         
+  HandleErrorResponse.ts                                 |   88.88 |       50 |     100 |   88.88 | 4                            
+  HandleHealthInsuranceControllerResponse.ts             |      25 |      100 |       0 |      25 | 4-12                         
+  HandleLegalGuardianControllerResponse.ts               |      25 |      100 |       0 |      25 | 4-12                         
+  HandleModuleControllerResponse.ts                      |      20 |      100 |       0 |      20 | 4-15                         
+  HandleModuleTypeControllerResponse.ts                  |   27.27 |      100 |       0 |   27.27 | 4-11                         
+  HandleOccupationControllerResponse.ts                  |      25 |      100 |       0 |      25 | 4-12                         
+  HandlePatientControllerResponse.ts                     |   27.27 |      100 |       0 |   27.27 | 4-11                         
+  HandleProfessionalControllerResponse.ts                |   27.27 |      100 |       0 |   27.27 | 4-11                         
+  HandleUserControllerResponse.ts                        |   27.27 |      100 |       0 |   27.27 | 4-11                         
+ common/utils/auth                                       |   57.85 |    66.66 |      40 |   57.85 |                              
+  AuthContext.tsx                                        |   94.11 |    66.66 |     100 |   94.11 | 31-32                        
+  AuthEvents.ts                                          |   55.55 |      100 |       0 |   55.55 | 5-6,8-9                      
+  AuthFetch.ts                                           |   18.91 |      100 |       0 |   18.91 | 8-37                         
+  RoleRedirect.ts                                        |     100 |       50 |     100 |     100 | 9                            
+  TokenStorage.ts                                        |   71.42 |      100 |   33.33 |   71.42 | 9-10,13-14                   
+  UseLogout.ts                                           |   35.29 |      100 |       0 |   35.29 | 7-17                         
+ components/Layout                                       |     100 |      100 |     100 |     100 |                              
+  index.ts                                               |     100 |      100 |     100 |     100 |                              
+ components/Layout/Navbar                                |    3.57 |      100 |       0 |    3.57 |                              
+  Navbar.tsx                                             |    3.57 |      100 |       0 |    3.57 | 9-224                        
+ components/Layout/Page                                  |     100 |      100 |     100 |     100 |                              
+  Page.tsx                                               |     100 |      100 |     100 |     100 |                              
+ components/Layout/SectionHeader                         |     100 |      100 |     100 |     100 |                              
+  SectionHeader.tsx                                      |     100 |      100 |     100 |     100 |                              
+ components/ui                                           |     100 |      100 |     100 |     100 |                              
+  index.ts                                               |     100 |      100 |     100 |     100 |                              
+ components/ui/Actions/ActionGrid                        |      40 |      100 |       0 |      40 |                              
+  ActionGrid.tsx                                         |      40 |      100 |       0 |      40 | 9-20                         
+ components/ui/Actions/DialogActions                     |   64.28 |      100 |       0 |   64.28 |                              
+  DialogActions.tsx                                      |   64.28 |      100 |       0 |   64.28 | 10-14                        
+ components/ui/Actions/LogoutButton                      |   27.77 |      100 |       0 |   27.77 |                              
+  LogoutButton.tsx                                       |   27.77 |      100 |       0 |   27.77 | 6-18                         
+ components/ui/Actions/NavButton                         |      22 |      100 |       0 |      22 |                              
+  NavButton.tsx                                          |      22 |      100 |       0 |      22 | 12-50                        
+ components/ui/Actions/PrimaryButton                     |   25.45 |      100 |       0 |   25.45 |                              
+  PrimaryButton.tsx                                      |   25.45 |      100 |       0 |   25.45 | 15-55                        
+ components/ui/DataDisplay/Card                          |     100 |      100 |     100 |     100 |                              
+  Card.tsx                                               |     100 |      100 |     100 |     100 |                              
+ components/ui/DataDisplay/FilterBar                     |   33.33 |       50 |      50 |   33.33 |                              
+  FilterBar.tsx                                          |   33.33 |       50 |      50 |   33.33 | 5-12                         
+ components/ui/DataDisplay/LegalGuardianAppointmentsCard |   10.45 |      100 |       0 |   10.45 |                              
+  LegalGuardianAppointmentsCard.tsx                      |   10.45 |      100 |       0 |   10.45 | 25-37,46-306                 
+ components/ui/DataDisplay/PatientAppointmentsCard       |   11.38 |      100 |       0 |   11.38 |                              
+  PatientAppointmentsCard.tsx                            |   11.38 |      100 |       0 |   11.38 | 24-35,41-246                 
+ components/ui/DataDisplay/SummaryList                   |    37.5 |      100 |       0 |    37.5 |                              
+  SummaryList.tsx                                        |    37.5 |      100 |       0 |    37.5 | 7-16                         
+ components/ui/DataDisplay/Table                         |      32 |      100 |       0 |      32 |                              
+  Table.tsx                                              |      32 |      100 |       0 |      32 | 9-25                         
+ components/ui/Feedback/EmptyState                       |   52.63 |      100 |       0 |   52.63 |                              
+  EmptyState.tsx                                         |   52.63 |      100 |       0 |   52.63 | 11-19                        
+ components/ui/Feedback/Modal                            |    6.25 |      100 |       0 |    6.25 |                              
+  Modal.tsx                                              |    6.25 |      100 |       0 |    6.25 | 2-16                         
+ components/ui/Feedback/Toast                            |     100 |      100 |     100 |     100 |                              
+  toast.tsx                                              |     100 |      100 |     100 |     100 |                              
+ components/ui/Forms/FormField                           |     100 |      100 |     100 |     100 |                              
+  FormField.tsx                                          |     100 |      100 |     100 |     100 |                              
+ components/ui/Forms/InputPassword                       |   94.64 |       75 |     100 |   94.64 |                              
+  InputPassword.tsx                                      |   94.64 |       75 |     100 |   94.64 | 25-27                        
+ components/ui/ModuleRent/RentLegend                     |   21.42 |      100 |       0 |   21.42 |                              
+  RentLegend.tsx                                         |   21.42 |      100 |       0 |   21.42 | 5-26                         
+ components/ui/ModuleRent/RentPalette                    |     100 |      100 |     100 |     100 |                              
+  RentPalette.tsx                                        |     100 |      100 |     100 |     100 |                              
+ components/ui/ModuleRent/StickyRentBar                  |   55.55 |      100 |       0 |   55.55 |                              
+  StickyRentBar.tsx                                      |   55.55 |      100 |       0 |   55.55 | 11-18                        
+ components/ui/ModuleRent/WeekGrid                       |   13.44 |      100 |       0 |   13.44 |                              
+  WeekGrid.tsx                                           |   13.44 |      100 |       0 |   13.44 | 17-119                       
+ components/ui/Schedule/CalendarGrid                     |   14.42 |      100 |       0 |   14.42 |                              
+  CalendarGrid.tsx                                       |   14.42 |      100 |       0 |   14.42 | 16-104                       
+ components/ui/Schedule/ConfirmBookingModal              |   23.91 |      100 |       0 |   23.91 |                              
+  ConfirmBookingModal.tsx                                |   23.91 |      100 |       0 |   23.91 | 21-25,28-92                  
+ components/ui/Schedule/SlotsCarousel                    |   21.15 |      100 |       0 |   21.15 |                              
+  SlotsCarousel.tsx                                      |   21.15 |      100 |       0 |   21.15 | 12-52                        
+ components/ui/Schedule/StickyCTA                        |   55.55 |      100 |       0 |   55.55 |                              
+  StickyCTA.tsx                                          |   55.55 |      100 |       0 |   55.55 | 11-18                        
+ components/ui/SocialLink                                |     100 |      100 |     100 |     100 |                              
+  SocialLink.tsx                                         |     100 |      100 |     100 |     100 |                              
+ pages/Home                                              |     100 |      100 |      50 |     100 |                              
+  Home.tsx                                               |     100 |      100 |      50 |     100 |                              
+ pages/Login                                             |    97.6 |       80 |      80 |    97.6 |                              
+  Login.tsx                                              |    97.6 |       80 |      80 |    97.6 | 31-32,84-85                  
+---------------------------------------------------------|---------|----------|---------|---------|------------------------------
+
+Test Suites: 5 passed, 5 total
+Tests:       37 passed, 37 total
+Snapshots:   0 total
+Time:        3.317 s
+Ran all test suites.
