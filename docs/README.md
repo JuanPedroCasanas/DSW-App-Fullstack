@@ -102,18 +102,22 @@ Dado que no utilizamos herramientas externas, llevamos el seguimiento de las fun
 
 ### 6. Documentación de la API
 Endpoints principales hechos con Swagger UI.
-- [Link a Documentación]()
+- [Link a Documentación](https://dsw-app-fullstack.onrender.com/api-docs/)
 
 ### 7. Evidencia de Tests Automáticos
 Capturas de pantalla o logs de los tests pasando.
-![Link a las captura de pantalla de los test pasando](https://drive.google.com/drive/folders/1S_xhw0hNJAoQu3Ij2SzH-uS82aCH3Hpi)
+![Resultado de los tests de backend en texto plano](https://github.com/JuanPedroCasanas/DSW-App-Fullstack/blob/main/docs/resultadoTestBack.txt)
+![Resultado de los tests de frontend en texto plano](https://github.com/JuanPedroCasanas/DSW-App-Fullstack/blob/main/docs/resultadoTestFront.txt)
 
 ### 8. Demo de la App
 Enlace al video demostrativo de la aplicación funcionando.
-- [Ver video en YouTube/Drive](https://drive.google.com/file/d/1DhwZBUYeHs4a3Nn_0tbBvNyjiczjA4hZ/view?usp=sharing)
+- [Ver video en Google Drive](https://drive.google.com/file/d/1DhwZBUYeHs4a3Nn_0tbBvNyjiczjA4hZ/view?usp=sharing)
 
 ### 9. Deploy
 Url donde la aplicación está desplegada y funcionando.
 - [FrontEnd](https://dsw-app-frontend.vercel.app/)
 - [BackEnd](https://dsw-app-fullstack.onrender.com/)
+  
+#### Importante! Primero abrir el backend ya que al tener deployada la aplicación con una licencia gratuita, el mismo entra en modo inactivo cuando no recibe requests.
+Una vez activo el backend, se puede usar el frontend con normalidad.
 
