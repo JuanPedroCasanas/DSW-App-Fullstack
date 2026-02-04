@@ -77,7 +77,7 @@ useEffect(() => {
 
     if (isLegalGuardian) {
       setLegalGuardians([]); // no necesita selector
-      setSelectedGuardianId(myLegalGuardianId);
+      setSelectedGuardianId(myLegalGuardianId ?? null);
 
       return;
     }

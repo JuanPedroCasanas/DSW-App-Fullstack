@@ -11,7 +11,7 @@ export default function ProtectedRoute({ roles }:
   }
 
   // para los roles:
-  if (roles && !roles.includes(user.role)) {
+  if (roles && user.role && !roles.includes(user.role)) {
 
     const roleRedirectMap: Record<string, string> = {
       admin: "/debug-console",
