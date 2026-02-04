@@ -1,5 +1,5 @@
-import { it, expect } from 'vitest';
-import { safeSerialize } from "../../src/utils/helpers/safeSerialize.ts"
+import { it, expect } from '@jest/globals';
+import { safeSerialize } from "../../src/utils/helpers/safeSerialize"
 
 it('oculta dependencias circulares cuando se serializa un User', () => {
 

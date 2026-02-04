@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from '@jest/globals';
 import ModuleService from '../../src/services/ModuleService';
 import { DayOfWeek } from '../../src/utils/enums/DayOfWeek';
 
