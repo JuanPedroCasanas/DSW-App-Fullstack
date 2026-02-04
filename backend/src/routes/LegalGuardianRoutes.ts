@@ -14,8 +14,8 @@ const router = express.Router();
  * @swagger
  * /legalGuardian/add:
  *   post:
- *     summary: Registrar un nuevo Tutor Legal
- *     tags: [Tutores]
+ *     summary: Registrar un nuevo Responsable Legal
+ *     tags: [Responsables Legales]
  *     requestBody:
  *       required: true
  *       content:
@@ -42,7 +42,7 @@ const router = express.Router();
  *                 example: 1
  * responses:
  *   201:
- *     description: Tutor registrado exitosamente
+ *     description: Responsable Legal registrado exitosamente
  *   400:
  *     description: Datos inválidos
  */
@@ -56,8 +56,8 @@ router.post(
  * @swagger
  * /legalGuardian/update:
  *   post:
- *     summary: Modificar datos de un Tutor Legal
- *     tags: [Tutores]
+ *     summary: Modificar datos de un Responsable Legal
+ *     tags: [Responsables Legales]
  *     requestBody:
  *       required: true
  *       content:
@@ -67,7 +67,7 @@ router.post(
  *             properties:
  *               id:
  *                 type: integer
- *                 description: ID del tutor a editar
+ *                 description: ID del Responsable Legal a editar
  *                 example: 1
  *               firstName:
  *                 type: string
@@ -92,9 +92,9 @@ router.post(
  *       200:
  *         description: Datos actualizados correctamente
  *       403:
- *         description: No tienes permiso (Solo Admin o el mismo Tutor)
+ *         description: No tienes permiso (Solo Admin o el mismo Responsable Legal)
  *       404:
- *         description: Tutor no encontrado
+ *         description: Responsable Legal no encontrado
  */
 router.post(
   '/update',
@@ -112,22 +112,22 @@ router.post(
  * @swagger
  * /legalGuardian/delete/{idLegalGuardian}:
  *   delete:
- *     summary: Eliminar un Tutor Legal
- *     tags: [Tutores]
+ *     summary: Eliminar un Responsable Legal
+ *     tags: [Responsables Legales]
  *     parameters:
  *       - in: path
  *         name: idLegalGuardian
  *         required: true
- *         description: ID del tutor a eliminar
+ *         description: ID del Responsable Legal a eliminar
  *         schema:
  *           type: integer
  *     responses:
  *       200:
- *         description: Tutor eliminado exitosamente
+ *         description: Responsable Legal eliminado exitosamente
  *       403:
- *         description: No tienes permiso (Solo Admin o el mismo Tutor)
+ *         description: No tienes permiso (Solo Admin o el mismo Responsable Legal)
  *       404:
- *         description: Tutor no encontrado
+ *         description: Responsable Legal no encontrado
  */
 router.delete(
   '/delete/:idLegalGuardian',
@@ -145,11 +145,11 @@ router.delete(
  * @swagger
  * /legalGuardian/getAll:
  *   get:
- *     summary: Obtener lista de todos los Tutores Legales
- *     tags: [Tutores]
+ *     summary: Obtener lista de todos los Responsables Legales Legales
+ *     tags: [Responsables Legales]
  *     responses:
  *       200:
- *         description: Lista de tutores obtenida correctamente
+ *         description: Lista de Responsables Legales obtenida correctamente
  *         content:
  *           application/json:
  *             schema:
@@ -180,18 +180,18 @@ router.get(
  * @swagger
  * /legalGuardian/get/{idLegalGuardian}:
  *   get:
- *     summary: Obtener un Tutor Legal por ID
- *     tags: [Tutores]
+ *     summary: Obtener un Responsable Legal por ID
+ *     tags: [Responsables Legales]
  *     parameters:
  *       - in: path
  *         name: idLegalGuardian
  *         required: true
- *         description: ID del tutor a buscar
+ *         description: ID del Responsable Legal a buscar
  *         schema:
  *           type: integer
  *     responses:
  *       200:
- *         description: Tutor encontrado
+ *         description: Responsable Legal encontrado
  *         content:
  *           application/json:
  *             schema:
@@ -212,7 +212,7 @@ router.get(
  *       403:
  *         description: No tienes permiso
  *       404:
- *         description: Tutor no encontrado
+ *         description: Responsable Legal no encontrado
  */
 router.get(
   '/get/:idLegalGuardian',

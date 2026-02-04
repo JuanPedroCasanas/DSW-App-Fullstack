@@ -19,7 +19,7 @@ const router = express.Router();
  * @swagger
  * /patient/addIndPatient:
  *   post:
- *     summary: Registrar un Paciente Independiente (Sin Tutor)
+ *     summary: Registrar un Paciente Independiente (Sin Responsable Legal)
  *     tags: [Pacientes]
  *     requestBody:
  *       required: true
@@ -61,7 +61,7 @@ router.post(
  * @swagger
  * /patient/addDepPatient:
  *   post:
- *     summary: Registrar un Paciente Dependiente (Con Tutor)
+ *     summary: Registrar un Paciente Dependiente (Con Responsable Legal)
  *     tags: [Pacientes]
  *     requestBody:
  *       required: true
@@ -88,7 +88,7 @@ router.post(
  *                 example: 1
  *               idLegalGuardian:
  *                 type: integer
- *                 description: ID del Tutor responsable (Obligatorio si es Admin)
+ *                 description: ID del Responsable Legal responsable (Obligatorio si es Admin)
  *                 example: 5
  *     responses:
  *       201:
@@ -96,7 +96,7 @@ router.post(
  *       400:
  *         description: Datos inválidos
  *       403:
- *         description: No tienes permiso (Requiere Admin o Tutor)
+ *         description: No tienes permiso (Requiere Admin o Responsable Legal)
  */
 router.post(
   '/addDepPatient',
@@ -143,7 +143,7 @@ router.post(
  *               200:
  *                 description: Datos actualizados correctamente
  *               403:
- *                 description: No tienes permiso sobre este paciente (Solo el Tutor asignado o Admin)
+ *                 description: No tienes permiso sobre este paciente (Solo el Responsable Legal asignado o Admin)
  *               404:
  *                 description: Paciente no encontrado
  */
@@ -297,13 +297,13 @@ router.get(
  * @swagger
  * /patient/getByLegalGuardian/{idLegalGuardian}:
  *   get:
- *     summary: Listar Pacientes a cargo de un Tutor Legal
+ *     summary: Listar Pacientes a cargo de un Responsable Legal
  *     tags: [Pacientes]
  *     parameters:
  *       - in: path
  *         name: idLegalGuardian
  *         required: true
- *         description: ID del tutor legal
+ *         description: ID del Responsable Legal
  *         schema:
  *           type: integer
  *     responses:
@@ -327,7 +327,7 @@ router.get(
  *               403:
  *                 description: No tienes permiso
  *               404:
- *                 description: Tutor no encontrado
+ *                 description: Responsable Legal no encontrado
  */
 router.get(
   '/getByLegalGuardian/:idLegalGuardian',
@@ -353,7 +353,7 @@ router.get(
  *       200:
  *         description: Paciente eliminado correctamente
  *       403:
- *         description: No tienes permiso (Solo Admin o el Tutor del paciente)
+ *         description: No tienes permiso (Solo Admin o el Responsable Legal del paciente)
  *       404:
  *         description: Paciente no encontrado
  */

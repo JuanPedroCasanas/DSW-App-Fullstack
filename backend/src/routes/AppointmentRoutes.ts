@@ -37,7 +37,7 @@ const router = express.Router();
  *                 description: (Opcional) Obra social a utilizar
  *               idLegalGuardian:
  *                 type: integer
- *                 description: (Opcional) Tutor legal si aplica
+ *                 description: (Opcional) Responsable Legal si aplica
  *     responses:
  *       200:
  *         description: Turno asignado exitosamente
@@ -339,18 +339,18 @@ router.get(
  * @swagger
  * /appointment/getAppointmentsByLegalGuardian/{idLegalGuardian}:
  *   get:
- *     summary: Historial de turnos de un Tutor Legal
+ *     summary: Historial de turnos de un Responsable Legal
  *     tags: [Turnos]
  *     parameters:
  *       - in: path
  *         name: idLegalGuardian
  *         required: true
- *         description: ID del tutor a consultar
+ *         description: ID del Responsable Legal a consultar
  *         schema:
  *           type: integer
  *     responses:
  *       200:
- *         description: Turnos del tutor encontrados
+ *         description: Turnos del Responsable Legal encontrados
  *         content:
  *           application/json:
  *             schema:
@@ -368,7 +368,7 @@ router.get(
  *                   patient:
  *                     type: object
  *       404:
- *         description: Tutor no encontrado
+ *         description: Responsable Legal no encontrado
  */
 router.get(
   '/getAppointmentsByLegalGuardian/:idLegalGuardian',

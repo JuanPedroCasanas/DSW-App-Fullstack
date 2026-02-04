@@ -1,0 +1,135 @@
+
+> dsw-app-backend@1.0.0 test
+> jest
+
+PASS test/unit/safeSerialize.helpers.test.ts
+PASS test/unit/moduleService.helpers.test.ts
+PASS test/integration/userService.helpers.test.ts (9.023 s)
+  ● Console
+
+    console.log
+      [90m[info] [39mMikroORM version: [32m6.2.9[39m
+
+      at DefaultLogger.log (node_modules/@mikro-orm/core/logging/DefaultLogger.js:38:14)
+
+    console.log
+      [90m[discovery] [39mORM entity discovery started, using [36mReflectMetadataProvider[39m
+
+      at DefaultLogger.log (node_modules/@mikro-orm/core/logging/DefaultLogger.js:38:14)
+
+    console.log
+      [90m[discovery] [39m- processing [36m10[39m files
+
+      at DefaultLogger.log (node_modules/@mikro-orm/core/logging/DefaultLogger.js:38:14)
+
+    console.log
+      [90m[discovery] [39m- processing entity [36mAppointment[39m[90m (/home/produ/Facultad/DSW-App-Fullstack/backend/src/model/entities/Appointment.ts)[39m
+
+      at DefaultLogger.log (node_modules/@mikro-orm/core/logging/DefaultLogger.js:38:14)
+
+    console.log
+      [90m[discovery] [39m- processing entity [36mConsultingRoom[39m[90m (/home/produ/Facultad/DSW-App-Fullstack/backend/src/model/entities/ConsultingRoom.ts)[39m
+
+      at DefaultLogger.log (node_modules/@mikro-orm/core/logging/DefaultLogger.js:38:14)
+
+    console.log
+      [90m[discovery] [39m- processing entity [36mHealthInsurance[39m[90m (/home/produ/Facultad/DSW-App-Fullstack/backend/src/model/entities/HealthInsurance.ts)[39m
+
+      at DefaultLogger.log (node_modules/@mikro-orm/core/logging/DefaultLogger.js:38:14)
+
+    console.log
+      [90m[discovery] [39m- processing entity [36mLegalGuardian[39m[90m (/home/produ/Facultad/DSW-App-Fullstack/backend/src/model/entities/LegalGuardian.ts)[39m
+
+      at DefaultLogger.log (node_modules/@mikro-orm/core/logging/DefaultLogger.js:38:14)
+
+    console.log
+      [90m[discovery] [39m- processing entity [36mModule[39m[90m (/home/produ/Facultad/DSW-App-Fullstack/backend/src/model/entities/Module.ts)[39m
+
+      at DefaultLogger.log (node_modules/@mikro-orm/core/logging/DefaultLogger.js:38:14)
+
+    console.log
+      [90m[discovery] [39m- processing entity [36mModuleType[39m[90m (/home/produ/Facultad/DSW-App-Fullstack/backend/src/model/entities/ModuleType.ts)[39m
+
+      at DefaultLogger.log (node_modules/@mikro-orm/core/logging/DefaultLogger.js:38:14)
+
+    console.log
+      [90m[discovery] [39m- processing entity [36mOccupation[39m[90m (/home/produ/Facultad/DSW-App-Fullstack/backend/src/model/entities/Occupation.ts)[39m
+
+      at DefaultLogger.log (node_modules/@mikro-orm/core/logging/DefaultLogger.js:38:14)
+
+    console.log
+      [90m[discovery] [39m- processing entity [36mPatient[39m[90m (/home/produ/Facultad/DSW-App-Fullstack/backend/src/model/entities/Patient.ts)[39m
+
+      at DefaultLogger.log (node_modules/@mikro-orm/core/logging/DefaultLogger.js:38:14)
+
+    console.log
+      [90m[discovery] [39m- processing entity [36mProfessional[39m[90m (/home/produ/Facultad/DSW-App-Fullstack/backend/src/model/entities/Professional.ts)[39m
+
+      at DefaultLogger.log (node_modules/@mikro-orm/core/logging/DefaultLogger.js:38:14)
+
+    console.log
+      [90m[discovery] [39m- processing entity [36mUser[39m[90m (/home/produ/Facultad/DSW-App-Fullstack/backend/src/model/entities/User.ts)[39m
+
+      at DefaultLogger.log (node_modules/@mikro-orm/core/logging/DefaultLogger.js:38:14)
+
+    console.log
+      [90m[discovery] [39m- entity discovery finished, found [32m11[39m entities, took [32m33 ms[39m
+
+      at DefaultLogger.log (node_modules/@mikro-orm/core/logging/DefaultLogger.js:38:14)
+
+    console.log
+      [90m[query] [39mselect 1 from pg_database where datname = 'postgres'[90m [took 1536 ms, 1 result][39m
+
+      at DefaultLogger.log (node_modules/@mikro-orm/core/logging/DefaultLogger.js:38:14)
+
+    console.log
+      [90m[info] [39mMikroORM successfully connected to database [32mpostgres on postgresql://postgres.sokupfsbxxztojihrpnm:*****@aws-0-us-east-2.pooler.supabase.com:5432[39m
+
+      at DefaultLogger.log (node_modules/@mikro-orm/core/logging/DefaultLogger.js:38:14)
+
+    console.log
+      [90m[query] [39mselect "u0".* from "user" as "u0" where "u0"."mail" = 'login_1770228018942@test.com' and "u0"."is_active" = true limit 1[90m [took 210 ms, 0 results][39m
+
+      at DefaultLogger.log (node_modules/@mikro-orm/core/logging/DefaultLogger.js:38:14)
+
+    console.log
+      [90m[query] [39mselect "h0".* from "health_insurance" as "h0" where "h0"."is_active" = true limit 1[90m [took 220 ms, 1 result][39m
+
+      at DefaultLogger.log (node_modules/@mikro-orm/core/logging/DefaultLogger.js:38:14)
+
+    console.log
+      [90m[query] [39mbegin
+
+      at DefaultLogger.log (node_modules/@mikro-orm/core/logging/DefaultLogger.js:38:14)
+
+    console.log
+      [90m[query] [39minsert into "patient" ("first_name", "last_name", "birthdate", "is_active", "health_insurance_id") values ('Test', 'User', '2000-01-01T00:00:00.000Z', true, 1) returning "id"[90m [took 302 ms, 1 row affected][39m
+
+      at DefaultLogger.log (node_modules/@mikro-orm/core/logging/DefaultLogger.js:38:14)
+
+    console.log
+      [90m[query] [39minsert into "user" ("mail", "password", "is_active", "patient_id", "role") values ('login_1770228018942@test.com', '$2b$10$GaaaIP8bhoSE8vAyPtyk7e/maR/ZA6tqYF1LMc00nM94Z/TQw63F6', true, 20, 'patient') returning "id"[90m [took 201 ms, 1 row affected][39m
+
+      at DefaultLogger.log (node_modules/@mikro-orm/core/logging/DefaultLogger.js:38:14)
+
+    console.log
+      [90m[query] [39mcommit
+
+      at DefaultLogger.log (node_modules/@mikro-orm/core/logging/DefaultLogger.js:38:14)
+
+    console.log
+      [90m[query] [39mselect "u0".*, "p1"."id" as "p1__id", "p1"."first_name" as "p1__first_name", "p1"."last_name" as "p1__last_name", "p1"."birthdate" as "p1__birthdate", "p1"."telephone" as "p1__telephone", "p1"."is_active" as "p1__is_active", "p1"."health_insurance_id" as "p1__health_insurance_id", "p1"."legal_guardian_id" as "p1__legal_guardian_id", "p2"."id" as "p2__id", "p2"."first_name" as "p2__first_name", "p2"."last_name" as "p2__last_name", "p2"."telephone" as "p2__telephone", "p2"."is_active" as "p2__is_active", "p2"."occupation_id" as "p2__occupation_id", "l3"."id" as "l3__id", "l3"."first_name" as "l3__first_name", "l3"."last_name" as "l3__last_name", "l3"."birthdate" as "l3__birthdate", "l3"."telephone" as "l3__telephone", "l3"."is_active" as "l3__is_active", "l3"."health_insurance_id" as "l3__health_insurance_id" from "user" as "u0" left join "patient" as "p1" on "u0"."patient_id" = "p1"."id" left join "professional" as "p2" on "u0"."professional_id" = "p2"."id" left join "legal_guardian" as "l3" on "u0"."legal_guardian_id" = "l3"."id" where "u0"."mail" = 'login_1770228018942@test.com' and "u0"."is_active" = true limit 1[90m [took 196 ms, 1 result][39m
+
+      at DefaultLogger.log (node_modules/@mikro-orm/core/logging/DefaultLogger.js:38:14)
+
+    console.log
+      [90m[query] [39mdelete from "user" where "mail" = 'login_1770228018942@test.com'[90m [took 224 ms, 1 row affected][39m
+
+      at DefaultLogger.log (node_modules/@mikro-orm/core/logging/DefaultLogger.js:38:14)
+
+
+Test Suites: 3 passed, 3 total
+Tests:       5 passed, 5 total
+Snapshots:   0 total
+Time:        9.609 s
+Ran all test suites.
