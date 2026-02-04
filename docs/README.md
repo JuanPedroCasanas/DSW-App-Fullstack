@@ -12,21 +12,21 @@ El sistema abarca los siguientes módulos:
 
 * **Gestión de Espacios (Coworking):**
     * Permite a los profesionales alquilar consultorios basándose en módulos de tiempo (bloques horarios).
-* **Gestión de Pacientes y Tutores:**
+* **Gestión de Pacientes y Responsables Legales:**
     * Soporte para pacientes adultos y **menores de edad**.
-    * Implementación del rol **Tutor/Responsable Legal** obligatorio para pacientes menores de 18 años.
+    * Implementación del rol **Responsable Legal** obligatorio para pacientes menores de 18 años.
     * Gestión de cobertura médica (Obras Sociales) asociada al paciente.
 * **Gestión de Turnos:**
     * **Pacientes:** Pueden filtrar y seleccionar profesionales según su Obra Social y disponibilidad.
     * **Profesionales:** Visualización y administración de su agenda de turnos asignados.
 * **Seguridad y Accesos:**
     * Login unificado con redirección según el rol del usuario.
-    * Validación de identidad: cada usuario (Profesional, Paciente, Tutor) debe estar asociado a una persona física registrada.
+    * Validación de identidad: cada usuario (Profesional, Paciente, Responsable Legal) debe estar asociado a una persona física registrada.
 
 ### Actores del Sistema (Roles)
 1.  **Profesional:** Alquila espacios y atiende pacientes.
 2.  **Paciente:** Solicita turnos (si es mayor de edad).
-3.  **Tutor Legal:** Gestiona la cuenta y turnos de los pacientes menores a su cargo.
+3.  **Responsable Legal:** Gestiona la cuenta y turnos de los pacientes menores a su cargo.
 
 - [Ver propuesta detallada](https://github.com/JuanPedroCasanas/DSW-TP-Casanas-Ochoa-Piazza-C305/blob/165d6d091b9e80e4372a4092e3be5c7a5d97902a/proposal.md)
 
@@ -43,16 +43,17 @@ Lista de los PRs más importantes o enlace al listado de PRs cerrados en el repo
 
 ### Pasos
 Pasos para levantar el proyecto localmente:
-   1. **Clonar el repositorio:**
-   ```bash
-   git clone [https://github.com/JuanPedroCasanas/DSW-App-Fullstack.git](https://github.com/JuanPedroCasanas/DSW-App-Fullstack.git)
-    2. Cambiar a la rama de entrega regularidad utilizando el comando 'git checkout entrega-reg'
-    3. Dentro de la carpeta "/backend":
-        3.a Generar un archivo .env.
-         3.b Copiar el el contenido enviado en el mail de entrega por los alumnos al archivo recién generado .env - O bien copiar el archivo adjuntado en el mail y pegarlo en la dirección correspondiente.
-    4. Ejecutar el script 'setup_project.bat'
-    5. Ejecutar el script 'run_project.bat'
-    6. Visualizar el proyecto en http://localhost:3000
+1. **Clonar el repositorio:** git clone [https://github.com/JuanPedroCasanas/DSW-App-Fullstack.git](https://github.com/JuanPedroCasanas/DSW-App-Fullstack.git)
+2. Cambiar a la rama main utilizando el comando 'git checkout main'
+3. Dentro de la carpeta "/backend":
+   3.a Generar un archivo .env.
+   3.b Copiar el el contenido enviado en el mail de entrega por los alumnos al archivo recién generado .env - O bien copiar el archivo adjuntado en el mail y pegarlo en la dirección correspondiente.
+4. Dentro de la carpeta "/frontend":
+   4.a Generar un archivo .env.
+   4.b Copiar el el contenido enviado en el mail de entrega por los alumnos al archivo recién generado .env - O bien copiar el archivo adjuntado en el mail y pegarlo en la dirección correspondiente.
+5. Ejecutar el script 'setup_project.bat'
+6. Ejecutar el script 'run_project.bat'
+7. Visualizar el proyecto en http://localhost:3000
 
 ## 4. Minutas de Reunión y Avance
 Registro de las reuniones del equipo y decisiones tomadas.
@@ -101,7 +102,7 @@ Dado que no utilizamos herramientas externas, llevamos el seguimiento de las fun
 
 ### 6. Documentación de la API
 Endpoints principales hechos con Swagger UI.
-- [Link a Swagger](http://localhost:3000/api-docs/)
+- [Link a Documentación]()
 
 ### 7. Evidencia de Tests Automáticos
 Capturas de pantalla o logs de los tests pasando.
@@ -113,5 +114,6 @@ Enlace al video demostrativo de la aplicación funcionando.
 
 ### 9. Deploy
 Url donde la aplicación está desplegada y funcionando.
-- [Ir a la aplicación](https://dsw-app-frontend.vercel.app/)
+- [FrontEnd](https://dsw-app-frontend.vercel.app/)
+- [BackEnd](https://dsw-app-fullstack.onrender.com/)
 
