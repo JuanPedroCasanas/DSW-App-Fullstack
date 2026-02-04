@@ -100,17 +100,18 @@ Dado que no utilizamos herramientas externas, llevamos el seguimiento de las fun
 
 
 ### 6. Documentación de la API
-Endpoints principales hechos con Swagger.
+Endpoints principales hechos con Swagger UI.
+- [Link a Swagger](http://localhost:3000/api-docs/)
 
 ### 7. Evidencia de Tests Automáticos
 Capturas de pantalla o logs de los tests pasando.
-![Tests pasando](./assets/test-evidence.png)
+![Link a las captura de pantalla de los test pasando](https://drive.google.com/drive/folders/1S_xhw0hNJAoQu3Ij2SzH-uS82aCH3Hpi)
 
 ### 8. Demo de la App
 Enlace al video demostrativo de la aplicación funcionando.
-- [Ver video en YouTube/Drive](link-al-video)
+- [Ver video en YouTube/Drive](https://drive.google.com/file/d/1DhwZBUYeHs4a3Nn_0tbBvNyjiczjA4hZ/view?usp=sharing)
 
 ### 9. Deploy
 Url donde la aplicación está desplegada y funcionando.
-- [Ir a la aplicación](https://mi-app-deploy.com)
+- [Ir a la aplicación](https://dsw-app-frontend.vercel.app/)
 

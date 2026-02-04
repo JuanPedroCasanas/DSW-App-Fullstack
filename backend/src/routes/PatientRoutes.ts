@@ -15,12 +15,89 @@ import { authOwnedDependentPatientOrAdmin } from '../utils/auth/authOwnedDepende
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * /patient/addIndPatient:
+ *   post:
+ *     summary: Registrar un Paciente Independiente (Sin Tutor)
+ *     tags: [Pacientes]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               firstName:
+ *                 type: string
+ *                 example: "María"
+ *               lastName:
+ *                 type: string
+ *                 example: "Gómez"
+ *               birthdate:
+ *                 type: string
+ *                 format: date
+ *                 example: "1990-05-15"
+ *               telephone:
+ *                 type: string
+ *                 example: "3411234567"
+ *               idHealthInsurance:
+ *                 type: integer
+ *                 description: ID de la Obra Social
+ *                 example: 1
+ *     responses:
+ *       201:
+ *         description: Paciente registrado exitosamente
+ *       400:
+ *         description: Datos inválidos
+ */
 router.post(
   '/addIndPatient',
   validate(addIndPatientSchema),
   PatientController.addIndependentPatient
 );
 
+/**
+ * @swagger
+ * /patient/addDepPatient:
+ *   post:
+ *     summary: Registrar un Paciente Dependiente (Con Tutor)
+ *     tags: [Pacientes]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               firstName:
+ *                 type: string
+ *                 example: "Pedrito"
+ *               lastName:
+ *                 type: string
+ *                 example: "Gómez"
+ *               birthdate:
+ *                 type: string
+ *                 format: date
+ *                 example: "2015-08-20"
+ *               telephone:
+ *                 type: string
+ *                 example: "3411234567"
+ *               idHealthInsurance:
+ *                 type: integer
+ *                 example: 1
+ *               idLegalGuardian:
+ *                 type: integer
+ *                 description: ID del Tutor responsable (Obligatorio si es Admin)
+ *                 example: 5
+ *     responses:
+ *       201:
+ *         description: Paciente dependiente registrado
+ *       400:
+ *         description: Datos inválidos
+ *       403:
+ *         description: No tienes permiso (Requiere Admin o Tutor)
+ */
 router.post(
   '/addDepPatient',
   validate(addDepPatientSchema),
@@ -29,6 +106,47 @@ router.post(
   PatientController.addDependentPatient
 );
 
+/**
+ * @swagger
+ * /patient/updateDepPatient:
+ *   post:
+ *     summary: Modificar datos de un Paciente Dependiente
+ *     tags: [Pacientes]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               idPatient:
+ *                 type: integer
+ *                 description: ID del paciente a editar (Requerido para seguridad)
+ *                 example: 10
+ *               firstName:
+ *                 type: string
+ *                 example: "Pedrito Editado"
+ *               lastName:
+ *                 type: string
+ *                 example: "Gómez"
+ *               birthdate:
+ *                 type: string
+ *                 format: date
+ *                 example: "2015-08-20"
+ *               telephone:
+ *                 type: string
+ *                 example: "3419999999"
+ *               idHealthInsurance:
+ *                 type: integer
+ *                 example: 2
+ *             responses:
+ *               200:
+ *                 description: Datos actualizados correctamente
+ *               403:
+ *                 description: No tienes permiso sobre este paciente (Solo el Tutor asignado o Admin)
+ *               404:
+ *                 description: Paciente no encontrado
+ */
 router.post(
   '/updateDepPatient',
   validate(updateDepPatientSchema),
@@ -37,6 +155,47 @@ router.post(
   PatientController.updateDependentPatient
 );
 
+/**
+ * @swagger
+ * /patient/updateIndPatient:
+ *   post:
+ *     summary: Modificar datos de un Paciente Independiente
+ *     tags: [Pacientes]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               idPatient:
+ *                 type: integer
+ *                 description: ID del paciente a editar (Debe ser el usuario actual o Admin)
+ *                 example: 15
+ *               firstName:
+ *                 type: string
+ *                 example: "María Editada"
+ *               lastName:
+ *                 type: string
+ *                 example: "Gómez"
+ *               birthdate:
+ *                 type: string
+ *                 format: date
+ *                 example: "1990-05-15"
+ *               telephone:
+ *                 type: string
+ *                 example: "3419998888"
+ *               idHealthInsurance:
+ *                 type: integer
+ *                 example: 2
+ *             responses:
+ *               200:
+ *                 description: Datos actualizados correctamente
+ *               403:
+ *                 description: No tienes permiso (Solo el mismo Paciente o Admin)
+ *               404:
+ *                 description: Paciente no encontrado
+ */
 router.post(
   '/updateIndPatient',
   validate(updateIndPatientSchema),
@@ -49,12 +208,84 @@ router.post(
   PatientController.updateIndependentPatient
 );
 
+/**
+ * @swagger
+ * /patient/getAll:
+ *   get:
+ *     summary: Obtener lista de todos los Pacientes
+ *     tags: [Pacientes]
+ *     responses:
+ *       200:
+ *         description: Lista de pacientes obtenida correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   firstName:
+ *                     type: string
+ *                   lastName:
+ *                     type: string
+ *                   birthdate:
+ *                     type: string
+ *                     format: date
+ *                   telephone:
+ *                     type: string
+ *                   healthInsurance:
+ *                     type: object
+ *                   legalGuardian:
+ *                     type: object
+ *                     nullable: true
+ *               403:
+ *                 description: No tienes permiso
+ */
 router.get(
   '/getAll',
   authJwt,
   PatientController.getPatients
 );
 
+/**
+ * @swagger
+ * /patient/get/{idPatient}:
+ *   get:
+ *     summary: Obtener un Paciente por ID
+ *     tags: [Pacientes]
+ *     parameters:
+ *       - in: path
+ *         name: idPatient
+ *         required: true
+ *         description: ID del paciente a buscar
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Paciente encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                 firstName:
+ *                   type: string
+ *                 lastName:
+ *                   type: string
+ *                 birthdate:
+ *                   type: string
+ *                   format: date
+ *                 healthInsurance:
+ *                   type: object
+ *               403:
+ *                 description: No tienes permiso
+ *               404:
+ *                 description: Paciente no encontrado
+ */
 router.get(
   '/get/:idPatient',
   validate(getDeletePatientSchema),
@@ -62,6 +293,42 @@ router.get(
   PatientController.getPatient
 );
 
+/**
+ * @swagger
+ * /patient/getByLegalGuardian/{idLegalGuardian}:
+ *   get:
+ *     summary: Listar Pacientes a cargo de un Tutor Legal
+ *     tags: [Pacientes]
+ *     parameters:
+ *       - in: path
+ *         name: idLegalGuardian
+ *         required: true
+ *         description: ID del tutor legal
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Lista de pacientes encontrada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   firstName:
+ *                     type: string
+ *                   lastName:
+ *                     type: string
+ *                   healthInsurance:
+ *                     type: object
+ *               403:
+ *                 description: No tienes permiso
+ *               404:
+ *                 description: Tutor no encontrado
+ */
 router.get(
   '/getByLegalGuardian/:idLegalGuardian',
   validate(getByLegalGuardianPatientSchema),
@@ -69,6 +336,27 @@ router.get(
   PatientController.getByLegalGuardian
 );
 
+/**
+ * @swagger
+ * /patient/delete/{idPatient}:
+ *   delete:
+ *     summary: Eliminar un Paciente
+ *     tags: [Pacientes]
+ *     parameters:
+ *       - in: path
+ *         name: idPatient
+ *         required: true
+ *         description: ID del paciente a eliminar
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Paciente eliminado correctamente
+ *       403:
+ *         description: No tienes permiso (Solo Admin o el Tutor del paciente)
+ *       404:
+ *         description: Paciente no encontrado
+ */
 router.delete(
   '/delete/:idPatient',
   validate(getDeletePatientSchema),
