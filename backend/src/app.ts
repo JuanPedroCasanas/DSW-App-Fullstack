@@ -74,7 +74,7 @@ const frontend_url = process.env.FRONTEND_URL;
 // * -> que se pueda consumir de cualquier lado
 // no hay que dejarlo para rendir !!
 app.use(cors({
-    origin: "http://localhost:3000", // <--- MUY IMPORTANTE! Usa el puerto de Vite.
+    origin: frontend_url || "http://localhost:3000", // Usa variable de entorno (para deploy) o localhost
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
     credentials: true, // permite enviar credenciales en cookies, se usara para regularidad
     allowedHeaders: ['Content-Type', 'Authorization'], // Encabezados permitidos
