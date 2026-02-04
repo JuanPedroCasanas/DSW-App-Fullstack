@@ -17,5 +17,5 @@
     "baseUrl": ".",
     "paths": { "@/*": ["src/*"] }
   },
-  "include": ["src", "vite-env.d.ts", "tailwind.config.ts"]
+  "include": ["src", "vite-env.d.ts", "tailwind.config.ts", "jest.config.js", "jest.config.js", "jest.setup.js"]
 }
