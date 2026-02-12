@@ -1,4 +1,5 @@
 import { MikroORM } from '@mikro-orm/postgresql';
+import 'dotenv/config';
 import path from 'path';
 
 declare global {
@@ -14,6 +15,8 @@ export const initORM = async () => {
       dbName: 'postgres',
       clientUrl: process.env.DATABASE_URL,
       debug: true,
+
+
       pool: {
         min: 0,
         max: 1,
@@ -21,7 +24,7 @@ export const initORM = async () => {
         acquireTimeoutMillis: 10000,
         reapIntervalMillis: 1000
       },
-      schemaGenerator: { ignoreSchema: ['auth', 'storage', 'realtime', 'vault'] }
+      schemaGenerator: { ignoreSchema: ['auth', 'storage', 'realtime', 'vault', 'cron'] }
     });
   } else {
     const conn = global.__ORM__.em.getConnection();

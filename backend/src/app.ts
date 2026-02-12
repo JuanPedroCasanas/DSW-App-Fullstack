@@ -30,6 +30,7 @@ import UserRoutes from './routes/UserRoutes'
 import HealthInsuranceRoutes from './routes/HealthInsuranceRoutes';
 import cookieParser from 'cookie-parser';
 import path from 'path';
+import { startingCode } from './startingCode';
 // para evitar conversion de fechas UTC
 Date.prototype.toJSON = function() {
    const year = this.getFullYear(); 
@@ -109,9 +110,8 @@ async function start() {
   await initORM();
   
   // descomentar estas dos líneas para que la bd se resete
- // await syncSchema(); // ⚠️Don't use this in production - resetea la bddddd
- // await startingCode(); //SACAR EN PRODUCCION
-  //await testCode(); //SACAR EN PRODUCCION
+  // await syncSchema(); // Don't use this in production - resetea la bddddd
+  // await startingCode(); //SACAR EN PRODUCCION
 
   app.listen(port, () => {
     console.log(`App listening on http://localhost:${port}`);

@@ -1,13 +1,10 @@
-import { AppointmentController } from "./controller/AppointmentController";
 import { ConsultingRoomController } from "./controller/ConsultingRoomController";
 import { HealthInsuranceController } from "./controller/HealthInsuranceController";
 import { LegalGuardianController } from "./controller/LegalGuardianController";
-import ModuleController from "./controller/ModuleController";
 import { OccupationController } from "./controller/OccupationController";
 import { PatientController } from "./controller/PatientController";
 import { ProfessionalController } from "./controller/ProfessionalController";
 import { ModuleType } from "./model/entities/ModuleType";
-import { User } from "./model/entities/User";
 import { getORM } from "./orm/db";
 
 export const startingCode = async () => {
@@ -116,111 +113,154 @@ export const startingCode = async () => {
 
     await OccupationController.addOccupation(req as any, res as any);
 
-/*
     //PROFESIONALES
     req = new FakeRequest({
-       firstName: 'Pablo',
-       lastName: 'Marmol',
-       telephone: '3413678909',
-       mail: 'kukatrap@gmail.com',
+       firstName: 'Martin',
+       lastName: 'Gonzalez',
+       telephone: '3414567890',
+       mail: 'profesional1@ejemplo.com',
        password: UNI_PASSWORD,
-       occupationId: 1
+       idOccupation: 1
     });
     await ProfessionalController.addProfessional(req as any, res as any);
 
     req = new FakeRequest({
-       firstName: 'Lucas',
-       lastName: 'Luna',
-       telephone: '1111',
-       mail: 'lucas_luna@gmail.com',
+       firstName: 'Laura',
+       lastName: 'Rodriguez',
+       telephone: '3415678901',
+       mail: 'profesional2@ejemplo.com',
        password: UNI_PASSWORD,
-       occupationId: 1
+       idOccupation: 1
     });
     await ProfessionalController.addProfessional(req as any, res as any);
 
     req = new FakeRequest({
-       firstName: 'Joel',
-       lastName: 'Arnold',
-       telephone: '1111',
-       mail: 'joel@gmail.com',
+       firstName: 'Diego',
+       lastName: 'Fernandez',
+       telephone: '3416789012',
+       mail: 'profesional3@ejemplo.com',
        password: UNI_PASSWORD,
-       occupationId: 1
+       idOccupation: 2
     });
     await ProfessionalController.addProfessional(req as any, res as any);
 
     req = new FakeRequest({
-       firstName: 'Pedro',
-       lastName: 'Picapiedra',
-       telephone: '1111',
-       mail: 'pepe@gmail.com',
+       firstName: 'Carolina',
+       lastName: 'Martinez',
+       telephone: '3417890123',
+       mail: 'profesional4@ejemplo.com',
        password: UNI_PASSWORD,
-       occupationId: 2
+       idOccupation: 2
     });
     await ProfessionalController.addProfessional(req as any, res as any);
 
-    //MODULOS
+    //RESPONSABLES LEGALES
     req = new FakeRequest({
-        day: 1, startTime: '9:00', endTime: '18:00', validMonth: 10, validYear: 2025, idProfessional: 1, idConsultingRoom: 1
-    });
-    
-    await ModuleController.addModules(req as any, res as any);
-    req = new FakeRequest({
-        day: 1, startTime: '18:00', endTime: '19:00', validMonth: 10, validYear: 2025, idProfessional: 2, idConsultingRoom: 1
-    });
-    
-    await ModuleController.addModules(req as any, res as any);
-    req = new FakeRequest({
-        day: 1, startTime: '13:00', endTime: '15:00', validMonth: 10, validYear: 2025, idProfessional: 2, idConsultingRoom: 2
-    });
-    
-    await ModuleController.addModules(req as any, res as any);
-
-    //RESPONSABLE LEGAL
-    req = new FakeRequest({
-        "firstName": "Moncho",
+        "firstName": "Roberto",
         "lastName": "Lopez",
-        "birthdate": "1990-07-21",
+        "birthdate": "1985-03-15",
         "password": UNI_PASSWORD,
-        "telephone": "3333333",
-        "mail": "monchius@example.com",
+        "telephone": "3411234567",
+        "mail": "responsablelegal1@ejemplo.com",
         "idHealthInsurance": 2
     });
+    await LegalGuardianController.addLegalGuardian(req as any, res as any);
 
+    req = new FakeRequest({
+        "firstName": "Silvia",
+        "lastName": "Ramirez",
+        "birthdate": "1982-08-22",
+        "password": UNI_PASSWORD,
+        "telephone": "3412345678",
+        "mail": "responsablelegal2@ejemplo.com",
+        "idHealthInsurance": 3
+    });
+    await LegalGuardianController.addLegalGuardian(req as any, res as any);
+
+    req = new FakeRequest({
+        "firstName": "Gustavo",
+        "lastName": "Perez",
+        "birthdate": "1988-11-10",
+        "password": UNI_PASSWORD,
+        "telephone": "3413456789",
+        "mail": "responsablelegal3@ejemplo.com",
+        "idHealthInsurance": 4
+    });
     await LegalGuardianController.addLegalGuardian(req as any, res as any);
 
     //PACIENTES
     req = new FakeRequest({
-        "firstName": "Lucía",
-        "lastName": "Fernández",
-        "birthdate": "1993-07-21",
+        "firstName": "Matias",
+        "lastName": "Gomez",
+        "birthdate": "1995-05-18",
         "password": UNI_PASSWORD,
-        "telephone": "+54 9 11 4567 8920",
-        "mail": "lucia.fernandez@example.com",
-        "idHealthInsurance": 3
+        "telephone": "3419876543",
+        "mail": "paciente1@ejemplo.com",
+        "idHealthInsurance": 1
     });
-
     await PatientController.addIndependentPatient(req as any, res as any);
 
     req = new FakeRequest({
-        "firstName": "Mini",
-        "lastName": "ME",
-        "birthdate": "2010-07-21",
+        "firstName": "Valeria",
+        "lastName": "Sanchez",
+        "birthdate": "1998-09-25",
+        "password": UNI_PASSWORD,
+        "telephone": "3418765432",
+        "mail": "paciente2@ejemplo.com",
+        "idHealthInsurance": 2
+    });
+    await PatientController.addIndependentPatient(req as any, res as any);
+
+    req = new FakeRequest({
+        "firstName": "Lucas",
+        "lastName": "Diaz",
+        "birthdate": "2000-12-03",
+        "password": UNI_PASSWORD,
+        "telephone": "3417654321",
+        "mail": "paciente3@ejemplo.com",
+        "idHealthInsurance": 3
+    });
+    await PatientController.addIndependentPatient(req as any, res as any);
+
+    //PACIENTES DEPENDIENTES (hijos de responsables legales)
+    req = new FakeRequest({
+        "firstName": "Joaquin",
+        "lastName": "Lopez",
+        "birthdate": "2015-04-12",
         "idLegalGuardian": 1
     });
-
     await PatientController.addDependentPatient(req as any, res as any);
 
-    //Turnos
     req = new FakeRequest({
-        idAppointment: 1, idPatient: 1
+        "firstName": "Sofia",
+        "lastName": "Lopez",
+        "birthdate": "2017-07-20",
+        "idLegalGuardian": 1
     });
-
-    await AppointmentController.assignAppointment(req as any, res as any);
+    await PatientController.addDependentPatient(req as any, res as any);
 
     req = new FakeRequest({
-        idAppointment: 40, idPatient: 2
+        "firstName": "Camila",
+        "lastName": "Ramirez",
+        "birthdate": "2014-01-08",
+        "idLegalGuardian": 2
     });
+    await PatientController.addDependentPatient(req as any, res as any);
 
-    await AppointmentController.assignAppointment(req as any, res as any);
-    */
+    req = new FakeRequest({
+        "firstName": "Tomas",
+        "lastName": "Ramirez",
+        "birthdate": "2016-10-14",
+        "idLegalGuardian": 2
+    });
+    await PatientController.addDependentPatient(req as any, res as any);
+
+    req = new FakeRequest({
+        "firstName": "Franco",
+        "lastName": "Perez",
+        "birthdate": "2018-06-05",
+        "idLegalGuardian": 3
+    });
+    await PatientController.addDependentPatient(req as any, res as any);
+
 }
